@@ -7,6 +7,8 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Net;
+
 
 namespace opplatApplication
 {
@@ -19,6 +21,13 @@ namespace opplatApplication
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+                .UseKestrel(options =>  
+            {  
+                // var config = new ConfigurationBuilder()  
+                //     .AddJsonFile($"appsettings.{hostingEnvironment.EnvironmentName}.json", optional: false)  
+                //     .Build();  
+                //options.Listen(IPAddress.Loopback, config.GetValue<int>("Host:Port"));  
+                options.Listen(IPAddress.Loopback, 5200);  
+            }) .UseStartup<Startup>();
     }
 }

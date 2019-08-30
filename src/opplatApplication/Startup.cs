@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using opplatApplication.Data;
 using opplatApplication.Utils;
 
 namespace opplatApplication
@@ -35,6 +37,10 @@ namespace opplatApplication
             //     options.CheckConsentNeeded = context => true;
             //     options.MinimumSameSitePolicy = SameSiteMode.None;
             // });
+            services.AddDbContext<OpplatAppDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")));
+            services.AddTransient<DbContext, OpplatAppDbContext>();
+
             services.AddSingleton<MenuLoader>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             // var loader = new MicroserviceLoader();
