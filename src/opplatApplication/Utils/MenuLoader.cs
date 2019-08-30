@@ -5,10 +5,44 @@ namespace opplatApplication.Utils
 {
     public class MenuLoader
     {
+        List<IMenu> menus_list { get; set; }
+        public MenuLoader()
+        {
+            menus_list = new List<IMenu>();
+        }
         public List<IMenu> Load(string view)
         {
-            var menus_list = new List<IMenu>();
-            menus_list.Add(new MenuHeader { Header = "Apps" });
+            LoadPersonalizeMenu("user");
+            LoadModuleMenu("Modulo de prueba");
+            LoadAllModulesMenu();
+            return menus_list;
+        }
+
+        public void LoadPersonalizeMenu(string userName)
+        {
+            //todo: cargar los menus personalizados del usuario
+            menus_list.Add(new MenuHeader { Header = "Mis acciones" });
+        }
+
+        public void LoadModuleMenu(string module)
+        {
+            //todo: cargar los menu del modulo actual
+            menus_list.Add(new MenuHeader { Header = module });
+            menus_list.Add(new MenuItem
+            {
+                Title = "List & Query",
+                Group = "layout",
+                Icon = "view_compact",
+                Items = new List<SubMenu>(){
+                    new SubMenu{Name = "Table", Title= "Basic Table", Component = "ListWidget"},
+                }
+            });
+        }
+
+        public void LoadAllModulesMenu()
+        {
+            //todo: cargar los menu de los modulos
+            menus_list.Add(new MenuHeader { Header = "Modules" });
             menus_list.Add(new MenuItem
             {
                 Title = "Dashboard",
@@ -45,38 +79,6 @@ namespace opplatApplication.Utils
                     new SubMenu{Name = "list", Title= "List", Component = "ListWidget"},
                 }
             });
-            menus_list.Add(new MenuHeader { Header = "CMS" });
-            menus_list.Add(new MenuItem
-            {
-                Title = "List & Query",
-                Group = "layout",
-                Icon = "view_compact",
-                Items = new List<SubMenu>(){
-                    new SubMenu{Name = "Table", Title= "Basic Table", Component = "ListWidget"},
-                }
-            });
-            return menus_list;
-        }
-
-        public List<IMenu> LoadModuleMenu(string module)
-        {
-            var menus = new List<IMenu>();
-            //todo: cargar los menu del modulo actual
-            return menus;
-        }
-
-        public List<IMenu> LoadAllModulesMenu()
-        {
-            var menus = new List<IMenu>();
-            //todo: cargar los menu de los modulos
-            return menus;
-        }
-
-        public List<IMenu> LoadPersonalizeMenu(string userName)
-        {
-            var menus = new List<IMenu>();
-            //todo: cargar los menus personalizados del usuario
-            return menus;
         }
     }
 }

@@ -14,11 +14,6 @@ namespace opplatApplication.Controllers
         {
             _menuLoader = menuLoader;
         }
-        [HttpGet]
-        public ActionResult<IEnumerable<IMenu>> Get()
-        {
-            return _menuLoader.Load("home");
-        }
 
         [HttpGet]
         public ActionResult<IEnumerable<IMenu>> Get(string modulo)
