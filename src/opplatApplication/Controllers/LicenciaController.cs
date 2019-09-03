@@ -11,6 +11,7 @@ using LicenceChecker;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using opplatApplication.ViewModels;
+using opplatApplication.Data;
 
 namespace opplatApplication.Controllers
 {
@@ -20,7 +21,7 @@ namespace opplatApplication.Controllers
     {
         IHostingEnvironment _enviroment;
         DbContext _db;
-        public LicenciaController(IHostingEnvironment enviroment, DbContext context)
+        public LicenciaController(IHostingEnvironment enviroment, OpplatAppDbContext context)
         {
             _enviroment = enviroment;
             _db = context;
