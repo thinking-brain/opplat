@@ -1,0 +1,4 @@
+    {
+        "api-account": "http://localhost:5200/api/",
+        "opplat-app": "http://localhost:5200/admin/"
+    }
