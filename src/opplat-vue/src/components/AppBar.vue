@@ -13,19 +13,48 @@
       class="hidden-sm-and-down"
     ></v-text-field>-->
     <v-spacer></v-spacer>
-    <v-btn icon>
-      <v-icon>mdi-apps</v-icon>
+    <v-btn icon @click="handleFullScreen()">
+      <v-icon>mdi-fullscreen</v-icon>
     </v-btn>
     <v-btn icon>
       <v-icon>mdi-bell</v-icon>
     </v-btn>
-    <v-btn icon>
-      <v-icon>mdi-account</v-icon>
-    </v-btn>
+    <v-menu
+      bottom
+      origin="center center"
+      :offset-x="true"
+      :offset-y="true"
+      transition="scale-transition"
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on">
+          <v-icon>mdi-account</v-icon>
+        </v-btn>
+      </template>
+      <v-list class="pa-0">
+        <v-list-item @click="handleProfile" ripple="ripple" rel="noopener">
+          <v-list-item-action>
+            <v-icon>mdi-account</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Perfil de usuario</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item @click="handleLogut" ripple="ripple" rel="noopener">
+          <v-list-item-action>
+            <v-icon>mdi-logout</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Cerrar sesion</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-menu>
   </v-app-bar>
 </template>
 
 <script>
+import Util from "@/util";
 export default {
   data: () => ({}),
   methods: {
@@ -35,6 +64,16 @@ export default {
         .dispatch("changeVisibility", visibility)
         .then(() => {})
         .catch(err => {});
+    },
+    handleFullScreen() {
+      Util.toggleFullScreen();
+    },
+    handleLogut() {
+      this.$router.push("/auth/login");
+    },
+    handleSetting() {},
+    handleProfile() {
+      this.$router.push("/account/perfil");
     }
   }
 };

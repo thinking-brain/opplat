@@ -195,4 +195,24 @@ export const protectedRoute = [
       component: () => import( /* webpackChunkName: "roles" */ "@/components/admin/Configuracion.vue")
     }]
   },
+  //perfil de usuario
+  {
+    name: "Account",
+    path: "/account",
+    component: DefaultLayout,
+    redirect: "/account/perfil",
+    meta: {
+      title: "PerfilDeUsuario",
+      group: "account"
+    },
+    children: [{
+      path: "/account/perfil",
+      name: "PerfilDeUsuario",
+      meta: {
+        title: "Perfil de Usuario",
+        requiresAuth: true,
+      },
+      component: () => import( /* webpackChunkName: "table" */ "@/views/auth/PerfilDeUsuario.vue")
+    }]
+  },
 ];
