@@ -1,0 +1,18 @@
+[
+    {
+        "name": "administracion",
+        "title": "Admistración",
+        "icon": "mdi-settings",
+        "roles": [
+            "administrador"
+        ]
+    },
+    {
+        "name": "recursoshumano",
+        "title": "Recursos Humanos",
+        "icon": "mdi-account",
+        "roles": [
+            "administrador"
+        ]
+    }
+]

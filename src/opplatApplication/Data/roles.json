@@ -1,17 +1,18 @@
-[{
+[
+    {
         "Modulo": "Generales",
         "Roles": [
-            "Administrador",
-            "Usuario",
-            "Auditor",
-            "Consultor"
+            "administrador",
+            "usuario",
+            "auditor",
+            "consultor"
         ]
     },
     {
         "Modulo": "Reportes",
         "Roles": [
-            "Economico",
-            "Contador"
+            "economico",
+            "contador"
         ]
     }
 ]

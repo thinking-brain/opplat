@@ -1,84 +1,78 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using opplatApplication.Models;
 
 namespace opplatApplication.Utils
 {
     public class MenuLoader
     {
-        List<IMenu> menus_list { get; set; }
-        public MenuLoader()
+        ILogger _logger;
+
+        public MenuLoader(ILogger<MenuLoader> logger)
         {
-            menus_list = new List<IMenu>();
+            _logger = logger;
         }
-        public List<IMenu> Load(string view)
+        public List<MenuItem> LoadPersonalizeMenu(string userName)
         {
-            LoadPersonalizeMenu("user");
-            LoadModuleMenu("Modulo de prueba");
-            LoadAllModulesMenu();
+            try
+            {
+                var menus_list = new List<MenuItem>();
+                var f = System.IO.File.ReadAllText("Data/menus/users/" + userName + ".json");
+                var menus = JsonConvert.DeserializeAnonymousType(f, menus_list);
+                return menus;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error cargando menus perzonalizados del usuario {userName}. " + ex.Message);
+                return new List<MenuItem>();
+            }
+        }
+
+        public List<MenuItem> LoadModuleMenu(string module, string[] roles)
+        {
+            try
+            {
+                var menus_list = new List<MenuItem>();
+                var f = System.IO.File.ReadAllText("Data/menus/modulos/" + module + ".json");
+
+                var menus = JsonConvert.DeserializeAnonymousType(f, menus_list);
+                foreach (var menu in menus)
+                {
+                    if (menu.Roles.Any(r => roles.Contains(r)))
+                    {
+                        menus_list.Add(menu);
+                    }
+                    if (menu.Items != null)
+                    {
+                        menu.Items.RemoveAll(m => !m.Roles.Any(r => roles.Contains(r)));
+                    }
+                }
+                return menus_list;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error cargando menus del modulo {module}. " + ex.Message);
+                return new List<MenuItem>();
+            }
+        }
+
+        public List<MenuItem> LoadAllModulesMenu(string[] roles)
+        {
+            var f = System.IO.File.ReadAllText("Data/menus/modulos.json");
+            var menus_list = new List<MenuItem>();
+            // var r = new JsonTextReader(f);
+            var modulos = JsonConvert.DeserializeAnonymousType(f, menus_list);
+            foreach (var menu in modulos)
+            {
+                if (menu.Roles.Any(r => roles.Contains(r)))
+                {
+                    menus_list.Add(menu);
+                }
+            }
             return menus_list;
-        }
-
-        public void LoadPersonalizeMenu(string userName)
-        {
-            //todo: cargar los menus personalizados del usuario
-            menus_list.Add(new MenuHeader { Header = "Mis acciones" });
-        }
-
-        public void LoadModuleMenu(string module)
-        {
-            //todo: cargar los menu del modulo actual
-            menus_list.Add(new MenuHeader { Header = module });
-            menus_list.Add(new MenuItem
-            {
-                Title = "List & Query",
-                Group = "layout",
-                Icon = "view_compact",
-                Items = new List<SubMenu>(){
-                    new SubMenu{Name = "Table", Title= "Basic Table", Component = "ListWidget"},
-                }
-            });
-        }
-
-        public void LoadAllModulesMenu()
-        {
-            //todo: cargar los menu de los modulos
-            menus_list.Add(new MenuHeader { Header = "Modules" });
-            menus_list.Add(new MenuItem
-            {
-                Title = "Dashboard",
-                Group = "apps",
-                Icon = "dashboard",
-                Name = "Dashboard"
-            });
-            menus_list.Add(new MenuItem
-            {
-                Title = "Chat",
-                Group = "apps",
-                Icon = "chat_bubble",
-                Target = "_blank",
-                Name = "Chat"
-            });
-            menus_list.Add(new MenuItem
-            {
-                Title = "Inbox",
-                Group = "apps",
-                Icon = "email",
-                Name = "Mail",
-                Target = "_blank"
-            });
-            menus_list.Add(new MenuItem
-            {
-                Title = "Widgets",
-                Group = "widgets",
-                Icon = "widgets",
-                Component = "widgets",
-                Items = new List<SubMenu>(){
-                    new SubMenu{Name = "social", Title= "Social", Component = "SocialWidget"},
-                    new SubMenu{Name = "statistic", Title= "Statistic", Component = "StatisticWidget", Badge = "new"},
-                    new SubMenu{Name = "chart", Title= "Chart", Component = "ChartWidget"},
-                    new SubMenu{Name = "list", Title= "List", Component = "ListWidget"},
-                }
-            });
         }
     }
 }

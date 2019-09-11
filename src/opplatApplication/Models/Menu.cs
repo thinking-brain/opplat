@@ -24,9 +24,12 @@ namespace opplatApplication.Models
         public string Component { get; set; }
         public List<SubMenu> Items { get; set; }
 
+        public List<string> Roles { get; set; }
+
         public MenuItem()
         {
             Items = new List<SubMenu>();
+            Roles = new List<string>();
         }
     }
 
@@ -36,5 +39,12 @@ namespace opplatApplication.Models
         public string Title { get; set; }
         public string Badge { get; set; }
         public string Component { get; set; }
+
+        public List<string> Roles { get; set; }
+
+        public SubMenu()
+        {
+            Roles = new List<string>();
+        }
     }
 }
