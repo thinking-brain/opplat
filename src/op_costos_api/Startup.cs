@@ -75,6 +75,7 @@ namespace op_costos_api
                 c.RoutePrefix = "docs";
             });
             app.UseHttpsRedirection();
+            app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
             app.UseMvc();
         }
     }
