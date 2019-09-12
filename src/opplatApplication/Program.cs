@@ -30,7 +30,7 @@ namespace opplatApplication
            {
                options.Listen(IPAddress.Loopback, 5200);
            })
-           .UseSetting(WebHostDefaults.HostingStartupAssembliesKey, "opplatApplication;Account.WebApi");
+           .UseSetting(WebHostDefaults.HostingStartupAssembliesKey, "opplatApplication;Account.WebApi;op_costos_api");
             return host;
         }
 
