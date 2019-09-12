@@ -22,42 +22,36 @@ namespace op_costos_api
     {
         public void Configure(IWebHostBuilder builder)
         {
-
             builder.ConfigureServices(ConfigureServices);
             builder.Configure(Configure);
         }
 
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureConfigurationBuilder(WebHostBuilderContext context)
+        {
+
+        }
+
+        public void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("costos_v1", new Info { Title = "OP COSTOS API", Version = "v1", Description = "Api de Costos del Sistema OPPLAT" });
+                c.SwaggerDoc("costos-v1", new Info { Title = "OP COSTOS API", Version = "v1", Description = "Api de Costos del Sistema OPPLAT" });
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
 
-            // services.AddDbContext<ApiDbContext>(options =>
-            //         options.UseSqlServer(Configuration.GetConnectionString("ApiDbContext")));
-
-            // services.AddDbContext<VersatDbContext>(options =>
-            //    options.UseSqlServer(Configuration.GetConnectionString("VersatConnection")));
-
-
-            // services.AddDbContext<VersatDbContext2>(options =>
-            //    options.UseSqlServer(Configuration.GetConnectionString("Versat2Connection")));
             services.AddDbContext<ApiDbContext>(options =>
-                    options.UseSqlServer("Server=localhost;Database=op_costos_api;User Id=sa;Password=Admin123*;"));
+                    options.UseSqlServer(context.Configuration.GetConnectionString("ApiDbContext")));
 
             services.AddDbContext<VersatDbContext>(options =>
-               options.UseSqlServer("Server=localhost;Database=concordia;User Id=sa;Password=Admin123*;"));
-
+               options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
 
             services.AddDbContext<VersatDbContext2>(options =>
-               options.UseSqlServer("Server=localhost;Database=concordia;User Id=sa;Password=Admin123*;"));
+               options.UseSqlServer(context.Configuration.GetConnectionString("Versat2Connection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,10 +68,11 @@ namespace op_costos_api
             {
                 app.UseHsts();
             }
-            app.UseSwagger();
+            app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API OPPLAT V1");
+                c.SwaggerEndpoint("/docs/costos-v1/docs.json", "Costos API v1");
+                c.RoutePrefix = "docs";
             });
             app.UseHttpsRedirection();
             app.UseMvc();
