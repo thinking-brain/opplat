@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using opplatApplication.Data;
@@ -16,6 +17,7 @@ namespace opplatApplication
     {
         public void Configure(IWebHostBuilder builder)
         {
+
             builder.ConfigureServices(ConfigureServices);
             builder.Configure(Configure);
         }
@@ -27,7 +29,6 @@ namespace opplatApplication
             services.AddDbContext<OpplatAppDbContext>(options =>
                 options.UseSqlServer("Server=localhost;Database=opplat_app_db;User Id=sa;Password=Admin123*;MultipleActiveResultSets=true", b => b.MigrationsAssembly("opplatApplication")));
             services.AddTransient<OpplatAppDbContext>();
-
             services.AddSingleton<MenuLoader>();
             // services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             // {
@@ -80,16 +81,19 @@ namespace opplatApplication
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app)
         {
-            // if (env.IsDevelopment())
-            // {
-            //     app.UseDeveloperExceptionPage();
-            // }
-            // else
-            // {
-            //     app.UseExceptionHandler("/Error");
-            //     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            //     app.UseHsts();
-            // }
+            var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
+            var config = app.ApplicationServices.GetRequiredService<IConfiguration>();
+
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
             //app.UseAuthentication();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
