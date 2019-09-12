@@ -30,6 +30,7 @@ namespace opplatApplication
                 options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")));
             services.AddTransient<OpplatAppDbContext>();
             services.AddSingleton<MenuLoader>();
+            services.AddSingleton<LicenciaService>();
 
             var mvcBuilder = services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
