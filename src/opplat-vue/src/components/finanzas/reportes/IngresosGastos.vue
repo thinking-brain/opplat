@@ -36,7 +36,7 @@ export default {
     year: "",
     nameRules: [
       v => !!v || "Este campo es requerido",
-      v => (v && v.length <= 4) || "Name must be less than 10 characters"
+      v => (v && v.length <= 4) || "El año debe tener 4 caracteres."
     ],
     mes: "",
     items: [
