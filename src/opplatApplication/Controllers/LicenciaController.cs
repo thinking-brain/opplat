@@ -21,16 +21,18 @@ namespace opplatApplication.Controllers
     {
         IHostingEnvironment _enviroment;
         DbContext _db;
-        public LicenciaController(IHostingEnvironment enviroment, OpplatAppDbContext context)
+        LicenciaService _licenciaService;
+        public LicenciaController(IHostingEnvironment enviroment, OpplatAppDbContext context, LicenciaService licenciaService)
         {
             _enviroment = enviroment;
             _db = context;
+            _licenciaService = licenciaService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var licencia = LicenciaService.GetService().Licencia;
+            var licencia = _licenciaService.Licencia;
             if (licencia == null)
             {
                 return BadRequest("La aplicacion no posee una licencia activa");

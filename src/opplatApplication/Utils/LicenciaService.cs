@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using opplatApplication.Data;
 using opplatApplication.Models;
 using opplatApplication.ViewModels;
@@ -15,19 +16,21 @@ namespace opplatApplication.Utils
         private static LicenciaService _service;
         private Licencia _licencia;
 
-        private LicenciaService()
-        {
+        IConfiguration _config;
 
+        public LicenciaService(IConfiguration config)
+        {
+            _config = config;
         }
 
-        public static LicenciaService GetService()
-        {
-            if (_service == null)
-            {
-                _service = new LicenciaService();
-            }
-            return _service;
-        }
+        // public static LicenciaService GetService()
+        // {
+        //     if (_service == null)
+        //     {
+        //         _service = new LicenciaService();
+        //     }
+        //     return _service;
+        // }
 
         public Licencia Licencia
         {
@@ -35,11 +38,8 @@ namespace opplatApplication.Utils
             {
                 if (_licencia == null)
                 {
-                    IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-                    configurationBuilder.AddJsonFile("./appsettings.json");
-                    IConfiguration configuration = configurationBuilder.Build();
                     DbContextOptions<OpplatAppDbContext> options = new DbContextOptionsBuilder<OpplatAppDbContext>()
-                        .UseSqlServer(configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")).Options;
+                        .UseSqlServer(_config.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")).Options;
                     using (var db = new OpplatAppDbContext(options))
                     {
                         _licencia = db.Set<Licencia>().FirstOrDefault();
