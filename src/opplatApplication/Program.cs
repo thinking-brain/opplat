@@ -29,7 +29,7 @@ namespace opplatApplication
            {
                options.Listen(IPAddress.Loopback, 5200);
            })
-           .UseSetting(WebHostDefaults.HostingStartupAssembliesKey, "op_costos_api;opplatApplication;Account.WebApi");
+           .UseSetting(WebHostDefaults.HostingStartupAssembliesKey, "op_contabilidad_api;op_finanzas_api;opplatApplication;Account.WebApi");
             return host;
         }
     }
