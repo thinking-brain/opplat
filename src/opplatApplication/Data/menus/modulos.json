@@ -8,11 +8,12 @@
         ]
     },
     {
-        "name": "recursoshumano",
-        "title": "Recursos Humanos",
-        "icon": "mdi-account",
+        "name": "finanzas",
+        "title": "Finanzas",
+        "icon": "mdi-usd",
         "roles": [
-            "administrador"
+            "administrador",
+            "economico"
         ]
     }
 ]

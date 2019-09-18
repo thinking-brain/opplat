@@ -55,7 +55,17 @@
             <template v-slot:activator :ripple="true">
               <v-list-item-title>{{ item.title }}</v-list-item-title>
             </template>
-            <v-list-item v-for="subItem in item.items" :key="subItem.name" link>
+            <v-list-item
+              v-for="subItem in item.items"
+              :key="subItem.name"
+              link
+              :to="!subItem.href ? { name: subItem.name } : null"
+              :href="subItem.href"
+              ripple="ripple"
+              :disabled="subItem.disabled"
+              :target="subItem.target"
+              rel="noopener"
+            >
               <v-list-item-title>{{ subItem.title }}</v-list-item-title>
               <v-list-item-icon>
                 <v-icon>{{ subItem.icon }}</v-icon>

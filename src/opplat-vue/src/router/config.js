@@ -215,4 +215,25 @@ export const protectedRoute = [
       component: () => import( /* webpackChunkName: "table" */ "@/views/auth/PerfilDeUsuario.vue")
     }]
   },
+  //Reporte Ingresos y Gastos
+  {
+    name: "Finanzas",
+    path: "/finanzas",
+    component: DefaultLayout,
+    redirect: "/finanzas/ingresos_gastos",
+    meta: {
+      title: "ReporteIngresosGastos",
+      group: "finanzas"
+    },
+    children: [{
+      path: "/finanzas/ingresos_gastos",
+      name: "ReporteIngresosGastos",
+      meta: {
+        title: "Reporte de Ingresos y Gastos",
+        requiresAuth: true,
+      },
+      component: () => import( /* webpackChunkName: "table" */ "@/components/finanzas/reportes/IngresosGastos.vue")
+    }]
+  },
+
 ];
