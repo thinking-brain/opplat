@@ -1,0 +1,25 @@
+[
+    {
+        "title": "Reportes",
+        "group": "finanzas",
+        "icon": "mdi-account-multiple",
+        "name": "Reportes",
+        "roles": [
+            "administrador",
+            "economico"
+        ],
+        "items": [
+            {
+                "title": "Ingresos y Gastos",
+                "group": "reportes",
+                "icon": "mdi-account-multiple",
+                "component": "ReporteIngresosGastos",
+                "name": "ReporteIngresosGastos",
+                "roles": [
+                    "administrador",
+                    "economico"
+                ]
+            }
+        ]
+    }
+]
