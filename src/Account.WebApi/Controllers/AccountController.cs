@@ -48,7 +48,7 @@ namespace Account.WebApi.Controllers
         [Route("usuarios")]
         public async Task<IActionResult> Usuarios()
         {
-            var result = _db.Set<Usuario>().Select(u => new AccountDto
+            var result = await _db.Set<Usuario>().Select(u => new AccountDto
             {
                 UserId = u.Id,
                 Nombres = u.Nombres,
@@ -56,7 +56,7 @@ namespace Account.WebApi.Controllers
                 Username = u.UserName,
                 Activo = u.Activo,
                 Roles = (_userManager.GetRolesAsync(u)).Result.ToList()
-            }).ToList();
+            }).ToListAsync();
             return new JsonResult(result);
         }
 
