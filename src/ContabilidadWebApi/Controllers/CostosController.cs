@@ -15,7 +15,7 @@ using ContabilidadWebApi.ViewModels;
 
 namespace ContabilidadWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("contabilidad/[controller]")]
     [ApiController]
     public class CostosController : ControllerBase
     {
@@ -43,7 +43,7 @@ namespace ContabilidadWebApi.Controllers
         /// Selector de Areas para Vistas
         /// </summary>
         /// <returns></returns>
-        [HttpGet("api/SelectAreas/")]
+        [HttpGet("SelectAreas/")]
         public List<dynamic> SelectAreas()
         {
             var area = _context.Set<CentroCostoArea>().GroupBy(s => s.CentroCostoId).Select(s => new { Id = s.First().Id, Detalles = s.First().Detalles + " - " + s.First().CentroCostoId });
@@ -58,7 +58,7 @@ namespace ContabilidadWebApi.Controllers
         /// Selector de Meses para Vistas
         /// </summary>
         /// <returns></returns>
-        [HttpGet("api/SelectMeses/")]
+        [HttpGet("SelectMeses/")]
         public List<dynamic> SelectMeses()
         {
             var Meses = new List<dynamic>() {
@@ -81,7 +81,7 @@ namespace ContabilidadWebApi.Controllers
         /// Selector de Años para Vistas
         /// </summary>
         /// <returns></returns>
-        [HttpGet("api/SelectAños/")]
+        [HttpGet("SelectAños/")]
         public List<dynamic> SelectAños()
         {
             var Años = new List<dynamic>();
@@ -99,7 +99,7 @@ namespace ContabilidadWebApi.Controllers
         /// Selector de Cuentas para Vistas
         /// </summary>
         /// <returns></returns>
-        [HttpGet("api/SelectCuentas/")]
+        [HttpGet("SelectCuentas/")]
         public List<dynamic> SelectCuentas()
         {
             var cuentas = new List<dynamic>();
@@ -118,7 +118,7 @@ namespace ContabilidadWebApi.Controllers
         /// <param name="areas"></param>
         /// <param name="cuenta"></param>
         /// <returns></returns>
-        [HttpGet("api/CostoGroup/{areas}/{cuenta}/{años}/{meses}")]
+        [HttpGet("CostoGroup/{areas}/{cuenta}/{años}/{meses}")]
         public CostosGroupApiVM CostoGroup([FromRoute] string años, int meses, int areas, string cuenta)
         {
             int year;
@@ -156,7 +156,7 @@ namespace ContabilidadWebApi.Controllers
         /// <param name="areas"></param>
         /// <param name="cuenta"></param>
         /// <returns></returns>
-        [HttpGet("api/CostoGroupAdvanced/{años}/{meses}/{areas}/{cuenta}")]
+        [HttpGet("CostoGroupAdvanced/{años}/{meses}/{areas}/{cuenta}")]
         public CostoGroupAdvancedApiVM CostoGroupAdvanced([FromRoute] string años, int meses, int areas, string cuenta)
         {
             int year;
@@ -226,7 +226,7 @@ namespace ContabilidadWebApi.Controllers
         /// <param name="areas"></param>
         /// <param name="cuenta"></param>
         /// <returns></returns>
-        [HttpGet("api/CostColumnReport/{años}/{meses}/{areas}/{cuenta}")]
+        [HttpGet("CostColumnReport/{años}/{meses}/{areas}/{cuenta}")]
         public CostColumnReportApiVM CostColumnReport([FromRoute] string años, int meses, int areas, string cuenta)
         {
 
@@ -268,7 +268,7 @@ namespace ContabilidadWebApi.Controllers
         /// <param name="meses"></param>
         /// <returns></returns>
         // GET api/values/5
-        [HttpGet("api/Costo/{areas}/{cuenta}/{años}/{meses}")]
+        [HttpGet("Costo/{areas}/{cuenta}/{años}/{meses}")]
         public IEnumerable<CostosViewModel> Costo([FromRoute] string cuenta, string años, int areas, int meses)
         {
             int year;

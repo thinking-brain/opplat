@@ -13,7 +13,7 @@ using ContabilidadWebApi.VersatModels;
 
 namespace ContabilidadWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("contabilidad/[controller]")]
     [ApiController]
     public class PlanesController : ControllerBase
     {
@@ -39,7 +39,7 @@ namespace ContabilidadWebApi.Controllers
         /// <param name="File"></param>
         /// <returns></returns>
         // GET api/values
-        [HttpPost, Route("api/UploadPlan/")]
+        [HttpPost, Route("UploadPlan/")]
         public async Task<IActionResult> UploadPlan(IFormFile File)
         {
 

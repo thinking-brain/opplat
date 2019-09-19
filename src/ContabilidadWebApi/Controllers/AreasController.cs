@@ -9,7 +9,7 @@ using ContabilidadWebApi.Models;
 
 namespace ContabilidadWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("contabilidad/[controller]")]
     [ApiController]
     public class AreasController : ControllerBase
     {

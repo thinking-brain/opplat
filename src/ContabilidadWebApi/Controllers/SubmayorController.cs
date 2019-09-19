@@ -14,7 +14,7 @@ using ContabilidadWebApi.ViewModels;
 
 namespace ContabilidadWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("contabilidad/[controller]")]
     [ApiController]
     public class SubmayorController : ControllerBase
     {
@@ -46,7 +46,7 @@ namespace ContabilidadWebApi.Controllers
         /// </summary>
         /// <returns></returns>
         // GET api/values
-        [HttpGet("api/Updates2/")]
+        [HttpGet("Updates2/")]
         public ActionResult<IEnumerable<string>> Update2()
         {
             var report = new UpdateSubmayor2Helper(_v2context, _context);
@@ -59,7 +59,7 @@ namespace ContabilidadWebApi.Controllers
         /// </summary>
         /// <returns></returns>
         // GET api/values
-        [HttpGet("api/Updates/")]
+        [HttpGet("Updates/")]
         public ActionResult<IEnumerable<string>> Update()
         {
             var report = new UpdateSubmayorHelper(_vcontext, _context);

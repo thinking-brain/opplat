@@ -7,6 +7,8 @@
             <v-form ref="form" v-model="valid" :lazy-validation="lazy">
               <v-select
                 v-model="mes"
+                item-text="nombre"
+                item-value="id"
                 :items="items"
                 :rules="[v => !!v || 'Item is required']"
                 label="MES"
@@ -40,18 +42,18 @@ export default {
     ],
     mes: "",
     items: [
-      "ENERO",
-      "FEBRERO",
-      "MARZO",
-      "ABRIL",
-      "MAYO",
-      "JUNIO",
-      "JULIO",
-      "AGOSTO",
-      "SEPTIEMBRE",
-      "OCTUBRE",
-      "NOVIEMBRE",
-      "DICIEMBRE"
+      {id: 1, nombre: "ENERO"},
+      {id: 2, nombre: "FEBRERO"},
+      {id: 3, nombre: "MARZO"},
+      {id: 4, nombre: "ABRIL"},
+      {id: 5, nombre: "MAYO"},
+      {id: 6, nombre: "JUNIO"},
+      {id: 7, nombre: "JULIO"},
+      {id: 8, nombre: "AGOSTO"},
+      {id: 9, nombre: "SEPTIEMBRE"},
+      {id: 10, nombre: "OCTUBRE"},
+      {id: 11, nombre: "NOVIEMBRE"},
+      {id: 12, nombre: "DICIEMBRE"},
     ],
     checkbox: false,
     lazy: false

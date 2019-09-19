@@ -14,7 +14,7 @@ using ContabilidadWebApi.ViewModels;
 
 namespace ContabilidadWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("contabilidad/[controller]")]
     [ApiController]
     public class UpdatesController : ControllerBase
     {
@@ -34,7 +34,7 @@ namespace ContabilidadWebApi.Controllers
         /// </summary>
         /// <returns></returns>
         // GET api/values
-        [HttpGet("api/UpdateArea/")]
+        [HttpGet("UpdateArea/")]
         public ActionResult<IEnumerable<string>> UpdateArea()
         {
             _context.Set<Area>().Add(new Area { Codigo = "01", Nombre = "LA CONCORDIA" });
@@ -48,7 +48,7 @@ namespace ContabilidadWebApi.Controllers
         /// </summary>
         /// <returns></returns>
         // GET api/values
-        [HttpGet("api/UpdateAC/")]
+        [HttpGet("UpdateAC/")]
         public ActionResult<IEnumerable<string>> UpdateACentro()
         {
             var area = _context.Set<Area>().First();
@@ -77,7 +77,7 @@ namespace ContabilidadWebApi.Controllers
         /// </summary>
         /// <returns></returns>
         // GET api/values
-        [HttpGet("api/UpdateGSS/")]
+        [HttpGet("UpdateGSS/")]
         public ActionResult<IEnumerable<string>> UpdateGSS()
         {
             var grupos = _vcontext.Set<VersatModels.CosPartida>().ToList();
@@ -119,7 +119,7 @@ namespace ContabilidadWebApi.Controllers
         /// </summary>
         /// <returns></returns>
         // GET api/values
-        [HttpGet("api/UpdateSubmayorDeCuentas/")]
+        [HttpGet("UpdateSubmayorDeCuentas/")]
         public ActionResult<IEnumerable<string>> UpdateSubmayorDeCuentas()
         {
             var submayorCuenta = _context.Set<SubMayorCuenta>().ToList();
@@ -140,7 +140,7 @@ namespace ContabilidadWebApi.Controllers
         /// </summary>
         /// <returns></returns>
         // GET api/values
-        [HttpGet("api/UpdateObjetosDeObra/")]
+        [HttpGet("UpdateObjetosDeObra/")]
         public ActionResult<IEnumerable<string>> UpdateObjetosDeObra()
         {
             var oo = new List<ConceptoPlan>();
@@ -209,7 +209,7 @@ namespace ContabilidadWebApi.Controllers
         /// </summary>
         /// <returns></returns>
         // GET api/values
-        [HttpGet("api/UpdateCPP/")]
+        [HttpGet("UpdateCPP/")]
         public ActionResult<IEnumerable<string>> UpdateCPP()
         {
             var Conceptos = new List<ConceptoPlan>();

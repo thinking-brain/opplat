@@ -14,7 +14,7 @@ using FinanzasWebApi.ViewModels;
 
 namespace FinanzasWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("finanzas/[controller]")]
     [ApiController]
     public class PlanGIController : ControllerBase
     {
@@ -25,7 +25,7 @@ namespace FinanzasWebApi.Controllers
         /// <param name="años"></param>
         /// <param name="meses"></param>
         /// <returns></returns>
-        [HttpGet("api/Ingresos/{años}/{meses}")]
+        [HttpGet("Ingresos/{años}/{meses}")]
         public IEnumerable<PlanGIViewModel> Ingresos([FromRoute] string años, int meses)
         {
             var plan = new List<PlanGIViewModel>();
@@ -61,7 +61,7 @@ namespace FinanzasWebApi.Controllers
         /// <param name="años"></param>
         /// <param name="meses"></param>
         /// <returns></returns>
-        [HttpGet("api/Egresos/{años}/{meses}")]
+        [HttpGet("Egresos/{años}/{meses}")]
         public IEnumerable<PlanGIViewModel> Egresos([FromRoute] string años, int meses)
         {
             var plan = new List<PlanGIViewModel>();
@@ -96,7 +96,7 @@ namespace FinanzasWebApi.Controllers
         /// <param name="años"></param>
         /// <param name="meses"></param>
         /// <returns></returns>
-        [HttpGet("api/Utilidades/{años}/{meses}")]
+        [HttpGet("Utilidades/{años}/{meses}")]
         public IEnumerable<PlanGIViewModel> Utilidades([FromRoute] string años, int meses)
         {
             var plan = new List<PlanGIViewModel>();
@@ -112,7 +112,7 @@ namespace FinanzasWebApi.Controllers
                 PorcRelacionIngresos = plan.Sum(s => s.PorcRelacionIngresos),
                 PorcGastosFuncionTotal = plan.Sum(s => s.PorcGastosFuncionTotal),
                 PlanAcumulado = plan.Sum(s => s.PlanAcumulado),
-                RealAcumulado = plan.Sum(s => s.RealAcumulado),
+                RealAcumulado = Math.Round(plan.Sum(s => s.RealAcumulado),2, MidpointRounding.AwayFromZero),
                 PorcCumpAcumulado = plan.Sum(s => s.PorcCumpAcumulado),
                 PorcIngresosFuncionTotal = plan.Sum(s => s.PorcIngresosFuncionTotal),
                 PorcGastosFuncionTotalAcumulado = plan.Sum(s => s.PorcGastosFuncionTotalAcumulado),
