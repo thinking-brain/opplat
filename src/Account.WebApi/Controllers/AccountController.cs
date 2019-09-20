@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 
 namespace Account.WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("auth/[controller]")]
     [ApiController]
     [Authorize]
     public class AccountController : ControllerBase

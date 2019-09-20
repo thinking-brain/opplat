@@ -11,13 +11,12 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="*" />
-    <PackageReference Include="WestWind.AspnetCore.LiveReload" Version="0.1.5.2" />
+    <PackageReference Include="VueCliMiddleware" Version="2.2.1" />
   </ItemGroup>
 
 
   <ItemGroup>
     <ProjectReference Include="..\Account.WebApi\Account.WebApi.csproj" />
-    <ProjectReference Include="..\op_costos_api\op_costos_api.csproj" />
   </ItemGroup>
 
 </Project>
