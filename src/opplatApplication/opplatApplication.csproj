@@ -17,6 +17,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Account.WebApi\Account.WebApi.csproj" />
+    <ProjectReference Include="..\ContabilidadWebApi\ContabilidadWebApi.csproj" />
+    <ProjectReference Include="..\FinanzasWebApi\FinanzasWebApi.csproj" />
   </ItemGroup>
 
 </Project>
