@@ -17,7 +17,7 @@ using ContabilidadWebApi.VersatModels2;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 using System.IO;
-
+using ContabilidadWebApi.Data;
 
 [assembly: HostingStartup(typeof(ContabilidadWebApi.Startup))]
 
