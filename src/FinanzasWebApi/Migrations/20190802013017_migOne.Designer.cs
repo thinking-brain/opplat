@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using FinanzasWebApi.Models;
+using FinanzasWebApi.Data;
 
 namespace FinanzasWebApi.Migrations
 {

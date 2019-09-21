@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ContabilidadWebApi.Models;
+using ContabilidadWebApi.Data;
 
 namespace ContabilidadWebApi.Controllers
 {
@@ -53,7 +54,7 @@ namespace ContabilidadWebApi.Controllers
 
             return Ok(area);
         }
-       
+
         /// <summary>
         /// Editar Area
         /// </summary>
