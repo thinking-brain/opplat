@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ContabilidadWebApi.Models;
+using ContabilidadWebApi.Data;
 
 namespace ContabilidadWebApi.Controllers
 {

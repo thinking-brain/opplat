@@ -11,6 +11,7 @@ using ContabilidadWebApi.Models;
 using ContabilidadWebApi.VersatModels;
 using ContabilidadWebApi.VersatModels2;
 using ContabilidadWebApi.ViewModels;
+using ContabilidadWebApi.Data;
 
 namespace ContabilidadWebApi.Controllers
 {
@@ -29,7 +30,7 @@ namespace ContabilidadWebApi.Controllers
             _v2context = v2context;
         }
 
-         /// <summary>
+        /// <summary>
         /// Devuelve el SubMayor
         /// </summary>
         /// <returns></returns>
@@ -67,7 +68,7 @@ namespace ContabilidadWebApi.Controllers
             return new string[] { "UPDATE" };
         }
 
-       
+
 
     }
 }

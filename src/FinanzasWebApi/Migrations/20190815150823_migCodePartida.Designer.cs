@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using FinanzasWebApi.Models;
+using FinanzasWebApi.Data;
 
 namespace FinanzasWebApi.Migrations
 {
@@ -21,7 +21,7 @@ namespace FinanzasWebApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("FinanzasWebApi.Models.Area", b =>
+            modelBuilder.Entity("FinanzasWebApi.Data.Area", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
