@@ -2,7 +2,7 @@
     {
         "title": "Reportes",
         "group": "finanzas",
-        "icon": "mdi-account-multiple",
+        "icon": "mdi-file-chart",
         "name": "Reportes",
         "roles": [
             "administrador",
@@ -12,7 +12,7 @@
             {
                 "title": "Ingresos y Gastos",
                 "group": "reportes",
-                "icon": "mdi-account-multiple",
+                "icon": "mdi-chart-areaspline",
                 "component": "ReporteIngresosGastos",
                 "name": "ReporteIngresosGastos",
                 "roles": [

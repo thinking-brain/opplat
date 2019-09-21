@@ -9,7 +9,7 @@ using ContabilidadWebApi.VersatModels;
 
 namespace ContabilidadWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("contabilidad/[controller]")]
     [ApiController]
     public class GenPeriodoController : ControllerBase
     {

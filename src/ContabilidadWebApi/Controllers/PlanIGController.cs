@@ -16,7 +16,7 @@ using ContabilidadWebApi.ViewModels;
 
 namespace ContabilidadWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("contabilidad/[controller]")]
     [ApiController]
     public class PlanIGController : ControllerBase
     {
@@ -34,7 +34,7 @@ namespace ContabilidadWebApi.Controllers
         /// Devuelve los Planes de IG
         /// </summary>
         /// <returns></returns>
-        [HttpGet("api/PlanesIG/")]
+        [HttpGet("PlanesIG/")]
         public List<PlanGI> PlanesIG()
         {
             return _context.PlanGI.ToList();
@@ -46,7 +46,7 @@ namespace ContabilidadWebApi.Controllers
         /// <param name="File"></param>
         /// <returns></returns>
         // GET api/values
-        [HttpPost, Route("api/UploadPlanGI/")]
+        [HttpPost, Route("UploadPlanGI/")]
         public async Task<IActionResult> UploadPlanGI(IFormFile File)
         {
             try
@@ -70,7 +70,7 @@ namespace ContabilidadWebApi.Controllers
         /// Devuelve los datos necesarios para crear un Plan IG
         /// </summary>
         /// <returns></returns>
-        [HttpGet("api/PlanIGDatos/")]
+        [HttpGet("PlanIGDatos/")]
         public List<dynamic> PlanIGDatos()
         {
             var datos = new List<dynamic>();
@@ -86,7 +86,7 @@ namespace ContabilidadWebApi.Controllers
         /// </summary>
         /// <param name="planes"></param>
         /// <returns></returns>
-        [HttpPost("api/PlanIGCreate/")]
+        [HttpPost("PlanIGCreate/")]
         public IActionResult PlanIGCreate([FromRoute] List<PlanGI> planes)
         {
             foreach (var item in planes)

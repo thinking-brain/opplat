@@ -18,7 +18,7 @@ namespace FinanzasWebApi.Helper
              //Plan IG
             HttpClient clientPGI = new HttpClient();
             List<PlanGIResultVM> planGI = new List<PlanGIResultVM>();
-            var resultPGI = clientPGI.GetAsync("http://127.0.0.1:5200/api/PlanIG/api/PlanesIG").Result;
+            var resultPGI = clientPGI.GetAsync("http://127.0.0.1:5200/contabilidad/PlanIG/PlanesIG").Result;
             if (resultPGI.IsSuccessStatusCode)
             {
                 planGI = resultPGI.Content.ReadAsAsync<List<PlanGIResultVM>>().Result;
@@ -27,7 +27,7 @@ namespace FinanzasWebApi.Helper
             //SUBMAYOR DE CUENTAS
             HttpClient client = new HttpClient();
             List<SubMayorCuentaVM> subMCuentas = new List<SubMayorCuentaVM>();
-            var result = client.GetAsync("http://127.0.0.1:5200/api/SubmayorDeCuentas").Result;
+            var result = client.GetAsync("http://127.0.0.1:5200/contabilidad/SubmayorDeCuentas").Result;
             if (result.IsSuccessStatusCode)
             {
                 subMCuentas = result.Content.ReadAsAsync<List<SubMayorCuentaVM>>().Result;
@@ -213,7 +213,7 @@ namespace FinanzasWebApi.Helper
               //Plan IG
             HttpClient clientPGI = new HttpClient();
             List<PlanGIResultVM> planGI = new List<PlanGIResultVM>();
-            var resultPGI = clientPGI.GetAsync("http://127.0.0.1:5200/api/PlanIG/api/PlanesIG").Result;
+            var resultPGI = clientPGI.GetAsync("http://127.0.0.1:5200/contabilidad/PlanIG/PlanesIG").Result;
             if (resultPGI.IsSuccessStatusCode)
             {
                 planGI = resultPGI.Content.ReadAsAsync<List<PlanGIResultVM>>().Result;
@@ -222,7 +222,7 @@ namespace FinanzasWebApi.Helper
             //SUBMAYOR DE CUENTAS
             HttpClient client = new HttpClient();
             List<SubMayorCuentaVM> subMCuentas = new List<SubMayorCuentaVM>();
-            var result = client.GetAsync("http://127.0.0.1:5200/api/SubmayorDeCuentas").Result;
+            var result = client.GetAsync("http://127.0.0.1:5200/contabilidad/SubmayorDeCuentas").Result;
             if (result.IsSuccessStatusCode)
             {
                 subMCuentas = result.Content.ReadAsAsync<List<SubMayorCuentaVM>>().Result;
@@ -593,7 +593,7 @@ namespace FinanzasWebApi.Helper
             //Plan IG
             HttpClient clientPGI = new HttpClient();
             List<PlanGIResultVM> planGI = new List<PlanGIResultVM>();
-            var resultPGI = clientPGI.GetAsync( "http://127.0.0.1:5200/api/PlanIG/api/PlanesIG").Result;
+            var resultPGI = clientPGI.GetAsync( "http://127.0.0.1:5200/contabilidad/PlanIG/PlanesIG").Result;
             if (resultPGI.IsSuccessStatusCode)
             {
                 planGI = resultPGI.Content.ReadAsAsync<List<PlanGIResultVM>>().Result;
@@ -602,7 +602,7 @@ namespace FinanzasWebApi.Helper
             //SUBMAYOR DE CUENTAS
             HttpClient client = new HttpClient();
             List<SubMayorCuentaVM> subMCuentas = new List<SubMayorCuentaVM>();
-            var result = client.GetAsync("http://127.0.0.1:5200/api/SubmayorDeCuentas").Result;
+            var result = client.GetAsync("http://127.0.0.1:5200/contabilidad/SubmayorDeCuentas").Result;
             if (result.IsSuccessStatusCode)
             {
                 subMCuentas = result.Content.ReadAsAsync<List<SubMayorCuentaVM>>().Result;
@@ -611,7 +611,7 @@ namespace FinanzasWebApi.Helper
             //Nomina Documento 
             HttpClient clientNDD = new HttpClient();
             List<NomDocumentoVM> nominaDoc = new List<NomDocumentoVM>();
-            var resultNDD = clientNDD.GetAsync("http://127.0.0.1:5200/api/NomDocumento").Result;
+            var resultNDD = clientNDD.GetAsync("http://127.0.0.1:5200/contabilidad/NomDocumento").Result;
             if (resultNDD.IsSuccessStatusCode)
             {
                 nominaDoc = resultNDD.Content.ReadAsAsync<List<NomDocumentoVM>>().Result;
@@ -620,7 +620,7 @@ namespace FinanzasWebApi.Helper
             //Nomina Periodo de Pago ED
             HttpClient clientPP = new HttpClient();
             List<NomPeriodopagoVM> nominaPP = new List<NomPeriodopagoVM>();
-            var resultPP = clientPP.GetAsync("http://127.0.0.1:5200/api/NomPeriodopago").Result;
+            var resultPP = clientPP.GetAsync("http://127.0.0.1:5200/contabilidad/NomPeriodopago").Result;
             if (resultPP.IsSuccessStatusCode)
             {
                 nominaPP = resultPP.Content.ReadAsAsync<List<NomPeriodopagoVM>>().Result;
@@ -629,7 +629,7 @@ namespace FinanzasWebApi.Helper
              //Nomina Detalle Doc
             HttpClient clientDetDoc = new HttpClient();
             List<NomDocumentoDetallePagoVM> nominaDetDoc = new List<NomDocumentoDetallePagoVM>();
-            var resultDetDoc = clientDetDoc.GetAsync("http://127.0.0.1:5200/api/NomDocumentoDetallePago").Result;
+            var resultDetDoc = clientDetDoc.GetAsync("http://127.0.0.1:5200/contabilidad/NomDocumentoDetallePago").Result;
             if (resultDetDoc.IsSuccessStatusCode)
             {
                 nominaDetDoc = resultDetDoc.Content.ReadAsAsync<List<NomDocumentoDetallePagoVM>>().Result;
@@ -651,6 +651,9 @@ namespace FinanzasWebApi.Helper
             //Seleccionando todos los movimientos que esten entre el comienzo del año y sean menores e igual al mes consultado
             var dataInMesesAnteriores = data.Where(s => s.Año == year && s.Mes <= meses && s.Mes >= periodoInicioAño.Mes).ToList();
 
+            //Seleccionando todos los movimientos en la tabla de detalles de documentos que esten entre el comienzo del año y sean menores e igual al mes consultado
+            var dataDocInMesesAnteriores = nominaDetDoc.Where(s => s.Año == year && s.Mes <= meses && s.Mes >= periodoInicioAño.Mes).ToList();
+
             //Tabla que contiene los palnes de Gastos e Ingresos
             var planesGI = planGI.Where(s => s.Año == Convert.ToString(year));
 
@@ -662,8 +665,10 @@ namespace FinanzasWebApi.Helper
             //INGRESOS
             // Ventas por servicios en moneda nacional
             var RealMes912 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("912")).Sum(s => s.Importe) * -1;
+           
             // Ventas por servicios en CUC
             var RealMes913 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("913")).Sum(s => s.Importe) * -1;
+            
             // Ingresos financieros
             var RealMes920 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("920") || s.ClaveCuenta.StartsWith("921")).Sum(s => s.Importe) * -1;
 
@@ -689,38 +694,50 @@ namespace FinanzasWebApi.Helper
 
             //UTILIDAD
             var RealMesUtilidad = TotalIngresosEnMes - TotalEgresosEnMes;
+
             // Pago a cargo de la utilidad
             decimal RealMes693 = 0M;
+            decimal AcumuladoReal693 = 0M;
+
             if (meses <= 2)
             {
                 var periodoContable = nominaPP.SingleOrDefault(s => s.PeriodoIni.Value.Year == year && s.PeriodoIni.Value.Month == (meses + 1));
                 RealMes693 = RealMes693 + nominaDetDoc.Where(s => s.IdPeriodo == periodoContable.Idperiodopago && s.Idcuenta == 1571).Sum(s => s.NCobrar).Value;
-
+                AcumuladoReal693 = AcumuladoReal693 + dataDocInMesesAnteriores.Where(s => s.Idcuenta == 1571).Sum(s => s.NCobrar).Value;
             }
             if (meses >= 3)
             {
                 var periodoContable = nominaPP.SingleOrDefault(s => s.PeriodoIni.Value.Year == year && s.PeriodoIni.Value.Month == (meses + 1));
-               RealMes693 = RealMes693 + nominaDetDoc.Where(s => s.IdPeriodo == periodoContable.Idperiodopago && s.Idcuenta == 1571).Sum(s => s.NCobrar).Value;
+                RealMes693 = RealMes693 + nominaDetDoc.Where(s => s.IdPeriodo == periodoContable.Idperiodopago && s.Idcuenta == 1571).Sum(s => s.NCobrar).Value;
+                AcumuladoReal693 = AcumuladoReal693 + dataDocInMesesAnteriores.Where(s => s.Idcuenta == 1571).Sum(s => s.NCobrar).Value;
+            
             }
 
 
             var PlanMes693 = planesGI.SingleOrDefault(s => s.ElementoValor == "1001") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1001")[meses] : 0M;
             var PlanAcumulado693 = planesGI.SingleOrDefault(s => s.ElementoValor == "1001") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1001").Acumulado(meses) : 0M;
+            
+            
             // Utilidad despues de pagos de anticipos
             var RealMesUtilidadDespPago = RealMesUtilidad - RealMes693;
             var PlanMesUtilidadDespPago = planesGI.SingleOrDefault(s => s.ElementoValor == "1002") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1002")[meses] : 0M;
             var PlanAcumuladoUtilidadDespPago = planesGI.SingleOrDefault(s => s.ElementoValor == "1002") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1002").Acumulado(meses) : 0M;
+            
+
             //Reserva de contingencia del 2% al 10%
             var RealMes2Porc = TotalEgresosEnMes * 0.16667M;
             var PlanMes2Porc = planesGI.SingleOrDefault(s => s.ElementoValor == "1003") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1003")[meses] : 0M;
             var PlanAcumulado2Porc = planesGI.SingleOrDefault(s => s.ElementoValor == "1003") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1003").Acumulado(meses) : 0M;
+            
             // Utilidad libre despues de la reserva
             var PlanMesUtilidadDesp2Porc = planesGI.SingleOrDefault(s => s.ElementoValor == "1004") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1004")[meses] : 0M;
             var PlanAcumuladoUtilidadDesp2Porc = planesGI.SingleOrDefault(s => s.ElementoValor == "1004") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1004").Acumulado(meses) : 0M;
+            
             // Reserva de contingencia 30%
             var RealMes30Porc = TotalEgresosEnMes * 2.5M;
             var PlanMes30Porc = planesGI.SingleOrDefault(s => s.ElementoValor == "1005") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1005")[meses] : 0M;
             var PlanAcumulado30Porc = planesGI.SingleOrDefault(s => s.ElementoValor == "1005") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1005").Acumulado(meses) : 0M;
+            
             // Utilidad despues de la reserva del 30%
             var PlanMesUtilidadDesp30Porc = planesGI.SingleOrDefault(s => s.ElementoValor == "1006") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1006")[meses] : 0M;
             var PlanAcumuladoUtilidadDesp30Porc = planesGI.SingleOrDefault(s => s.ElementoValor == "1006") != null ? planesGI.SingleOrDefault(s => s.ElementoValor == "1006").Acumulado(meses) : 0M;
@@ -735,7 +752,7 @@ namespace FinanzasWebApi.Helper
                     var PlanMes = PlanMes693;
                     var PlanAcumulado = PlanAcumulado693;
                     var RealMes = RealMes693;
-                    var RealAcumulado = 0;
+                    var RealAcumulado = AcumuladoReal693;
                     var TotalEgresos = 0;
 
 
@@ -815,7 +832,7 @@ namespace FinanzasWebApi.Helper
                     var PlanMes = PlanMes2Porc;
                     var PlanAcumulado = PlanAcumulado2Porc;
                     var RealMes = Math.Round(RealMes2Porc, 2);
-                    var RealAcumulado = TotalEgresosEnMes * (0.16667M * meses);
+                    var RealAcumulado = Math.Round(TotalEgresosEnMes * (0.16667M * meses),2,MidpointRounding.AwayFromZero);
                     var TotalEgresos = 0;
                     var cost = new PlanGIViewModel
                     {

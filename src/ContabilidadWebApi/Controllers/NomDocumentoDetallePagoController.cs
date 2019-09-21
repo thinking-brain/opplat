@@ -10,7 +10,7 @@ using ContabilidadWebApi.ViewModels;
 
 namespace ContabilidadWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("contabilidad/[controller]")]
     [ApiController]
     public class NomDocumentoDetallePagoController : ControllerBase
     {
@@ -31,14 +31,16 @@ namespace ContabilidadWebApi.Controllers
         {
             var nomDetPago = new List<NomDocumentoDetallePagoVM>();
 
-            var data = _context.NomDocumentoDetallePago.Include(s=>s.IddocumentoNavigation).Join(_context.NomDocumento, 
+            var data = _context.NomDocumentoDetallePago.Include(s=>s.IddocumentoNavigation).Join(_context.NomDocumento.Include(s=>s.IdperiodopagoNavigation), 
                 detalleDoc => detalleDoc.Iddocumento,
                 docum => docum.Iddocumento, (detalleDoc, docum) => new NomDocumentoDetallePagoVM
                 {
                     Iddocumento = detalleDoc.Iddocumento,
                     NCobrar = detalleDoc.NCobrar,
                     Idcuenta = detalleDoc.Idcuenta,
-                    IdPeriodo = docum.Idperiodopago
+                    IdPeriodo = docum.Idperiodopago,
+                    Año = docum.IdperiodopagoNavigation.PeriodoIni.Value.Year,
+                    Mes = docum.IdperiodopagoNavigation.PeriodoFin.Value.Month,
 
                 });
             return data.ToList();
