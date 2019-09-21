@@ -11,6 +11,7 @@ using ContabilidadWebApi.Models;
 using ContabilidadWebApi.VersatModels;
 using ContabilidadWebApi.VersatModels2;
 using ContabilidadWebApi.ViewModels;
+using ContabilidadWebApi.Data;
 
 namespace ContabilidadWebApi.Controllers
 {
@@ -123,7 +124,7 @@ namespace ContabilidadWebApi.Controllers
         public ActionResult<IEnumerable<string>> UpdateSubmayorDeCuentas()
         {
             var submayorCuenta = _context.Set<SubMayorCuenta>().ToList();
-            if (!submayorCuenta.Any(s=>s.Año == 2019 && s.Mes > 4))
+            if (!submayorCuenta.Any(s => s.Año == 2019 && s.Mes > 4))
             {
                 var reportED = new UpdateSubmayorCuenta2Helper(_v2context, _context);
                 reportED.LlenarSubMayor2();
@@ -159,7 +160,7 @@ namespace ContabilidadWebApi.Controllers
                     {
                         clavFix.Add(itemX + " ");
                     }
-                   
+
                 }
                 if (cuentaNat != null)
                 {
@@ -195,13 +196,13 @@ namespace ContabilidadWebApi.Controllers
                     {
                         conc.Cuentas.Add(cuent);
                     }
-                   
+
                     _context.Set<ConceptoPlan>().Add(conc);
                     _context.SaveChanges();
                 }
             }
-           
-                return new string[] { "UPDATE OO" };
+
+            return new string[] { "UPDATE OO" };
         }
 
         /// <summary>
@@ -215,7 +216,7 @@ namespace ContabilidadWebApi.Controllers
             var Conceptos = new List<ConceptoPlan>();
 
             var concepto1 = new ConceptoPlan { Concepto = "Reparación Restaurante -Bar Cafeteria Bahia" };
-            concepto1.Cuentas.Add(new ConceptoCuentas { CuentaId = 2031 }); 
+            concepto1.Cuentas.Add(new ConceptoCuentas { CuentaId = 2031 });
             concepto1.Cuentas.Add(new ConceptoCuentas { CuentaId = 2034 });
             Conceptos.Add(concepto1);
 

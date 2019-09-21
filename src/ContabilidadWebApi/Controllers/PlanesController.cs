@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using ContabilidadWebApi.Helper;
 using ContabilidadWebApi.Models;
 using ContabilidadWebApi.VersatModels;
+using ContabilidadWebApi.Data;
 
 namespace ContabilidadWebApi.Controllers
 {
@@ -61,7 +62,7 @@ namespace ContabilidadWebApi.Controllers
 
 
         }
-      
+
         /// <summary>
         /// Devuelve un Listado de Planes
         /// </summary>
@@ -73,11 +74,11 @@ namespace ContabilidadWebApi.Controllers
             return _context.Plan;
         }
 
-       /// <summary>
-       /// Chequea que Exista un Plan
-       /// </summary>
-       /// <param name="id"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// Chequea que Exista un Plan
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private bool PlanExists(int id)
         {
             return _context.Plan.Any(e => e.Id == id);

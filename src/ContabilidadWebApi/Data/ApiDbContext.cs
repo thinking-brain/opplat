@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ContabilidadWebApi.Models;
 
-namespace ContabilidadWebApi.Models
+namespace ContabilidadWebApi.Data
 {
     public class ApiDbContext : DbContext
     {

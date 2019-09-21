@@ -18,6 +18,8 @@ using Newtonsoft.Json;
 using opplatApplication.Data;
 using opplatApplication.Utils;
 using Swashbuckle.AspNetCore.Swagger;
+using ContabilidadWebApi.VersatModels;
+using ContabilidadWebApi.VersatModels2;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -33,6 +35,23 @@ namespace opplatApplication
 
         public void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
+            //contabilidad context
+            services.AddDbContext<ContabilidadWebApi.Data.ApiDbContext>(options =>
+                    options.UseSqlServer(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
+
+
+            services.AddDbContext<VersatDbContext>(options =>
+               options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
+
+
+            services.AddDbContext<VersatDbContext2>(options =>
+               options.UseSqlServer(context.Configuration.GetConnectionString("Versat2Connection")));
+            //fin
+            //finanzas db context
+            services.AddDbContext<FinanzasWebApi.Data.ApiDbContext>(options =>
+                    options.UseSqlServer(context.Configuration.GetConnectionString("FinanzasApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
+            //
+
             services.AddDbContext<AccountDbContext>(options =>
             options.UseSqlServer(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
 
@@ -127,6 +146,12 @@ namespace opplatApplication
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+            app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/docs/v1/docs.json", "Account API v1");
+                c.RoutePrefix = "docs";
+            });
             app.UseMvc(builder =>
             {
                 builder.MapRoute(

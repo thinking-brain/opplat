@@ -8,6 +8,7 @@ using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using ContabilidadWebApi.VersatModels;
 using ContabilidadWebApi.Models;
+using ContabilidadWebApi.Data;
 
 namespace ContabilidadWebApi.Helper
 {
@@ -66,7 +67,7 @@ namespace ContabilidadWebApi.Helper
         /// <returns>Arreglo de string</returns>
         private string[] SplitRecord(string record)
         {
-           var line = record.Replace(',', '.');
+            var line = record.Replace(',', '.');
             return line.Split(new char[] { ';' });
         }
 
@@ -133,7 +134,7 @@ namespace ContabilidadWebApi.Helper
             {
                 if (record[i] == "" || record[i] == "0") count++;
             }
-               
+
             return count == record.Length;
         }
 
@@ -157,7 +158,7 @@ namespace ContabilidadWebApi.Helper
                 string coin;
                 string top;
 
-                
+
                 //Si la linea no es un subelemento entoces continua a la proxima.
                 if (!isAtomicElement(line[0], out code, out coin, out top)) continue;
 
@@ -180,7 +181,7 @@ namespace ContabilidadWebApi.Helper
                 //Saves the elemnts at range with value 0 for the plan.
                 SaveElementsAtRange(code, top, costCenterId, cuent, coin, costcenterAreaId);
 
-                
+
             }
         }
 
@@ -203,7 +204,7 @@ namespace ContabilidadWebApi.Helper
 
             top = reTop.Match(record).Value;
             code = result.Value;
-            
+
 
             coin = (money.Value == "CUC") ? "101" : "100";
 
@@ -221,7 +222,7 @@ namespace ContabilidadWebApi.Helper
 
             foreach (var i in values)
             {
-                if (i != "" && i!= "0") return false;
+                if (i != "" && i != "0") return false;
             }
             return true;
         }
@@ -306,7 +307,7 @@ namespace ContabilidadWebApi.Helper
             plan.Octubre = 1000 * ((values[9] == "") ? 0 : Decimal.Parse(values[9], CultureInfo.InvariantCulture));
             plan.Noviembre = 1000 * ((values[10] == "") ? 0 : Decimal.Parse(values[10], CultureInfo.InvariantCulture));
             plan.Diciembre = 1000 * ((values[11] == "") ? 0 : Decimal.Parse(values[11], CultureInfo.InvariantCulture));
-        }     
+        }
 
         /// <summary>
         /// Obtiene los codigos de los subelementos contenidos en un rango.
@@ -316,9 +317,9 @@ namespace ContabilidadWebApi.Helper
         /// <returns>Un ienumerable que contine los codigos de los subelementos contenidos en el rango.</returns>
         private IEnumerable<string> GetElementsAtRange(string code, string top)
         {
-            
+
             List<string> result = new List<string>();
-          
+
 
             if (top == "") return result;
 
@@ -335,12 +336,12 @@ namespace ContabilidadWebApi.Helper
             }
 
             return result;
-                
+
 
         }
 
 
-        private void SaveElementsAtRange(string code,string top,string costCenterId,string cuent, string coin,string costcenterAreaId)
+        private void SaveElementsAtRange(string code, string top, string costCenterId, string cuent, string coin, string costcenterAreaId)
         {
             foreach (var c in GetElementsAtRange(code, top))
             {
