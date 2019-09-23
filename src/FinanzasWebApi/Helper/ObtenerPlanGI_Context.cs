@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using FinanzasWebApi.Data;
-using FinanzasWebApi.Models;
 using FinanzasWebApi.ViewModels;
 using System;
 using System.Collections.Generic;
