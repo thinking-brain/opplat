@@ -10,16 +10,6 @@
         ]
     },
     {
-        "title": "Configuracion",
-        "group": "modulos",
-        "icon": "mdi-cogs",
-        "component": "Configuracion",
-        "name": "Configuracion",
-        "roles": [
-            "administrador"
-        ]
-    },
-    {
         "title": "Licencia",
         "group": "modulos",
         "icon": "mdi-license",
