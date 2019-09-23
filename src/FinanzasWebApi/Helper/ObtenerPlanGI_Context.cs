@@ -15,29 +15,12 @@ namespace FinanzasWebApi.Helper
         
         public List<PlanGIViewModel> ObtenerIngresos(int year, int meses)
         {
-             //Plan IG
-            HttpClient clientPGI = new HttpClient();
-            List<PlanGIResultVM> planGI = new List<PlanGIResultVM>();
-            var resultPGI = clientPGI.GetAsync("http://127.0.0.1:5200/contabilidad/PlanIG/PlanesIG").Result;
-            if (resultPGI.IsSuccessStatusCode)
-            {
-                planGI = resultPGI.Content.ReadAsAsync<List<PlanGIResultVM>>().Result;
-            }
-          
-            //SUBMAYOR DE CUENTAS
-            HttpClient client = new HttpClient();
-            List<SubMayorCuentaVM> subMCuentas = new List<SubMayorCuentaVM>();
-            var result = client.GetAsync("http://127.0.0.1:5200/contabilidad/SubmayorDeCuentas").Result;
-            if (result.IsSuccessStatusCode)
-            {
-                subMCuentas = result.Content.ReadAsAsync<List<SubMayorCuentaVM>>().Result;
-            }
-           
-
+            List<PlanGIResultVM> planGI = GetPlanGI.Get();
+            List<SubMayorCuentaVM> subMCuentas = GetSubMayorDeCuentas.Get();
+                      
             var plan = new List<PlanGIViewModel>();
 
             //Tabla de Movimientos en el Opplat (SUBMAYOR-CUENTA)
-           
             var data = subMCuentas.ToList();
 
             //Buscando el Primer Periodo del Año consultado
@@ -102,7 +85,8 @@ namespace FinanzasWebApi.Helper
                         // % de Cumplimiento
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        // PorcRelacionIngresos = (TotalIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = 0M,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = 0M,
                         //Plan Acumulado
@@ -143,7 +127,8 @@ namespace FinanzasWebApi.Helper
                         // % de Cumplimiento
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        // PorcRelacionIngresos = (TotalIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = 0M,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = 0M,
 
@@ -184,7 +169,8 @@ namespace FinanzasWebApi.Helper
                         // % de Cumplimiento
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        // PorcRelacionIngresos = (TotalIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = 0M,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = 0M,
                         //Plan Acumulado
@@ -210,25 +196,8 @@ namespace FinanzasWebApi.Helper
 
         public List<PlanGIViewModel> ObtenerEgresos(int year, int meses)
         {
-              //Plan IG
-            HttpClient clientPGI = new HttpClient();
-            List<PlanGIResultVM> planGI = new List<PlanGIResultVM>();
-            var resultPGI = clientPGI.GetAsync("http://127.0.0.1:5200/contabilidad/PlanIG/PlanesIG").Result;
-            if (resultPGI.IsSuccessStatusCode)
-            {
-                planGI = resultPGI.Content.ReadAsAsync<List<PlanGIResultVM>>().Result;
-            }
-          
-            //SUBMAYOR DE CUENTAS
-            HttpClient client = new HttpClient();
-            List<SubMayorCuentaVM> subMCuentas = new List<SubMayorCuentaVM>();
-            var result = client.GetAsync("http://127.0.0.1:5200/contabilidad/SubmayorDeCuentas").Result;
-            if (result.IsSuccessStatusCode)
-            {
-                subMCuentas = result.Content.ReadAsAsync<List<SubMayorCuentaVM>>().Result;
-            }
-           
-
+            List<PlanGIResultVM> planGI = GetPlanGI.Get();
+            List<SubMayorCuentaVM> subMCuentas = GetSubMayorDeCuentas.Get();
 
             var plan = new List<PlanGIViewModel>();
 
@@ -252,6 +221,21 @@ namespace FinanzasWebApi.Helper
 
             //Obteniendo listado de Elementos del Plan de Gastos e Ingresos
             var modelo = DatosPlanGI.Datos();
+
+             //INGRESOS
+            var RealMes912 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("912")).Sum(s => s.Importe) * -1;
+            var RealMes913 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("913")).Sum(s => s.Importe) * -1;
+            var RealMes920 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("920") || s.ClaveCuenta.StartsWith("921")).Sum(s => s.Importe) * -1;
+
+            var TotalIngresosEnMes = RealMes912 + RealMes913 + RealMes920;
+
+            //Total de ingresos Acumulado
+            var Acumulado912 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("912")).Sum(s => s.Importe) * -1;
+            var Acumulado913 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("913")).Sum(s => s.Importe) * -1;
+            var Acumulado920 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("920") || s.ClaveCuenta.StartsWith("921")).Sum(s => s.Importe) * -1;
+           
+            var TotalIngresosAcumulados = Acumulado912 + Acumulado913 + Acumulado920;
+
 
             //EGRESOS
             // Impuestos por las ventas
@@ -292,12 +276,7 @@ namespace FinanzasWebApi.Helper
 
             var TotalEgresosEnMes = RealMes805 + RealMes810 + RealMes822 + RealMes835 + RealMes836 + RealMes845 + RealMes856;
 
-            //Total de ingresos Acumulado
-            var Acumulado912 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("912")).Sum(s => s.Importe) * -1;
-            var Acumulado913 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("913")).Sum(s => s.Importe) * -1;
-            var Acumulado920 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("920") || s.ClaveCuenta.StartsWith("921")).Sum(s => s.Importe) * -1;
-            var TotalIngresosAcumulados = Acumulado912 + Acumulado913 + Acumulado920;
-
+         
             //Total de los Egresos Acumulado
             var TotalEgresosAcumuados = Acumulado805 + Acumulado810 + Acumulado822 + Acumulado835 + Acumulado836 + Acumulado845 + Acumulado856;
 
@@ -326,7 +305,7 @@ namespace FinanzasWebApi.Helper
                         // % de Cumplimiento
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = (RealMes > 0 && TotalEgresos > 0) ? Math.Round((RealMes / TotalEgresos) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //Plan Acumulado
@@ -335,11 +314,12 @@ namespace FinanzasWebApi.Helper
                         RealAcumulado = RealAcumulado,
                         //
                         PorcCumpAcumulado = (RealAcumulado > 0 && PlanAcumulado > 0) ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                       
                         // % en relación a ingresos 
                         PorcIngresosFuncionTotal = (RealMes > 0 && TotalIngresosAcumulados > 0) ? Math.Round((RealMes / TotalIngresosAcumulados) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                       
                         //% de los gastos en función del total 
                         PorcGastosFuncionTotalAcumulado = (RealMes > 0 && TotalEgresosAcumuados > 0) ? Math.Round((RealMes / TotalEgresosAcumuados) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                        //Total en el Grupo
                         
                     };
                     plan.Add(cost);
@@ -367,7 +347,7 @@ namespace FinanzasWebApi.Helper
                         // % de Cumplimiento
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = (RealMes > 0 && TotalEgresos > 0) ? Math.Round((RealMes / TotalEgresos) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //Plan Acumulado
@@ -408,7 +388,7 @@ namespace FinanzasWebApi.Helper
                         // % de Cumplimiento
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = (RealMes > 0 && TotalEgresos > 0) ? Math.Round((RealMes / TotalEgresos) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //Plan Acumulado
@@ -448,7 +428,7 @@ namespace FinanzasWebApi.Helper
                         // % de Cumplimiento
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = (RealMes > 0 && TotalEgresos > 0) ? Math.Round((RealMes / TotalEgresos) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //Plan Acumulado
@@ -487,7 +467,7 @@ namespace FinanzasWebApi.Helper
                         // % de Cumplimiento
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = (RealMes > 0 && TotalEgresos > 0) ? Math.Round((RealMes / TotalEgresos) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //Plan Acumulado
@@ -526,7 +506,7 @@ namespace FinanzasWebApi.Helper
                         // % de Cumplimiento
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = (RealMes > 0 && TotalEgresos > 0) ? Math.Round((RealMes / TotalEgresos) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //Plan Acumulado
@@ -565,7 +545,7 @@ namespace FinanzasWebApi.Helper
                         // % de Cumplimiento
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = (RealMes > 0 && TotalEgresos > 0) ? Math.Round((RealMes / TotalEgresos) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //Plan Acumulado
@@ -590,51 +570,11 @@ namespace FinanzasWebApi.Helper
 
         public List<PlanGIViewModel> ObtenerUtilidades(int year, int meses)
         {
-            //Plan IG
-            HttpClient clientPGI = new HttpClient();
-            List<PlanGIResultVM> planGI = new List<PlanGIResultVM>();
-            var resultPGI = clientPGI.GetAsync( "http://127.0.0.1:5200/contabilidad/PlanIG/PlanesIG").Result;
-            if (resultPGI.IsSuccessStatusCode)
-            {
-                planGI = resultPGI.Content.ReadAsAsync<List<PlanGIResultVM>>().Result;
-            }
-          
-            //SUBMAYOR DE CUENTAS
-            HttpClient client = new HttpClient();
-            List<SubMayorCuentaVM> subMCuentas = new List<SubMayorCuentaVM>();
-            var result = client.GetAsync("http://127.0.0.1:5200/contabilidad/SubmayorDeCuentas").Result;
-            if (result.IsSuccessStatusCode)
-            {
-                subMCuentas = result.Content.ReadAsAsync<List<SubMayorCuentaVM>>().Result;
-            }
-
-            //Nomina Documento 
-            HttpClient clientNDD = new HttpClient();
-            List<NomDocumentoVM> nominaDoc = new List<NomDocumentoVM>();
-            var resultNDD = clientNDD.GetAsync("http://127.0.0.1:5200/contabilidad/NomDocumento").Result;
-            if (resultNDD.IsSuccessStatusCode)
-            {
-                nominaDoc = resultNDD.Content.ReadAsAsync<List<NomDocumentoVM>>().Result;
-            }
-
-            //Nomina Periodo de Pago ED
-            HttpClient clientPP = new HttpClient();
-            List<NomPeriodopagoVM> nominaPP = new List<NomPeriodopagoVM>();
-            var resultPP = clientPP.GetAsync("http://127.0.0.1:5200/contabilidad/NomPeriodopago").Result;
-            if (resultPP.IsSuccessStatusCode)
-            {
-                nominaPP = resultPP.Content.ReadAsAsync<List<NomPeriodopagoVM>>().Result;
-            }
-
-             //Nomina Detalle Doc
-            HttpClient clientDetDoc = new HttpClient();
-            List<NomDocumentoDetallePagoVM> nominaDetDoc = new List<NomDocumentoDetallePagoVM>();
-            var resultDetDoc = clientDetDoc.GetAsync("http://127.0.0.1:5200/contabilidad/NomDocumentoDetallePago").Result;
-            if (resultDetDoc.IsSuccessStatusCode)
-            {
-                nominaDetDoc = resultDetDoc.Content.ReadAsAsync<List<NomDocumentoDetallePagoVM>>().Result;
-            }
-
+            List<PlanGIResultVM> planGI = GetPlanGI.Get();
+            List<SubMayorCuentaVM> subMCuentas = GetSubMayorDeCuentas.Get();
+            List<NomDocumentoVM> nominaDoc = GetNomDocumento.Get();
+            List<NomPeriodopagoVM> nominaPP = GetNomPeriodopago.Get();
+            List<NomDocumentoDetallePagoVM> nominaDetDoc = GetNomDocumentoDetallePago.Get();
          
       
             var plan = new List<PlanGIViewModel>();
@@ -665,35 +605,54 @@ namespace FinanzasWebApi.Helper
             //INGRESOS
             // Ventas por servicios en moneda nacional
             var RealMes912 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("912")).Sum(s => s.Importe) * -1;
+            var Acumulado912 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("912")).Sum(s => s.Importe) * -1;
            
             // Ventas por servicios en CUC
             var RealMes913 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("913")).Sum(s => s.Importe) * -1;
+            var Acumulado913 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("913")).Sum(s => s.Importe) * -1;
             
             // Ingresos financieros
             var RealMes920 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("920") || s.ClaveCuenta.StartsWith("921")).Sum(s => s.Importe) * -1;
+            var Acumulado920 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("920") || s.ClaveCuenta.StartsWith("921")).Sum(s => s.Importe) * -1;
 
             var TotalIngresosEnMes = RealMes912 + RealMes913 + RealMes920;
+            var TotalAcumuladoIngresos = Acumulado912 + Acumulado913 + Acumulado920;
 
             //EGRESOS
             // Impuestos por las ventas
             var RealMes805 = dataInMes.Where(s => s.ClaveCuenta.Equals("805")).Sum(s => s.Importe);
+            var Acumulado805 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.Equals("805")).Sum(s => s.Importe);
+            
             // Costo de ventas
             var RealMes810 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("810")).Sum(s => s.Importe);
+            var Acumulado810 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("810")).Sum(s => s.Importe);
+            
             // Gastos generales de Administración
             var RealMes822 = (dataInMes.Where(s => s.ClaveCuenta.Equals("822")).Sum(s => s.Importe));
+            var Acumulado822 = (dataInMesesAnteriores.Where(s => s.ClaveCuenta.Equals("822")).Sum(s => s.Importe) + dataInMes.Where(s => s.ClaveCuenta.Equals("822")).Sum(s => s.Importe));
+            
             // Gastos financieros en MN
             var RealMes835 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("835")).Sum(s => s.Importe);
+            var Acumulado835 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("835")).Sum(s => s.Importe);
+            
             // Gastos financieros en MLC
             var RealMes836 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("836")).Sum(s => s.Importe);
+            var Acumulado836 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.StartsWith("836")).Sum(s => s.Importe);
+           
             // Gastos por perdida
             var RealMes845 = dataInMes.Where(s => s.ClaveCuenta.Equals("845")).Sum(s => s.Importe);
+            var Acumulado845 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.Equals("845")).Sum(s => s.Importe);
+           
             // Otros impuestos tasas y contribuciones
             var RealMes856 = dataInMes.Where(s => s.ClaveCuenta.StartsWith("856")).Sum(s => s.Importe);
+            var Acumulado856 = dataInMesesAnteriores.Where(s => s.ClaveCuenta.Equals("856")).Sum(s => s.Importe);
 
             var TotalEgresosEnMes = RealMes805 + RealMes810 + RealMes822 + RealMes835 + RealMes836 + RealMes845 + RealMes856;
+            var AcumuladoTotalEgresos = Acumulado805 + Acumulado810 + Acumulado822 + Acumulado835 + Acumulado836 + Acumulado845 + Acumulado856;
 
             //UTILIDAD
             var RealMesUtilidad = TotalIngresosEnMes - TotalEgresosEnMes;
+            var AcumuladoUtilidad = TotalAcumuladoIngresos - AcumuladoTotalEgresos;
 
             // Pago a cargo de la utilidad
             decimal RealMes693 = 0M;
@@ -753,7 +712,7 @@ namespace FinanzasWebApi.Helper
                     var PlanAcumulado = PlanAcumulado693;
                     var RealMes = RealMes693;
                     var RealAcumulado = AcumuladoReal693;
-                    var TotalEgresos = 0;
+                    
 
 
                     var cost = new PlanGIViewModel
@@ -767,8 +726,10 @@ namespace FinanzasWebApi.Helper
 
                         // % de Cumplimiento
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
+                       
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = 0M,
                         //Plan Acumulado
@@ -778,7 +739,7 @@ namespace FinanzasWebApi.Helper
                         //
                         PorcCumpAcumulado = (RealAcumulado > 0 && PlanAcumulado > 0) ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos 
-                        PorcIngresosFuncionTotal = 0M,
+                        PorcIngresosFuncionTotal = (TotalAcumuladoIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalAcumuladoIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total 
                         PorcGastosFuncionTotalAcumulado = 0M,
                         //Total en el Grupo
@@ -795,6 +756,7 @@ namespace FinanzasWebApi.Helper
                     var RealMes = RealMesUtilidadDespPago;
                     var RealAcumulado = 0;
                     var TotalEgresos = 0;
+
                     var cost = new PlanGIViewModel
                     {
                         //Grupo
@@ -833,7 +795,6 @@ namespace FinanzasWebApi.Helper
                     var PlanAcumulado = PlanAcumulado2Porc;
                     var RealMes = Math.Round(RealMes2Porc, 2);
                     var RealAcumulado = Math.Round(TotalEgresosEnMes * (0.16667M * meses),2,MidpointRounding.AwayFromZero);
-                    var TotalEgresos = 0;
                     var cost = new PlanGIViewModel
                     {
                         //Grupo
@@ -844,9 +805,9 @@ namespace FinanzasWebApi.Helper
                         RealMes = RealMes,
 
                         // % de Cumplimiento
-                        PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = 0M,
                         //Plan Acumulado
@@ -854,9 +815,9 @@ namespace FinanzasWebApi.Helper
                         //Real Acumulado
                         RealAcumulado = RealAcumulado,
                         //
-                        PorcCumpAcumulado = (RealAcumulado > 0 && PlanAcumulado > 0) ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcCumpAcumulado = (RealAcumulado > 0 && PlanAcumulado > 0) ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         // % en relación a ingresos 
-                        PorcIngresosFuncionTotal = 0M,
+                        PorcIngresosFuncionTotal = (TotalAcumuladoIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalAcumuladoIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total 
                         PorcGastosFuncionTotalAcumulado = 0M,
                         //Total en el Grupo
@@ -911,7 +872,7 @@ namespace FinanzasWebApi.Helper
                     var PlanAcumulado = PlanAcumulado30Porc;
                     var RealMes = RealMes30Porc;
                     var RealAcumulado = 0;
-                    var TotalEgresos = 0;
+                  
                     var cost = new PlanGIViewModel
                     {
                         //Grupo
@@ -922,9 +883,9 @@ namespace FinanzasWebApi.Helper
                         RealMes = RealMes,
 
                         // % de Cumplimiento
-                        PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = 0M,
                         //Plan Acumulado
@@ -932,9 +893,9 @@ namespace FinanzasWebApi.Helper
                         //Real Acumulado
                         RealAcumulado = RealAcumulado,
                         //
-                        PorcCumpAcumulado = (RealAcumulado > 0 && PlanAcumulado > 0) ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcCumpAcumulado = (RealAcumulado > 0 && PlanAcumulado > 0) ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         // % en relación a ingresos 
-                        PorcIngresosFuncionTotal = 0M,
+                        PorcIngresosFuncionTotal = (TotalAcumuladoIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalAcumuladoIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total 
                         PorcGastosFuncionTotalAcumulado = 0M,
                         //Total en el Grupo
@@ -950,7 +911,6 @@ namespace FinanzasWebApi.Helper
                     var PlanAcumulado = PlanAcumuladoUtilidadDesp30Porc;
                     var RealMes = Math.Round((RealMesUtilidadDespPago - RealMes2Porc) - RealMes30Porc, 2);
                     var RealAcumulado = 0;
-                    var TotalEgresos = 0;
                     var cost = new PlanGIViewModel
                     {
                         //Grupo
@@ -961,9 +921,9 @@ namespace FinanzasWebApi.Helper
                         RealMes = RealMes,
 
                         // % de Cumplimiento
-                        PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         // % en relación a ingresos
-                        PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total
                         PorcGastosFuncionTotal = 0M,
                         //Plan Acumulado
@@ -971,9 +931,9 @@ namespace FinanzasWebApi.Helper
                         //Real Acumulado
                         RealAcumulado = RealAcumulado,
                         //
-                        PorcCumpAcumulado = (RealAcumulado > 0 && PlanAcumulado > 0) ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+                        PorcCumpAcumulado = (RealAcumulado > 0 && PlanAcumulado > 0) ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         // % en relación a ingresos 
-                        PorcIngresosFuncionTotal = 0M,
+                        PorcIngresosFuncionTotal = (TotalAcumuladoIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalAcumuladoIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total 
                         PorcGastosFuncionTotalAcumulado = 0M,
                         //Total en el Grupo

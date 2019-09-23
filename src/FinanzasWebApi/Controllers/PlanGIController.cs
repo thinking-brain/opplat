@@ -103,16 +103,32 @@ namespace FinanzasWebApi.Controllers
             int year = Convert.ToInt32(años);
             plan = new ObtenerPlanGI_Context().ObtenerUtilidades(year, meses);
             var planes = new List<PlanGIViewModel>();
+            decimal TotalIngresos = GetTotalIngresosEnMes.GetReal(year, meses);
+            decimal TotalPlanIngresos = GetTotalIngresosEnMes.GetPlan(year, meses);
+            decimal TotalIngresosAcumulado = GetTotalIngresosEnMes.GetRealAcumulado(year, meses);
+            decimal TotalPlanIngresosAcumulado = GetTotalIngresosEnMes.GetPlanAcumulado(year, meses);
+
+            decimal TotalEgresos = GetTotalEgresosEnMes.GetReal(year, meses);
+            decimal TotalPlanEgresos = GetTotalEgresosEnMes.GetPlan(year, meses);
+            decimal TotalEgresosAcumulado = GetTotalEgresosEnMes.GetRealAcumulado(year, meses);
+            decimal TotalPlanEgresosAcumulado = GetTotalEgresosEnMes.GetPlanAcumulado(year, meses);
+
+            decimal PlanMes = TotalPlanIngresos - TotalPlanEgresos;
+            decimal RealMes =  TotalIngresos - TotalEgresos; 
+            decimal PlanAcumulado = TotalPlanIngresosAcumulado - TotalPlanEgresosAcumulado;
+            decimal RealAcumulado = TotalIngresosAcumulado - TotalEgresosAcumulado;
+
+           
             planes.Add(new PlanGIViewModel
             {
                 Grupo = "Utilidad",
-                PlanMes = plan.Sum(s => s.PlanMes),
-                RealMes = plan.Sum(s => s.RealMes),
-                PorcCumplimiento = plan.Sum(s => s.PorcCumplimiento),
+                PlanMes = PlanMes,
+                RealMes = RealMes,
+                PorcCumplimiento = Math.Round(RealMes / PlanMes, 2, MidpointRounding.AwayFromZero),
                 PorcRelacionIngresos = plan.Sum(s => s.PorcRelacionIngresos),
                 PorcGastosFuncionTotal = plan.Sum(s => s.PorcGastosFuncionTotal),
-                PlanAcumulado = plan.Sum(s => s.PlanAcumulado),
-                RealAcumulado = Math.Round(plan.Sum(s => s.RealAcumulado),2, MidpointRounding.AwayFromZero),
+                PlanAcumulado = Math.Round(PlanAcumulado, 2, MidpointRounding.AwayFromZero),
+                RealAcumulado = Math.Round(RealAcumulado, 2, MidpointRounding.AwayFromZero),
                 PorcCumpAcumulado = plan.Sum(s => s.PorcCumpAcumulado),
                 PorcIngresosFuncionTotal = plan.Sum(s => s.PorcIngresosFuncionTotal),
                 PorcGastosFuncionTotalAcumulado = plan.Sum(s => s.PorcGastosFuncionTotalAcumulado),
