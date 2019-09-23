@@ -15,12 +15,13 @@ using FinanzasWebApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 using System.IO;
+using FinanzasWebApi.Data;
 
 [assembly: HostingStartup(typeof(FinanzasWebApi.Startup))]
 
 namespace FinanzasWebApi
 {
-    public class Startup: IHostingStartup
+    public class Startup : IHostingStartup
     {
         public void Configure(IWebHostBuilder builder)
         {
@@ -32,39 +33,39 @@ namespace FinanzasWebApi
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-             services.AddSwaggerGen(c =>
-                {
-                    c.SwaggerDoc("finanzas_v1", new Info
-                    {
-                        Version = "v1",
-                        Title = "Contabilidad API",
-                        Description = "Gestión Financiera dentro del Sistema OPPLAT.",
-                        TermsOfService = "APACHE 2.0",
-                        Contact = new Contact
-                        {
-                            Name = "EFAVAI Tech",
-                            Email = "efavai.tech@gmail.com",
-                            Url = "https://efavai.com/"
-                        }
-                    });
+            services.AddSwaggerGen(c =>
+               {
+                   c.SwaggerDoc("finanzas_v1", new Info
+                   {
+                       Version = "v1",
+                       Title = "Contabilidad API",
+                       Description = "Gestión Financiera dentro del Sistema OPPLAT.",
+                       TermsOfService = "APACHE 2.0",
+                       Contact = new Contact
+                       {
+                           Name = "EFAVAI Tech",
+                           Email = "efavai.tech@gmail.com",
+                           Url = "https://efavai.com/"
+                       }
+                   });
 
                     // Set the comments path for the Swagger JSON and UI.
                     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                    c.IncludeXmlComments(xmlPath);
-                });
+                   var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                   c.IncludeXmlComments(xmlPath);
+               });
 
             services.AddDbContext<ApiDbContext>(options =>
                     options.UseSqlServer(context.Configuration.GetConnectionString("ApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
 
-                     
 
-         
+
+
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-          public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app)
         {
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<IConfiguration>();

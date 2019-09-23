@@ -25,11 +25,9 @@ namespace opplatApplication
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             var host = WebHost.CreateDefaultBuilder(args)
-               .UseKestrel(options =>
-           {
-               options.Listen(IPAddress.Loopback, 5200);
-           })
-           .UseSetting(WebHostDefaults.HostingStartupAssembliesKey, "ContabilidadWebApi;FinanzasWebApi;opplatApplication;Account.WebApi");
+                .UseKestrel()
+                .UseStartup<Startup>();
+            //.UseSetting(WebHostDefaults.HostingStartupAssembliesKey, "op_costos_api;opplatApplication;Account.WebApi");
             return host;
         }
     }

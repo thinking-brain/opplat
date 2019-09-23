@@ -1,5 +1,5 @@
     {
-        "api-account": "http://localhost:5200/api/",
-        "opplat-app": "http://localhost:5200/admin/",
-        "finanzas": "http://localhost:5200/finanzas/"
+        "api-account": "https://localhost:5001/auth/",
+        "opplat-app": "https://localhost:5001/admin/",
+        "finanzas": "https://localhost:5001/finanzas/"
     }

@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from 'axios';
+import api from "@/api.js";
 
 Vue.use(Vuex);
 
@@ -40,8 +41,9 @@ const auth = {
     }, user) {
       return new Promise((resolve, reject) => {
         commit('auth_request');
+        let url = api.getUrl("api-account", "account/login");
         axios({
-          url: 'http://localhost:5200/api/account/login',
+          url: url,
           data: user,
           method: 'POST'
         })
