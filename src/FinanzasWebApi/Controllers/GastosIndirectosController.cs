@@ -33,7 +33,7 @@ namespace FinanzasWebApi.Controllers
             //Periodo
             HttpClient clientPeriodo = new HttpClient();
             List<GenPeriodoVM> periodo = new List<GenPeriodoVM>();
-            var url = _config.GetValue<string>("FinanzasApi") + "/GenPeriodo";
+            var url = _config.GetValue<string>("ContabilidadApi") + "/GenPeriodo";
             var resultPeriodo = clientPeriodo.GetAsync(url).Result;
             if (resultPeriodo.IsSuccessStatusCode)
             {
@@ -43,7 +43,7 @@ namespace FinanzasWebApi.Controllers
             //OptCuentaCentroSubPeriodo
             HttpClient clientOpt = new HttpClient();
             List<OptCuentaCentroSubPeriodoVM> opt = new List<OptCuentaCentroSubPeriodoVM>();
-            var url2 = _config.GetValue<string>("FinanzasApi") + "/OptCuentaCentroSubPeriodo";
+            var url2 = _config.GetValue<string>("ContabilidadApi") + "/OptCuentaCentroSubPeriodo";
             var resultOpt = clientOpt.GetAsync(url2).Result;
             if (resultOpt.IsSuccessStatusCode)
             {
@@ -53,7 +53,7 @@ namespace FinanzasWebApi.Controllers
             //CosSubelementogasto
             HttpClient clientSubElemento = new HttpClient();
             List<CosSubelementogastoVM> subElemento = new List<CosSubelementogastoVM>();
-            var urlSubelement = _config.GetValue<string>("FinanzasApi") + "/CosSubelementogastos";
+            var urlSubelement = _config.GetValue<string>("ContabilidadApi") + "/CosSubelementogastos";
             var resultSubElemento = clientSubElemento.GetAsync(urlSubelement).Result;
             if (resultSubElemento.IsSuccessStatusCode)
             {
