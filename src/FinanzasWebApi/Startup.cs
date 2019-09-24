@@ -56,11 +56,6 @@ namespace FinanzasWebApi
 
             services.AddDbContext<ApiDbContext>(options =>
                     options.UseSqlServer(context.Configuration.GetConnectionString("ApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
-
-
-
-
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -15,7 +15,7 @@ namespace FinanzasWebApi.Helper
              //SUBMAYOR DE CUENTAS
             HttpClient client = new HttpClient();
             List<SubMayorCuentaVM> subMCuentas = new List<SubMayorCuentaVM>();
-            var result = client.GetAsync("http://127.0.0.1:5200/contabilidad/SubmayorDeCuentas").Result;
+            var result = client.GetAsync("https://localhost:5001/contabilidad/SubmayorDeCuentas").Result;
             if (result.IsSuccessStatusCode)
             {
                 subMCuentas = result.Content.ReadAsAsync<List<SubMayorCuentaVM>>().Result;

@@ -14,7 +14,7 @@ namespace FinanzasWebApi.Helper
             //Plan IG
             HttpClient clientPGI = new HttpClient();
             List<PlanGIResultVM> planGI = new List<PlanGIResultVM>();
-            var resultPGI = clientPGI.GetAsync( "http://127.0.0.1:5200/contabilidad/PlanIG/PlanesIG").Result;
+            var resultPGI = clientPGI.GetAsync( "https://localhost:5001/contabilidad/PlanIG/PlanesIG").Result;
             if (resultPGI.IsSuccessStatusCode)
             {
                 planGI = resultPGI.Content.ReadAsAsync<List<PlanGIResultVM>>().Result;

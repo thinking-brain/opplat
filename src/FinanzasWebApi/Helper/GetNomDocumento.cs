@@ -14,7 +14,7 @@ namespace FinanzasWebApi.Helper
             //Nomina Documento 
             HttpClient clientNDD = new HttpClient();
             List<NomDocumentoVM> nominaDoc = new List<NomDocumentoVM>();
-            var resultNDD = clientNDD.GetAsync("http://127.0.0.1:5200/contabilidad/NomDocumento").Result;
+            var resultNDD = clientNDD.GetAsync("https://localhost:5001/contabilidad/NomDocumento").Result;
             if (resultNDD.IsSuccessStatusCode)
             {
                 nominaDoc = resultNDD.Content.ReadAsAsync<List<NomDocumentoVM>>().Result;

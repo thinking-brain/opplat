@@ -15,7 +15,7 @@ namespace FinanzasWebApi.Helper
              //Nomina Detalle Doc
             HttpClient clientDetDoc = new HttpClient();
             List<NomDocumentoDetallePagoVM> nominaDetDoc = new List<NomDocumentoDetallePagoVM>();
-            var resultDetDoc = clientDetDoc.GetAsync("http://127.0.0.1:5200/contabilidad/NomDocumentoDetallePago").Result;
+            var resultDetDoc = clientDetDoc.GetAsync("https://localhost:5001/contabilidad/NomDocumentoDetallePago").Result;
             if (resultDetDoc.IsSuccessStatusCode)
             {
                 nominaDetDoc = resultDetDoc.Content.ReadAsAsync<List<NomDocumentoDetallePagoVM>>().Result;
