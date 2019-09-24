@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FinanzasWebApi.Data;
 using FinanzasWebApi.Helper;
-using FinanzasWebApi.Models;
 using FinanzasWebApi.ViewModels;
 
 namespace FinanzasWebApi.Controllers
