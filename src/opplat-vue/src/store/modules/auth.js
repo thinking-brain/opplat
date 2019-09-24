@@ -8,8 +8,8 @@ Vue.use(Vuex);
 const auth = {
   state: {
     status: '',
-    token: null,
-    usuario: {
+    token: localStorage.getItem('token') || null,
+    usuario: JSON.parse(localStorage.getItem('user_data')) || {
       nombre: '',
       roles: []
     },
@@ -48,16 +48,17 @@ const auth = {
           method: 'POST'
         })
           .then(resp => {
-            const token = resp.data.token;
+            const token = "Bearer " + resp.data.token;
             var playload = JSON.parse(atob(token.split('.')[1]));
             const user_data = playload;
-            localStorage.setItem('token', token);
-            localStorage.setItem('user_data', JSON.stringify(playload));
-            axios.defaults.headers.common['Authorization'] = "Bearer " + token;
             let usuario = {
               nombre: user_data.unique_name,
               roles: user_data["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
             };
+            localStorage.setItem('token', token);
+            localStorage.setItem('user_data', JSON.stringify(usuario));
+            axios.defaults.headers.common['Authorization'] = token;
+
             commit('auth_success', {
               token,
               usuario
@@ -77,6 +78,7 @@ const auth = {
       return new Promise((resolve, reject) => {
         commit('logout');
         localStorage.removeItem('token');
+        localStorage.removeItem('user_data');
         delete axios.defaults.headers.common['Authorization'];
         resolve();
       });
