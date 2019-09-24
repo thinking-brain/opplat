@@ -15,6 +15,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 using System.IO;
 using FinanzasWebApi.Data;
+using FinanzasWebApi.Helper;
 
 [assembly: HostingStartup(typeof(FinanzasWebApi.Startup))]
 
@@ -48,11 +49,14 @@ namespace FinanzasWebApi
                        }
                    });
 
-                    // Set the comments path for the Swagger JSON and UI.
-                    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                   // Set the comments path for the Swagger JSON and UI.
+                   var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                    c.IncludeXmlComments(xmlPath);
                });
+            services.AddSingleton<ObtenerPlanGI_Context>();
+            services.AddSingleton<GetTotalIngresosEnMes>();
+            services.AddSingleton<GetTotalEgresosEnMes>();
 
             services.AddDbContext<ApiDbContext>(options =>
                     options.UseSqlServer(context.Configuration.GetConnectionString("ApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
