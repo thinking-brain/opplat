@@ -20,6 +20,7 @@ using opplatApplication.Utils;
 using Swashbuckle.AspNetCore.Swagger;
 using ContabilidadWebApi.VersatModels;
 using ContabilidadWebApi.VersatModels2;
+using FinanzasWebApi.Helper;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -106,6 +107,12 @@ namespace opplatApplication
             services.AddTransient<OpplatAppDbContext>();
             services.AddSingleton<MenuLoader>();
             services.AddSingleton<LicenciaService>();
+
+            //finanzas services
+            services.AddSingleton<ObtenerPlanGI_Context>();
+            services.AddSingleton<GetTotalIngresosEnMes>();
+            services.AddSingleton<GetTotalEgresosEnMes>();
+            //fin
             services.AddSpaStaticFiles(config =>
             {
                 config.RootPath = context.Configuration.GetValue<string>("ClientApp");

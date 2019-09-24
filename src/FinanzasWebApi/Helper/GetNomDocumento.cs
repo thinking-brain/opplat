@@ -4,23 +4,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using FinanzasWebApi.ViewModels;
 using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace FinanzasWebApi.Helper
 {
     public class GetNomDocumento
     {
-        public static List<NomDocumentoVM> Get()
+        public static List<NomDocumentoVM> Get(IConfiguration config)
         {
             //Nomina Documento 
-            HttpClient clientNDD = new HttpClient();
+            var handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+            HttpClient clientNDD = new HttpClient(handler);
             List<NomDocumentoVM> nominaDoc = new List<NomDocumentoVM>();
-            var resultNDD = clientNDD.GetAsync("https://localhost:5001/contabilidad/NomDocumento").Result;
+            var url = config.GetValue<string>("ContabilidadApi") + "/NomDocumento";
+            var resultNDD = clientNDD.GetAsync(url).Result;
             if (resultNDD.IsSuccessStatusCode)
             {
                 nominaDoc = resultNDD.Content.ReadAsAsync<List<NomDocumentoVM>>().Result;
             }
-
-           
             return nominaDoc;
         }
     }
