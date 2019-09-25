@@ -18,10 +18,5 @@ namespace notificationsWebApi.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<UserNotification> UserNotifications { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-
-            modelBuilder.Entity<UserNotification>().HasKey(s => new { s.NotificationId, s.UsuarioId });
-        }
     }
 }
