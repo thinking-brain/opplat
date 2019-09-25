@@ -6,7 +6,8 @@
       </v-flex>
       <v-flex lg12>
         <v-card v-if="licencia">
-          <v-card-text>Sistema licenciado a nombre de : {{licencia.subscriptor}} hasta : {{licencia.vencimiento}}</v-card-text>
+          <v-card-text>Sistema licenciado a nombre de : {{licencia.subscriptor}}
+             hasta : {{licencia.vencimiento}}</v-card-text>
           <v-divider class="mt-5"></v-divider>
           <v-card-actions>
             <v-btn color="secundary" @click="eliminar">Eliminar Licencia</v-btn>
@@ -32,7 +33,7 @@
   </v-container>
 </template>
 <script>
-import api from '@/api.js';
+import api from '@/api';
 
 export default {
   data: () => ({
@@ -73,7 +74,7 @@ export default {
           this.licencia = null;
           vm.$snotify.success('Licencia eliminada correctamente.');
         })
-        .catch((err) => {
+        .catch(() => {
           vm.$snotify.error(
             'Error eliminando licencia. Contacte su administrador.',
           );
@@ -101,7 +102,7 @@ export default {
             this.$store
               .dispatch('agregar', lic)
               .then(() => {})
-              .catch((err) => {});
+              .catch(() => {});
             // this.$store
             //   .dispatch("cargar")
             //   .then(() => {
@@ -115,7 +116,7 @@ export default {
             vm.$snotify.success('Licencia agregada correctamente.');
           })
           .catch(() => {
-            console.log('no debe');
+            // console.log('no debe');
             vm.$snotify.error(
               'Error agregando licencia. Contacte su administrador.',
             );

@@ -70,7 +70,8 @@
             :key="item.grupo"
             v-bind:class="[(item.grupo === 'Utilidad')? 'negrita':'']"
           >
-            <td v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
+            <td 
+              v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
             <td>{{ item.planMes }}</td>
             <td>{{ item.realMes }}</td>
             <td>{{ item.porcCumplimiento }}</td>
@@ -165,7 +166,7 @@ th {
 </style>
 <script>
 import printJS from 'print-js';
-import api from '@/api.js';
+import api from '@/api';
 
 export default {
   props: ['mes', 'year'],

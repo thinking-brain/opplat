@@ -106,7 +106,7 @@
 
 <script>
 import VuePerfectScrollbar from 'vue-perfect-scrollbar';
-import api from '@/api.js';
+import api from '@/api';
 
 export default {
   components: {
@@ -128,11 +128,10 @@ export default {
         return this.$store.getters.drawerVisibility;
       },
       set(value) {
-        const visibility = !this.$store.getters.drawerVisibility;
-        this.$store
+          this.$store
           .dispatch('changeVisibility', value)
           .then(() => {})
-          .catch((err) => {});
+          .catch(() => {});
       },
     },
     computeGroupActive() {

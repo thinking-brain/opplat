@@ -38,7 +38,7 @@
   </v-container>
 </template>
 <script>
-import api from '@/api.js';
+import api from '@/api';
 
 export default {
   props: ['usuario'],
@@ -99,7 +99,7 @@ export default {
         const url = api.getUrl('api-account', 'account/cambiar-roles');
         this.axios
           .post(url, this.form)
-          .then((p) => {
+          .then(() => {
             vm.$snotify.success('Roles modificados correctamente.');
             this.$router.push('/admin/usuarios');
           })

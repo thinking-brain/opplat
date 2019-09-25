@@ -53,7 +53,7 @@
   </v-dialog>
 </template>
 <script>
-import api from '@/api.js';
+import api from '@/api';
 
 export default {
   props: ['usuario'],
@@ -91,7 +91,7 @@ export default {
 
   methods: {
     confirmPasswordCheck() {
-      this.errorMessagesPassword = this.contraseña != this.confirmarContraseña
+      this.errorMessagesPassword = this.contraseña !== this.confirmarContraseña
         ? ['No coinciden la contraseña y la confirmacion.']
         : [];
 
@@ -111,7 +111,7 @@ export default {
         const url = api.getUrl('api-account', 'account/change-password');
         this.axios
           .post(url, this.form)
-          .then((p) => {
+          .then(() => {
             this.dialog = false;
             vm.$snotify.success('Contraseña cambiada correctamente.');
           })

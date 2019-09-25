@@ -21,8 +21,8 @@
 </template>
 
 <script>
-import AppBar from '@/components/AppBar';
-import NavigationDrawer from '@/components/NavigationDrawer';
+import AppBar from '@/components/AppBar.vue';
+import NavigationDrawer from '@/components/NavigationDrawer.vue';
 
 export default {
   components: {

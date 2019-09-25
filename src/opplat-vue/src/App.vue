@@ -7,9 +7,7 @@ import Layout from './components/layouts/DefaultLayout';
 
 export default {
   name: 'App',
-  components: {
-    Layout,
-  },
+  components: {},
   data: () => ({
     //
   }),

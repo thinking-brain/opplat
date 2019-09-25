@@ -43,7 +43,9 @@
                     <td>{{ item.apellidos }}</td>
                     <td>{{ item.username }}</td>
                     <td>
-                      <RolesList v-bind:roles="item.roles" v-bind:usuario="item.username"></RolesList>
+                      <RolesList v-bind:roles="item.roles"
+                        v-bind:usuario="item.username">
+                      </RolesList>
                     </td>
                     <td>
                       <v-btn
@@ -74,11 +76,11 @@
 </template>
 
 <script>
-import api from '@/api.js';
-import RolesList from '@/components/admin/RolesList';
-import CambiarEstadoUsuario from '@/components/admin/CambiarEstadoUsuario';
-import ResetPassword from '@/components/admin/ResetPassword';
-import EditarUsuario from '@/components/admin/EditarUsuario';
+import api from '@/api';
+import RolesList from '@/components/admin/RolesList.vue';
+import CambiarEstadoUsuario from '@/components/admin/CambiarEstadoUsuario.vue';
+import ResetPassword from '@/components/admin/ResetPassword.vue';
+import EditarUsuario from '@/components/admin/EditarUsuario.vue';
 
 export default {
   components: {
@@ -150,24 +152,6 @@ export default {
           usuario,
         },
       });
-    },
-    resetPassword(usuario) {
-      // this.$router.push({
-      //   name: "gestionar-roles",
-      //   query: {
-      //     usuario: usuario
-      //   }
-      // });
-      console.log(`reset password al usuario: ${usuario.username}`);
-    },
-    editar(usuario) {
-      // this.$router.push({
-      //   name: "gestionar-roles",
-      //   query: {
-      //     usuario: usuario
-      //   }
-      // });
-      console.log(`editar usuario: ${usuario.username}`);
     },
   },
 };

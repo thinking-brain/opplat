@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import api from '@/api.js';
-import CambiarPassword from '@/views/auth/CambiarPassword';
+import api from '@/api';
+import CambiarPassword from '@/views/auth/CambiarPassword.vue';
 
 export default {
   components: { CambiarPassword },

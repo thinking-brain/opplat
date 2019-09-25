@@ -1,5 +1,3 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
 
 const drawer = {
   state: {
@@ -20,7 +18,7 @@ const drawer = {
     changeVisibility({
       commit,
     }, visibility) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         if (visibility) {
           commit('show');
         } else {

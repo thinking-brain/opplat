@@ -75,7 +75,7 @@ export default {
         this.axios
           .post('http://localhost:5200/config/licencia', this.form)
           .then((p) => {
-            licencia = p.data;
+            this.licencia = p.data;
             vm.$snotify.success('Licencia agregada satisfactorimente.');
           })
           .catch((e) => {

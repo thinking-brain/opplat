@@ -75,7 +75,7 @@
   </v-container>
 </template>
 <script>
-import api from '@/api.js';
+import api from '@/api';
 
 export default {
   data: () => ({
@@ -117,11 +117,11 @@ export default {
 
   methods: {
     usernameCheck() {
-      this.errorMessages = this.username == 'usuario' ? ['Este usuario existe'] : [];
+      this.errorMessages = this.username === 'usuario' ? ['Este usuario existe'] : [];
       return true;
     },
     confirmPasswordCheck() {
-      this.errorMessagesPassword = this.contraseña != this.confirmarContraseña
+      this.errorMessagesPassword = this.contraseña !== this.confirmarContraseña
         ? ['No coinciden la contraseña y la confirmacion.']
         : [];
 

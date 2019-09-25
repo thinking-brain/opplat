@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import api from '@/api.js';
+import api from '@/api';
 
 export default {
   data: () => ({
@@ -53,7 +53,7 @@ export default {
             .then(() => {})
             .catch((err) => {});
         })
-        .catch((err) => {
+        .catch(() => {
           vm.$snotify.error(
             'No se pudo cargar la licencia. Contacte su administrador.',
           );
@@ -70,7 +70,7 @@ export default {
           this.$router.push('/');
           this.loading = false;
         })
-        .catch((err) => {
+        .catch(() => {
           vm.$snotify.error(
             'Error conectando con el servidor de autenticacion. Contacte su administrador.',
           );

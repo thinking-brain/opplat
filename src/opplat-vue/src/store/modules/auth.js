@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
-import api from '@/api.js';
+import api from '@/api';
 
 Vue.use(Vuex);
 
@@ -50,10 +50,10 @@ const auth = {
           .then((resp) => {
             const token = `Bearer ${resp.data.token}`;
             const playload = JSON.parse(atob(token.split('.')[1]));
-            const user_data = playload;
+            const userData = playload;
             const usuario = {
-              nombre: user_data.unique_name,
-              roles: user_data['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
+              nombre: userData.unique_name,
+              roles: userData['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
             };
             localStorage.setItem('token', token);
             localStorage.setItem('user_data', JSON.stringify(usuario));
@@ -75,7 +75,7 @@ const auth = {
     logout({
       commit,
     }) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         commit('logout');
         localStorage.removeItem('token');
         localStorage.removeItem('user_data');

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
-import api from '@/api.js';
+import api from '@/api';
 
 Vue.use(Vuex);
 
@@ -23,16 +23,16 @@ const licencia = {
   actions: {
     agregar({
       commit,
-    }, licencia) {
-      return new Promise((resolve, reject) => {
-        const lic = licencia;
+    }, licence) {
+      return new Promise((resolve) => {
+        const lic = licence;
         commit('agregar', {
           subscriptor: lic.subscriptor,
           vencimiento: lic.fechaVencimiento,
         });
         localStorage.setItem('subscriptor', lic.subscriptor);
         localStorage.setItem('vencimiento', lic.fechaVencimiento);
-        resolve(resp);
+        resolve(resolve);
       });
     },
     quitar({
@@ -40,7 +40,7 @@ const licencia = {
     }) {
       return new Promise((resolve, reject) => {
         const url = api.getUrl('opplat-app', 'licencia');
-        console.log(url);
+        // console.log(url);
         axios({
           url,
           method: 'DELETE',

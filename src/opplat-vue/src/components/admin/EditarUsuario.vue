@@ -35,7 +35,7 @@
   </v-dialog>
 </template>
 <script>
-import api from '@/api.js';
+import api from '@/api';
 
 export default {
   props: ['usuario'],
@@ -84,7 +84,7 @@ export default {
         const url = api.getUrl('api-account', 'account/editar-usuario');
         this.axios
           .post(url, this.form)
-          .then((p) => {
+          .then(() => {
             this.usuario.nombres = this.nombres;
             this.usuario.apellidos = this.apellidos;
             this.dialog = false;

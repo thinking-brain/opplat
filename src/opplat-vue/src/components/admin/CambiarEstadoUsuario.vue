@@ -33,7 +33,7 @@
   </v-dialog>
 </template>
 <script>
-import api from '@/api.js';
+import api from '@/api';
 
 export default {
   props: ['usuario'],
@@ -53,10 +53,10 @@ export default {
       );
       this.axios
         .get(url)
-        .then((response) => {
+        .then(() => {
           this.usuario.activo = !this.usuario.activo;
         })
-        .catch((e) => {
+        .catch(() => {
           // this.errors.push(e);
           // console.log(e);
         });
