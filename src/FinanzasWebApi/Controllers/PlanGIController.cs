@@ -133,7 +133,7 @@ namespace FinanzasWebApi.Controllers
                 Grupo = "Utilidad",
                 PlanMes = PlanMes,
                 RealMes = RealMes,
-                PorcCumplimiento = Math.Round(RealMes / PlanMes, 2, MidpointRounding.AwayFromZero),
+                PorcCumplimiento = PlanMes  > 0 ? Math.Round(RealMes / PlanMes, 2, MidpointRounding.AwayFromZero): 0M,
                 PorcRelacionIngresos = plan.Sum(s => s.PorcRelacionIngresos),
                 PorcGastosFuncionTotal = null,
                 PlanAcumulado = Math.Round(PlanAcumulado, 2, MidpointRounding.AwayFromZero),
