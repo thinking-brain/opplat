@@ -23,6 +23,7 @@
           required
           ref="apellidos"
           :rules="[() => !!apellidos || 'Este campo es obligatorio.']"
+          v-on:keyup.enter="submit"
         ></v-text-field>
       </v-card-text>
       <v-card-actions>
