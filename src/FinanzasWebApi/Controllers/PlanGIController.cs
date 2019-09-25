@@ -48,13 +48,13 @@ namespace FinanzasWebApi.Controllers
                 PlanMes = plan.Sum(s => s.PlanMes),
                 RealMes = plan.Sum(s => s.RealMes),
                 PorcCumplimiento = plan.Sum(s => s.PorcCumplimiento),
-                PorcRelacionIngresos = plan.Sum(s => s.PorcRelacionIngresos),
-                PorcGastosFuncionTotal = plan.Sum(s => s.PorcGastosFuncionTotal),
+                PorcRelacionIngresos = null,
+                PorcGastosFuncionTotal = null,
                 PlanAcumulado = plan.Sum(s => s.PlanAcumulado),
                 RealAcumulado = plan.Sum(s => s.RealAcumulado),
                 PorcCumpAcumulado = plan.Sum(s => s.PorcCumpAcumulado),
-                PorcIngresosFuncionTotal = plan.Sum(s => s.PorcIngresosFuncionTotal),
-                PorcGastosFuncionTotalAcumulado = plan.Sum(s => s.PorcGastosFuncionTotalAcumulado),
+                PorcIngresosFuncionTotal = null,
+                PorcGastosFuncionTotalAcumulado = null,
 
             });
             foreach (var item in plan)
@@ -135,12 +135,12 @@ namespace FinanzasWebApi.Controllers
                 RealMes = RealMes,
                 PorcCumplimiento = Math.Round(RealMes / PlanMes, 2, MidpointRounding.AwayFromZero),
                 PorcRelacionIngresos = plan.Sum(s => s.PorcRelacionIngresos),
-                PorcGastosFuncionTotal = plan.Sum(s => s.PorcGastosFuncionTotal),
+                PorcGastosFuncionTotal = null,
                 PlanAcumulado = Math.Round(PlanAcumulado, 2, MidpointRounding.AwayFromZero),
                 RealAcumulado = Math.Round(RealAcumulado, 2, MidpointRounding.AwayFromZero),
                 PorcCumpAcumulado = plan.Sum(s => s.PorcCumpAcumulado),
                 PorcIngresosFuncionTotal = plan.Sum(s => s.PorcIngresosFuncionTotal),
-                PorcGastosFuncionTotalAcumulado = plan.Sum(s => s.PorcGastosFuncionTotalAcumulado),
+                PorcGastosFuncionTotalAcumulado = null,
 
             });
             foreach (var item in plan)
