@@ -1,11 +1,11 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import Vue from 'vue';
+import Vuex from 'vuex';
 
-import app from "./modules/app";
-import drawer from "./modules/drawer";
-import auth from "./modules/auth";
-import licencia from "./modules/licencia";
-import getters from "./getters";
+import app from './modules/app';
+import drawer from './modules/drawer';
+import auth from './modules/auth';
+import licencia from './modules/licencia';
+import getters from './getters';
 
 Vue.use(Vuex);
 
@@ -14,10 +14,10 @@ export default new Vuex.Store({
     app,
     drawer,
     auth,
-    licencia
+    licencia,
   },
   state: {},
   mutations: {},
   actions: {},
-  getters
+  getters,
 });

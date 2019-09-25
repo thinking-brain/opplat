@@ -113,23 +113,24 @@
 </template>
 
 <script>
-import { getUserById } from "@/api/user"
+import { getUserById } from '@/api/user';
+
 export default {
   data() {
     return {
       chat: null,
-      selectedTab: null
-    }
+      selectedTab: null,
+    };
   },
   computed: {
     user() {
-      let Origin = {
-        name: "Chat",
-        avatar: ""
-      }
-      let user = getUserById(this.$route.params.uuid)
-      return Object.assign(Origin, user)
-    }
-  }
-}
+      const Origin = {
+        name: 'Chat',
+        avatar: '',
+      };
+      const user = getUserById(this.$route.params.uuid);
+      return Object.assign(Origin, user);
+    },
+  },
+};
 </script>

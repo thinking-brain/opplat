@@ -54,27 +54,28 @@
 </template>
 
 <script>
-import Util from "@/util";
+import Util from '@/util';
+
 export default {
   data: () => ({}),
   methods: {
     changeDrawer() {
-      let visibility = !this.$store.getters.drawerVisibility;
+      const visibility = !this.$store.getters.drawerVisibility;
       this.$store
-        .dispatch("changeVisibility", visibility)
+        .dispatch('changeVisibility', visibility)
         .then(() => {})
-        .catch(err => {});
+        .catch((err) => {});
     },
     handleFullScreen() {
       Util.toggleFullScreen();
     },
     handleLogut() {
-      this.$router.push("/auth/login");
+      this.$router.push('/auth/login');
     },
     handleSetting() {},
     handleProfile() {
-      this.$router.push("/account/perfil");
-    }
-  }
+      this.$router.push('/account/perfil');
+    },
+  },
 };
 </script>

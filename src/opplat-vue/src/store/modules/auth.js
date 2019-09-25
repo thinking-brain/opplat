@@ -1,7 +1,7 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import Vue from 'vue';
+import Vuex from 'vuex';
 import axios from 'axios';
-import api from "@/api.js";
+import api from '@/api.js';
 
 Vue.use(Vuex);
 
@@ -11,7 +11,7 @@ const auth = {
     token: localStorage.getItem('token') || null,
     usuario: JSON.parse(localStorage.getItem('user_data')) || {
       nombre: '',
-      roles: []
+      roles: [],
     },
   },
   mutations: {
@@ -31,41 +31,41 @@ const auth = {
       state.token = null;
       state.usuario = {
         nombre: '',
-        roles: []
+        roles: [],
       };
     },
   },
   actions: {
     login({
-      commit
+      commit,
     }, user) {
       return new Promise((resolve, reject) => {
         commit('auth_request');
-        let url = api.getUrl("api-account", "account/login");
+        const url = api.getUrl('api-account', 'account/login');
         axios({
-          url: url,
+          url,
           data: user,
-          method: 'POST'
+          method: 'POST',
         })
-          .then(resp => {
-            const token = "Bearer " + resp.data.token;
-            var playload = JSON.parse(atob(token.split('.')[1]));
+          .then((resp) => {
+            const token = `Bearer ${resp.data.token}`;
+            const playload = JSON.parse(atob(token.split('.')[1]));
             const user_data = playload;
-            let usuario = {
+            const usuario = {
               nombre: user_data.unique_name,
-              roles: user_data["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+              roles: user_data['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
             };
             localStorage.setItem('token', token);
             localStorage.setItem('user_data', JSON.stringify(usuario));
-            axios.defaults.headers.common['Authorization'] = token;
+            axios.defaults.headers.common.Authorization = token;
 
             commit('auth_success', {
               token,
-              usuario
+              usuario,
             });
             resolve(resp);
           })
-          .catch(err => {
+          .catch((err) => {
             commit('auth_error');
             localStorage.removeItem('token');
             reject(err);
@@ -73,25 +73,23 @@ const auth = {
       });
     },
     logout({
-      commit
+      commit,
     }) {
       return new Promise((resolve, reject) => {
         commit('logout');
         localStorage.removeItem('token');
         localStorage.removeItem('user_data');
-        delete axios.defaults.headers.common['Authorization'];
+        delete axios.defaults.headers.common.Authorization;
         resolve();
       });
-    }
+    },
   },
   getters: {
-    isLoggedIn: state => {
-      return !!state.token;
-    },
+    isLoggedIn: state => !!state.token,
     authStatus: state => state.status,
     roles: state => state.usuario.roles,
     usuario: state => state.usuario.nombre,
-  }
+  },
 };
 
 export default auth;

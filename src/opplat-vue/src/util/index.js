@@ -42,32 +42,26 @@
 
 //   return text;
 // }
-const randomElement = (arr = []) => {
-  return arr[Math.floor(Math.random() * arr.length)]
-}
+const randomElement = (arr = []) => arr[Math.floor(Math.random() * arr.length)];
 
-const kebab = str => {
-  return (str || "").replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
-}
+const kebab = str => (str || '').replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 
 const toggleFullScreen = () => {
-  let doc = window.document
-  let docEl = doc.documentElement
+  const doc = window.document;
+  const docEl = doc.documentElement;
 
-  let requestFullScreen =
-    docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen
-  let cancelFullScreen =
-    doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen
+  const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+  const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
 
   if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-    requestFullScreen.call(docEl)
+    requestFullScreen.call(docEl);
   } else {
-    cancelFullScreen.call(doc)
+    cancelFullScreen.call(doc);
   }
-}
+};
 
 export default {
   randomElement,
   toggleFullScreen,
-  kebab
-}
+  kebab,
+};

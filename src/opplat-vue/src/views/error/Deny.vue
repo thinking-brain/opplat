@@ -22,10 +22,10 @@
 export default {
   methods: {
     goHome() {
-      this.$router.push({ path: "/dashboard" });
-    }
+      this.$router.push({ path: '/dashboard' });
+    },
   },
-  created() {}
+  created() {},
 };
 </script>
 <style scoped lang="css">
