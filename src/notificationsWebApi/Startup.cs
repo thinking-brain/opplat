@@ -12,8 +12,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using notificationsWebApi.Data;
 using notificationsWebApi.Hubs;
 using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.EntityFrameworkCore;
 
 [assembly: HostingStartup(typeof(notificationsWebApi.Startup))]
 
@@ -30,6 +32,9 @@ namespace notificationsWebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
+            services.AddDbContext<notificationsDbContext>(options =>
+options.UseNpgsql(context.Configuration.GetConnectionString("NotificationsDbContext"), b => b.MigrationsAssembly("notificationsWebApi")));
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSignalR();
             services.AddSwaggerGen(c =>
