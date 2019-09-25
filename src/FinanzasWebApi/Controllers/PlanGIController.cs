@@ -17,16 +17,7 @@ namespace FinanzasWebApi.Controllers
     [ApiController]
     public class PlanGIController : ControllerBase
     {
-        ObtenerPlanGI_Context _obtenetPlan { get; set; }
-        GetTotalIngresosEnMes _getIngresos { get; set; }
-        GetTotalEgresosEnMes _getEgresos { get; set; }
-        public PlanGIController(ObtenerPlanGI_Context obtenerPlan, GetTotalIngresosEnMes getIngresos, GetTotalEgresosEnMes getEgresos)
-        {
-            _obtenetPlan = obtenerPlan;
-            _getIngresos = getIngresos;
-            _getEgresos = getEgresos;
-        }
-
+       
         /// <summary>
         /// Devuelve los Ingresos para el plan de Gastos en Ingresos
         /// </summary>
@@ -37,24 +28,23 @@ namespace FinanzasWebApi.Controllers
         public IEnumerable<PlanGIViewModel> Ingresos([FromRoute] string años, int meses)
         {
             var plan = new List<PlanGIViewModel>();
-
+          
             int year = Convert.ToInt32(años);
-            plan = _obtenetPlan.ObtenerIngresos(year, meses);
+            plan = new ObtenerPlanGI_Context().ObtenerIngresos(year, meses);
 
             var planes = new List<PlanGIViewModel>();
-            planes.Add(new PlanGIViewModel
-            {
+            planes.Add(new PlanGIViewModel {
                 Grupo = "Ingresos",
                 PlanMes = plan.Sum(s => s.PlanMes),
                 RealMes = plan.Sum(s => s.RealMes),
                 PorcCumplimiento = plan.Sum(s => s.PorcCumplimiento),
-                PorcRelacionIngresos = null,
-                PorcGastosFuncionTotal = null,
+                PorcRelacionIngresos = plan.Sum(s => s.PorcRelacionIngresos),
+                PorcGastosFuncionTotal = plan.Sum(s => s.PorcGastosFuncionTotal),
                 PlanAcumulado = plan.Sum(s => s.PlanAcumulado),
                 RealAcumulado = plan.Sum(s => s.RealAcumulado),
                 PorcCumpAcumulado = plan.Sum(s => s.PorcCumpAcumulado),
-                PorcIngresosFuncionTotal = null,
-                PorcGastosFuncionTotalAcumulado = null,
+                PorcIngresosFuncionTotal = plan.Sum(s => s.PorcIngresosFuncionTotal),
+                PorcGastosFuncionTotalAcumulado = plan.Sum(s => s.PorcGastosFuncionTotalAcumulado),
 
             });
             foreach (var item in plan)
@@ -75,7 +65,7 @@ namespace FinanzasWebApi.Controllers
         {
             var plan = new List<PlanGIViewModel>();
             int year = Convert.ToInt32(años);
-            plan = _obtenetPlan.ObtenerEgresos(year, meses);
+            plan = new ObtenerPlanGI_Context().ObtenerEgresos(year, meses);
             var planes = new List<PlanGIViewModel>();
             planes.Add(new PlanGIViewModel
             {
@@ -110,24 +100,24 @@ namespace FinanzasWebApi.Controllers
         {
             var plan = new List<PlanGIViewModel>();
             int year = Convert.ToInt32(años);
-            plan = _obtenetPlan.ObtenerUtilidades(year, meses);
+            plan = new ObtenerPlanGI_Context().ObtenerUtilidades(year, meses);
             var planes = new List<PlanGIViewModel>();
-            decimal TotalIngresos = _getIngresos.GetReal(year, meses);
-            decimal TotalPlanIngresos = _getIngresos.GetPlan(year, meses);
-            decimal TotalIngresosAcumulado = _getIngresos.GetRealAcumulado(year, meses);
-            decimal TotalPlanIngresosAcumulado = _getIngresos.GetPlanAcumulado(year, meses);
+            decimal TotalIngresos = GetTotalIngresosEnMes.GetReal(year, meses);
+            decimal TotalPlanIngresos = GetTotalIngresosEnMes.GetPlan(year, meses);
+            decimal TotalIngresosAcumulado = GetTotalIngresosEnMes.GetRealAcumulado(year, meses);
+            decimal TotalPlanIngresosAcumulado = GetTotalIngresosEnMes.GetPlanAcumulado(year, meses);
 
-            decimal TotalEgresos = _getEgresos.GetReal(year, meses);
-            decimal TotalPlanEgresos = _getEgresos.GetPlan(year, meses);
-            decimal TotalEgresosAcumulado = _getEgresos.GetRealAcumulado(year, meses);
-            decimal TotalPlanEgresosAcumulado = _getEgresos.GetPlanAcumulado(year, meses);
+            decimal TotalEgresos = GetTotalEgresosEnMes.GetReal(year, meses);
+            decimal TotalPlanEgresos = GetTotalEgresosEnMes.GetPlan(year, meses);
+            decimal TotalEgresosAcumulado = GetTotalEgresosEnMes.GetRealAcumulado(year, meses);
+            decimal TotalPlanEgresosAcumulado = GetTotalEgresosEnMes.GetPlanAcumulado(year, meses);
 
             decimal PlanMes = TotalPlanIngresos - TotalPlanEgresos;
-            decimal RealMes = TotalIngresos - TotalEgresos;
+            decimal RealMes =  TotalIngresos - TotalEgresos; 
             decimal PlanAcumulado = TotalPlanIngresosAcumulado - TotalPlanEgresosAcumulado;
             decimal RealAcumulado = TotalIngresosAcumulado - TotalEgresosAcumulado;
 
-
+           
             planes.Add(new PlanGIViewModel
             {
                 Grupo = "Utilidad",
@@ -135,12 +125,12 @@ namespace FinanzasWebApi.Controllers
                 RealMes = RealMes,
                 PorcCumplimiento = Math.Round(RealMes / PlanMes, 2, MidpointRounding.AwayFromZero),
                 PorcRelacionIngresos = plan.Sum(s => s.PorcRelacionIngresos),
-                PorcGastosFuncionTotal = null,
+                PorcGastosFuncionTotal = plan.Sum(s => s.PorcGastosFuncionTotal),
                 PlanAcumulado = Math.Round(PlanAcumulado, 2, MidpointRounding.AwayFromZero),
                 RealAcumulado = Math.Round(RealAcumulado, 2, MidpointRounding.AwayFromZero),
                 PorcCumpAcumulado = plan.Sum(s => s.PorcCumpAcumulado),
                 PorcIngresosFuncionTotal = plan.Sum(s => s.PorcIngresosFuncionTotal),
-                PorcGastosFuncionTotalAcumulado = null,
+                PorcGastosFuncionTotalAcumulado = plan.Sum(s => s.PorcGastosFuncionTotalAcumulado),
 
             });
             foreach (var item in plan)

@@ -4,26 +4,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using FinanzasWebApi.ViewModels;
 using System.Net.Http;
-using Microsoft.Extensions.Configuration;
 
 namespace FinanzasWebApi.Helper
 {
     public class GetPlanGI
     {
-        public static List<PlanGIResultVM> Get(IConfiguration config)
+        public static List<PlanGIResultVM> Get()
         {
             //Plan IG
-            var handler = new HttpClientHandler();
-            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
-            HttpClient clientPGI = new HttpClient(handler);
+            HttpClient clientPGI = new HttpClient();
             List<PlanGIResultVM> planGI = new List<PlanGIResultVM>();
-            var url = config.GetValue<string>("ContabilidadApi") + "/PlanIG/PlanesIG";
-            var resultPGI = clientPGI.GetAsync(url).Result;
+            var resultPGI = clientPGI.GetAsync( "https://localhost:5001/contabilidad/PlanIG/PlanesIG").Result;
             if (resultPGI.IsSuccessStatusCode)
             {
                 planGI = resultPGI.Content.ReadAsAsync<List<PlanGIResultVM>>().Result;
             }
-
+           
             return planGI;
         }
     }

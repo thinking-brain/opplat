@@ -13,20 +13,20 @@ using FinanzasWebApi.ViewModels;
 
 namespace FinanzasWebApi.Controllers
 {
-    [Route("finanzas/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class PronosticoProductivoController : ControllerBase
     {
         private readonly ApiDbContext _context;
-
+     
 
         public PronosticoProductivoController(ApiDbContext context)
         {
             _context = context;
         }
+        
 
-
-        [HttpGet("finanzas/Obras/")]
+        [HttpGet("api/Obras/")]
         public IEnumerable<PlanPronosticoProductivoVM> Obras()
         {
             var plan = new List<PlanPronosticoProductivoVM>();
@@ -57,14 +57,14 @@ namespace FinanzasWebApi.Controllers
             return plan;
         }
 
-
+      
         /// <summary>
         /// Devuelve Pronosticos Productivos
         /// </summary>
         /// <param name="años"></param>
         /// <param name="meses"></param>
         /// <returns></returns>
-        [HttpGet("finanzas/PP/{años}/{meses}")]
+        [HttpGet("api/PP/{años}/{meses}")]
         public IEnumerable<PronosticoProductivoVM> PP([FromRoute] string años, int meses)
         {
             var plan = new List<PronosticoProductivoVM>();
@@ -73,6 +73,6 @@ namespace FinanzasWebApi.Controllers
             return plan;
         }
 
-
+       
     }
 }

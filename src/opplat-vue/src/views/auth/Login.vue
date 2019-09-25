@@ -19,7 +19,6 @@
           id="password"
           type="password"
           v-model="password"
-          v-on:keyup.enter="login"
         ></v-text-field>
       </v-form>
     </v-card-text>

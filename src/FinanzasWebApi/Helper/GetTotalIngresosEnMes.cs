@@ -4,21 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using FinanzasWebApi.ViewModels;
 using System.Net.Http;
-using Microsoft.Extensions.Configuration;
 
 namespace FinanzasWebApi.Helper
 {
     public class GetTotalIngresosEnMes
     {
-        IConfiguration _config { get; set; }
-
-        public GetTotalIngresosEnMes(IConfiguration config)
+        public static decimal GetReal(int year, int meses)
         {
-            _config = config;
-        }
-        public decimal GetReal(int year, int meses)
-        {
-            List<SubMayorCuentaVM> subMCuentas = GetSubMayorDeCuentas.Get(_config);
+            List<SubMayorCuentaVM> subMCuentas = GetSubMayorDeCuentas.Get();
             //Tabla de Movimientos en el Opplat (SUBMAYOR-CUENTA)
             var data = subMCuentas.ToList();
             //Buscando el Primer Periodo del Año consultado
@@ -34,9 +27,9 @@ namespace FinanzasWebApi.Helper
 
             return TotalIngresosEnMes;
         }
-        public decimal GetPlan(int year, int meses)
+        public static decimal GetPlan(int year, int meses)
         {
-            List<PlanGIResultVM> planGI = GetPlanGI.Get(_config);
+            List<PlanGIResultVM> planGI = GetPlanGI.Get();
 
             //Tabla que contiene los palnes de Gastos e Ingresos
             var planesGI = planGI.Where(s => s.Año == Convert.ToString(year));
@@ -51,9 +44,9 @@ namespace FinanzasWebApi.Helper
 
             return TotalPlanIngresosEnMes;
         }
-        public decimal GetRealAcumulado(int year, int meses)
+        public static decimal GetRealAcumulado(int year, int meses)
         {
-            List<SubMayorCuentaVM> subMCuentas = GetSubMayorDeCuentas.Get(_config);
+            List<SubMayorCuentaVM> subMCuentas = GetSubMayorDeCuentas.Get();
             //Tabla de Movimientos en el Opplat (SUBMAYOR-CUENTA)
             var data = subMCuentas.ToList();
             //Buscando el Primer Periodo del Año consultado
@@ -71,9 +64,9 @@ namespace FinanzasWebApi.Helper
 
             return TotalIngresosAcumulados;
         }
-        public decimal GetPlanAcumulado(int year, int meses)
+        public static decimal GetPlanAcumulado(int year, int meses)
         {
-            List<PlanGIResultVM> planGI = GetPlanGI.Get(_config);
+            List<PlanGIResultVM> planGI = GetPlanGI.Get();
 
             //Tabla que contiene los palnes de Gastos e Ingresos
             var planesGI = planGI.Where(s => s.Año == Convert.ToString(year));

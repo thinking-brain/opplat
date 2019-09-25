@@ -52,7 +52,6 @@
               ref="confirmarContraseña"
               required
               :error-messages="errorMessagesPassword"
-              v-on:keyup.enter="submit"
             ></v-text-field>
           </v-card-text>
           <v-divider class="mt-5"></v-divider>
