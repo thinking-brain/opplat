@@ -192,7 +192,8 @@ export default {
     return {
       ingresos: [],
       egresos: [],
-      utilidades: []
+      utilidades: [],
+      errors:[]
     };
   },
   created() {
@@ -251,11 +252,6 @@ export default {
             "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
           );
         });
-    },
-    exportar: function() {
-      var TableExport = require("tableexport");
-      // dom id, filename, type: json, txt, csv, xml, doc, xsl, image, pdf
-      TableExport(document.getElementById("table1"));
     },
     imprimir() {
       // Get HTML to print from element

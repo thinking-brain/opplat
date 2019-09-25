@@ -57,7 +57,7 @@ namespace ContabilidadWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return Ok();
+                return Ok(ex);
             }
 
 
