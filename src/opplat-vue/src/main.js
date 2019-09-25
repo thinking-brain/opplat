@@ -3,10 +3,12 @@ import App from './App.vue'
 import router from './router/index'
 import store from './store/index'
 import './registerServiceWorker'
-import vuetify from './plugins/vuetify';
-import axios from 'axios';
-import VueAxios from 'vue-axios';
-import 'vue-snotify/styles/material.css';
+import vuetify from './plugins/vuetify'
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+import 'vue-snotify/styles/material.css'
+import 'tableexport'
+import 'file-saverjs'
 import snotify, {
   SnotifyPosition
 } from 'vue-snotify';

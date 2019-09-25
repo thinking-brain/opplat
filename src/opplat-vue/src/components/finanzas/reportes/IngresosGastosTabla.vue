@@ -1,8 +1,32 @@
 <template>
-  <div>
-    <v-btn color="blue darken-1" text @click="exportar">Exportar</v-btn>
-    <v-btn color="blue darken-1" text @click="imprimir">Imprimir</v-btn>
-    <div id="areatoPrint">
+  <v-container>
+    <v-divider></v-divider>
+    <v-row class="my-4 mb-4">
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-btn class="mx-2" fab small>
+            <v-icon class="mx-2" color="blue darken-4" fab v-on="on" @click="imprimir">mdi-printer</v-icon>
+          </v-btn>
+        </template>
+        <span>Imprimir</span>
+      </v-tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            @click="exportTableToExcel"
+            class="mx-2 xlsx"
+            tableexport-id="51b48fa9-xlsx"
+            fab
+            small
+          >
+            <v-icon class="mx-2" color="green" fab v-on="on">mdi-file-excel</v-icon>
+          </v-btn>
+        </template>
+        <span>Exportar a Excel</span>
+      </v-tooltip>
+    </v-row>
+
+    <v-row class="my-4 mb-4" id="print">
       <table id="table1">
         <thead>
           <tr>
@@ -84,14 +108,11 @@
           </tr>
         </tbody>
       </table>
-    </div>
-  </div>
+    </v-row>
+  </v-container>
 </template>
 <style scoped>
 @media print {
-  * {
-    display: none;
-  }
   #areatoPrint {
     display: block;
   }
@@ -198,7 +219,7 @@ export default {
           );
         });
     },
-     getEgresosFromApi: function() {
+    getEgresosFromApi: function() {
       let url = api.getUrl(
         "finanzas",
         "PlanGI/Egresos/" + this.year + "/" + this.mes
@@ -215,7 +236,7 @@ export default {
           );
         });
     },
-     getUtilidadesFromApi: function() {
+    getUtilidadesFromApi: function() {
       let url = api.getUrl(
         "finanzas",
         "PlanGI/Utilidades/" + this.year + "/" + this.mes
@@ -237,17 +258,91 @@ export default {
       // dom id, filename, type: json, txt, csv, xml, doc, xsl, image, pdf
       TableExport(document.getElementById("table1"));
     },
-    imprimir: function() {
-      require("print-js");
-      printJS("areatoPrint", "html");
-      // var printContents = document.getElementById("areatoPrint").innerHTML;
-      // var originalContents = document.body.innerHTML;
+    imprimir() {
+      // Get HTML to print from element
+      const prtHtml = document.getElementById("print").innerHTML;
 
-      // document.body.innerHTML = printContents;
+      // Get all stylesheets HTML
+      let stylesHtml = "";
+      for (const node of [
+        ...document.querySelectorAll('link[rel="stylesheet"], style')
+      ]) {
+        stylesHtml += node.outerHTML;
+      }
 
-      // window.print();
+      // Open the print window
+      const WinPrint = window.open(
+        "",
+        "",
+        "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
+      );
 
-      // document.body.innerHTML = originalContents;
+      WinPrint.document.write(`<!DOCTYPE html>
+<html>
+  <head>
+    ${stylesHtml}
+  </head>
+  <body>
+    ${prtHtml}
+  </body>
+</html>`);
+
+      WinPrint.document.close();
+      WinPrint.focus();
+      WinPrint.print();
+      WinPrint.close();
+    },
+    // exportar() {
+    //   var TableExport = require("tableexport");
+    //   /* Defaults */
+    //   var table = TableExport(document.getElementById("table1"), {
+    //     headers: true, // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
+    //     footers: true, // (Boolean), display table footers (th or td elements) in the <tfoot>, (default: false)
+    //     formats: ["xlsx"], // (String[]), filetype(s) for the export, (default: ['xlsx', 'csv', 'txt'])
+    //     filename: "Ingresos y Gastos", // (id, String), filename for the downloaded file, (default: 'id')
+    //     bootstrap: false, // (Boolean), style buttons using bootstrap, (default: true)
+    //     exportButtons: false, // (Boolean), automatically generate the built-in export buttons for each of the specified formats (default: true)
+    //     position: "bottom", // (top, bottom), position of the caption element relative to table, (default: 'bottom')
+    //     ignoreRows: null, // (Number, Number[]), row indices to exclude from the exported file(s) (default: null)
+    //     ignoreCols: null, // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
+    //     trimWhitespace: true, // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
+    //     RTL: false, // (Boolean), set direction of the worksheet to right-to-left (default: false)
+    //     sheetname: "id" // (id, String), sheet name for the exported spreadsheet, (default: 'id')
+    //   });
+    //   /* get export data */
+    //   var exportData = table.getExportData(); // useful for creating custom export buttons, i.e. when (exportButtons: false)
+
+    //   console.log(exportData);
+    // }
+    exportTableToExcel(tableID = "table1", filename = "Reportee") {
+      var downloadLink;
+      var dataType = "application/vnd.ms-excel";
+      var tableSelect = document.getElementById("table1");
+      var tableHTML = tableSelect.outerHTML.replace(/ /g, "%20");
+
+      // Specify file name
+      filename = filename ? filename + ".xls" : "excel_data.xls";
+
+      // Create download link element
+      downloadLink = document.createElement("a");
+
+      document.body.appendChild(downloadLink);
+
+      if (navigator.msSaveOrOpenBlob) {
+        var blob = new Blob(["\ufeff", tableHTML], {
+          type: dataType
+        });
+        navigator.msSaveOrOpenBlob(blob, filename);
+      } else {
+        // Create a link to the file
+        downloadLink.href = "data:" + dataType + ", " + tableHTML;
+
+        // Setting the file name
+        downloadLink.download = filename;
+
+        //triggering the function
+        downloadLink.click();
+      }
     }
   }
 };
