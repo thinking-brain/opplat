@@ -92,9 +92,9 @@ namespace FinanzasWebApi.Helper
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
                         // PorcRelacionIngresos = (TotalIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                        PorcRelacionIngresos = 0M,
+                        PorcRelacionIngresos = null,
                         //% de los gastos en función del total
-                        PorcGastosFuncionTotal = 0M,
+                        PorcGastosFuncionTotal = null,
                         //Plan Acumulado
                         PlanAcumulado = PlanAcumulado,
                         //Real Acumulado
@@ -102,9 +102,9 @@ namespace FinanzasWebApi.Helper
                         //% Cumplimiento
                         PorcCumpAcumulado = (RealAcumulado > 0 && PlanAcumulado > 0) ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos 
-                        PorcIngresosFuncionTotal = 0M,
+                        PorcIngresosFuncionTotal = null,
                         //% de los gastos en función del total 
-                        PorcGastosFuncionTotalAcumulado = 0M,
+                        PorcGastosFuncionTotalAcumulado = null,
                         ////Total en el Grupo
                         //
 
@@ -134,9 +134,9 @@ namespace FinanzasWebApi.Helper
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
                         // PorcRelacionIngresos = (TotalIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                        PorcRelacionIngresos = 0M,
+                        PorcRelacionIngresos = null,
                         //% de los gastos en función del total
-                        PorcGastosFuncionTotal = 0M,
+                        PorcGastosFuncionTotal = null,
 
                         //Plan Acumulado
                         PlanAcumulado = PlanAcumulado,
@@ -145,9 +145,9 @@ namespace FinanzasWebApi.Helper
                         //
                         PorcCumpAcumulado = (RealAcumulado > 0 && PlanAcumulado > 0) ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos 
-                        PorcIngresosFuncionTotal = 0M,
+                        PorcIngresosFuncionTotal = null,
                         //% de los gastos en función del total 
-                        PorcGastosFuncionTotalAcumulado = 0M,
+                        PorcGastosFuncionTotalAcumulado = null,
                         //Total en el Grupo
 
                     };
@@ -176,9 +176,9 @@ namespace FinanzasWebApi.Helper
                         PorcCumplimiento = (RealMes > 0 && PlanMes > 0) ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos
                         // PorcRelacionIngresos = (TotalIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                        PorcRelacionIngresos = 0M,
+                        PorcRelacionIngresos = null,
                         //% de los gastos en función del total
-                        PorcGastosFuncionTotal = 0M,
+                        PorcGastosFuncionTotal = null,
                         //Plan Acumulado
                         PlanAcumulado = PlanAcumulado,
                         //Real Acumulado
@@ -186,9 +186,9 @@ namespace FinanzasWebApi.Helper
                         //
                         PorcCumpAcumulado = (RealAcumulado > 0 && PlanAcumulado > 0) ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         // % en relación a ingresos 
-                        PorcIngresosFuncionTotal = 0M,
+                        PorcIngresosFuncionTotal = null,
                         //% de los gastos en función del total 
-                        PorcGastosFuncionTotalAcumulado = 0M,
+                        PorcGastosFuncionTotalAcumulado = null,
                         //Total en el Grupo
 
                     };
@@ -737,7 +737,7 @@ namespace FinanzasWebApi.Helper
                         PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
 
                         //% de los gastos en función del total
-                        PorcGastosFuncionTotal = 0M,
+                        PorcGastosFuncionTotal = null,
                         //Plan Acumulado
                         PlanAcumulado = PlanAcumulado,
                         //Real Acumulado
@@ -747,7 +747,7 @@ namespace FinanzasWebApi.Helper
                         // % en relación a ingresos 
                         PorcIngresosFuncionTotal = (TotalAcumuladoIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalAcumuladoIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total 
-                        PorcGastosFuncionTotalAcumulado = 0M,
+                        PorcGastosFuncionTotalAcumulado = null,
                         //Total en el Grupo
 
                     };
@@ -777,7 +777,7 @@ namespace FinanzasWebApi.Helper
                         // % en relación a ingresos
                         PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //% de los gastos en función del total
-                        PorcGastosFuncionTotal = 0M,
+                        PorcGastosFuncionTotal = null,
                         //Plan Acumulado
                         PlanAcumulado = PlanAcumulado,
                         //Real Acumulado
@@ -787,7 +787,7 @@ namespace FinanzasWebApi.Helper
                         // % en relación a ingresos 
                         PorcIngresosFuncionTotal = 0M,
                         //% de los gastos en función del total 
-                        PorcGastosFuncionTotalAcumulado = 0M,
+                        PorcGastosFuncionTotalAcumulado = null,
                         //Total en el Grupo
 
                     };
@@ -815,7 +815,7 @@ namespace FinanzasWebApi.Helper
                         // % en relación a ingresos
                         PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total
-                        PorcGastosFuncionTotal = 0M,
+                        PorcGastosFuncionTotal = null,
                         //Plan Acumulado
                         PlanAcumulado = PlanAcumulado,
                         //Real Acumulado
@@ -825,7 +825,7 @@ namespace FinanzasWebApi.Helper
                         // % en relación a ingresos 
                         PorcIngresosFuncionTotal = (TotalAcumuladoIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalAcumuladoIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total 
-                        PorcGastosFuncionTotalAcumulado = 0M,
+                        PorcGastosFuncionTotalAcumulado = null,
                         //Total en el Grupo
 
                     };
@@ -854,7 +854,7 @@ namespace FinanzasWebApi.Helper
                         // % en relación a ingresos
                         PorcRelacionIngresos = (TotalEgresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalEgresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
                         //% de los gastos en función del total
-                        PorcGastosFuncionTotal = 0M,
+                        PorcGastosFuncionTotal = null,
                         //Plan Acumulado
                         PlanAcumulado = PlanAcumulado,
                         //Real Acumulado
@@ -864,7 +864,7 @@ namespace FinanzasWebApi.Helper
                         // % en relación a ingresos 
                         PorcIngresosFuncionTotal = 0M,
                         //% de los gastos en función del total 
-                        PorcGastosFuncionTotalAcumulado = 0M,
+                        PorcGastosFuncionTotalAcumulado = null,
                         //Total en el Grupo
 
                     };
@@ -893,7 +893,7 @@ namespace FinanzasWebApi.Helper
                         // % en relación a ingresos
                         PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total
-                        PorcGastosFuncionTotal = 0M,
+                        PorcGastosFuncionTotal = null,
                         //Plan Acumulado
                         PlanAcumulado = PlanAcumulado,
                         //Real Acumulado
@@ -903,7 +903,7 @@ namespace FinanzasWebApi.Helper
                         // % en relación a ingresos 
                         PorcIngresosFuncionTotal = (TotalAcumuladoIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalAcumuladoIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total 
-                        PorcGastosFuncionTotalAcumulado = 0M,
+                        PorcGastosFuncionTotalAcumulado = null,
                         //Total en el Grupo
 
                     };
@@ -931,7 +931,7 @@ namespace FinanzasWebApi.Helper
                         // % en relación a ingresos
                         PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total
-                        PorcGastosFuncionTotal = 0M,
+                        PorcGastosFuncionTotal = null,
                         //Plan Acumulado
                         PlanAcumulado = PlanAcumulado,
                         //Real Acumulado
@@ -941,7 +941,7 @@ namespace FinanzasWebApi.Helper
                         // % en relación a ingresos 
                         PorcIngresosFuncionTotal = (TotalAcumuladoIngresos > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalAcumuladoIngresos)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
                         //% de los gastos en función del total 
-                        PorcGastosFuncionTotalAcumulado = 0M,
+                        PorcGastosFuncionTotalAcumulado = null,
                         //Total en el Grupo
 
                     };

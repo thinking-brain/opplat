@@ -38,7 +38,7 @@ namespace FinanzasWebApi
                    c.SwaggerDoc("finanzas_v1", new Info
                    {
                        Version = "v1",
-                       Title = "Contabilidad API",
+                       Title = "Finanzas API",
                        Description = "Gestión Financiera dentro del Sistema OPPLAT.",
                        TermsOfService = "APACHE 2.0",
                        Contact = new Contact
