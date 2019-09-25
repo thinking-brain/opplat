@@ -186,7 +186,6 @@ th {
 </style>
 <script>
 import api from "@/api.js";
-import printJS from "print-js";
 export default {
   props: ["mes", "year"],
   data() {

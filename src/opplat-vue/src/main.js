@@ -7,8 +7,6 @@ import vuetify from './plugins/vuetify'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import 'vue-snotify/styles/material.css'
-import 'tableexport'
-import 'file-saverjs'
 import snotify, {
   SnotifyPosition
 } from 'vue-snotify';
