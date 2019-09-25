@@ -94,7 +94,8 @@
             :key="item.grupo"
             v-bind:class="[(item.grupo === 'Utilidad')? 'negrita':'']"
           >
-            <td v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
+            <td 
+              v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
             <td>{{ item.planMes }}</td>
             <td>{{ item.realMes }}</td>
             <td>{{ item.porcCumplimiento }}</td>
@@ -185,15 +186,16 @@ th {
 }
 </style>
 <script>
-import api from "@/api.js";
+import api from '@/api';
+
 export default {
-  props: ["mes", "year"],
+  props: ['mes', 'year'],
   data() {
     return {
       ingresos: [],
       egresos: [],
       utilidades: [],
-      errors:[]
+      errors:[],
     };
   },
   created() {
@@ -202,54 +204,54 @@ export default {
     this.getUtilidadesFromApi();
   },
   methods: {
-    getIngresosFromApi: function() {
-      let url = api.getUrl(
-        "finanzas",
-        "PlanGI/Ingresos/" + this.year + "/" + this.mes
+    getIngresosFromApi() {
+      const url = api.getUrl(
+        'finanzas',
+        `PlanGI/Ingresos/${this.year}/${this.mes}`,
       );
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.ingresos = response.data;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
           vm.$snotify.error(
-            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
           );
         });
     },
-    getEgresosFromApi: function() {
-      let url = api.getUrl(
-        "finanzas",
-        "PlanGI/Egresos/" + this.year + "/" + this.mes
+    getEgresosFromApi() {
+      const url = api.getUrl(
+        'finanzas',
+        `PlanGI/Egresos/${this.year}/${this.mes}`,
       );
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.egresos = response.data;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
           vm.$snotify.error(
-            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
           );
         });
     },
-    getUtilidadesFromApi: function() {
-      let url = api.getUrl(
-        "finanzas",
-        "PlanGI/Utilidades/" + this.year + "/" + this.mes
+    getUtilidadesFromApi() {
+      const url = api.getUrl(
+        'finanzas',
+        `PlanGI/Utilidades/${this.year}/${this.mes}`,
       );
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.utilidades = response.data;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
           vm.$snotify.error(
-            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
           );
         });
     },
@@ -286,29 +288,7 @@ export default {
       WinPrint.focus();
       WinPrint.print();
       WinPrint.close();
-    },
-    // exportar() {
-    //   var TableExport = require("tableexport");
-    //   /* Defaults */
-    //   var table = TableExport(document.getElementById("table1"), {
-    //     headers: true, // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
-    //     footers: true, // (Boolean), display table footers (th or td elements) in the <tfoot>, (default: false)
-    //     formats: ["xlsx"], // (String[]), filetype(s) for the export, (default: ['xlsx', 'csv', 'txt'])
-    //     filename: "Ingresos y Gastos", // (id, String), filename for the downloaded file, (default: 'id')
-    //     bootstrap: false, // (Boolean), style buttons using bootstrap, (default: true)
-    //     exportButtons: false, // (Boolean), automatically generate the built-in export buttons for each of the specified formats (default: true)
-    //     position: "bottom", // (top, bottom), position of the caption element relative to table, (default: 'bottom')
-    //     ignoreRows: null, // (Number, Number[]), row indices to exclude from the exported file(s) (default: null)
-    //     ignoreCols: null, // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
-    //     trimWhitespace: true, // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
-    //     RTL: false, // (Boolean), set direction of the worksheet to right-to-left (default: false)
-    //     sheetname: "id" // (id, String), sheet name for the exported spreadsheet, (default: 'id')
-    //   });
-    //   /* get export data */
-    //   var exportData = table.getExportData(); // useful for creating custom export buttons, i.e. when (exportButtons: false)
-
-    //   console.log(exportData);
-    // }
+    },    
     exportTableToExcel(tableID = "table1", filename = "Reportee") {
       var downloadLink;
       var dataType = "application/vnd.ms-excel";
@@ -317,6 +297,7 @@ export default {
 
       // Specify file name
       filename = filename ? filename + ".xls" : "excel_data.xls";
+
 
       // Create download link element
       downloadLink = document.createElement("a");
@@ -334,7 +315,6 @@ export default {
 
         // Setting the file name
         downloadLink.download = filename;
-
         //triggering the function
         downloadLink.click();
       }

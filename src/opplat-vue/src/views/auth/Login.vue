@@ -29,53 +29,54 @@
 </template>
 
 <script>
-import api from "@/api.js";
+import api from '@/api';
+
 export default {
   data: () => ({
     loading: false,
-    username: "",
-    password: ""
+    username: '',
+    password: '',
   }),
   created() {
     this.cargarLicencia();
   },
   methods: {
     cargarLicencia() {
-      let url = api.getUrl("opplat-app", "licencia");
+      const url = api.getUrl('opplat-app', 'licencia');
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           const lic = response.data;
           this.$store
-            .dispatch("agregar", lic)
+            .dispatch('agregar', lic)
             .then(() => {})
-            .catch(err => {});
+            .catch((err) => {});
         })
-        .catch(err => {
+        .catch(() => {
           vm.$snotify.error(
-            "No se pudo cargar la licencia. Contacte su administrador."
+            'No se pudo cargar la licencia. Contacte su administrador.',
           );
         });
     },
     login() {
       this.loading = true;
       // handle login
-      let username = this.username;
-      let password = this.password;
+      const { username } = this;
+      const { password } = this;
       this.$store
-        .dispatch("login", { username, password })
+        .dispatch('login', { username, password })
         .then(() => {
-          this.$router.push("/");
+          this.$router.push('/');
           this.loading = false;
         })
-        .catch(err => {
+        .catch(() => {
           vm.$snotify.error(
-            "Error conectando con el servidor de autenticacion. Contacte su administrador."
+            'Error conectando con el servidor de autenticacion. Contacte su administrador.',
           );
           this.loading = false;
         });
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped lang="css"></style>

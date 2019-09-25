@@ -1,14 +1,14 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import Vue from 'vue';
+import Vuex from 'vuex';
 import axios from 'axios';
-import api from '@/api.js';
+import api from '@/api';
 
 Vue.use(Vuex);
 
 const licencia = {
   state: {
-    subscriptor: null,
-    vencimiento: null
+    subscriptor: localStorage.getItem('subscriptor') || null,
+    vencimiento: localStorage.getItem('vencimiento') || null,
   },
   mutations: {
     quitar(state) {
@@ -22,49 +22,51 @@ const licencia = {
   },
   actions: {
     agregar({
-      commit
-    }, licencia) {
-      return new Promise((resolve, reject) => {
-        const lic = licencia;
+      commit,
+    }, licence) {
+      return new Promise((resolve) => {
+        const lic = licence;
         commit('agregar', {
           subscriptor: lic.subscriptor,
-          vencimiento: lic.fechaVencimiento
+          vencimiento: lic.fechaVencimiento,
         });
-        resolve(resp);
+        localStorage.setItem('subscriptor', lic.subscriptor);
+        localStorage.setItem('vencimiento', lic.fechaVencimiento);
+        resolve(resolve);
       });
     },
     quitar({
-      commit
+      commit,
     }) {
       return new Promise((resolve, reject) => {
-        let url = api.getUrl("opplat-app", "licencia");
-        console.log(url);
+        const url = api.getUrl('opplat-app', 'licencia');
+        // console.log(url);
         axios({
-          url: url,
-          method: 'DELETE'
+          url,
+          method: 'DELETE',
         })
-          .then(resp => {
+          .then((resp) => {
             commit('quitar');
             resolve(resp);
           })
-          .catch(err => {
+          .catch((err) => {
             reject(err);
           });
         resolve();
       });
-    }
+    },
   },
   getters: {
     subscriptor: state => state.subscriptor,
     vencimiento: state => state.vencimiento,
     hasLicence: state => state.subscriptor != null,
-    licencia: function (state) {
+    licencia(state) {
       if (!state.subscriptor) {
         return null;
       }
       return { subscriptor: state.subscriptor, vencimiento: state.vencimiento };
-    }
-  }
+    },
+  },
 };
 
 export default licencia;

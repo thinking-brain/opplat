@@ -34,28 +34,29 @@
   </v-dialog>
 </template>
 <script>
-import api from "@/api.js";
+import api from '@/api';
+
 export default {
-  props: ["usuario"],
+  props: ['usuario'],
   data: () => ({
     dialog: false,
     errorMessages: [],
     nombres: null,
     apellidos: null,
     rules: {
-      required: value => !!value || "Obligatorio."
+      required: value => !!value || 'Obligatorio.',
     },
     formHasErrors: false,
-    errors: []
+    errors: [],
   }),
   computed: {
     form() {
       return {
         id: this.usuario.userId,
         nombres: this.nombres,
-        apellidos: this.apellidos
+        apellidos: this.apellidos,
       };
-    }
+    },
   },
   created() {
     this.nombres = this.usuario.nombres;
@@ -64,7 +65,7 @@ export default {
   watch: {
     nombres() {
       this.errorMessages = [];
-    }
+    },
   },
 
   methods: {
@@ -72,30 +73,30 @@ export default {
       this.errorMessages = [];
       this.formHasErrors = false;
 
-      Object.keys(this.form).forEach(f => {
+      Object.keys(this.form).forEach((f) => {
         this.$refs[f].reset();
       });
     },
     submit() {
       this.formHasErrors = false;
       if (!this.formHasErrors) {
-        let url = api.getUrl("api-account", "account/editar-usuario");
+        const url = api.getUrl('api-account', 'account/editar-usuario');
         this.axios
           .post(url, this.form)
-          .then(p => {
+          .then(() => {
             this.usuario.nombres = this.nombres;
             this.usuario.apellidos = this.apellidos;
             this.dialog = false;
-            vm.$snotify.success("Usuario editado correctamente.");
+            vm.$snotify.success('Usuario editado correctamente.');
             this.dialog = false;
           })
-          .catch(err => {
-            vm.$snotify.error("Error editando el usuario. " + err);
+          .catch((err) => {
+            vm.$snotify.error(`Error editando el usuario. ${err}`);
             this.dialog = false;
           });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style></style>

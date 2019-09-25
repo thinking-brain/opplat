@@ -29,33 +29,34 @@
   </v-container>
 </template>
 <script>
-import IngresosGastosTabla from "@/components/finanzas/reportes/IngresosGastosTabla";
+import IngresosGastosTabla from '@/components/finanzas/reportes/IngresosGastosTabla';
+
 export default {
   components: { IngresosGastosTabla },
   data: () => ({
     data: null,
     valid: true,
-    year: "",
+    year: '',
     nameRules: [
-      v => !!v || "Este campo es requerido",
-      v => (v && v.length <= 4) || "El año debe tener 4 caracteres."
+      v => !!v || 'Este campo es requerido',
+      v => (v && v.length <= 4) || 'El año debe tener 4 caracteres.',
     ],
-    mes: "",
+    mes: '',
     items: [
-      { id: 1, nombre: "ENERO" },
-      { id: 2, nombre: "FEBRERO" },
-      { id: 3, nombre: "MARZO" },
-      { id: 4, nombre: "ABRIL" },
-      { id: 5, nombre: "MAYO" },
-      { id: 6, nombre: "JUNIO" },
-      { id: 7, nombre: "JULIO" },
-      { id: 8, nombre: "AGOSTO" },
-      { id: 9, nombre: "SEPTIEMBRE" },
-      { id: 10, nombre: "OCTUBRE" },
-      { id: 11, nombre: "NOVIEMBRE" },
-      { id: 12, nombre: "DICIEMBRE" }
+      { id: 1, nombre: 'ENERO' },
+      { id: 2, nombre: 'FEBRERO' },
+      { id: 3, nombre: 'MARZO' },
+      { id: 4, nombre: 'ABRIL' },
+      { id: 5, nombre: 'MAYO' },
+      { id: 6, nombre: 'JUNIO' },
+      { id: 7, nombre: 'JULIO' },
+      { id: 8, nombre: 'AGOSTO' },
+      { id: 9, nombre: 'SEPTIEMBRE' },
+      { id: 10, nombre: 'OCTUBRE' },
+      { id: 11, nombre: 'NOVIEMBRE' },
+      { id: 12, nombre: 'DICIEMBRE' },
     ],
-    lazy: false
+    lazy: false,
   }),
 
   methods: {
@@ -73,9 +74,9 @@ export default {
     GenerarReporte() {
       this.data = {
         mes: this.mes,
-        year: this.year
+        year: this.year,
       };
-    }
-  }
+    },
+  },
 };
 </script>

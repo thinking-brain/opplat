@@ -33,36 +33,36 @@
   </v-dialog>
 </template>
 <script>
-import api from "@/api.js";
+import api from '@/api';
 
 export default {
-  props: ["usuario"],
+  props: ['usuario'],
   data: () => ({
-    dialog: false
+    dialog: false,
   }),
   computed: {
     nombre() {
-      return this.usuario.nombres + " " + this.usuario.apellidos;
-    }
+      return `${this.usuario.nombres} ${this.usuario.apellidos}`;
+    },
   },
   methods: {
     cambiarEstado() {
-      var url = api.getUrl(
-        "api-account",
-        "account/cambiar-estado/?idUsuario=" + this.usuario.userId
+      const url = api.getUrl(
+        'api-account',
+        `account/cambiar-estado/?idUsuario=${this.usuario.userId}`,
       );
       this.axios
         .get(url)
-        .then(response => {
+        .then(() => {
           this.usuario.activo = !this.usuario.activo;
         })
-        .catch(e => {
-          //this.errors.push(e);
-          //console.log(e);
+        .catch(() => {
+          // this.errors.push(e);
+          // console.log(e);
         });
       this.dialog = false;
-    }
-  }
+    },
+  },
 };
 </script>
 <style></style>
