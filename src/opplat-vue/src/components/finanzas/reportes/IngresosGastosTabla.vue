@@ -70,7 +70,8 @@
             :key="item.grupo"
             v-bind:class="[(item.grupo === 'Utilidad')? 'negrita':'']"
           >
-            <td v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
+            <td 
+              v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
             <td>{{ item.planMes }}</td>
             <td>{{ item.realMes }}</td>
             <td>{{ item.porcCumplimiento }}</td>
@@ -164,15 +165,16 @@ th {
 }
 </style>
 <script>
-import api from "@/api.js";
-import printJS from "print-js";
+import printJS from 'print-js';
+import api from '@/api';
+
 export default {
-  props: ["mes", "year"],
+  props: ['mes', 'year'],
   data() {
     return {
       ingresos: [],
       egresos: [],
-      utilidades: []
+      utilidades: [],
     };
   },
   created() {
@@ -181,65 +183,65 @@ export default {
     this.getUtilidadesFromApi();
   },
   methods: {
-    getIngresosFromApi: function() {
-      let url = api.getUrl(
-        "finanzas",
-        "PlanGI/Ingresos/" + this.year + "/" + this.mes
+    getIngresosFromApi() {
+      const url = api.getUrl(
+        'finanzas',
+        `PlanGI/Ingresos/${this.year}/${this.mes}`,
       );
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.ingresos = response.data;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
           vm.$snotify.error(
-            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
           );
         });
     },
-     getEgresosFromApi: function() {
-      let url = api.getUrl(
-        "finanzas",
-        "PlanGI/Egresos/" + this.year + "/" + this.mes
+    getEgresosFromApi() {
+      const url = api.getUrl(
+        'finanzas',
+        `PlanGI/Egresos/${this.year}/${this.mes}`,
       );
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.egresos = response.data;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
           vm.$snotify.error(
-            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
           );
         });
     },
-     getUtilidadesFromApi: function() {
-      let url = api.getUrl(
-        "finanzas",
-        "PlanGI/Utilidades/" + this.year + "/" + this.mes
+    getUtilidadesFromApi() {
+      const url = api.getUrl(
+        'finanzas',
+        `PlanGI/Utilidades/${this.year}/${this.mes}`,
       );
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.utilidades = response.data;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
           vm.$snotify.error(
-            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
           );
         });
     },
-    exportar: function() {
-      var TableExport = require("tableexport");
+    exportar() {
+      const TableExport = require('tableexport');
       // dom id, filename, type: json, txt, csv, xml, doc, xsl, image, pdf
-      TableExport(document.getElementById("table1"));
+      TableExport(document.getElementById('table1'));
     },
-    imprimir: function() {
-      require("print-js");
-      printJS("areatoPrint", "html");
+    imprimir() {
+      require('print-js');
+      printJS('areatoPrint', 'html');
       // var printContents = document.getElementById("areatoPrint").innerHTML;
       // var originalContents = document.body.innerHTML;
 
@@ -248,7 +250,7 @@ export default {
       // window.print();
 
       // document.body.innerHTML = originalContents;
-    }
-  }
+    },
+  },
 };
 </script>

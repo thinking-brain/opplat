@@ -38,19 +38,20 @@
   </v-container>
 </template>
 <script>
-import api from "@/api.js";
+import api from '@/api';
+
 export default {
-  props: ["usuario"],
+  props: ['usuario'],
   data: () => ({
     dialog: false,
     errorMessages: [],
     roles: [],
     selected_roles: [],
     rules: {
-      required: value => !!value || "Obligatorio."
+      required: value => !!value || 'Obligatorio.',
     },
     formHasErrors: false,
-    errors: []
+    errors: [],
   }),
   computed: {
     // selected_roles() {
@@ -59,9 +60,9 @@ export default {
     form() {
       return {
         idUsuario: this.usuario.userId,
-        roles: this.selected_roles
+        roles: this.selected_roles,
       };
-    }
+    },
   },
   created() {
     this.selected_roles = this.usuario.roles;
@@ -69,14 +70,14 @@ export default {
   },
   watch: {},
   methods: {
-    getRoles: function() {
-      let url = api.getUrl("api-account", "account/roles");
+    getRoles() {
+      const url = api.getUrl('api-account', 'account/roles');
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.roles = response.data;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
         });
     },
@@ -84,7 +85,7 @@ export default {
       this.errorMessages = [];
       this.formHasErrors = false;
 
-      Object.keys(this.form).forEach(f => {
+      Object.keys(this.form).forEach((f) => {
         this.$refs[f].reset();
       });
     },
@@ -95,19 +96,19 @@ export default {
       //   this.$refs[f].validate(true);
       // });
       if (!this.formHasErrors) {
-        let url = api.getUrl("api-account", "account/cambiar-roles");
+        const url = api.getUrl('api-account', 'account/cambiar-roles');
         this.axios
           .post(url, this.form)
-          .then(p => {
-            vm.$snotify.success("Roles modificados correctamente.");
-            this.$router.push("/admin/usuarios");
+          .then(() => {
+            vm.$snotify.success('Roles modificados correctamente.');
+            this.$router.push('/admin/usuarios');
           })
-          .catch(err => {
-            vm.$snotify.error("Error modificando los roles. " + err);
+          .catch((err) => {
+            vm.$snotify.error(`Error modificando los roles. ${err}`);
           });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style></style>

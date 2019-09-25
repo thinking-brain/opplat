@@ -75,7 +75,8 @@
   </v-container>
 </template>
 <script>
-import api from "@/api.js";
+import api from '@/api';
+
 export default {
   data: () => ({
     dialog: false,
@@ -90,11 +91,11 @@ export default {
     roles: [],
     selected_roles: [],
     rules: {
-      required: value => !!value || "Obligatorio.",
-      min: v => (!!v && v.length >= 8) || "Min 8 caracteres"
+      required: value => !!value || 'Obligatorio.',
+      min: v => (!!v && v.length >= 8) || 'Min 8 caracteres',
     },
     formHasErrors: false,
-    errors: []
+    errors: [],
   }),
   computed: {
     form() {
@@ -103,28 +104,26 @@ export default {
         apellidos: this.apellidos,
         username: this.username,
         contraseña: this.contraseña,
-        confirmarContraseña: this.confirmarContraseña
+        confirmarContraseña: this.confirmarContraseña,
       };
-    }
+    },
   },
   created() {},
   watch: {
     nombres() {
       this.errorMessages = [];
-    }
+    },
   },
 
   methods: {
     usernameCheck() {
-      this.errorMessages =
-        this.username == "usuario" ? ["Este usuario existe"] : [];
+      this.errorMessages = this.username === 'usuario' ? ['Este usuario existe'] : [];
       return true;
     },
     confirmPasswordCheck() {
-      this.errorMessagesPassword =
-        this.contraseña != this.confirmarContraseña
-          ? ["No coinciden la contraseña y la confirmacion."]
-          : [];
+      this.errorMessagesPassword = this.contraseña !== this.confirmarContraseña
+        ? ['No coinciden la contraseña y la confirmacion.']
+        : [];
 
       return true;
     },
@@ -132,7 +131,7 @@ export default {
       this.errorMessages = [];
       this.formHasErrors = false;
 
-      Object.keys(this.form).forEach(f => {
+      Object.keys(this.form).forEach((f) => {
         this.$refs[f].reset();
       });
     },
@@ -144,26 +143,26 @@ export default {
       //   this.$refs[f].validate(true);
       // });
       if (!this.formHasErrors) {
-        let url = api.getUrl("api-account", "account/add-usuario");
+        const url = api.getUrl('api-account', 'account/add-usuario');
         this.axios
           .post(url, this.form)
           .then((
-            p //console.log(p)
+            p, // console.log(p)
           ) => {
             this.$router.push({
-              name: "gestionar-roles",
+              name: 'gestionar-roles',
               query: {
-                usuario: p.data
-              }
+                usuario: p.data,
+              },
             });
-            vm.$snotify.success("Usuario creado satisfactorimente.");
+            vm.$snotify.success('Usuario creado satisfactorimente.');
           })
-          .catch(e => {
+          .catch((e) => {
             vm.$snotify.error(e.response.data.errors);
           });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style></style>

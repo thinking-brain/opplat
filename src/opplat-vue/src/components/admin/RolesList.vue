@@ -28,10 +28,10 @@
 </template>
 <script>
 export default {
-  props: ["roles", "usuario"],
+  props: ['roles', 'usuario'],
   data: () => ({
-    dialog: false
-  })
+    dialog: false,
+  }),
 };
 </script>
 <style></style>
