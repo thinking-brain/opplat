@@ -39,7 +39,7 @@ namespace opplatApplication
         {
             //contabilidad context
             services.AddDbContext<ContabilidadWebApi.Data.ApiDbContext>(options =>
-                    options.UseSqlServer(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
+                    options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
 
             services.AddDbContext<VersatDbContext>(options =>
                options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));

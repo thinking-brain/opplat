@@ -59,7 +59,7 @@ namespace ContabilidadWebApi
 
 
             services.AddDbContext<ApiDbContext>(options =>
-                    options.UseSqlServer(context.Configuration.GetConnectionString("ApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
+                    options.UseNpgsql(context.Configuration.GetConnectionString("ApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
 
 
             services.AddDbContext<VersatDbContext>(options =>
