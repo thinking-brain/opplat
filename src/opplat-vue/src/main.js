@@ -26,7 +26,7 @@ Vue.use(snotify, options);
 Vue.config.productionTip = false;
 Vue.use(VueAxios, axios);
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-const token = localStorage.getItem('token');
+const token = sessionStorage.getItem('token');
 if (token) {
   axios.defaults.headers.common.Authorization = token;
 }
