@@ -50,7 +50,7 @@ namespace opplatApplication
 
             //finanzas db context
             services.AddDbContext<FinanzasWebApi.Data.ApiDbContext>(options =>
-                    options.UseSqlServer(context.Configuration.GetConnectionString("FinanzasApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
+                    options.UseNpgsql(context.Configuration.GetConnectionString("FinanzasApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
             //
 
             // NotificationsDbContext
