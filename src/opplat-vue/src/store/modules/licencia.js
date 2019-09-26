@@ -7,8 +7,8 @@ Vue.use(Vuex);
 
 const licencia = {
   state: {
-    subscriptor: localStorage.getItem('subscriptor') || null,
-    vencimiento: localStorage.getItem('vencimiento') || null,
+    subscriptor: sessionStorage.getItem('subscriptor') || null,
+    vencimiento: sessionStorage.getItem('vencimiento') || null,
   },
   mutations: {
     quitar(state) {
@@ -30,8 +30,8 @@ const licencia = {
           subscriptor: lic.subscriptor,
           vencimiento: lic.fechaVencimiento,
         });
-        localStorage.setItem('subscriptor', lic.subscriptor);
-        localStorage.setItem('vencimiento', lic.fechaVencimiento);
+        sessionStorage.setItem('subscriptor', lic.subscriptor);
+        sessionStorage.setItem('vencimiento', lic.fechaVencimiento);
         resolve(resolve);
       });
     },
@@ -47,8 +47,8 @@ const licencia = {
         })
           .then((resp) => {
             commit('quitar');
-            localStorage.removeItem('subscriptor');
-            localStorage.removeItem('vencimiento');
+            sessionStorage.removeItem('subscriptor');
+            sessionStorage.removeItem('vencimiento');
             resolve(resp);
           })
           .catch((err) => {

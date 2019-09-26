@@ -7,9 +7,9 @@ Vue.use(Vuex);
 
 const auth = {
   state: {
-    status: '',
-    token: localStorage.getItem('token') || null,
-    usuario: JSON.parse(localStorage.getItem('user_data')) || {
+    status: sessionStorage.getItem('token') ? 'success' : '',
+    token: sessionStorage.getItem('token') || null,
+    usuario: JSON.parse(sessionStorage.getItem('user_data')) || {
       nombre: '',
       roles: [],
     },
@@ -55,8 +55,8 @@ const auth = {
               nombre: userData.unique_name,
               roles: userData['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
             };
-            localStorage.setItem('token', token);
-            localStorage.setItem('user_data', JSON.stringify(usuario));
+            sessionStorage.setItem('token', token);
+            sessionStorage.setItem('user_data', JSON.stringify(usuario));
             axios.defaults.headers.common.Authorization = token;
 
             commit('auth_success', {
@@ -67,7 +67,7 @@ const auth = {
           })
           .catch((err) => {
             commit('auth_error');
-            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
             reject(err);
           });
       });
@@ -77,8 +77,8 @@ const auth = {
     }) {
       return new Promise((resolve) => {
         commit('logout');
-        localStorage.removeItem('token');
-        localStorage.removeItem('user_data');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user_data');
         delete axios.defaults.headers.common.Authorization;
         resolve();
       });
@@ -86,6 +86,7 @@ const auth = {
   },
   getters: {
     isLoggedIn: state => !!state.token,
+    token: state => state.token,
     authStatus: state => state.status,
     roles: state => state.usuario.roles,
     usuario: state => state.usuario.nombre,

@@ -45,7 +45,7 @@ namespace ContabilidadWebApi.Models
         public string SubCta { get; set; }
 
         [Key]
-        [Column(Order = 7, TypeName = "smalldatetime")]
+        [Column(Order = 7)]
         public DateTime Fecha { get; set; }
 
         [Key]

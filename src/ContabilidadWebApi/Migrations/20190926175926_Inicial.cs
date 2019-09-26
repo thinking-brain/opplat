@@ -1,10 +1,10 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContabilidadWebApi.Migrations
 {
-    public partial class migOne : Migration
+    public partial class Inicial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +13,7 @@ namespace ContabilidadWebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Codigo = table.Column<string>(nullable: true),
                     Nombre = table.Column<string>(nullable: true)
                 },
@@ -27,7 +27,7 @@ namespace ContabilidadWebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Concepto = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -40,7 +40,7 @@ namespace ContabilidadWebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Nombre = table.Column<string>(nullable: true),
                     Codigo = table.Column<string>(nullable: true)
                 },
@@ -54,7 +54,7 @@ namespace ContabilidadWebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     CentroCostoAreaId = table.Column<int>(nullable: false),
                     Cuenta = table.Column<string>(nullable: true),
                     SubCuenta = table.Column<string>(nullable: true),
@@ -89,7 +89,7 @@ namespace ContabilidadWebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Año = table.Column<string>(nullable: true),
                     Elemento = table.Column<string>(nullable: true),
                     ElementoValor = table.Column<string>(nullable: true),
@@ -123,7 +123,7 @@ namespace ContabilidadWebApi.Migrations
                     Analisis = table.Column<string>(maxLength: 20, nullable: false),
                     SubAnalisis = table.Column<string>(maxLength: 20, nullable: false),
                     SubCta = table.Column<string>(maxLength: 20, nullable: false),
-                    Fecha = table.Column<DateTime>(type: "smalldatetime", nullable: false),
+                    Fecha = table.Column<DateTime>(nullable: false),
                     Debe = table.Column<decimal>(type: "money", nullable: false),
                     Haber = table.Column<decimal>(type: "money", nullable: false)
                 },
@@ -137,7 +137,7 @@ namespace ContabilidadWebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     IdCuenta = table.Column<int>(nullable: false),
                     IdPaseDeCuenta = table.Column<int>(nullable: true),
                     ClaveCuenta = table.Column<string>(nullable: true),
@@ -155,7 +155,7 @@ namespace ContabilidadWebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     AreaId = table.Column<int>(nullable: false),
                     CentroCostoId = table.Column<string>(nullable: true),
                     Detalles = table.Column<string>(nullable: true)
@@ -194,7 +194,7 @@ namespace ContabilidadWebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Año = table.Column<string>(nullable: true),
                     ConceptoPlanId = table.Column<int>(nullable: false),
                     Enero = table.Column<decimal>(nullable: false),
@@ -227,7 +227,7 @@ namespace ContabilidadWebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     GrupoSubelementoId = table.Column<int>(nullable: false),
                     SubElementoGastoId = table.Column<string>(nullable: true),
                     Descripcion = table.Column<string>(nullable: true)
@@ -236,7 +236,7 @@ namespace ContabilidadWebApi.Migrations
                 {
                     table.PrimaryKey("PK_GrupoSubElemento_SubElemento", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GrupoSubElemento_SubElemento_GrupoSubelemento_GrupoSubelementoId",
+                        name: "FK_GrupoSubElemento_SubElemento_GrupoSubelemento_GrupoSubeleme~",
                         column: x => x.GrupoSubelementoId,
                         principalTable: "GrupoSubelemento",
                         principalColumn: "Id",
