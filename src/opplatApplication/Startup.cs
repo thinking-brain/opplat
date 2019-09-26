@@ -21,6 +21,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using ContabilidadWebApi.VersatModels;
 using ContabilidadWebApi.VersatModels2;
 using FinanzasWebApi.Helper;
+using notificationsWebApi.Data;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -40,17 +41,21 @@ namespace opplatApplication
             services.AddDbContext<ContabilidadWebApi.Data.ApiDbContext>(options =>
                     options.UseSqlServer(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
 
-
             services.AddDbContext<VersatDbContext>(options =>
                options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
 
-
             services.AddDbContext<VersatDbContext2>(options =>
                options.UseSqlServer(context.Configuration.GetConnectionString("Versat2Connection")));
-            //fin
+            //
+
             //finanzas db context
             services.AddDbContext<FinanzasWebApi.Data.ApiDbContext>(options =>
                     options.UseSqlServer(context.Configuration.GetConnectionString("FinanzasApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
+            //
+
+            // NotificationsDbContext
+            services.AddDbContext<notificationsDbContext>(options =>
+            options.UseNpgsql(context.Configuration.GetConnectionString("notificationsApi"), b => b.MigrationsAssembly("notificationsWebApi")));
             //
 
             services.AddDbContext<AccountDbContext>(options =>
