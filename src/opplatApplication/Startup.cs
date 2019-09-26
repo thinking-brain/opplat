@@ -22,6 +22,7 @@ using ContabilidadWebApi.VersatModels;
 using ContabilidadWebApi.VersatModels2;
 using FinanzasWebApi.Helper;
 using notificationsWebApi.Data;
+using notificationsWebApi.Hubs;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -60,6 +61,8 @@ namespace opplatApplication
 
             services.AddDbContext<AccountDbContext>(options =>
             options.UseSqlServer(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
+
+            services.AddSignalR();
 
             services.AddIdentity<Usuario, IdentityRole>()
                 .AddEntityFrameworkStores<AccountDbContext>()
@@ -157,13 +160,18 @@ namespace opplatApplication
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
             app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/docs/v1/docs.json", "Account API v1");
                 c.RoutePrefix = "docs";
             });
+            app.UseSignalR(routes =>
+        {
+            routes.MapHub<NotificationsHub>("/notiHub");
+        });
+            app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+
             app.UseMvc(builder =>
             {
                 builder.MapRoute(

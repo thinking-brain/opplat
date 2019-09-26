@@ -37,7 +37,7 @@ namespace notificationsWebApi
             services.AddSignalR();
             services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v2", new Info
+                    c.SwaggerDoc("notificationsApi_v1", new Info
                     {
                         Version = "v1",
                         Title = "Notifications Api",
@@ -78,16 +78,17 @@ namespace notificationsWebApi
             app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/docs/v1/docs.json", "Notifications Api v1");
+                c.SwaggerEndpoint("/docs/notificationsApi_v1/docs.json", "Notifications Api v1");
                 c.RoutePrefix = "docs";
             });
 
             app.UseCors(builder =>
-   {
-       builder.AllowAnyOrigin()
-           .AllowAnyHeader()
-           .AllowAnyMethod();
-   });
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
             app.UseSignalR(routes =>
         {
             routes.MapHub<NotificationsHub>("/notiHub");
