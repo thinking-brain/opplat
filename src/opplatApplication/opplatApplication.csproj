@@ -16,9 +16,9 @@
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.0" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\notificationsWebApi\notificationsWebApi.csproj" />
         <ProjectReference Include="..\Account.WebApi\Account.WebApi.csproj" />
         <ProjectReference Include="..\ContabilidadWebApi\ContabilidadWebApi.csproj" />
         <ProjectReference Include="..\FinanzasWebApi\FinanzasWebApi.csproj" />
-        <ProjectReference Include="..\notificationsWebApi\notificationsWebApi.csproj" />
     </ItemGroup>
 </Project>
