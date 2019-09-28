@@ -89,10 +89,6 @@ namespace notificationsWebApi
             .AllowAnyMethod()
             .AllowCredentials();
     });
-            app.UseSignalR(routes =>
-        {
-            routes.MapHub<NotificationsHub>("/notiHub");
-        });
             app.UseMvc();
         }
     }

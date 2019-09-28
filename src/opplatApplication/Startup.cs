@@ -22,7 +22,7 @@ using ContabilidadWebApi.VersatModels;
 using ContabilidadWebApi.VersatModels2;
 using FinanzasWebApi.Helper;
 using notificationsWebApi.Data;
-using notificationsWebApi.Hubs;
+using opplatApplication.Hubs;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -48,7 +48,7 @@ namespace opplatApplication
             services.AddDbContext<VersatDbContext2>(options =>
                options.UseSqlServer(context.Configuration.GetConnectionString("Versat2Connection")));
             //
-
+ 
             //finanzas db context
             services.AddDbContext<FinanzasWebApi.Data.ApiDbContext>(options =>
                     options.UseNpgsql(context.Configuration.GetConnectionString("FinanzasApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));

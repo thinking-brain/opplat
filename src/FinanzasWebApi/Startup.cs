@@ -16,6 +16,7 @@ using System.Reflection;
 using System.IO;
 using FinanzasWebApi.Data;
 using FinanzasWebApi.Helper;
+using Microsoft.EntityFrameworkCore;
 
 [assembly: HostingStartup(typeof(FinanzasWebApi.Startup))]
 
