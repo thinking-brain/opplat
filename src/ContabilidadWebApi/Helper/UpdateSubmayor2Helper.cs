@@ -44,7 +44,7 @@ namespace ContabilidadWebApi.Helper
 
             foreach (var item in dtos)
             {               
-                ///PERIODO
+                //PERIODO
                 var periodo = _v2context.Set<GenPeriodo>().SingleOrDefault(s => s.Idperiodo == item.Idperiodo);
                 short ano = Convert.ToInt16(periodo.Inicio.Year);
                 var mesx = Convert.ToByte(periodo.Inicio.Month);
