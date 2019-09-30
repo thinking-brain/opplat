@@ -60,7 +60,7 @@ namespace opplatApplication
             //
 
             services.AddDbContext<AccountDbContext>(options =>
-            options.UseSqlServer(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
+            options.UseNpgsql(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
 
             services.AddSignalR();
 
@@ -111,7 +111,7 @@ namespace opplatApplication
                 });
 
             services.AddDbContext<OpplatAppDbContext>(options =>
-                options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")));
+                options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")));
             services.AddTransient<OpplatAppDbContext>();
             services.AddSingleton<MenuLoader>();
             services.AddSingleton<LicenciaService>();
@@ -168,7 +168,7 @@ namespace opplatApplication
             });
             app.UseSignalR(routes =>
         {
-            routes.MapHub<NotificationsHub>("/notiHub");
+            routes.MapHub<NotificationsHub>("/notihub");
         });
             app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 
