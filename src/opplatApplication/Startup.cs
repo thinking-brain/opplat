@@ -60,7 +60,10 @@ namespace opplatApplication
             //
 
             services.AddDbContext<AccountDbContext>(options =>
-            options.UseSqlServer(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
+            options.UseNpgsql(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
+
+            services.AddDbContext<OpplatAppDbContext>(options =>
+                options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")));
 
             services.AddSignalR();
 
@@ -110,8 +113,7 @@ namespace opplatApplication
                     c.IncludeXmlComments(xmlPath);
                 });
 
-            services.AddDbContext<OpplatAppDbContext>(options =>
-                options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")));
+
             services.AddTransient<OpplatAppDbContext>();
             services.AddSingleton<MenuLoader>();
             services.AddSingleton<LicenciaService>();

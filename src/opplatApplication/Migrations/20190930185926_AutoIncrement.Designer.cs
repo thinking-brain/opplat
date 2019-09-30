@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using opplatApplication.Data;
@@ -9,9 +10,10 @@ using opplatApplication.Data;
 namespace opplatApplication.Migrations
 {
     [DbContext(typeof(OpplatAppDbContext))]
-    partial class OpplatAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190930185926_AutoIncrement")]
+    partial class AutoIncrement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
