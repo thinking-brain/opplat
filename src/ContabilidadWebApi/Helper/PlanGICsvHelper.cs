@@ -128,6 +128,7 @@ namespace ContabilidadWebApi.Helper
         /// Metodo principal que itera sobre los elementos y va almacenado en la bd.
         /// </summary>
         /// <param name="reader"></param>
+        /// <param name="año"></param>
         private void readingElements(CsvReader reader, string año)
         {
             //costCenterId = costCenterId;
@@ -202,8 +203,7 @@ namespace ContabilidadWebApi.Helper
         /// </summary>
         /// <param name="record">Regsitro</param>
         /// <param name="code">Codigo del subElemento.</param>
-        /// <param name="coin">Codigo de la moneda</param>
-        /// /// <param name="top">Tope maximo del rango si este existe (Ej: 220340-27).</param>
+        /// <param name="top">Tope maximo del rango si este existe (Ej: 220340-27).</param>
         /// <returns></returns>
         private bool isAtomicElement(string record, out string code, out string top)
         {

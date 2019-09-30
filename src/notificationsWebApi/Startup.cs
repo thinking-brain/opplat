@@ -14,7 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using notificationsWebApi.Data;
-using notificationsWebApi.Hubs;
 using Swashbuckle.AspNetCore.Swagger;
 
 [assembly: HostingStartup(typeof(notificationsWebApi.Startup))]
@@ -89,10 +88,6 @@ namespace notificationsWebApi
             .AllowAnyMethod()
             .AllowCredentials();
     });
-            app.UseSignalR(routes =>
-        {
-            routes.MapHub<NotificationsHub>("/notiHub");
-        });
             app.UseMvc();
         }
     }

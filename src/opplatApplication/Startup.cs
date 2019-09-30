@@ -22,7 +22,7 @@ using ContabilidadWebApi.VersatModels;
 using ContabilidadWebApi.VersatModels2;
 using FinanzasWebApi.Helper;
 using notificationsWebApi.Data;
-using notificationsWebApi.Hubs;
+using opplatApplication.Hubs;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -113,7 +113,6 @@ namespace opplatApplication
                     c.IncludeXmlComments(xmlPath);
                 });
 
-
             services.AddTransient<OpplatAppDbContext>();
             services.AddSingleton<MenuLoader>();
             services.AddSingleton<LicenciaService>();
@@ -170,7 +169,7 @@ namespace opplatApplication
             });
             app.UseSignalR(routes =>
         {
-            routes.MapHub<NotificationsHub>("/notiHub");
+            routes.MapHub<NotificationsHub>("/notihub");
         });
             app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 

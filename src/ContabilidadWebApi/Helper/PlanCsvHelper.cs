@@ -77,6 +77,7 @@ namespace ContabilidadWebApi.Helper
         /// <param name="reader">Puntero al fichero en csv.</param>
         /// <param name="centroCostid">Codigo del centro de costo</param>
         /// <param name="centroAreaid">Id del Area por centro de costo.</param>
+        /// <param name="cuent"></param>
         private void ReadingCostCenter(CsvReader reader, out string centroCostid, out string centroAreaid, out string cuent)
         {
             reader.Read();
@@ -143,6 +144,7 @@ namespace ContabilidadWebApi.Helper
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="costCenterId"></param>
+        /// <param name="cuent"></param>
         /// <param name="costcenterAreaId"></param>
         private void readingElements(CsvReader reader, string costCenterId, string cuent, string costcenterAreaId)
         {
@@ -232,6 +234,7 @@ namespace ContabilidadWebApi.Helper
         /// </summary>
         /// <param name="code">Codigo del subElemento</param>
         /// <param name="centroCosto">Codigo del centro de costo</param>
+        /// <param name="cuent"></param>
         /// <param name="coin">Codigo del tipo de moneda</param>
         /// <param name="plan">Instancia del plan</param>
         /// <returns></returns>
