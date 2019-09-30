@@ -41,16 +41,16 @@
           </tr>
           <tr>
             <th class="text-center"></th>
-            <th class="text-center">junio plan</th>
-            <th class="text-center">Junio real</th>
+            <th class="text-center">plan</th>
+            <th class="text-center">real</th>
             <th class="text-center">% de cumplimiento</th>
             <th class="text-center">% en relacion a ingresos</th>
-            <th class="text-center">% de los gastos en función del total</th>
+            <th class="text-center">% de gastos/total</th>
             <th class="text-center">Hasta junio plan</th>
             <th class="text-center">Hasta junio real</th>
             <th class="text-center">% de cumplimiento</th>
             <th class="text-center">% en ralacion a ingresos</th>
-            <th class="text-center">% de los gastos en función del total</th>
+            <th class="text-center">% de gastos/total</th>
           </tr>
         </thead>
         <tbody style="overflow-y:auto;">
@@ -94,7 +94,7 @@
             :key="item.grupo"
             v-bind:class="[(item.grupo === 'Utilidad')? 'negrita':'']"
           >
-            <td 
+            <td
               v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
             <td>{{ item.planMes }}</td>
             <td>{{ item.realMes }}</td>
@@ -288,7 +288,7 @@ export default {
       WinPrint.focus();
       WinPrint.print();
       WinPrint.close();
-    },    
+    },
     exportTableToExcel(tableID = "table1", filename = "Reportee") {
       var downloadLink;
       var dataType = "application/vnd.ms-excel";
