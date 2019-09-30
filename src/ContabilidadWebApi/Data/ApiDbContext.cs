@@ -9,7 +9,7 @@ namespace ContabilidadWebApi.Data
 {
     public class ApiDbContext : DbContext
     {
-        public ApiDbContext (DbContextOptions<ApiDbContext> options)
+        public ApiDbContext(DbContextOptions<ApiDbContext> options)
             : base(options)
         {
         }
@@ -17,6 +17,7 @@ namespace ContabilidadWebApi.Data
         {
             builder.Entity<SubMayor>().HasKey(c => new { c.Analisis, c.Ano, c.Cta, c.Debe, c.Epigrafe, c.Fecha, c.Haber, c.Mes, c.SubAnalisis, c.SubCta });
             builder.Entity<ConceptoCuentas>().HasKey(c => new { c.ConceptoPlanId, c.CuentaId });
+            builder.ForNpgsqlUseIdentityColumns();
             base.OnModelCreating(builder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
