@@ -6,7 +6,7 @@
           <v-select
             v-model="mes"
             item-text="nombre"
-            item-value="id"
+            return-object
             :items="items"
             :rules="[v => !!v || 'Item is required']"
             label="MES"
@@ -23,8 +23,8 @@
         </v-col>
       </v-row>
     </v-form>
-    <v-flex lg12 v-if="data">
-      <IngresosGastosTabla v-bind="data"></IngresosGastosTabla>
+    <v-flex lg12>
+      <IngresosGastosTabla ref="tabla"></IngresosGastosTabla>
     </v-flex>
   </v-container>
 </template>
@@ -32,7 +32,7 @@
 import IngresosGastosTabla from '@/components/finanzas/reportes/IngresosGastosTabla';
 
 export default {
-  components: { IngresosGastosTabla },
+  components: { IngresosGastosTabla },  
   data: () => ({
     data: null,
     valid: true,
@@ -72,10 +72,9 @@ export default {
       this.$refs.form.resetValidation();
     },
     GenerarReporte() {
-      this.data = {
-        mes: this.mes,
-        year: this.year,
-      };
+      const data = this.mes;      
+      this.$refs.tabla.loadReporte(data,this.year)
+      
     },
   },
 };

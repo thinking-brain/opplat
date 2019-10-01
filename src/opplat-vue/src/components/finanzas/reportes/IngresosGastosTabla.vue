@@ -36,7 +36,7 @@
           </tr>
           <tr>
             <th colspan="11" class="text-center encabezado">
-              <h2>Estado del cumplimiento del plan de ingresos y gastos 2019 hasta junio</h2>
+              <h2>Estado del cumplimiento del plan de ingresos y gastos {{year}} hasta {{mes.nombre}}</h2>
             </th>
           </tr>
           <tr>
@@ -46,8 +46,8 @@
             <th class="text-center">% de cumplimiento</th>
             <th class="text-center">% en relacion a ingresos</th>
             <th class="text-center">% de gastos/total</th>
-            <th class="text-center">Hasta junio plan</th>
-            <th class="text-center">Hasta junio real</th>
+            <th class="text-center">plan acum</th>
+            <th class="text-center">real acum</th>
             <th class="text-center">% de cumplimiento</th>
             <th class="text-center">% en ralacion a ingresos</th>
             <th class="text-center">% de gastos/total</th>
@@ -94,8 +94,7 @@
             :key="item.grupo"
             v-bind:class="[(item.grupo === 'Utilidad')? 'negrita':'']"
           >
-            <td
-              v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
+            <td v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
             <td>{{ item.planMes }}</td>
             <td>{{ item.realMes }}</td>
             <td>{{ item.porcCumplimiento }}</td>
@@ -189,9 +188,11 @@ th {
 import api from '@/api';
 
 export default {
-  props: ['mes', 'year'],
+  
   data() {
     return {
+      mes:{id:0,nombre:'Ninguno'},
+      year:0,
       ingresos: [],
       egresos: [],
       utilidades: [],
@@ -199,15 +200,20 @@ export default {
     };
   },
   created() {
-    this.getIngresosFromApi();
-    this.getEgresosFromApi();
-    this.getUtilidadesFromApi();
+    
   },
   methods: {
+    loadReporte(mes,year){
+      this.mes = mes;
+      this.year = year;
+      this.getIngresosFromApi();
+      this.getEgresosFromApi();
+      this.getUtilidadesFromApi();
+    },
     getIngresosFromApi() {
       const url = api.getUrl(
         'finanzas',
-        `PlanGI/Ingresos/${this.year}/${this.mes}`,
+        `PlanGI/Ingresos/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
@@ -224,7 +230,7 @@ export default {
     getEgresosFromApi() {
       const url = api.getUrl(
         'finanzas',
-        `PlanGI/Egresos/${this.year}/${this.mes}`,
+        `PlanGI/Egresos/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
@@ -241,7 +247,7 @@ export default {
     getUtilidadesFromApi() {
       const url = api.getUrl(
         'finanzas',
-        `PlanGI/Utilidades/${this.year}/${this.mes}`,
+        `PlanGI/Utilidades/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
