@@ -39,7 +39,7 @@ namespace opplatApplication.Utils
                 if (_licencia == null)
                 {
                     DbContextOptions<OpplatAppDbContext> options = new DbContextOptionsBuilder<OpplatAppDbContext>()
-                        .UseSqlServer(_config.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")).Options;
+                        .UseNpgsql(_config.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")).Options;
                     using (var db = new OpplatAppDbContext(options))
                     {
                         _licencia = db.Set<Licencia>().FirstOrDefault();
