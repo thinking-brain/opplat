@@ -82,7 +82,7 @@ namespace opplatApplication.Hubs
                 name = "webmaster";
             }
 
-            Groups.AddToGroupAsync(Context.ConnectionId, name);
+            // Groups.AddToGroupAsync(Context.ConnectionId, name);
 
             return base.OnConnectedAsync();
         }

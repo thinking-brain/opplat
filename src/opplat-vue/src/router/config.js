@@ -236,4 +236,25 @@ export const protectedRoute = [
     }],
   },
 
+  // Plan
+  {
+    name: 'Contabilidad',
+    path: '/contabilidad',
+    component: DefaultLayout,
+    redirect: '/contabilidad/planes',
+    meta: {
+      title: 'planes',
+      group: 'contabilidad',
+    },
+    children: [{
+      path: '/contabilidad/planes',
+      name: 'Planes',
+      meta: {
+        title: 'Planes',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/planes/Planes.vue'),
+    }],
+  },
+
 ];

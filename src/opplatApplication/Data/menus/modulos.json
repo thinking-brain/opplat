@@ -15,5 +15,14 @@
             "administrador",
             "economico"
         ]
+    },
+    {
+        "name": "contabilidad",
+        "title": "Contabilidad",
+        "icon": "mdi-square-inc-cash",
+        "roles": [
+            "administrador",
+            "economico"
+        ]
     }
 ]

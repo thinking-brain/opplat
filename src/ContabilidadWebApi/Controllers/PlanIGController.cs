@@ -47,7 +47,7 @@ namespace ContabilidadWebApi.Controllers
         /// <returns></returns>
         // GET api/values
         [HttpPost, Route("UploadPlanGI/")]
-        public async Task<IActionResult> UploadPlanGI(IFormFile File)
+        public async Task<IActionResult> UploadPlanGI([FromForm]IFormFile File)
         {
             try
             {
