@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Hangfire.PostgreSql;
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 
 namespace ImportadorDatos
 {
@@ -44,18 +45,11 @@ namespace ImportadorDatos
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            
+
             app.UseHangfireDashboard();
             app.UseHangfireServer();
-            //Fire-and-Forget
-BackgroundJob.Enqueue(() => Console.WriteLine("Fire-and-forget"));
-//Delayed
-BackgroundJob.Schedule(() => Console.WriteLine("Delayed"), TimeSpan.FromDays(1));
-//Recurring
-RecurringJob.AddOrUpdate(() => Console.WriteLine("Minutely Job"), Cron.Minutely);
-//Continuation
-var id = BackgroundJob.Enqueue(() => Console.WriteLine("Hello, "));
-BackgroundJob.ContinueWith(id, () => Console.WriteLine("world!"));
+
+            RecurringJob.AddOrUpdate(() => Console.WriteLine("Minutely Job"), Cron.Daily);
             app.UseHttpsRedirection();
             app.UseMvc();
         }
