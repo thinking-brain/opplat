@@ -84,16 +84,5 @@ namespace ContabilidadWebApi.Models
             }
 
         }
-        public decimal Acumulado(int mes)
-        {
-
-            var acum = 0M;
-
-            for (int i = 1; i <= mes; i++)
-            {
-                acum += this[i];
-            }
-            return acum;
-        }
     }
 }

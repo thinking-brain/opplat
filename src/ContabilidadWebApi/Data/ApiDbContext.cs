@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ContabilidadWebApi.Models;
+using ContabilidadWebApi.DbConfigurations;
 
 namespace ContabilidadWebApi.Data
 {
@@ -13,15 +14,14 @@ namespace ContabilidadWebApi.Data
             : base(options)
         {
         }
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            builder.Entity<SubMayor>().HasKey(c => new { c.Analisis, c.Ano, c.Cta, c.Debe, c.Epigrafe, c.Fecha, c.Haber, c.Mes, c.SubAnalisis, c.SubCta });
-            builder.Entity<ConceptoCuentas>().HasKey(c => new { c.ConceptoPlanId, c.CuentaId });
-            builder.ForNpgsqlUseIdentityColumns();
-            base.OnModelCreating(builder);
-            // Customize the ASP.NET Identity model and override the defaults if needed.
-            // For example, you can rename the ASP.NET Identity table names and more.
-            // Add your customizations after calling base.OnModelCreating(builder);
+            new AsientoConfig().Configure(modelBuilder.Entity<Asiento>());
+            new CuentaConfig().Configure(modelBuilder.Entity<Cuenta>());
+            new NivelConfig().Configure(modelBuilder.Entity<Nivel>());
+            new MovimientoConfig().Configure(modelBuilder.Entity<Movimiento>());
+            modelBuilder.ForNpgsqlUseIdentityColumns();
+            base.OnModelCreating(modelBuilder);
         }
 
         public DbSet<ContabilidadWebApi.Models.Area> Area { get; set; }

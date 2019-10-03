@@ -215,7 +215,6 @@ namespace ContabilidadWebApi.Helper
 
                     var cost = Costo.SingleOrDefault(s => s.SubElementos.Trim() == subElemento.Descripcion.Trim());
                     cost.PlanMes += item[meses];
-                    var x = item.Acumulado(meses);
                     cost.PlanAcumulado = costP;
                 }
                 if (!Costo.Any(s => s.SubElementos.Trim() == subElemento.Descripcion.Trim()))
@@ -226,7 +225,7 @@ namespace ContabilidadWebApi.Helper
                         costP = costP + item[i];
                     }
 
-                                        decimal porc = 0;
+                    decimal porc = 0;
                     if (item[meses] != 0)
                     {
                         porc = (saldoInicial * 100) / item[meses];
@@ -267,7 +266,7 @@ namespace ContabilidadWebApi.Helper
             }
         }
 
-       
+
         /// <summary>
         /// Devuelve una lista de Meses
         /// </summary>
