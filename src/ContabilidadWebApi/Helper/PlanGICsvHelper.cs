@@ -21,15 +21,15 @@ namespace ContabilidadWebApi.Helper
 
         private readonly DbContext _context;
 
-        public PlanGICsvHelper( ApiDbContext _context)
+        public PlanGICsvHelper(ApiDbContext _context)
         {
             this._context = _context;
-          
+
         }
-        public PlanGICsvHelper( DbContext _context)
+        public PlanGICsvHelper(DbContext _context)
         {
             this._context = _context;
-           
+
         }
 
 
@@ -151,7 +151,7 @@ namespace ContabilidadWebApi.Helper
                 if (isEmtpyPlan(months)) continue;
 
                 PlanGI plan = new PlanGI();
-                plan.Año = año;
+                plan.Year = año;
 
                 string subcode = code;
 
@@ -159,7 +159,7 @@ namespace ContabilidadWebApi.Helper
                 if (!ReadElement(subcode, plan)) continue;
                 ReadMonthValues(months, plan);
                 plan.Fecha = DateTime.Now;
-                if(!_context.Set<PlanGI>().Any(s=>s.Año == plan.Año && s.ElementoValor == plan.ElementoValor))
+                if (!_context.Set<PlanGI>().Any(s => s.Year == plan.Year))
                 {
                     _context.Add(plan);
                     try
@@ -175,21 +175,21 @@ namespace ContabilidadWebApi.Helper
                 else
                 {
                     //Si existe algun plan en ese año actualizarlo
-                    var planSelect = _context.Set<PlanGI>().SingleOrDefault(s => s.Año == plan.Año && s.ElementoValor == plan.ElementoValor);
-                    planSelect.Enero = plan.Enero;
-                    planSelect.Febrero = plan.Febrero;
-                    planSelect.Marzo = plan.Marzo;
-                    planSelect.Abril = plan.Abril;
-                    planSelect.Mayo = plan.Mayo;
-                    planSelect.Junio = plan.Junio;
-                    planSelect.Julio = plan.Julio;
-                    planSelect.Agosto = plan.Agosto;
-                    planSelect.Septiembre = plan.Septiembre;
-                    planSelect.Octubre = plan.Octubre;
-                    planSelect.Noviembre = plan.Noviembre;
-                    planSelect.Diciembre = plan.Diciembre;
-                    _context.Update(planSelect);
-                    _context.SaveChanges();
+                    // var planSelect = _context.Set<PlanGI>().SingleOrDefault(s => s.Year == plan.Año && s.ElementoValor == plan.ElementoValor);
+                    // planSelect.Enero = plan.Enero;
+                    // planSelect.Febrero = plan.Febrero;
+                    // planSelect.Marzo = plan.Marzo;
+                    // planSelect.Abril = plan.Abril;
+                    // planSelect.Mayo = plan.Mayo;
+                    // planSelect.Junio = plan.Junio;
+                    // planSelect.Julio = plan.Julio;
+                    // planSelect.Agosto = plan.Agosto;
+                    // planSelect.Septiembre = plan.Septiembre;
+                    // planSelect.Octubre = plan.Octubre;
+                    // planSelect.Noviembre = plan.Noviembre;
+                    // planSelect.Diciembre = plan.Diciembre;
+                    // _context.Update(planSelect);
+                    // _context.SaveChanges();
                 }
                 //Saves the elemnts at range with value 0 for the plan.
                 //SaveElementsAtRange(code, top);
@@ -245,8 +245,8 @@ namespace ContabilidadWebApi.Helper
         private bool ReadElement(string subcode, PlanGI plan)
         {
             var data = DatosPlanGI.Datos().SingleOrDefault(s => s.Dato.Trim().ToUpper().Equals(subcode.Trim().ToUpper()));
-            plan.Elemento = subcode;
-            plan.ElementoValor = Convert.ToString(data.Valor);
+            // plan.Elemento = subcode;
+            // plan.ElementoValor = Convert.ToString(data.Valor);
 
             return true;
 
@@ -261,18 +261,18 @@ namespace ContabilidadWebApi.Helper
         private void ReadMonthValues(List<string> values, PlanGI plan)
         {
 
-            plan.Enero = ((values[0] == "" || values[0] == "0") ? 0 : Decimal.Parse(FixImporte(values[0]), CultureInfo.InvariantCulture));
-            plan.Febrero = ((values[1] == "" || values[1] == "0") ? 0 : Decimal.Parse(FixImporte(values[1]), CultureInfo.InvariantCulture));
-            plan.Marzo = ((values[2] == "" || values[2] == "0") ? 0 : Decimal.Parse(FixImporte(values[2]), CultureInfo.InvariantCulture));
-            plan.Abril = ((values[3] == "" || values[3] == "0") ? 0 : Decimal.Parse(FixImporte(values[3]), CultureInfo.InvariantCulture));
-            plan.Mayo = ((values[4] == "" || values[4] == "0") ? 0 : Decimal.Parse(FixImporte(values[4]), CultureInfo.InvariantCulture));
-            plan.Junio = ((values[5] == "" || values[5] == "0") ? 0 : Decimal.Parse(FixImporte(values[5]), CultureInfo.InvariantCulture));
-            plan.Julio = ((values[6] == "" || values[6] == "0") ? 0 : Decimal.Parse(FixImporte(values[6]), CultureInfo.InvariantCulture));
-            plan.Agosto = ((values[7] == "" || values[7] == "0") ? 0 : Decimal.Parse(FixImporte(values[7]), CultureInfo.InvariantCulture));
-            plan.Septiembre = ((values[8] == "" || values[8] == "0") ? 0 : Decimal.Parse(FixImporte(values[8]), CultureInfo.InvariantCulture));
-            plan.Octubre = ((values[9] == "" || values[9] == "0") ? 0 : Decimal.Parse(FixImporte(values[9]), CultureInfo.InvariantCulture));
-            plan.Noviembre = ((values[10] == "" || values[10] == "0") ? 0 : Decimal.Parse(FixImporte(values[10]), CultureInfo.InvariantCulture));
-            plan.Diciembre = ((values[11] == "" || values[11] == "0") ? 0 : Decimal.Parse(FixImporte(values[11]), CultureInfo.InvariantCulture));
+            // plan.Enero = ((values[0] == "" || values[0] == "0") ? 0 : Decimal.Parse(FixImporte(values[0]), CultureInfo.InvariantCulture));
+            // plan.Febrero = ((values[1] == "" || values[1] == "0") ? 0 : Decimal.Parse(FixImporte(values[1]), CultureInfo.InvariantCulture));
+            // plan.Marzo = ((values[2] == "" || values[2] == "0") ? 0 : Decimal.Parse(FixImporte(values[2]), CultureInfo.InvariantCulture));
+            // plan.Abril = ((values[3] == "" || values[3] == "0") ? 0 : Decimal.Parse(FixImporte(values[3]), CultureInfo.InvariantCulture));
+            // plan.Mayo = ((values[4] == "" || values[4] == "0") ? 0 : Decimal.Parse(FixImporte(values[4]), CultureInfo.InvariantCulture));
+            // plan.Junio = ((values[5] == "" || values[5] == "0") ? 0 : Decimal.Parse(FixImporte(values[5]), CultureInfo.InvariantCulture));
+            // plan.Julio = ((values[6] == "" || values[6] == "0") ? 0 : Decimal.Parse(FixImporte(values[6]), CultureInfo.InvariantCulture));
+            // plan.Agosto = ((values[7] == "" || values[7] == "0") ? 0 : Decimal.Parse(FixImporte(values[7]), CultureInfo.InvariantCulture));
+            // plan.Septiembre = ((values[8] == "" || values[8] == "0") ? 0 : Decimal.Parse(FixImporte(values[8]), CultureInfo.InvariantCulture));
+            // plan.Octubre = ((values[9] == "" || values[9] == "0") ? 0 : Decimal.Parse(FixImporte(values[9]), CultureInfo.InvariantCulture));
+            // plan.Noviembre = ((values[10] == "" || values[10] == "0") ? 0 : Decimal.Parse(FixImporte(values[10]), CultureInfo.InvariantCulture));
+            // plan.Diciembre = ((values[11] == "" || values[11] == "0") ? 0 : Decimal.Parse(FixImporte(values[11]), CultureInfo.InvariantCulture));
         }
         /// <summary>
         /// Arreglar Importes.

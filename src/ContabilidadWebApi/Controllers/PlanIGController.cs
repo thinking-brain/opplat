@@ -30,14 +30,14 @@ namespace ContabilidadWebApi.Controllers
             _vcontext = vcontext;
             _v2context = v2context;
         }
-         /// <summary>
+        /// <summary>
         /// Devuelve los Planes de IG
         /// </summary>
         /// <returns></returns>
         [HttpGet("PlanesIG/")]
         public List<PlanGI> PlanesIG()
         {
-            return _context.PlanGI.ToList();
+            return _context.PlanesIngresosGastos.ToList();
         }
 
         /// <summary>
@@ -65,8 +65,8 @@ namespace ContabilidadWebApi.Controllers
                 return Ok();
             }
         }
-       
-       /// <summary>
+
+        /// <summary>
         /// Devuelve los datos necesarios para crear un Plan IG
         /// </summary>
         /// <returns></returns>
@@ -91,7 +91,7 @@ namespace ContabilidadWebApi.Controllers
         {
             foreach (var item in planes)
             {
-                _context.PlanGI.Add(item);
+                _context.PlanesIngresosGastos.Add(item);
                 _context.SaveChanges();
             }
             return Ok();

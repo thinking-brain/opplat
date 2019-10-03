@@ -24,19 +24,13 @@ namespace ContabilidadWebApi.Data
             base.OnModelCreating(modelBuilder);
         }
 
-        public DbSet<ContabilidadWebApi.Models.Area> Area { get; set; }
+        // public DbSet<ContabilidadWebApi.Models.Area> Area { get; set; }
 
-        public DbSet<ContabilidadWebApi.Models.PlanPronosticoProductivo> PlanPronosticoProductivo { get; set; }
+        // public DbSet<ContabilidadWebApi.Models.PlanPronosticoProductivo> PlanPronosticoProductivo { get; set; }
 
         public DbSet<ContabilidadWebApi.Models.CentroCostoArea> CentroCostoArea { get; set; }
 
-        public DbSet<ContabilidadWebApi.Models.GrupoSubelemento> GrupoSubelemento { get; set; }
+        public DbSet<ContabilidadWebApi.Models.PlanGI> PlanesIngresosGastos { get; set; }
 
-        public DbSet<ContabilidadWebApi.Models.GrupoSubElemento_SubElemento> GrupoSubElemento_SubElemento { get; set; }
-
-        public DbSet<ContabilidadWebApi.Models.Plan> Plan { get; set; }
-        public DbSet<ContabilidadWebApi.Models.SubMayor> SubMayor { get; set; }
-        public DbSet<ContabilidadWebApi.Models.PlanGI> PlanGI { get; set; }
-        public DbSet<ContabilidadWebApi.Models.SubMayorCuenta> SubMayorCuenta { get; set; }
     }
 }
