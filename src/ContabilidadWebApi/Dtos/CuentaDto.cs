@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ContabilidadWebApi.Models;
+using Newtonsoft.Json;
 
 namespace ContabilidadWebApi.Dtos
 {
@@ -13,8 +14,10 @@ namespace ContabilidadWebApi.Dtos
 
         public Naturaleza Naturaleza { get; set; }
 
+        [JsonIgnore]
         public CuentaDto Padre { get; set; }
 
+        [JsonIgnore]
         public List<CuentaDto> Subcuentas { get; set; }
 
         public CuentaDto()

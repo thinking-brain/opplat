@@ -32,7 +32,7 @@ namespace ContabilidadWebApi.Services
             {
                 var numeros = numero.Split('-').ToList();
                 var numeroParcial = numeros.Last();
-                var cuentaSuperior = new Cuenta();
+                Cuenta cuentaSuperior = null;
                 if (numeros.Count > 1)
                 {
                     numeros.Remove(numeroParcial);
@@ -105,9 +105,11 @@ namespace ContabilidadWebApi.Services
         /// <returns>Cuenta que tenga el nombre por el que se busco o null si no existe</returns>
         public Cuenta FindCuentaByNumero(string numero)
         {
-            return _db.Set<Cuenta>()
+            var cuentas = _db.Set<Cuenta>()
                 .Include(c => c.CuentaSuperior)
-                .SingleOrDefault(c => c.Numero == numero);
+                .Include(c => c.Subcuentas).ToList();
+            var cuenta = cuentas.SingleOrDefault(c => c.Numero == numero);
+            return cuenta;
         }
 
         /// <summary>
@@ -117,7 +119,7 @@ namespace ContabilidadWebApi.Services
         /// <returns>Cuenta que tenga el nombre por el que se busco o null si no existe</returns>
         public Cuenta FindCuentaByNombre(string nombreDeCuenta)
         {
-            return _db.Set<Cuenta>().Include(c => c.Disponibilidad).SingleOrDefault(c => c.Nombre == nombreDeCuenta);
+            return _db.Set<Cuenta>().SingleOrDefault(c => c.Nombre == nombreDeCuenta);
         }
 
         /// <summary>

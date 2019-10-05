@@ -75,6 +75,10 @@ namespace ContabilidadWebApi.Controllers
             try
             {
                 var servicio = new CuentasServices(_context);
+                if (servicio.FindCuentaByNumero(nuevaCuenta.Numero) != null)
+                {
+                    return BadRequest("Ya esta cuenta esta creada");
+                }
                 var cuenta = servicio.CrearCuenta(nuevaCuenta.Numero, nuevaCuenta.Nombre, nuevaCuenta.Naturaleza);
                 return Ok(cuenta);
             }
@@ -121,7 +125,7 @@ namespace ContabilidadWebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var cuenta = _context.Set<Cuenta>().Any(c => c.Id == id);
+            var cuenta = await _context.Set<Cuenta>().FirstOrDefaultAsync(c => c.Id == id);
             if (cuenta == null)
             {
                 return NotFound($"No se encuentra la cuenta con id {id}");

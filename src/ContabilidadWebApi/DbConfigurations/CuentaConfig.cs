@@ -8,8 +8,8 @@ namespace ContabilidadWebApi.DbConfigurations
     {
         public void Configure(EntityTypeBuilder<Cuenta> builder)
         {
-            builder.HasOne(n => n.CuentaSuperior).WithMany(n => n.Subcuentas).IsRequired(false);
-            builder.HasOne(c => c.Disponibilidad).WithOne(d => d.Cuenta).IsRequired().HasPrincipalKey<Disponibilidad>();
+            builder.HasKey(c => c.Id);
+            builder.HasOne(n => n.CuentaSuperior).WithMany(n => n.Subcuentas).IsRequired(false).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
