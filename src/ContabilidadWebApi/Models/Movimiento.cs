@@ -6,6 +6,7 @@ namespace ContabilidadWebApi.Models
     [Table("contb_movimientos")]
     public class Movimiento
     {
+        public int Id { get; set; }
         public int AsientoId { get; set; }
 
         public virtual Asiento Asiento { get; set; }

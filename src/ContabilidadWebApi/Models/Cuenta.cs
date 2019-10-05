@@ -23,8 +23,6 @@ namespace ContabilidadWebApi.Models
 
         public Naturaleza Naturaleza { get; set; }
 
-        public virtual Disponibilidad Disponibilidad { get; set; }
-
         public virtual ICollection<Movimiento> Movimientos { get; set; }
 
         public Cuenta()
