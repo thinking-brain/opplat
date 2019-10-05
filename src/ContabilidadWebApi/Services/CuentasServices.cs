@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ContabilidadWebApi.Data;
+using ContabilidadWebApi.Dtos;
+using ContabilidadWebApi.Helpers;
 using ContabilidadWebApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,13 +11,103 @@ namespace ContabilidadWebApi.Services
 {
     public class CuentasServices
     {
-        public DbContext _db;
+        public ContabilidadDbContext _db;
         private PeriodoContableService _periodoContableService;
 
-        public CuentasServices(DbContext context)
+        public CuentasServices(ContabilidadDbContext context)
         {
             _db = context;
             _periodoContableService = new PeriodoContableService(context);
+        }
+
+        /// <summary>
+        /// Crea una cuenta nueva y devuelve el DTO con los datos de la misma
+        /// </summary>
+        /// <param name="nuevaCuenta"></param>
+        /// <returns></returns>
+        public CuentaDto CrearCuenta(string numero, string nombre, Naturaleza naturaleza)
+        {
+            var cuenta = FindCuentaByNumero(numero);
+            if (cuenta == null)
+            {
+                var numeros = numero.Split('-').ToList();
+                var numeroParcial = numeros.Last();
+                var cuentaSuperior = new Cuenta();
+                if (numeros.Count > 1)
+                {
+                    numeros.Remove(numeroParcial);
+                    var numeroSuperior = String.Join("-", numeros);
+                    cuentaSuperior = FindCuentaByNumero(numeroSuperior);
+                    if (cuentaSuperior == null)
+                    {
+                        throw new Exception("No existe la cuenta a la que pertenece la cuenta que esta creando, cree la cuenta superior primero.");
+                    }
+                }
+                cuenta = new Cuenta { NumeroParcial = numeroParcial, Nombre = nombre, Naturaleza = naturaleza };
+                if (cuentaSuperior != null)
+                {
+                    cuenta.CuentaSuperiorId = cuentaSuperior.Id;
+                }
+                _db.Add(cuenta);
+                _db.SaveChanges();
+            }
+            var ctaHelper = new CuentasHelper(_db);
+            return ctaHelper.GetCuenta(cuenta.Id);
+        }
+
+        /// <summary>
+        /// Crea una cuenta nueva y devuelve el DTO con los datos de la misma
+        /// </summary>
+        /// <param name="nuevaCuenta"></param>
+        /// <returns></returns>
+        public CuentaDto EditarCuenta(int id, string numero, string nombre, Naturaleza naturaleza)
+        {
+            var cuenta = _db.Set<Cuenta>().Find(id);
+            if (cuenta == null)
+            {
+                throw new Exception($"No existe ninguna cuenta con el id {id}.");
+            }
+            var numeros = numero.Split('-').ToList();
+            var numeroParcial = numeros.Last();
+            var cuentaSuperior = new Cuenta();
+            if (numeros.Count > 1)
+            {
+                numeros.Remove(numeroParcial);
+                var numeroSuperior = String.Join("-", numeros);
+                cuentaSuperior = FindCuentaByNumero(numeroSuperior);
+                if (cuentaSuperior == null)
+                {
+                    throw new Exception("No existe la cuenta a la que pertenece la cuenta que esta modificando, cree la cuenta superior primero.");
+                }
+            }
+            cuenta.NumeroParcial = numeroParcial;
+            cuenta.Nombre = nombre;
+            cuenta.Naturaleza = naturaleza;
+            if (cuentaSuperior != null)
+            {
+                cuenta.CuentaSuperiorId = cuentaSuperior.Id;
+            }
+            else
+            {
+                cuenta.CuentaSuperiorId = null;
+            }
+            _db.Update(cuenta);
+            _db.SaveChanges();
+
+            var ctaHelper = new CuentasHelper(_db);
+            return ctaHelper.GetCuenta(cuenta.Id);
+        }
+
+        /// <summary>
+        /// Busca cuenta por el numero de la misma
+        /// </summary>
+        /// <param name="numero">Numero de la cuenta que se desea buscar</param>
+        /// <returns>Cuenta que tenga el nombre por el que se busco o null si no existe</returns>
+        public Cuenta FindCuentaByNumero(string numero)
+        {
+            return _db.Set<Cuenta>()
+                .Include(c => c.CuentaSuperior)
+                .SingleOrDefault(c => c.Numero == numero);
         }
 
         /// <summary>
@@ -24,7 +117,7 @@ namespace ContabilidadWebApi.Services
         /// <returns>Cuenta que tenga el nombre por el que se busco o null si no existe</returns>
         public Cuenta FindCuentaByNombre(string nombreDeCuenta)
         {
-            return _db.Set<Cuenta>().Include(c => c.Disponibilidad).SingleOrDefault(c => c.Nivel.Nombre == nombreDeCuenta);
+            return _db.Set<Cuenta>().Include(c => c.Disponibilidad).SingleOrDefault(c => c.Nombre == nombreDeCuenta);
         }
 
         /// <summary>
@@ -90,7 +183,6 @@ namespace ContabilidadWebApi.Services
             return _db.Set<Movimiento>()
                 .Include(m => m.Asiento)
                 .Include(m => m.Asiento.DiaContable)
-                .Include(m => m.Cuenta.Nivel)
                 .Where(m => m.CuentaId == cuentaId).ToList();
         }
 

@@ -1,4 +1,5 @@
-﻿using ContabilidadWebApi.Models;
+﻿using ContabilidadWebApi.Data;
+using ContabilidadWebApi.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,11 +9,11 @@ namespace ContabilidadWebApi.Services
 {
     public class CobroService
     {
-        DbContext _db;
+        ContabilidadDbContext _db;
         PeriodoContableService periodoContableService;
         CuentasServices _cuentaService;
 
-        public CobroService(DbContext context)
+        public CobroService(ContabilidadDbContext context)
         {
             _db = context;
             periodoContableService = new PeriodoContableService(context);
