@@ -6,49 +6,56 @@ using ContabilidadWebApi.ViewModels;
 using ContabilidadWebApi.Models;
 using ContabilidadWebApi.Data;
 using Microsoft.EntityFrameworkCore;
-using ContabilidadWebApi.VersatModels;
+//using ContabilidadWebApi.VersatModels;
+using ContabilidadWebApi.VersatModels2;
 
 namespace ContabilidadWebApi.Helper
 {
-    public class UpdateSubmayorHelper
+    public class UpdateSubmayor2Helper
     {
 
         private readonly DbContext _context;
-        private readonly VersatDbContext _vcontext;
+        private readonly VersatDbContext2 _v2context;
 
-        public UpdateSubmayorHelper(VersatDbContext _vcontext, ApiDbContext _context)
+        public UpdateSubmayor2Helper(VersatDbContext2 _v2context, ContabilidadDbContext _context)
         {
             this._context = _context;
-            this._vcontext = _vcontext;
+            this._v2context = _v2context;
         }
-        public UpdateSubmayorHelper(VersatDbContext _vcontext, DbContext _context)
+        public UpdateSubmayor2Helper(VersatDbContext2 _v2context, DbContext _context)
         {
             this._context = _context;
-            this._vcontext = _vcontext;
+            this._v2context = _v2context;
         }
-        public List<SubMayor> LlenarSubMayor()
+        public List<SubMayor> LlenarSubMayor2()
         {
 
             var submayor = _context.Set<SubMayor>().ToList();
-            var periodoUltimo = _vcontext.Set<GenPeriodo>().Last();
-            var subUltimo = submayor.Any() ? _context.Set<SubMayor>().Where(s=> s.Ano == periodoUltimo.Inicio.Year).ToList().Last() : null;
-            var dtos = submayor.Any() ? _vcontext.Set<OptCuentaCentroSubPeriodo>().Where(s=>s.IdperiodoNavigation.Inicio.Year >= subUltimo.Ano && s.IdperiodoNavigation.Inicio.Month >= subUltimo.Mes).OrderBy(s => s.Idperiodo).ToList() : _vcontext.Set<OptCuentaCentroSubPeriodo>().OrderBy(s=>s.Idperiodo).ToList();
+            //var periodoUltimo = _vcontext.Set<GenPeriodo>().Last();
+            //var subUltimo = submayor.Any() ? _context.Set<SubMayor>().Where(s=> s.Ano == periodoUltimo.Inicio.Year).ToList().Last() : null;
+            //var dtos = submayor.Any() ? _vcontext.Set<OptCuentaCentroSubPeriodo>().Where(s=>s.IdperiodoNavigation.Inicio.Year >= subUltimo.Ano && s.IdperiodoNavigation.Inicio.Month >= subUltimo.Mes).OrderBy(s => s.Idperiodo).ToList() : _vcontext.Set<OptCuentaCentroSubPeriodo>().OrderBy(s=>s.Idperiodo).ToList();
+
+            //var submayor = _context.Set<SubMayor>().ToList();
+            //var periodoUltimo = _vcontext.Set<GenPeriodo>().Last();
+            //var subUltimo = submayor.Any() ? _context.Set<SubMayor>().Where(s => s.Ano == periodoUltimo.Inicio.Year).ToList().Last() : null;
+
+            var dtos = _v2context.Set<OptCuentaCentroSubPeriodo>().OrderBy(s => s.Idperiodo).ToList();
+
 
             foreach (var item in dtos)
-            {
-                
+            {               
                 //PERIODO
-                var periodo = _vcontext.Set<GenPeriodo>().SingleOrDefault(s => s.Idperiodo == item.Idperiodo);
+                var periodo = _v2context.Set<GenPeriodo>().SingleOrDefault(s => s.Idperiodo == item.Idperiodo);
                 short ano = Convert.ToInt16(periodo.Inicio.Year);
                 var mesx = Convert.ToByte(periodo.Inicio.Month);
                 //SUBELEMENTO
-                var sub = _vcontext.Set<CosSubelementogasto>().SingleOrDefault(s => s.Idsubelemento == item.Idsub);
-                var elemento = _vcontext.Set<CosElementogasto>().SingleOrDefault(s => s.Idelementogasto == sub.Idelementogasto);
+                var sub = _v2context.Set<CosSubelementogasto>().SingleOrDefault(s => s.Idsubelemento == item.Idsub);
+                var elemento = _v2context.Set<CosElementogasto>().SingleOrDefault(s => s.Idelementogasto == sub.Idelementogasto);
                 var moneda = sub.Monnac == true ? "CUP": "CUC";
                 //var moneda = _vcontext.Set<ConCuentamoneda>().SingleOrDefault(s => s.Idcuenta == item.Idcuenta);
                 if (moneda != null)
                 {
-                    var tipoM = _vcontext.Set<GenMoneda>().SingleOrDefault(s => s.Sigla == moneda);
+                    var tipoM = _v2context.Set<GenMoneda>().SingleOrDefault(s => s.Sigla == moneda);
 
                     var TipoMonedaOK = tipoM.Sigla.Equals("CUP") ? "100" : "101";
 

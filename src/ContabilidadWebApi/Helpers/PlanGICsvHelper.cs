@@ -21,7 +21,7 @@ namespace ContabilidadWebApi.Helper
 
         private readonly DbContext _context;
 
-        public PlanGICsvHelper(ApiDbContext _context)
+        public PlanGICsvHelper(ContabilidadDbContext _context)
         {
             this._context = _context;
 

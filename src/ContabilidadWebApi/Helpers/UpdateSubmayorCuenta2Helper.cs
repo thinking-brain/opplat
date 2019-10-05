@@ -17,7 +17,7 @@ namespace ContabilidadWebApi.Helper
         private readonly DbContext _context;
         private readonly VersatDbContext2 _v2context;
 
-        public UpdateSubmayorCuenta2Helper(VersatDbContext2 _v2context, ApiDbContext _context)
+        public UpdateSubmayorCuenta2Helper(VersatDbContext2 _v2context, ContabilidadDbContext _context)
         {
             this._context = _context;
             this._v2context = _v2context;
