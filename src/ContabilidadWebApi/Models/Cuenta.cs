@@ -9,9 +9,17 @@ namespace ContabilidadWebApi.Models
     {
         public int Id { get; set; }
 
-        public int NivelId { get; set; }
+        [Required]
+        public string NumeroParcial { get; set; }
 
-        public virtual Nivel Nivel { get; set; }
+        [Required]
+        public string Nombre { get; set; }
+
+        public int? CuentaSuperiorId { get; set; }
+
+        public virtual Cuenta CuentaSuperior { get; set; }
+
+        public virtual ICollection<Cuenta> Subcuentas { get; set; }
 
         public Naturaleza Naturaleza { get; set; }
 
@@ -29,27 +37,21 @@ namespace ContabilidadWebApi.Models
         {
             get
             {
-                var numero = Nivel.Numero;
-                var nivel = Nivel.NivelSuperior;
+                var numero = NumeroParcial;
+                var nivel = CuentaSuperior;
                 while (nivel != null)
                 {
                     numero = nivel.Numero + "-" + numero;
-                    nivel = nivel.NivelSuperior;
+                    nivel = nivel.CuentaSuperior;
                 }
                 return numero;
             }
         }
 
         [NotMapped]
-        public string Nombre
+        public bool EsFinal
         {
-            get { return Nivel.Nombre; }
-        }
-
-        [NotMapped]
-        public bool EsValida
-        {
-            get { return Nivel.NivelesInferiores.Count == 0; }
+            get { return Subcuentas.Count == 0; }
         }
 
     }

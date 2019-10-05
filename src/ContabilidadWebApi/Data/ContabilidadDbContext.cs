@@ -8,29 +8,30 @@ using ContabilidadWebApi.DbConfigurations;
 
 namespace ContabilidadWebApi.Data
 {
-    public class ApiDbContext : DbContext
+    public class ContabilidadDbContext : DbContext
     {
-        public ApiDbContext(DbContextOptions<ApiDbContext> options)
+        public ContabilidadDbContext(DbContextOptions<ContabilidadDbContext> options)
             : base(options)
         {
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            new AsientoConfig().Configure(modelBuilder.Entity<Asiento>());
+            //new AsientoConfig().Configure(modelBuilder.Entity<Asiento>());
             new CuentaConfig().Configure(modelBuilder.Entity<Cuenta>());
-            new NivelConfig().Configure(modelBuilder.Entity<Nivel>());
-            new MovimientoConfig().Configure(modelBuilder.Entity<Movimiento>());
+            //new MovimientoConfig().Configure(modelBuilder.Entity<Movimiento>());
             modelBuilder.ForNpgsqlUseIdentityColumns();
             base.OnModelCreating(modelBuilder);
         }
+
+        public DbSet<Cuenta> Cuentas { get; set; }
 
         // public DbSet<ContabilidadWebApi.Models.Area> Area { get; set; }
 
         // public DbSet<ContabilidadWebApi.Models.PlanPronosticoProductivo> PlanPronosticoProductivo { get; set; }
 
-        public DbSet<ContabilidadWebApi.Models.CentroCostoArea> CentroCostoArea { get; set; }
+        //public DbSet<ContabilidadWebApi.Models.CentroCostoArea> CentroCostoArea { get; set; }
 
-        public DbSet<ContabilidadWebApi.Models.PlanGI> PlanesIngresosGastos { get; set; }
+        //public DbSet<ContabilidadWebApi.Models.PlanGI> PlanesIngresosGastos { get; set; }
 
     }
 }
