@@ -39,8 +39,8 @@ namespace opplatApplication
         public void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
             //contabilidad context
-            services.AddDbContext<ContabilidadWebApi.Data.ApiDbContext>(options =>
-                    options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
+            services.AddDbContext<ContabilidadWebApi.Data.ContabilidadDbContext>(options =>
+                    options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadContabilidadDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
 
             services.AddDbContext<VersatDbContext>(options =>
                options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
