@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Hangfire.PostgreSql;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using ImportadorDatos.Jobs;
 
 namespace ImportadorDatos
 {
@@ -49,7 +50,7 @@ namespace ImportadorDatos
             app.UseHangfireDashboard();
             app.UseHangfireServer();
 
-            RecurringJob.AddOrUpdate(() => Console.WriteLine("Minutely Job"), Cron.Daily);
+            RecurringJob.AddOrUpdate(() => ImportarVersat.ImportarCuentas(), Cron.Daily);
             app.UseHttpsRedirection();
             app.UseMvc();
         }
