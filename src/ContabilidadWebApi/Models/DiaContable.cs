@@ -15,8 +15,10 @@ namespace ContabilidadWebApi.Models
 
         public DateTime? HoraEnQueCerro { get; set; }
 
-        public virtual ICollection<Asiento> Asientos { get; set; }
+        public int PeriodoContableId { get; set; }
 
+        public virtual PeriodoContable PeriodoContable { get; set; }
+        public virtual ICollection<Asiento> Asientos { get; set; }
         public DiaContable()
         {
             Asientos = new HashSet<Asiento>();
