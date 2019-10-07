@@ -27,6 +27,10 @@ namespace ContabilidadWebApi.Services
         /// <returns></returns>
         public CuentaDto CrearCuenta(string numero, string nombre, Naturaleza naturaleza)
         {
+            // using (var transaction = _db.Database.BeginTransaction())
+            // {
+            //     transaction.Commit();
+            // }
             var cuenta = FindCuentaByNumero(numero);
             if (cuenta == null)
             {

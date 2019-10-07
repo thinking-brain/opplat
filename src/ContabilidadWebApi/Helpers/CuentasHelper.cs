@@ -75,7 +75,11 @@ namespace ContabilidadWebApi.Helpers
 
         public CuentaDto GetCuenta(int id)
         {
-            var cta = Cuentas().SingleOrDefault(c => c.Id == id);
+            var cuenta = _db.Set<Cuenta>()
+                .Include(c => c.CuentaSuperior)
+                .Include(c => c.Subcuentas)
+                .SingleOrDefault(c => c.Id == id);
+            var cta = new CuentaDto { Id = cuenta.Id, Numero = cuenta.Numero, Naturaleza = cuenta.Naturaleza, Descripcion = cuenta.Nombre };
             return cta;
         }
 

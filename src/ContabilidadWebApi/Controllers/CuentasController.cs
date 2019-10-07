@@ -50,8 +50,7 @@ namespace ContabilidadWebApi.Controllers
             }
             var ctaHelper = new CuentasHelper(_context);
 
-            var cuentas = ctaHelper.Cuentas();
-            var cta = cuentas.SingleOrDefault(c => c.Id == id);
+            var cta = ctaHelper.GetCuenta(id);
 
             if (cta == null)
             {
@@ -66,7 +65,7 @@ namespace ContabilidadWebApi.Controllers
         /// <param name="nuevaCuenta">Datos de la nueva cuenta</param>
         /// <returns></returns>
         [HttpPost()]
-        public async Task<IActionResult> Post([FromBody] NuevaCuentaDto nuevaCuenta)
+        public IActionResult Post([FromBody] NuevaCuentaDto nuevaCuenta)
         {
             if (!ModelState.IsValid)
             {
