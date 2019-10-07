@@ -15,6 +15,7 @@ using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using ImportadorDatos.Jobs;
 using ImportadorDatos.Models.Versat;
+using ContabilidadWebApi.Data;
 
 namespace ImportadorDatos
 {
@@ -35,7 +36,13 @@ namespace ImportadorDatos
 
             services.AddDbContext<VersatDbContext>(options =>
                options.UseSqlServer(Configuration.GetConnectionString("VersatConnection")));
+
+            services.AddDbContext<ContabilidadDbContext>(options =>
+                 options.UseNpgsql(Configuration.GetConnectionString("ContabilidadDbContext")));
+
             services.AddScoped<VersatDbContext>();
+            services.AddScoped<ContabilidadDbContext>();
+            services.AddTransient<ImportarVersat>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
