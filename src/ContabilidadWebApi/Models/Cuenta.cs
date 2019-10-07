@@ -39,7 +39,7 @@ namespace ContabilidadWebApi.Models
                 var nivel = CuentaSuperior;
                 while (nivel != null)
                 {
-                    numero = nivel.Numero + "-" + numero;
+                    numero = nivel.NumeroParcial + "-" + numero;
                     nivel = nivel.CuentaSuperior;
                 }
                 return numero;
