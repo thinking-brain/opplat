@@ -21,5 +21,12 @@ namespace ImportadorDatos.Controllers
             importador.ImportarCuentasAsync();
             return Ok("Cuentas importadas.");
         }
+
+        [HttpGet("periodos")]
+        public async Task<IActionResult> GetPeriodos()
+        {
+            importador.ImportarPeriodosContables();
+            return Ok("Periodos importadas.");
+        }
     }
 }

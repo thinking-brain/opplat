@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using ContabilidadWebApi.Data;
+using ContabilidadWebApi.Models;
 using ImportadorDatos.Models.Versat;
 using Microsoft.EntityFrameworkCore;
 
@@ -98,8 +99,27 @@ namespace ImportadorDatos.Jobs
 
         }
 
+        public void ImportarPeriodosContables()
+        {
+            var periodosVersat = _vContext.Set<GenPeriodo>();
+            foreach (var per in periodosVersat)
+            {
+                if (_cContext.Set<PeriodoContable>().Any(p => p.FechaInicio == per.Inicio && p.FechaFin == per.Fin))
+                {
+
+                }
+                else
+                {
+                    _cContext.Add(new PeriodoContable { FechaInicio = per.Inicio, FechaFin = per.Fin, Activo = per.Enuso ?? per.Enuso.Value });
+                }
+            }
+            _cContext.SaveChanges();
+        }
+
+
         public static void ImportarAsientos()
         {
+
             // string baseUrl = "https://localhost:5001/contabilidad/cuentas";
             // var handler = new HttpClientHandler();
             // handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
