@@ -11,7 +11,7 @@ namespace ContabilidadWebApi.Models
 
         public DateTime FechaInicio { get; set; }
 
-        public DateTime? FechaFin { get; set; }
+        public DateTime FechaFin { get; set; }
 
         public bool Activo { get; set; }
     }
