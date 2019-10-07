@@ -56,6 +56,7 @@ namespace ImportadorDatos
             app.UseHangfireDashboard();
             app.UseHangfireServer();
 
+            //todo: agregar job para importar cuentas que no de problemas de concurrencia
             //RecurringJob.AddOrUpdate(() => ImportarVersat.ImportarCuentasAsync(), Cron.Daily);
             app.UseHttpsRedirection();
             app.UseMvc();
