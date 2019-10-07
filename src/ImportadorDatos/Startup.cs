@@ -13,6 +13,8 @@ using Microsoft.Extensions.Options;
 using Hangfire.PostgreSql;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using ImportadorDatos.Jobs;
+using ImportadorDatos.Models.Versat;
 
 namespace ImportadorDatos
 {
@@ -30,6 +32,11 @@ namespace ImportadorDatos
         {
             services.AddHangfire(config =>
                 config.UsePostgreSqlStorage(Configuration.GetConnectionString("HangfireConnection")));
+
+            services.AddDbContext<VersatDbContext>(options =>
+               options.UseSqlServer(Configuration.GetConnectionString("VersatConnection")));
+            services.AddScoped<VersatDbContext>();
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -49,7 +56,8 @@ namespace ImportadorDatos
             app.UseHangfireDashboard();
             app.UseHangfireServer();
 
-            RecurringJob.AddOrUpdate(() => Console.WriteLine("Minutely Job"), Cron.Daily);
+            //todo: agregar job para importar cuentas que no de problemas de concurrencia
+            //RecurringJob.AddOrUpdate(() => ImportarVersat.ImportarCuentasAsync(), Cron.Daily);
             app.UseHttpsRedirection();
             app.UseMvc();
         }

@@ -20,24 +20,25 @@ namespace ContabilidadWebApi.Controllers
     [ApiController]
     public class PlanIGController : ControllerBase
     {
-        private readonly ApiDbContext _context;
+        private readonly ContabilidadDbContext _context;
         private readonly VersatDbContext _vcontext;
         private readonly VersatDbContext2 _v2context;
 
-        public PlanIGController(ApiDbContext context, VersatDbContext vcontext, VersatDbContext2 v2context)
+        public PlanIGController(ContabilidadDbContext context, VersatDbContext vcontext, VersatDbContext2 v2context)
         {
             _context = context;
             _vcontext = vcontext;
             _v2context = v2context;
         }
-         /// <summary>
+        /// <summary>
         /// Devuelve los Planes de IG
         /// </summary>
         /// <returns></returns>
         [HttpGet("PlanesIG/")]
         public List<PlanGI> PlanesIG()
         {
-            return _context.PlanGI.ToList();
+            //return _context.PlanesIngresosGastos.ToList();
+            return null;
         }
 
         /// <summary>
@@ -65,8 +66,8 @@ namespace ContabilidadWebApi.Controllers
                 return Ok();
             }
         }
-       
-       /// <summary>
+
+        /// <summary>
         /// Devuelve los datos necesarios para crear un Plan IG
         /// </summary>
         /// <returns></returns>
@@ -91,7 +92,7 @@ namespace ContabilidadWebApi.Controllers
         {
             foreach (var item in planes)
             {
-                _context.PlanGI.Add(item);
+                _context.Set<PlanGI>().Add(item);
                 _context.SaveChanges();
             }
             return Ok();
