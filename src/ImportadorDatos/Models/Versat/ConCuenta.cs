@@ -12,6 +12,8 @@ namespace ImportadorDatos.Models.Versat
         public int Idapertura { get; set; }
         public bool? Activa { get; set; }
 
+        public virtual ConApertura IdaperturaNavigation { get; set; }
+
         public virtual ICollection<OptCuentaCentroSubPeriodo> OptCuentaCentroSubPeriodo { get; set; }
         public virtual ICollection<OptCuentaCentroPeriodo> OptCuentaCentroPeriodo { get; set; }
         public virtual ICollection<OptCuentaPeriodo> OptCuentaPeriodo { get; set; }

@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace ImportadorDatos.Models.Versat
 {
     public class VersatDbContext : DbContext
     {
-        public VersatDbContext()
-        {
-        }
-
         public VersatDbContext(DbContextOptions<VersatDbContext> options)
             : base(options)
         {
@@ -19,12 +11,15 @@ namespace ImportadorDatos.Models.Versat
         public DbSet<ImportadorDatos.Models.Versat.GenPeriodo> GenPeriodo { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.ConCuentanat> ConCuentanat { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.CosCentro> CosCentro { get; set; }
+        public virtual DbSet<ImportadorDatos.Models.Versat.ConApertura> ConApertura { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.ConCuenta> ConCuenta { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.CosElementogasto> CosElementogasto { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.CosSubelementogasto> CosSubelementogasto { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.GenUnidadcontable> GenUnidadcontable { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.OptCuentaCentroSubPeriodo> OptCuentaCentroSubPeriodo { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.ConCuentamoneda> ConCuentamoneda { get; set; }
+        public DbSet<ImportadorDatos.Models.Versat.GenFormato> GenFormato { get; set; }
+        public DbSet<ImportadorDatos.Models.Versat.GenMascara> GenMascara { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.GenMoneda> GenMoneda { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.CosCuentasAsociadas> CosCuentasAsociadas { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.CosPartida> CosPartida { get; set; }
@@ -37,6 +32,8 @@ namespace ImportadorDatos.Models.Versat
         public DbSet<ImportadorDatos.Models.Versat.NomDocumentoDetallePago> NomDocumentoDetallePago { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.NomPeriodopago> NomPeriodopago { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.NomTipoDocumento> NomTipoDocumento { get; set; }
+        public DbQuery<ImportadorDatos.Models.Versat.Con_Cuentadescrip> con_cuentadescrip { get; set; }
+        public DbQuery<ImportadorDatos.Models.Versat.ConCuentanatur> con_cuentanatur { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -46,6 +43,9 @@ namespace ImportadorDatos.Models.Versat
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854");
+
+            modelBuilder.Query<Con_Cuentadescrip>();
+            modelBuilder.Query<ConCuentanatur>();
 
             modelBuilder.Entity<CosPartida>(entity =>
             {
@@ -1005,6 +1005,102 @@ namespace ImportadorDatos.Models.Versat
 
                 entity.Property(e => e.Naturaleza).HasColumnName("naturaleza");
 
+            });
+
+            modelBuilder.Entity<ConApertura>(entity =>
+            {
+                entity.HasKey(e => e.Idapertura)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("con_apertura");
+
+                entity.HasIndex(e => e.Idapertura)
+                    .ForSqlServerIsClustered();
+
+                entity.Property(e => e.Idapertura).HasColumnName("idapertura");
+
+                entity.Property(e => e.Idmascara).HasColumnName("idmascara");
+
+                entity.Property(e => e.Idunidad).HasColumnName("idunidad");
+
+                entity.Property(e => e.Tipo).HasColumnName("tipo");
+
+                entity.HasOne(d => d.IdmascaraNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idmascara)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_con_apertura_gen_mascara");
+
+                entity.HasOne(d => d.IdunidadNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idunidad)
+                    .HasConstraintName("FK_con_apertura_gen_unidadcontable");
+            });
+
+            modelBuilder.Entity<GenFormato>(entity =>
+            {
+                entity.HasKey(e => e.Idformato)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("gen_formato");
+
+                entity.HasIndex(e => e.Nombre)
+                    .HasName("IX_gen_formato")
+                    .IsUnique();
+
+                entity.Property(e => e.Idformato).HasColumnName("idformato");
+
+                entity.Property(e => e.Enuso)
+                    .IsRequired()
+                    .HasColumnName("enuso")
+                    .HasDefaultValueSql("(0)");
+
+                entity.Property(e => e.Longitud).HasColumnName("longitud");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasColumnName("nombre")
+                    .HasMaxLength(30);
+
+                entity.Property(e => e.Separador)
+                    .IsRequired()
+                    .HasColumnName("separador")
+                    .HasMaxLength(1)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<GenMascara>(entity =>
+            {
+                entity.HasKey(e => e.Idmascara)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("gen_mascara");
+
+                entity.HasIndex(e => new { e.Idformato, e.Posicion })
+                    .HasName("IX_gen_mascara");
+
+                entity.Property(e => e.Idmascara).HasColumnName("idmascara");
+
+                entity.Property(e => e.Abreviatura)
+                    .HasColumnName("abreviatura")
+                    .HasMaxLength(5);
+
+                entity.Property(e => e.Idformato).HasColumnName("idformato");
+
+                entity.Property(e => e.Longitud).HasColumnName("longitud");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasColumnName("nombre")
+                    .HasMaxLength(30);
+
+                entity.Property(e => e.Posicion).HasColumnName("posicion");
+
+                entity.HasOne(d => d.IdformatoNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idformato)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_gen_mascara_gen_formato");
             });
         }
 
