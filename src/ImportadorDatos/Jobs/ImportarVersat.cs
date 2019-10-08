@@ -28,9 +28,6 @@ namespace ImportadorDatos.Jobs
 
         public void ImportarCuentasAsync()
         {
-
-            var formatos = new int[6] { 0, 3, 4, 6, 6, 6 };
-
             var cuentas = _vContext.Set<ConCuenta>()
                 .Include(c => c.IdaperturaNavigation.IdmascaraNavigation)
                 .OrderBy(c => c.Clave.Length);
@@ -55,24 +52,7 @@ namespace ImportadorDatos.Jobs
             {
                 foreach (var cta in cuentas)
                 {
-                    var posicion = cta.IdaperturaNavigation.IdmascaraNavigation.Posicion;
-                    var numero = "";
-                    var index = 0;
-                    var lenght = cta.Clave.Length;
-                    for (int i = 1; i <= posicion; i++)
-                    {
-                        var offset = index;
-                        for (int j = index; j < offset + formatos[i]; j++, index++)
-                        {
-                            if (j >= lenght)
-                            {
-                                break;
-                            }
-                            numero += cta.Clave[j];
-                        }
-                        numero += "-";
-                    }
-                    numero = numero.Remove(numero.Length - 1);
+                    var numero = GetNumeroCuenta(cta.Clave, cta.IdaperturaNavigation.IdmascaraNavigation.Posicion);
                     var descripcion = _vContext.Query<Con_Cuentadescrip>().SingleOrDefault(c => c.Idcuenta == cta.Idcuenta).Descripcion;
                     var naturaleza = _vContext.Query<ConCuentanatur>().SingleOrDefault(c => c.Idcuenta == cta.Idcuenta).Naturaleza;
                     if (!cuentasApi.Any(c => c.Numero == numero))
@@ -119,11 +99,87 @@ namespace ImportadorDatos.Jobs
 
         public void ImportarAsientos()
         {
-            var asientosVersat = _vContext.Query<AsientosView>();
-            foreach (var asi in asientosVersat)
+            var operacionesVersat = _vContext.Set<ConPase>()
+                .Include(c => c.IdcomprobanteNavigation.ConComprobanteoperacion.IdusuarioNavigation)
+                .Include(c => c.IdcomprobanteNavigation.ConComprobanteoperacion.IdperiodoNavigation)
+                .Where(c => c.IdcomprobanteNavigation.ConComprobanteoperacion.Idestado == 5)
+                .GroupBy(c => c.IdcomprobanteNavigation).Select(c => new
+                {
+                    Comprobante = c.Key,
+                    Operaciones = c
+                });
+            foreach (var asi in operacionesVersat)
             {
-                
+
+                var diaContable = _cContext.Set<DiaContable>().SingleOrDefault(d => d.Fecha.Date == asi.Comprobante.ConComprobanteoperacion.Fecha.Date);
+                if (diaContable == null)
+                {
+                    var periodo = _cContext.Set<PeriodoContable>()
+                    .SingleOrDefault(p => p.FechaInicio.Date == asi.Comprobante.ConComprobanteoperacion.IdperiodoNavigation.Inicio.Date
+                        && p.FechaFin.Date == asi.Comprobante.ConComprobanteoperacion.IdperiodoNavigation.Fin.Date);
+                    diaContable = new DiaContable
+                    {
+                        Fecha = asi.Comprobante.ConComprobanteoperacion.Fecha,
+                        Abierto = false,
+                        HoraEnQueCerro = asi.Comprobante.ConComprobanteoperacion.Fecha.Date.AddHours(23),
+                        PeriodoContableId = periodo.Id
+                    };
+                }
+                var nuevoAsiento = new Asiento
+                {
+                    Detalle = asi.Comprobante.Descripcion,
+                    Fecha = asi.Comprobante.ConComprobanteoperacion.Fecha,
+                    UsuarioId = asi.Comprobante.ConComprobanteoperacion.IdusuarioNavigation.Loginusuario,
+                    DiaContable = diaContable,
+                };
+                foreach (var op in asi.Operaciones)
+                {
+                    var numero = GetNumeroCuenta(op.IdcuentaNavigation.Clave, op.IdcuentaNavigation.IdaperturaNavigation.IdmascaraNavigation.Posicion);
+                    var cuenta = _cContext.Set<Cuenta>()
+                        .Include(c => c.CuentaSuperior.CuentaSuperior.CuentaSuperior.CuentaSuperior)
+                        .SingleOrDefault(c => c.Numero == numero);
+                    if (cuenta == null)
+                    {
+                        Console.WriteLine($"Error cuenta {numero} no existe.");
+                    }
+                    else
+                    {
+                        var mov = new Movimiento
+                        {
+                            CuentaId = op.Idcuenta,
+                            Importe = op.Importe,
+                            TipoDeOperacion = TipoDeOperacion.Debito
+                        };
+                        nuevoAsiento.Movimientos.Add(mov);
+                    }
+
+                }
+                _cContext.Add(nuevoAsiento);
+                _cContext.SaveChanges();
             }
+        }
+
+        private string GetNumeroCuenta(string clave, int posicion)
+        {
+            var formatos = new int[6] { 0, 3, 4, 6, 6, 6 };
+            var numero = "";
+            var index = 0;
+            var lenght = clave.Length;
+            for (int i = 1; i <= posicion; i++)
+            {
+                var offset = index;
+                for (int j = index; j < offset + formatos[i]; j++, index++)
+                {
+                    if (j >= lenght)
+                    {
+                        break;
+                    }
+                    numero += clave[j];
+                }
+                numero += "-";
+            }
+            numero = numero.Remove(numero.Length - 1);
+            return numero;
         }
     }
 

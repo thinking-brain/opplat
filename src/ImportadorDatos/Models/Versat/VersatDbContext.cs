@@ -1130,12 +1130,6 @@ namespace ImportadorDatos.Models.Versat
                     .HasColumnName("activo")
                     .HasDefaultValueSql("(1)");
 
-                entity.Property(e => e.Expira)
-                    .HasColumnName("expira")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.Intentos).HasColumnName("intentos");
-
                 entity.Property(e => e.Loginusuario)
                     .IsRequired()
                     .HasColumnName("loginusuario")
@@ -1166,10 +1160,6 @@ namespace ImportadorDatos.Models.Versat
 
                 entity.Property(e => e.Idcomprobante).HasColumnName("idcomprobante");
 
-                entity.Property(e => e.Crc)
-                    .HasColumnName("crc")
-                    .HasDefaultValueSql("(0)");
-
                 entity.Property(e => e.Credito)
                     .HasColumnName("credito")
                     .HasColumnType("numeric(18, 2)");
@@ -1189,7 +1179,7 @@ namespace ImportadorDatos.Models.Versat
                 entity.Property(e => e.Sumaclave)
                     .HasColumnName("sumaclave")
                     .HasMaxLength(50)
-                    .IsUnicode(false);                
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<ConComprobanteoperacion>(entity =>
@@ -1225,10 +1215,6 @@ namespace ImportadorDatos.Models.Versat
                     .IsUnicode(false)
                     .HasDefaultValueSql("(' ')");
 
-                entity.Property(e => e.Crc)
-                    .HasColumnName("crc")
-                    .HasDefaultValueSql("(0)");
-
                 entity.Property(e => e.Fecha)
                     .HasColumnName("fecha")
                     .HasColumnType("smalldatetime");
@@ -1253,7 +1239,7 @@ namespace ImportadorDatos.Models.Versat
                     .WithMany()
                     .HasForeignKey(d => d.Idperiodo)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_con_comprobanteoperacion_gen_periodo");                
+                    .HasConstraintName("FK_con_comprobanteoperacion_gen_periodo");
 
                 entity.HasOne(d => d.IdusuarioNavigation)
                     .WithMany()
@@ -1281,10 +1267,6 @@ namespace ImportadorDatos.Models.Versat
                     .ForSqlServerIsClustered();
 
                 entity.Property(e => e.Idpase).HasColumnName("idpase");
-
-                entity.Property(e => e.Crc)
-                    .HasColumnName("crc")
-                    .HasDefaultValueSql("(0)");
 
                 entity.Property(e => e.Idcomprobante).HasColumnName("idcomprobante");
 
