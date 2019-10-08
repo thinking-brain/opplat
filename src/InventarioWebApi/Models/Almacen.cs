@@ -9,5 +9,6 @@ namespace InventarioWebApi.Models
         public string Nombre { get; set; }
         [Required]
         public string Codigo { get; set; }
+        public string Localizacion { get; set; }
     }
 }

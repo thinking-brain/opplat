@@ -7,9 +7,11 @@ namespace InventarioWebApi.Models
     {
         public int Id { get; set; }
         [Required]
-        public string Unidad { get; set; }
-        [Display(Name ="Descripción")]
+        public string Nombre { get; set; }
+        [Display(Name = "Descripción")]
         [DataType(DataType.MultilineText)]
-        public string Descripcion { get; set; }        
+        public string Descripcion { get; set; }
+        public int TipoId { get; set; }
+        public decimal FactorConversion {get;set;}
     }
 }

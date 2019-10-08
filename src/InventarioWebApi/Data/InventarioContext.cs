@@ -19,6 +19,9 @@ namespace InventarioWebApi.Data
         public DbSet<Producto> Productos { get; set; }
         public DbSet<Submayor> Submayores { get; set; }
         public DbSet<Derivado> Derivados { get; set; }
+        public DbSet<MovimientoDeProducto> MovimientosDeProductos { get; set; }
+        public DbSet<UnidadDeMedida> UnidadesDeMedida { get; set; }
+        public DbSet<TipoMovimiento> TiposDeMovimiento { get; set; }
     }
 
 }
