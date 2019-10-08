@@ -8,24 +8,26 @@ using Microsoft.Extensions.Configuration;
 
 namespace FinanzasWebApi.Helper
 {
-    public class GetSubMayorDeCuentas
+    public class GetMovimientoDeCuentaPeriodoAcumulado
     {
-        public static List<SubMayorCuentaVM> Get(IConfiguration config)
+        public static decimal Get(int year, int meses, string cuenta, IConfiguration config)
         {
+            string fechaInicio = year + "-" + 1 + "-" + 1;
+            string fechaFin = year + "-" + meses + "-" + 31;
             //SUBMAYOR DE CUENTAS
             var handler = new HttpClientHandler();
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
             HttpClient client = new HttpClient(handler);
-            List<SubMayorCuentaVM> subMCuentas = new List<SubMayorCuentaVM>();
-            var url = config.GetValue<string>("ContabilidadApi") + "/SubmayorDeCuentas";
+            MovimientoCuentaPeriodoVM subMCuentas = new MovimientoCuentaPeriodoVM();
+            var url = config.GetValue<string>("ContabilidadApi") + "/MovimientoDeCuentasAcumulado" + "/" + cuenta + "/" + fechaInicio + "/" + fechaFin;
             var result = client.GetAsync(url).Result;
             if (result.IsSuccessStatusCode)
             {
-                subMCuentas = result.Content.ReadAsAsync<List<SubMayorCuentaVM>>().Result;
+                subMCuentas = result.Content.ReadAsAsync<MovimientoCuentaPeriodoVM>().Result;
             }
 
 
-            return subMCuentas;
+            return subMCuentas.Importe;
         }
     }
 }

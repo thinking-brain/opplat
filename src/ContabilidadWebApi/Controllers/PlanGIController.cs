@@ -10,35 +10,27 @@ using Microsoft.EntityFrameworkCore;
 using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Helper;
 using ContabilidadWebApi.Models;
-using ContabilidadWebApi.VersatModels;
-using ContabilidadWebApi.VersatModels2;
-using ContabilidadWebApi.ViewModels;
 
 namespace ContabilidadWebApi.Controllers
 {
     [Route("contabilidad/[controller]")]
     [ApiController]
-    public class PlanIGController : ControllerBase
+    public class PlanGIController : ControllerBase
     {
         private readonly ContabilidadDbContext _context;
-        private readonly VersatDbContext _vcontext;
-        private readonly VersatDbContext2 _v2context;
 
-        public PlanIGController(ContabilidadDbContext context, VersatDbContext vcontext, VersatDbContext2 v2context)
+        public PlanGIController(ContabilidadDbContext context)
         {
             _context = context;
-            _vcontext = vcontext;
-            _v2context = v2context;
         }
         /// <summary>
         /// Devuelve los Planes de IG
         /// </summary>
         /// <returns></returns>
-        [HttpGet("PlanesIG/")]
-        public List<PlanGI> PlanesIG()
+        [HttpGet("PlanesGI/")]
+        public List<PlanGI> PlanesGI()
         {
-            //return _context.PlanesIngresosGastos.ToList();
-            return null;
+            return _context.Set<PlanGI>().ToList();
         }
 
         /// <summary>
@@ -48,7 +40,7 @@ namespace ContabilidadWebApi.Controllers
         /// <returns></returns>
         // GET api/values
         [HttpPost, Route("UploadPlanGI/")]
-        public async Task<IActionResult> UploadPlanGI([FromForm]IFormFile File)
+        public async Task<IActionResult> UploadPlanGI(IFormFile File)
         {
             try
             {
@@ -71,8 +63,8 @@ namespace ContabilidadWebApi.Controllers
         /// Devuelve los datos necesarios para crear un Plan IG
         /// </summary>
         /// <returns></returns>
-        [HttpGet("PlanIGDatos/")]
-        public List<dynamic> PlanIGDatos()
+        [HttpGet("PlanGIDatos/")]
+        public List<dynamic> PlanGIDatos()
         {
             var datos = new List<dynamic>();
             foreach (var item in DatosPlanGI.Datos())
@@ -87,8 +79,8 @@ namespace ContabilidadWebApi.Controllers
         /// </summary>
         /// <param name="planes"></param>
         /// <returns></returns>
-        [HttpPost("PlanIGCreate/")]
-        public IActionResult PlanIGCreate([FromRoute] List<PlanGI> planes)
+        [HttpPost("PlanGICreate/")]
+        public IActionResult PlanGICreate([FromRoute] List<PlanGI> planes)
         {
             foreach (var item in planes)
             {

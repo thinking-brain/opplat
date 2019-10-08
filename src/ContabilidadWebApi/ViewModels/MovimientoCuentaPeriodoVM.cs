@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 
 namespace ContabilidadWebApi.ViewModels
 {
-    public class SubelementoGastoViewModel
+    public class MovimientoCuentaPeriodoVM
     {
-        public string Id_SubElemGasto { get; set; }
-        public string Desc_Subelemento { get; set; }
+        public string Cuenta { get; set; }
+        public decimal Importe { get; set; }
     }
 }
+

@@ -1,18 +1,14 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace FinanzasWebApi.ViewModels
 {
-    public class PlanGIResultVM
+    public class DetallePlanIGVM
     {
-        public int Id { get; set; }
-        public string Año { get; set; }
-        public string Elemento { get; set; }
-        public string ElementoValor { get; set; }
+        public string Concepto { get; set; }
 
         [DataType(DataType.Currency)]
         public decimal Enero { get; set; }
@@ -50,32 +46,29 @@ namespace FinanzasWebApi.ViewModels
         [DataType(DataType.Currency)]
         public decimal Diciembre { get; set; }
 
-        [DataType(DataType.Date)]
-        public DateTime Fecha { get; set; }
-
-
         public decimal this[int index]
         {
             get
             {
-
-                Dictionary<int, decimal> months = new Dictionary<int, decimal>(12);
-                months.Add(1, Enero);
-                months.Add(2, Febrero);
-                months.Add(3, Marzo);
-                months.Add(4, Abril);
-                months.Add(5, Mayo);
-                months.Add(6, Junio);
-                months.Add(7, Julio);
-                months.Add(8, Agosto);
-                months.Add(9, Septiembre);
-                months.Add(10, Octubre);
-                months.Add(11, Noviembre);
-                months.Add(12, Diciembre);
-                return months[index];
+                switch (index)
+                {
+                    case 1: return Enero;
+                    case 2: return Febrero;
+                    case 3: return Marzo;
+                    case 4: return Abril;
+                    case 5: return Mayo;
+                    case 6: return Junio;
+                    case 7: return Julio;
+                    case 8: return Agosto;
+                    case 9: return Septiembre;
+                    case 10: return Octubre;
+                    case 11: return Noviembre;
+                    case 12: return Diciembre;
+                    default: return 0;
+                }
             }
-
         }
+
         public decimal Acumulado(int mes)
         {
 
@@ -89,3 +82,4 @@ namespace FinanzasWebApi.ViewModels
         }
     }
 }
+
