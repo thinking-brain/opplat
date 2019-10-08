@@ -126,7 +126,7 @@ namespace opplatApplication
             {
                 config.RootPath = context.Configuration.GetValue<string>("ClientApp");
             });
-
+            services.AddCors();
             var mvcBuilder = services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2).AddJsonOptions(options =>
                 {
                     options.SerializerSettings.Formatting = Formatting.Indented;
@@ -171,8 +171,7 @@ namespace opplatApplication
         {
             routes.MapHub<NotificationsHub>("/notihub");
         });
-            app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
-
+            app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseMvc(builder =>
             {
                 builder.MapRoute(
