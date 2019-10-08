@@ -34,6 +34,12 @@ namespace ImportadorDatos.Models.Versat
         public DbSet<ImportadorDatos.Models.Versat.NomTipoDocumento> NomTipoDocumento { get; set; }
         public DbQuery<ImportadorDatos.Models.Versat.Con_Cuentadescrip> con_cuentadescrip { get; set; }
         public DbQuery<ImportadorDatos.Models.Versat.ConCuentanatur> con_cuentanatur { get; set; }
+        public DbQuery<ImportadorDatos.Models.Versat.AsientosView> nom_vw_asientos { get; set; }
+
+        public virtual DbSet<GenUsuario> GenUsuario { get; set; }
+        public virtual DbSet<ConPase> ConPase { get; set; }
+        public virtual DbSet<ConComprobante> ConComprobante { get; set; }
+        public virtual DbSet<ConComprobanteoperacion> ConComprobanteoperacion { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -1102,9 +1108,204 @@ namespace ImportadorDatos.Models.Versat
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_gen_mascara_gen_formato");
             });
+
+            modelBuilder.Entity<GenUsuario>(entity =>
+            {
+                entity.HasKey(e => e.Idusuario)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("gen_usuario");
+
+                entity.HasIndex(e => e.Idusuario)
+                    .ForSqlServerIsClustered();
+
+                entity.HasIndex(e => e.Loginusuario)
+                    .HasName("IX_gen_usuario")
+                    .IsUnique();
+
+                entity.Property(e => e.Idusuario).HasColumnName("idusuario");
+
+                entity.Property(e => e.Activo)
+                    .IsRequired()
+                    .HasColumnName("activo")
+                    .HasDefaultValueSql("(1)");
+
+                entity.Property(e => e.Expira)
+                    .HasColumnName("expira")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Intentos).HasColumnName("intentos");
+
+                entity.Property(e => e.Loginusuario)
+                    .IsRequired()
+                    .HasColumnName("loginusuario")
+                    .HasMaxLength(128);
+
+                entity.Property(e => e.Nombre)
+                    .HasColumnName("nombre")
+                    .HasMaxLength(128);
+
+                entity.Property(e => e.Tipo).HasColumnName("tipo");
+            });
+
+            modelBuilder.Entity<ConComprobante>(entity =>
+            {
+                entity.HasKey(e => e.Idcomprobante)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("con_comprobante");
+
+                entity.HasIndex(e => e.Idcomprobante)
+                    .ForSqlServerIsClustered();
+
+                entity.HasIndex(e => e.Idunidad)
+                    .HasName("IX_con_comprobante_unidad");
+
+                entity.HasIndex(e => new { e.Idunidad, e.Idcomprobante })
+                    .HasName("IX_con_comprobante");
+
+                entity.Property(e => e.Idcomprobante).HasColumnName("idcomprobante");
+
+                entity.Property(e => e.Crc)
+                    .HasColumnName("crc")
+                    .HasDefaultValueSql("(0)");
+
+                entity.Property(e => e.Credito)
+                    .HasColumnName("credito")
+                    .HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.Debito)
+                    .HasColumnName("debito")
+                    .HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.Descripcion)
+                    .IsRequired()
+                    .HasColumnName("descripcion")
+                    .HasMaxLength(1000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Idunidad).HasColumnName("idunidad");
+
+                entity.Property(e => e.Sumaclave)
+                    .HasColumnName("sumaclave")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);                
+            });
+
+            modelBuilder.Entity<ConComprobanteoperacion>(entity =>
+            {
+                entity.HasKey(e => e.Idcomprobante)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("con_comprobanteoperacion");
+
+                entity.HasIndex(e => e.Fecha);
+
+                entity.HasIndex(e => e.Idcomprobante)
+                    .ForSqlServerIsClustered();
+
+                entity.HasIndex(e => e.Idestado);
+
+                entity.HasIndex(e => e.Idsubsistema);
+
+                entity.HasIndex(e => e.Idusuario);
+
+                entity.HasIndex(e => e.Numero);
+
+                entity.HasIndex(e => new { e.Fecha, e.Idperiodo })
+                    .HasName("IX_con_comprobanteoperacion_optimizacion");
+
+                entity.Property(e => e.Idcomprobante)
+                    .HasColumnName("idcomprobante")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.Comentario)
+                    .HasColumnName("comentario")
+                    .HasMaxLength(7000)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.Crc)
+                    .HasColumnName("crc")
+                    .HasDefaultValueSql("(0)");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnName("fecha")
+                    .HasColumnType("smalldatetime");
+
+                entity.Property(e => e.Idestado).HasColumnName("idestado");
+
+                entity.Property(e => e.Idperiodo).HasColumnName("idperiodo");
+
+                entity.Property(e => e.Idsubsistema).HasColumnName("idsubsistema");
+
+                entity.Property(e => e.Idusuario).HasColumnName("idusuario");
+
+                entity.Property(e => e.Numero).HasColumnName("numero");
+
+                entity.HasOne(d => d.IdcomprobanteNavigation)
+                    .WithOne(p => p.ConComprobanteoperacion)
+                    .HasForeignKey<ConComprobanteoperacion>(d => d.Idcomprobante)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_con_comprobanteoperacion_con_comprobante");
+
+                entity.HasOne(d => d.IdperiodoNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idperiodo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_con_comprobanteoperacion_gen_periodo");                
+
+                entity.HasOne(d => d.IdusuarioNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idusuario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_con_comprobanteoperacion_gen_usuario");
+            });
+
+            modelBuilder.Entity<ConPase>(entity =>
+            {
+                entity.HasKey(e => e.Idpase)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("con_pase");
+
+                entity.HasIndex(e => e.Idcomprobante);
+
+                entity.HasIndex(e => e.Idcuenta);
+
+                entity.HasIndex(e => new { e.Idcomprobante, e.Idcuenta })
+                    .HasName("IX_con_pase_asiento");
+
+                entity.HasIndex(e => new { e.Idpase, e.Idcomprobante })
+                    .HasName("IX_con_pase_principal")
+                    .ForSqlServerIsClustered();
+
+                entity.Property(e => e.Idpase).HasColumnName("idpase");
+
+                entity.Property(e => e.Crc)
+                    .HasColumnName("crc")
+                    .HasDefaultValueSql("(0)");
+
+                entity.Property(e => e.Idcomprobante).HasColumnName("idcomprobante");
+
+                entity.Property(e => e.Idcuenta).HasColumnName("idcuenta");
+
+                entity.Property(e => e.Importe)
+                    .HasColumnName("importe")
+                    .HasColumnType("numeric(18, 2)");
+
+                entity.HasOne(d => d.IdcomprobanteNavigation)
+                    .WithMany(p => p.ConPase)
+                    .HasForeignKey(d => d.Idcomprobante)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_con_pase_con_comprobante");
+
+                entity.HasOne(d => d.IdcuentaNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idcuenta)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_con_pase_con_cuenta");
+            });
         }
-
-
-
     }
 }

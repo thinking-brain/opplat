@@ -28,5 +28,12 @@ namespace ImportadorDatos.Controllers
             importador.ImportarPeriodosContables();
             return Ok("Periodos importadas.");
         }
+
+        [HttpGet("asientos")]
+        public async Task<IActionResult> GetAsientos()
+        {
+            importador.ImportarAsientos();
+            return Ok("Asientos importados.");
+        }
     }
 }
