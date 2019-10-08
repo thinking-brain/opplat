@@ -55,9 +55,10 @@ namespace FinanzasWebApi
                    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                    c.IncludeXmlComments(xmlPath);
                });
-            services.AddSingleton<ObtenerPlanGI_Context>();
-            services.AddSingleton<GetTotalIngresosEnMes>();
-            services.AddSingleton<GetTotalEgresosEnMes>();
+            // services.AddSingleton<ObtenerPlanGI_Context>();
+            services.AddSingleton<ObtenerPlanGI>();
+            // services.AddSingleton<GetTotalIngresosEnMes>();
+            // services.AddSingleton<GetTotalEgresosEnMes>();
 
             services.AddDbContext<ApiDbContext>(options =>
                     options.UseNpgsql(context.Configuration.GetConnectionString("ApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));

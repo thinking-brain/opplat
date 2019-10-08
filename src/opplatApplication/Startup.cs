@@ -40,7 +40,7 @@ namespace opplatApplication
         {
             //contabilidad context
             services.AddDbContext<ContabilidadWebApi.Data.ContabilidadDbContext>(options =>
-                    options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadContabilidadDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
+                    options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
 
             services.AddDbContext<VersatDbContext>(options =>
                options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
@@ -118,15 +118,16 @@ namespace opplatApplication
             services.AddSingleton<LicenciaService>();
 
             //finanzas services
-            services.AddSingleton<ObtenerPlanGI_Context>();
-            services.AddSingleton<GetTotalIngresosEnMes>();
-            services.AddSingleton<GetTotalEgresosEnMes>();
+            services.AddSingleton<ObtenerPlanGI>();
+            // services.AddSingleton<ObtenerPlanGI_Context>();
+            // services.AddSingleton<GetTotalIngresosEnMes>();
+            // services.AddSingleton<GetTotalEgresosEnMes>();
             //fin
             services.AddSpaStaticFiles(config =>
             {
                 config.RootPath = context.Configuration.GetValue<string>("ClientApp");
             });
-
+            services.AddCors();
             var mvcBuilder = services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2).AddJsonOptions(options =>
                 {
                     options.SerializerSettings.Formatting = Formatting.Indented;
@@ -171,8 +172,7 @@ namespace opplatApplication
         {
             routes.MapHub<NotificationsHub>("/notihub");
         });
-            app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
-
+            app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseMvc(builder =>
             {
                 builder.MapRoute(

@@ -5,12 +5,14 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using notificationsWebApi.Models;
 using notificationsWebApi.Data;
+using Microsoft.AspNetCore.Cors;
 
 namespace opplatApplication.Hubs
 {
     /// <summary>
     /// Hub que se encarga de las Notificaciones
     /// </summary>
+    [EnableCors()]
     public class NotificationsHub : Hub
     {
         private readonly notificationsDbContext _context;
