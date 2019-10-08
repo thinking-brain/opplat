@@ -40,7 +40,7 @@ namespace opplatApplication
         {
             //contabilidad context
             services.AddDbContext<ContabilidadWebApi.Data.ContabilidadDbContext>(options =>
-                    options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadContabilidadDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
+                    options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
 
             services.AddDbContext<VersatDbContext>(options =>
                options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
@@ -118,9 +118,10 @@ namespace opplatApplication
             services.AddSingleton<LicenciaService>();
 
             //finanzas services
-            services.AddSingleton<ObtenerPlanGI_Context>();
-            services.AddSingleton<GetTotalIngresosEnMes>();
-            services.AddSingleton<GetTotalEgresosEnMes>();
+            services.AddSingleton<ObtenerPlanGI>();
+            // services.AddSingleton<ObtenerPlanGI_Context>();
+            // services.AddSingleton<GetTotalIngresosEnMes>();
+            // services.AddSingleton<GetTotalEgresosEnMes>();
             //fin
             services.AddSpaStaticFiles(config =>
             {
