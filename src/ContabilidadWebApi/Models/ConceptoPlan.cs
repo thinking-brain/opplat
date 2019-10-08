@@ -9,7 +9,6 @@ namespace ContabilidadWebApi.Models
     {
         public int Id { get; set; }
         public string Concepto { get; set; }
-      
         public ICollection<ConceptoCuentas> Cuentas { get; set; }
 
         public ConceptoPlan()

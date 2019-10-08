@@ -17,6 +17,7 @@ namespace ContabilidadWebApi.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //new AsientoConfig().Configure(modelBuilder.Entity<Asiento>());
+            modelBuilder.Entity<ConceptoCuentas>().HasKey(c => new { c.ConceptoPlanId, c.CuentaId });
             new CuentaConfig().Configure(modelBuilder.Entity<Cuenta>());
             //new MovimientoConfig().Configure(modelBuilder.Entity<Movimiento>());
             modelBuilder.ForNpgsqlUseIdentityColumns();
@@ -24,6 +25,7 @@ namespace ContabilidadWebApi.Data
         }
 
         public DbSet<Cuenta> Cuentas { get; set; }
+        public DbSet<PlanGI> PlanesIngresosGastos { get; set; }
 
         // public DbSet<ContabilidadWebApi.Models.Area> Area { get; set; }
 
