@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace FinanzasWebApi.ViewModels
 {
-    public class GastosIndirectosVM
+    public class MovimientoCuentaPeriodoVM
     {
-        public string DescripcionSubElemento { get; set; }
-        public decimal Valor { get; set; }
+        public string Cuenta { get; set; }
+        public decimal Importe { get; set; }
     }
 }
