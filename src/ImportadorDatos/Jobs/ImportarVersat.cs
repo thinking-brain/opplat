@@ -8,8 +8,10 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Models;
+using ImportadorDatos.Models.EnlaceVersat;
 using ImportadorDatos.Models.Versat;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ImportadorDatos.Jobs
 {
@@ -18,20 +20,27 @@ namespace ImportadorDatos.Jobs
         VersatDbContext _vContext;
 
         ContabilidadDbContext _cContext;
-        public ImportarVersat(VersatDbContext vContext, ContabilidadDbContext cContext)
+
+        EnlaceVersatDbContext _enlaceContext;
+
+        ILogger _logger;
+
+        public ImportarVersat(VersatDbContext vContext, ContabilidadDbContext cContext, EnlaceVersatDbContext enlaceContext, ILogger<ImportarVersat> logger)
         {
             _vContext = vContext;
             _cContext = cContext;
+            _enlaceContext = enlaceContext;
+            _logger = logger;
         }
-
-
 
         public void ImportarCuentasAsync()
         {
             //todo: revisar las cuentas que faltan por importar
             //todo: guardar en bd independiente las cuentas que se importaron
+            var cuentasImportadas = _enlaceContext.Set<Cuentas>().Select(c => c.CuentaVersatId).ToList();
             var cuentas = _vContext.Set<ConCuenta>()
                 .Include(c => c.IdaperturaNavigation.IdmascaraNavigation)
+                .Where(c => !cuentasImportadas.Contains(c.Idcuenta))
                 .OrderBy(c => c.Clave.Length);
 
             string baseUrl = "https://localhost:5001/contabilidad/cuentas";
@@ -68,7 +77,14 @@ namespace ImportadorDatos.Jobs
                             if (res.StatusCode != HttpStatusCode.OK)
                             {
                                 var data = res.Content.ReadAsStringAsync().Result;
-                                Console.WriteLine($"error con cuenta {numero},  {data}");
+                                _logger.LogError($"error con cuenta {numero},  {data}");
+                            }
+                            if (res.StatusCode == HttpStatusCode.OK)
+                            {
+                                var data = res.Content.ReadAsAsync<CuentaDto>().Result;
+                                var id = data.Id;
+                                _enlaceContext.Add(new Cuentas { CuentaId = id, CuentaVersatId = cta.Idcuenta, Fecha = DateTime.Now });
+                                _enlaceContext.SaveChanges();
                             }
                         }
                     }
