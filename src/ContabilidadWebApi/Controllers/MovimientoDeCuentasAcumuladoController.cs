@@ -9,6 +9,7 @@ using ContabilidadWebApi.Models;
 using ContabilidadWebApi.ViewModels;
 using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Services;
+using ContabilidadWebApi.Helpers;
 
 namespace ContabilidadWebApi.Controllers
 {
@@ -17,10 +18,14 @@ namespace ContabilidadWebApi.Controllers
     public class MovimientoDeCuentasAcumuladoController : ControllerBase
     {
         private readonly ContabilidadDbContext _context;
+        private readonly CuentasServices _cuentaService;
+        private readonly CuentasHelper _cuentaHelper;
 
-        public MovimientoDeCuentasAcumuladoController(ContabilidadDbContext context)
+        public MovimientoDeCuentasAcumuladoController(ContabilidadDbContext context, CuentasServices cuentaService)
         {
             _context = context;
+            _cuentaService = cuentaService;
+            _cuentaHelper = new CuentasHelper(context);
         }
 
         /// <summary>
@@ -31,18 +36,9 @@ namespace ContabilidadWebApi.Controllers
         [HttpGet("{cuenta}/{fechaInicio}/{fechaFin}")]
         public MovimientoCuentaPeriodoVM GetMovimientoCuentaPeriodoAcumulado(string cuenta, DateTime fechaInicio, DateTime fechaFin)
         {
-            var mov = new List<MovimientoCuentaPeriodoVM>();
-            var diaC = _context.Set<DiaContable>().Where(s => s.Fecha >= fechaInicio && s.Fecha < fechaFin);
-            foreach (var dia in diaC)
-            {
-                var asiento = _context.Set<Asiento>().Include(s => s.Movimientos).Where(s => s.DiaContableId == dia.Id).ToList();
-                var movimientoCuentas = new CuentasServices(_context).GetMovimientosDeCuenta(cuenta).Where(s => s.Asiento.Fecha >= fechaInicio && s.Asiento.Fecha < fechaFin);
-                var movimiento = new MovimientoCuentaPeriodoVM() { Cuenta = cuenta, Importe = movimientoCuentas.Sum(s => s.Importe) };
-                mov.Add(movimiento);
-            }
-            var movimientoAcum = new MovimientoCuentaPeriodoVM() { Cuenta = cuenta, Importe = mov.Sum(s => s.Importe) };
-
-
+            var cuentaContable = _cuentaService.FindCuentaByNumero(cuenta);
+            var movimientoCuentas = _cuentaService.MovimientosDeCuentaYDescendientes(cuentaContable.Id, fechaInicio, fechaFin);
+            var movimientoAcum = new MovimientoCuentaPeriodoVM() { Cuenta = cuenta, Importe = movimientoCuentas.Sum(s => _cuentaHelper.ImporteMovimiento(s.Cuenta.Naturaleza, s.TipoDeOperacion, s.Importe)) };
             return movimientoAcum;
         }
 
