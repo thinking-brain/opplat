@@ -36,9 +36,13 @@ namespace ContabilidadWebApi.Controllers
             foreach (var dia in diaC)
             {
                 var asiento = _context.Set<Asiento>().Include(s => s.Movimientos).Where(s => s.DiaContableId == dia.Id).ToList();
-                var movimientoCuentas = new CuentasServices(_context).GetMovimientosDeCuenta(cuenta).Where(s => s.Asiento.Fecha >= fechaInicio && s.Asiento.Fecha < fechaFin);
-                var movimiento = new MovimientoCuentaPeriodoVM() { Cuenta = cuenta, Importe = movimientoCuentas.Sum(s => s.Importe) };
-                mov.Add(movimiento);
+                foreach (var item in asiento)
+                {
+                    var movimientoCuentas = new CuentasServices(_context).GetMovimientosDeCuenta(cuenta).Where(s => s.AsientoId == item.Id);
+                    var movimiento = new MovimientoCuentaPeriodoVM() { Cuenta = cuenta, Importe = movimientoCuentas.Sum(s => s.Importe) };
+                    mov.Add(movimiento);
+                }
+
             }
             var movimientoAcum = new MovimientoCuentaPeriodoVM() { Cuenta = cuenta, Importe = mov.Sum(s => s.Importe) };
 
