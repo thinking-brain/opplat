@@ -10,14 +10,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Hangfire.PostgreSql;
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
-using ImportadorDatos.Jobs;
-using ImportadorDatos.Models.Versat;
-using ContabilidadWebApi.Data;
+using InventarioWebApi.Data;
 
-namespace ImportadorDatos
+
+namespace InventarioWebApi
 {
     public class Startup
     {
@@ -31,18 +28,8 @@ namespace ImportadorDatos
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHangfire(config =>
-                config.UsePostgreSqlStorage(Configuration.GetConnectionString("HangfireConnection")));
-
-            services.AddDbContext<VersatDbContext>(options =>
-               options.UseSqlServer(Configuration.GetConnectionString("VersatConnection")));
-
-            services.AddDbContext<ContabilidadDbContext>(options =>
-                 options.UseNpgsql(Configuration.GetConnectionString("ContabilidadDbContext")));
-
-            services.AddScoped<VersatDbContext>();
-            services.AddScoped<ContabilidadDbContext>();
-            services.AddTransient<ImportarVersat>();
+            services.AddDbContext<InventarioContext>(options =>
+             options.UseNpgsql(Configuration.GetConnectionString("InventarioConnection"), b => b.MigrationsAssembly("InventarioWebApi")));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
@@ -60,11 +47,6 @@ namespace ImportadorDatos
                 app.UseHsts();
             }
 
-            app.UseHangfireDashboard();
-            app.UseHangfireServer();
-
-            //todo: agregar job para importar cuentas que no de problemas de concurrencia
-            //RecurringJob.AddOrUpdate(() => ImportarVersat.ImportarCuentasAsync(), Cron.Daily);
             app.UseHttpsRedirection();
             app.UseMvc();
         }

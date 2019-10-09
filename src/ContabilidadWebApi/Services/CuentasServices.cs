@@ -6,18 +6,21 @@ using ContabilidadWebApi.Dtos;
 using ContabilidadWebApi.Helpers;
 using ContabilidadWebApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ContabilidadWebApi.Services
 {
     public class CuentasServices
     {
-        public ContabilidadDbContext _db;
-        private PeriodoContableService _periodoContableService;
+        private ContabilidadDbContext _db;
+        private CuentasHelper _cuentaHelper;
+        private ILogger _logger;
 
-        public CuentasServices(ContabilidadDbContext context)
+        public CuentasServices(ContabilidadDbContext context, ILogger<CuentasServices> logger)
         {
             _db = context;
-            _periodoContableService = new PeriodoContableService(context);
+            _logger = logger;
+            _cuentaHelper = new CuentasHelper(context);
         }
 
         /// <summary>
@@ -110,8 +113,8 @@ namespace ContabilidadWebApi.Services
         public Cuenta FindCuentaByNumero(string numero)
         {
             var cuentas = _db.Set<Cuenta>()
-                .Include(c => c.CuentaSuperior)
-                .Include(c => c.Subcuentas).ToList();
+                .Include(c => c.CuentaSuperior.CuentaSuperior.CuentaSuperior.CuentaSuperior)
+                .Include(c => c.Subcuentas);
             var cuenta = cuentas.SingleOrDefault(c => c.Numero == numero);
             return cuenta;
         }
@@ -136,125 +139,95 @@ namespace ContabilidadWebApi.Services
         /// <returns>True si se puede efectuar la operacion o False de lo contrario</returns>
         public bool ModificarDisponibilidad(int cuentaId, decimal importe, TipoDeOperacion tipoDeOperacion, DateTime fecha)
         {
-            var cuenta = _db.Set<Cuenta>().Find(cuentaId);
-            if (cuenta == null)
+            try
             {
+                var cuenta = _db.Set<Cuenta>().Find(cuentaId);
+                if (cuenta == null)
+                {
+                    return false;
+                }
+                var disponibilidad = _db.Set<Disponibilidad>().SingleOrDefault(d => d.CuentaId == cuentaId);
+                if (disponibilidad == null)
+                {
+                    disponibilidad = new Disponibilidad() { CuentaId = cuentaId, Fecha = DateTime.Now, Saldo = 0 };
+                    _db.Set<Disponibilidad>().Add(disponibilidad);
+                }
+
+                disponibilidad.Saldo += _cuentaHelper.ImporteMovimiento(cuenta.Naturaleza, tipoDeOperacion, importe);
+                disponibilidad.Fecha = fecha;
+                _db.SaveChanges();
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
                 return false;
             }
-            var disponibilidad = _db.Set<Disponibilidad>().SingleOrDefault(d => d.CuentaId == cuentaId);
-            if (disponibilidad == null)
-            {
-                disponibilidad = new Disponibilidad() { CuentaId = cuentaId, Fecha = DateTime.Now, Saldo = 0 };
-                _db.Set<Disponibilidad>().Add(disponibilidad);
-            }
-
-            if (cuenta.Naturaleza == Naturaleza.Acreedora && tipoDeOperacion == TipoDeOperacion.Credito)
-            {
-                disponibilidad.Saldo += importe;
-            }
-            if (cuenta.Naturaleza == Naturaleza.Acreedora && tipoDeOperacion == TipoDeOperacion.Debito)
-            {
-                disponibilidad.Saldo -= importe;
-            }
-            if (cuenta.Naturaleza == Naturaleza.Deudora && tipoDeOperacion == TipoDeOperacion.Credito)
-            {
-                disponibilidad.Saldo -= importe;
-            }
-            if (cuenta.Naturaleza == Naturaleza.Deudora && tipoDeOperacion == TipoDeOperacion.Debito)
-            {
-                disponibilidad.Saldo += importe;
-            }
-            disponibilidad.Fecha = fecha;
-            return true;
         }
 
         /// <summary>
-        /// Devuelve movimientos de una cuenta (por el nombre)
-        /// </summary>
-        /// <param name="nombreCuenta">Nombre de la cuenta</param>
-        /// <returns>Movimientos de cuenta</returns>
-        public ICollection<Movimiento> GetMovimientosDeCuenta(string nombreCuenta)
-        {
-            var id = FindCuentaByNombre(nombreCuenta).Id;
-            return GetMovimientosDeCuenta(id);
-        }
-
-        /// <summary>
-        /// Devuelve movimientos de una una cuenta (por el id)
-        /// </summary>
-        /// <param name="cuentaId">El id de la cuenta que se desea los movimientos</param>
-        /// <returns>Los Movimientos de la cuenta</returns>
-        public ICollection<Movimiento> GetMovimientosDeCuenta(int cuentaId)
-        {
-            return _db.Set<Movimiento>()
-                .Include(m => m.Asiento)
-                .Include(m => m.Asiento.DiaContable)
-                .Where(m => m.CuentaId == cuentaId).ToList();
-        }
-
-        /// <summary>
-        /// Crea movimiento de cuenta
+        /// Devuelve los movimientos de una cuenta en un rango de fechas
         /// </summary>
         /// <param name="cuentaId"></param>
-        /// <param name="importe"></param>
-        /// <param name="tipoDeOperacion"></param>
+        /// <param name="fechaInicio"></param>
+        /// <param name="fechaFin"></param>
         /// <returns></returns>
-        private Movimiento CrearMovimiento(int cuentaId, decimal importe, TipoDeOperacion tipoDeOperacion)
+        public List<Movimiento> MovimientosDeCuenta(int cuentaId, DateTime fechaInicio, DateTime fechaFin)
         {
-            var mov = new Movimiento()
-            {
-                CuentaId = cuentaId,
-                Importe = importe,
-                TipoDeOperacion = tipoDeOperacion
-            };
-            return mov;
+            var movimientos = new List<Movimiento>();
+            var movs = _db.Set<Movimiento>()
+                    .Include(c => c.Asiento.DiaContable)
+                    .Include(c => c.Cuenta)
+                    .Where(c => c.CuentaId == cuentaId && c.Asiento.DiaContable.Fecha >= fechaInicio.Date && c.Asiento.DiaContable.Fecha.Date <= fechaFin.Date)
+                    .ToList();
+            return movimientos;
         }
 
         /// <summary>
-        /// Crea un asiento contable sin agregarlo al contexto
+        /// Devuelve los movimientos de una cuenta y sus cuentas descendientes en un rango de fechas
         /// </summary>
-        /// <param name="cuentaCreditoId"></param>
-        /// <param name="cuentaDebitoId"></param>
-        /// <param name="importe"></param>
-        /// <param name="fecha"></param>
-        /// <param name="detalle"></param>
-        /// <param name="usuarioId"></param>
+        /// <param name="cuentaId"></param>
+        /// <param name="fechaInicio"></param>
+        /// <param name="fechaFin"></param>
         /// <returns></returns>
-        public Asiento CrearAsientoContable(int cuentaCreditoId, int cuentaDebitoId, decimal importe, DateTime fecha, string detalle, string usuarioId)
+        public List<Movimiento> MovimientosDeCuentaYDescendientes(int cuentaId, DateTime fechaInicio, DateTime fechaFin)
         {
-            var diaContable = _periodoContableService.GetDiaContableActual();
-            if (diaContable == null)
+            var movimientos = new List<Movimiento>();
+            var ctas = _cuentaHelper.CuentasHijas(cuentaId);
+            foreach (var cta in ctas)
             {
-                return null;
+                var movs = MovimientosDeCuenta(cta.Id, fechaInicio, fechaFin);
+                if (movs.Any())
+                {
+                    movimientos.AddRange(movs);
+                }
             }
-            var asiento = new Asiento()
-            {
-                DiaContableId = diaContable.Id,
-                Fecha = fecha,
-                Detalle = detalle,
-                UsuarioId = usuarioId
-            };
-            var mov1 = CrearMovimiento(cuentaCreditoId, importe, TipoDeOperacion.Credito);
-            var mov2 = CrearMovimiento(cuentaDebitoId, importe, TipoDeOperacion.Debito);
-            asiento.Movimientos.Add(mov1);
-            asiento.Movimientos.Add(mov2);
-            ModificarDisponibilidad(cuentaCreditoId, importe, TipoDeOperacion.Credito, fecha);
-            ModificarDisponibilidad(cuentaDebitoId, importe, TipoDeOperacion.Debito, fecha);
-            return asiento;
+            return movimientos;
+        }
+
+
+        /// <summary>
+        /// Devuelve los movimientos de una cuenta en un periodo contable
+        /// </summary>
+        /// <param name="cuentaId"></param>
+        /// <param name="periodoId"></param>
+        /// <returns></returns>
+        public List<Movimiento> MovimientosDeCuenta(int cuentaId, int periodoId)
+        {
+            var periodo = _db.Set<PeriodoContable>().Find(periodoId);
+            return MovimientosDeCuenta(cuentaId, periodo.FechaInicio, periodo.FechaFin);
         }
 
         /// <summary>
-        /// Crea un asiento contable y lo agrega al contexto
+        /// Devuelve los movimientos de una cuenta y sus descendientes en un periodo contable
         /// </summary>
-        /// <param name="cuentaCreditoId"></param>
-        /// <param name="cuentaDebitoId"></param>
-        /// <param name="importe"></param>
-        /// <param name="fecha"></param>
-        /// <param name="detalle"></param>
-        /// <param name="usuarioId"></param>
-        public void AgregarOperacion(int cuentaCreditoId, int cuentaDebitoId, decimal importe, DateTime fecha, string detalle, string usuarioId)
+        /// <param name="cuentaId"></param>
+        /// <param name="periodoId"></param>
+        /// <returns></returns>
+        public List<Movimiento> MovimientosDeCuentaYDescendientes(int cuentaId, int periodoId)
         {
-            _db.Set<Asiento>().Add(CrearAsientoContable(cuentaCreditoId, cuentaDebitoId, importe, fecha, detalle, usuarioId));
+            var periodo = _db.Set<PeriodoContable>().Find(periodoId);
+            return MovimientosDeCuentaYDescendientes(cuentaId, periodo.FechaInicio, periodo.FechaFin);
         }
     }
 }
