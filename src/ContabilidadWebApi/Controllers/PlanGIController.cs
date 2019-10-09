@@ -27,10 +27,10 @@ namespace ContabilidadWebApi.Controllers
         /// Devuelve los Planes de IG
         /// </summary>
         /// <returns></returns>
-        [HttpGet("PlanesGI/")]
+        [HttpGet]
         public List<PlanGI> PlanesGI()
         {
-            return _context.Set<PlanGI>().ToList();
+            return _context.Set<PlanGI>().Include(p=>p.Detalles).ThenInclude(p=>p.Concepto).ToList();
         }
 
         /// <summary>
