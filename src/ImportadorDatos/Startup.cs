@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using ImportadorDatos.Jobs;
 using ImportadorDatos.Models.Versat;
 using ContabilidadWebApi.Data;
+using ImportadorDatos.Models.EnlaceVersat;
 
 namespace ImportadorDatos
 {
@@ -40,8 +41,12 @@ namespace ImportadorDatos
             services.AddDbContext<ContabilidadDbContext>(options =>
                  options.UseNpgsql(Configuration.GetConnectionString("ContabilidadDbContext")));
 
+            services.AddDbContext<EnlaceVersatDbContext>(options =>
+                 options.UseNpgsql(Configuration.GetConnectionString("EnlaceVersatDbContext")));
+
             services.AddScoped<VersatDbContext>();
             services.AddScoped<ContabilidadDbContext>();
+            services.AddScoped<EnlaceVersatDbContext>();
             services.AddTransient<ImportarVersat>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
