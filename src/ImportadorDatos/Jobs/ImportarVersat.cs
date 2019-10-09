@@ -102,6 +102,7 @@ namespace ImportadorDatos.Jobs
             var operacionesVersat = _vContext.Set<ConPase>()
                 .Include(c => c.IdcomprobanteNavigation.ConComprobanteoperacion.IdusuarioNavigation)
                 .Include(c => c.IdcomprobanteNavigation.ConComprobanteoperacion.IdperiodoNavigation)
+                .Include(c => c.IdcuentaNavigation.IdaperturaNavigation.IdmascaraNavigation)
                 .Where(c => c.IdcomprobanteNavigation.ConComprobanteoperacion.Idestado == 5)
                 .GroupBy(c => c.IdcomprobanteNavigation).Select(c => new
                 {
@@ -144,11 +145,16 @@ namespace ImportadorDatos.Jobs
                     }
                     else
                     {
+                        var tipoOperacion = TipoDeOperacion.Debito;
+                        if ((cuenta.Naturaleza == Naturaleza.Deudora && op.Importe < 0) || (cuenta.Naturaleza == Naturaleza.Acreedora && op.Importe > 0))
+                        {
+                            tipoOperacion = TipoDeOperacion.Credito;
+                        }
                         var mov = new Movimiento
                         {
-                            CuentaId = op.Idcuenta,
-                            Importe = op.Importe,
-                            TipoDeOperacion = TipoDeOperacion.Debito
+                            CuentaId = cuenta.Id,
+                            Importe = Math.Abs(op.Importe),
+                            TipoDeOperacion = tipoOperacion
                         };
                         nuevoAsiento.Movimientos.Add(mov);
                     }
