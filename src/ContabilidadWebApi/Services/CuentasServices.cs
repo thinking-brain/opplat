@@ -110,8 +110,8 @@ namespace ContabilidadWebApi.Services
         public Cuenta FindCuentaByNumero(string numero)
         {
             var cuentas = _db.Set<Cuenta>()
-                .Include(c => c.CuentaSuperior)
-                .Include(c => c.Subcuentas).ToList();
+                .Include(c => c.CuentaSuperior.CuentaSuperior.CuentaSuperior.CuentaSuperior)
+                .Include(c => c.Subcuentas);
             var cuenta = cuentas.SingleOrDefault(c => c.Numero == numero);
             return cuenta;
         }
