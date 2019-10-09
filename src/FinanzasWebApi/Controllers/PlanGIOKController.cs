@@ -30,7 +30,7 @@ namespace FinanzasWebApi.Controllers
         /// <param name="años"></param>
         /// <param name="meses"></param>
         /// <returns></returns>
-        [HttpGet("{años}/{meses}")]
+        [HttpGet("Ingresos/{años}/{meses}")]
         public IEnumerable<PlanGIViewModel> Ingresos([FromRoute] string años, int meses)
         {
             var plan = new List<PlanGIViewModel>();
@@ -60,7 +60,51 @@ namespace FinanzasWebApi.Controllers
             }
             return planes;
         }
+        
+        /// <summary>
+        /// Devuelve los Egresos para el plan de Gastos en Ingresos
+        /// </summary>
+        /// <param name="años"></param>
+        /// <param name="meses"></param>
+        /// <returns></returns>
+        [HttpGet("Egresos/{años}/{meses}")]
+        public IEnumerable<PlanGIViewModel> Egresos([FromRoute] string años, int meses)
+        {
+            var plan = new List<PlanGIViewModel>();
 
+            int year = Convert.ToInt32(años);
+            plan = _obtenetPlan.ObtenerEgresos(year, meses);
 
+            var planes = new List<PlanGIViewModel>();
+           
+            foreach (var item in plan)
+            {
+                planes.Add(item);
+            }
+            return planes;
+        }
+
+     /// <summary>
+        /// Devuelve los Egresos para el plan de Gastos en Ingresos
+        /// </summary>
+        /// <param name="años"></param>
+        /// <param name="meses"></param>
+        /// <returns></returns>
+        [HttpGet("Utilidad/{años}/{meses}")]
+        public IEnumerable<PlanGIViewModel> Utilidad([FromRoute] string años, int meses)
+        {
+            var plan = new List<PlanGIViewModel>();
+
+            int year = Convert.ToInt32(años);
+            plan = _obtenetPlan.ObtenerUtilidad(year, meses);
+
+            var planes = new List<PlanGIViewModel>();
+           
+            foreach (var item in plan)
+            {
+                planes.Add(item);
+            }
+            return planes;
+        }
     }
 }
