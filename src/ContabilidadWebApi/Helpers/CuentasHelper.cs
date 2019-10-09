@@ -20,6 +20,13 @@ namespace ContabilidadWebApi.Helpers
             _db = context;
         }
 
+        /// <summary>
+        /// Calcula si el importe es negativo o positivo 
+        /// </summary>
+        /// <param name="naturaleza">Si la cuenta es Acreedora o Deudora</param>
+        /// <param name="tipoDeOperacion">si la operacion es de credito o debito</param>
+        /// <param name="importe">el importe del que se quiere saber si es positivo o negativo</param>
+        /// <returns>el importe calculado</returns>
         public decimal ImporteMovimiento(Naturaleza naturaleza, TipoDeOperacion tipoDeOperacion, decimal importe)
         {
             if (naturaleza == Naturaleza.Acreedora && tipoDeOperacion == TipoDeOperacion.Credito)
@@ -41,8 +48,13 @@ namespace ContabilidadWebApi.Helpers
             return importe;
         }
 
+        /// <summary>
+        /// Listado de cuentas en estructura de arbol
+        /// </summary>
+        /// <returns>Arbol de cuentas</returns>
         public List<CuentaDto> Cuentas()
         {
+            //todo: devuelve la lista completa de cuentas y la estructura en arbol, esto de debe separar
             var cuentas = _db.Set<Cuenta>()
                 .Include(c => c.CuentaSuperior)
                 .Include(c => c.Subcuentas)
@@ -73,6 +85,11 @@ namespace ContabilidadWebApi.Helpers
             return ctas;
         }
 
+        /// <summary>
+        /// Busca una cuenta por su id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>DTO de la cuenta</returns>
         public CuentaDto GetCuenta(int id)
         {
             var cuenta = _db.Set<Cuenta>()
@@ -83,6 +100,11 @@ namespace ContabilidadWebApi.Helpers
             return cta;
         }
 
+        /// <summary>
+        /// Busca las cuentas descendientes de una cuenta
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Lista de cuentas descendientes incluyendo la cuenta que se solicita</returns>
         public List<CuentaDto> CuentasHijas(int id)
         {
             var ctas = new List<CuentaDto>();
