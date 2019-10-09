@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ContabilidadWebApi.Helpers
 {
     /// <summary>
-    /// Clase con metodos para ayudar a extraer datos de cuentass
+    /// Clase con metodos para ayudar a navegar por el arbol de cuentas y otras funcionalidades asociadas a las cuentas contables
     /// </summary>
     public class CuentasHelper
     {
@@ -101,26 +101,5 @@ namespace ContabilidadWebApi.Helpers
             return ctas;
         }
 
-        public List<Movimiento> MovimientosDeCuenta(int cuentaId, DateTime fechaInicio)
-        {
-            var movimientos = new List<Movimiento>();
-            var ctas = CuentasHijas(cuentaId);
-
-            foreach (var cta in ctas)
-            {
-                var movs = _db.Set<Movimiento>()
-                    .Include(c => c.Asiento)
-                    .Include(c => c.Asiento.DiaContable)
-                    .Include(c => c.Cuenta)
-                    .Where(c => c.CuentaId == cta.Id && c.Asiento.DiaContable.Fecha >= fechaInicio).ToList();
-                //var movs = _cuentasServices.GetMovimientosDeCuenta(cta.Id).Where(c => c.Asiento.Fecha >= fechaInicio).ToList();
-                if (movs.Any())
-                {
-                    movimientos.AddRange(movs);
-                }
-
-            }
-            return movimientos;
-        }
     }
 }
