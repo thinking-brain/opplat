@@ -28,6 +28,8 @@ namespace ImportadorDatos.Jobs
 
         public void ImportarCuentasAsync()
         {
+            //todo: revisar las cuentas que faltan por importar
+            //todo: guardar en bd independiente las cuentas que se importaron
             var cuentas = _vContext.Set<ConCuenta>()
                 .Include(c => c.IdaperturaNavigation.IdmascaraNavigation)
                 .OrderBy(c => c.Clave.Length);
@@ -81,7 +83,8 @@ namespace ImportadorDatos.Jobs
 
         public void ImportarPeriodosContables()
         {
-            var periodosVersat = _vContext.Set<GenPeriodo>();
+            //todo: guardar en db independiente los periodos migrados
+            var periodosVersat = _vContext.Set<GenPeriodo>().OrderBy(p => p.Inicio);
             foreach (var per in periodosVersat)
             {
                 if (_cContext.Set<PeriodoContable>().Any(p => p.FechaInicio == per.Inicio && p.FechaFin == per.Fin))
@@ -99,6 +102,7 @@ namespace ImportadorDatos.Jobs
 
         public void ImportarAsientos()
         {
+            //todo: controlar en DB independiente cuando importe un asiento
             var operacionesVersat = _vContext.Set<ConPase>()
                 .Include(c => c.IdcomprobanteNavigation.ConComprobanteoperacion.IdusuarioNavigation)
                 .Include(c => c.IdcomprobanteNavigation.ConComprobanteoperacion.IdperiodoNavigation)
