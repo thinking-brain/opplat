@@ -12,12 +12,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using ContabilidadWebApi.Models;
-using ContabilidadWebApi.VersatModels;
-using ContabilidadWebApi.VersatModels2;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 using System.IO;
 using ContabilidadWebApi.Data;
+using ContabilidadWebApi.Services;
 
 [assembly: HostingStartup(typeof(ContabilidadWebApi.Startup))]
 
@@ -60,14 +59,7 @@ namespace ContabilidadWebApi
 
             services.AddDbContext<ContabilidadDbContext>(options =>
                     options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
-
-
-            services.AddDbContext<VersatDbContext>(options =>
-               options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
-
-
-            services.AddDbContext<VersatDbContext2>(options =>
-               options.UseSqlServer(context.Configuration.GetConnectionString("Versat2Connection")));
+            services.AddScoped<CuentasServices>();
 
         }
 
