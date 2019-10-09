@@ -9,6 +9,7 @@ using ContabilidadWebApi.Models;
 using ContabilidadWebApi.ViewModels;
 using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Services;
+using ContabilidadWebApi.Helpers;
 
 namespace ContabilidadWebApi.Controllers
 {
@@ -17,10 +18,14 @@ namespace ContabilidadWebApi.Controllers
     public class MovimientoDeCuentasController : ControllerBase
     {
         private readonly ContabilidadDbContext _context;
+        private readonly CuentasServices _cuentaService;
+        private readonly CuentasHelper _cuentaHelper;
 
-        public MovimientoDeCuentasController(ContabilidadDbContext context)
+        public MovimientoDeCuentasController(ContabilidadDbContext context, CuentasServices cuentaService)
         {
             _context = context;
+            _cuentaService = cuentaService;
+            _cuentaHelper = new CuentasHelper(context);
         }
 
         /// <summary>
@@ -42,11 +47,9 @@ namespace ContabilidadWebApi.Controllers
         [HttpGet("{cuenta}/{fechaInicio}/{fechaFin}")]
         public MovimientoCuentaPeriodoVM GetMovimientoCuentaPeriodo(string cuenta, DateTime fechaInicio, DateTime fechaFin)
         {
-            var diaC = _context.Set<DiaContable>().SingleOrDefault(s => s.Fecha >= fechaInicio && s.Fecha < fechaFin);
-            var asiento = _context.Set<Asiento>().Include(s => s.Movimientos).Where(s => s.DiaContableId == diaC.Id).ToList();
-            var movimientoCuentas = new CuentasServices(_context).GetMovimientosDeCuenta(cuenta).Where(s => s.Asiento.Fecha >= fechaInicio && s.Asiento.Fecha < fechaFin);
-
-            var movimiento = new MovimientoCuentaPeriodoVM() { Cuenta = cuenta, Importe = movimientoCuentas.Sum(s => s.Importe) };
+            var cuentaContable = _cuentaService.FindCuentaByNumero(cuenta);
+            var movimientoCuentas = _cuentaService.MovimientosDeCuentaYDescendientes(cuentaContable.Id, fechaInicio, fechaFin);
+            var movimiento = new MovimientoCuentaPeriodoVM() { Cuenta = cuenta, Importe = movimientoCuentas.Sum(s => _cuentaHelper.ImporteMovimiento(s.Cuenta.Naturaleza, s.TipoDeOperacion, s.Importe)) };
             return movimiento;
         }
 

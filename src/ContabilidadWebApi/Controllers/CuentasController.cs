@@ -19,10 +19,12 @@ namespace ContabilidadWebApi.Controllers
     public class CuentasController : ControllerBase
     {
         private readonly ContabilidadDbContext _context;
+        private CuentasServices _cuentaService;
 
-        public CuentasController(ContabilidadDbContext context)
+        public CuentasController(ContabilidadDbContext context, CuentasServices cuentasServices)
         {
             _context = context;
+            _cuentaService = cuentasServices;
         }
 
         /// <summary>
@@ -73,12 +75,11 @@ namespace ContabilidadWebApi.Controllers
             }
             try
             {
-                var servicio = new CuentasServices(_context);
-                if (servicio.FindCuentaByNumero(nuevaCuenta.Numero) != null)
+                if (_cuentaService.FindCuentaByNumero(nuevaCuenta.Numero) != null)
                 {
                     return BadRequest("Ya esta cuenta esta creada");
                 }
-                var cuenta = servicio.CrearCuenta(nuevaCuenta.Numero, nuevaCuenta.Nombre, nuevaCuenta.Naturaleza);
+                var cuenta = _cuentaService.CrearCuenta(nuevaCuenta.Numero, nuevaCuenta.Nombre, nuevaCuenta.Naturaleza);
                 return Ok(cuenta);
             }
             catch (System.Exception ex)
@@ -106,8 +107,7 @@ namespace ContabilidadWebApi.Controllers
             }
             try
             {
-                var servicio = new CuentasServices(_context);
-                var cta = servicio.EditarCuenta(id, cuenta.Numero, cuenta.Nombre, cuenta.Naturaleza);
+                var cta = _cuentaService.EditarCuenta(id, cuenta.Numero, cuenta.Nombre, cuenta.Naturaleza);
                 return Ok(cta);
             }
             catch (System.Exception ex)
@@ -129,8 +129,8 @@ namespace ContabilidadWebApi.Controllers
             {
                 return NotFound($"No se encuentra la cuenta con id {id}");
             }
-            var servicio = new CuentasServices(_context);
-            var movimientos = servicio.GetMovimientosDeCuenta(id);
+            var diasContables = _context.Set<DiaContable>().OrderBy(d => d.Fecha).Select(d => d.Fecha);
+            var movimientos = _cuentaService.MovimientosDeCuentaYDescendientes(id, diasContables.First(), diasContables.Last());
             if (movimientos.Any())
             {
                 return BadRequest("No se puede eliminar una cuenta con movimientos.");

@@ -3,20 +3,22 @@ using System;
 using ContabilidadWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContabilidadWebApi.Migrations
 {
     [DbContext(typeof(ContabilidadDbContext))]
-    partial class ContabilidadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191007123701_AgregandoPeriodoContable")]
+    partial class AgregandoPeriodoContable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
+                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("ContabilidadWebApi.Models.Asiento", b =>
@@ -40,31 +42,6 @@ namespace ContabilidadWebApi.Migrations
                     b.ToTable("contb_asientos");
                 });
 
-            modelBuilder.Entity("ContabilidadWebApi.Models.ConceptoCuentas", b =>
-                {
-                    b.Property<int>("ConceptoPlanId");
-
-                    b.Property<int>("CuentaId");
-
-                    b.HasKey("ConceptoPlanId", "CuentaId");
-
-                    b.HasIndex("CuentaId");
-
-                    b.ToTable("ConceptoCuentas");
-                });
-
-            modelBuilder.Entity("ContabilidadWebApi.Models.ConceptoPlan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Concepto");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ConceptoPlan");
-                });
-
             modelBuilder.Entity("ContabilidadWebApi.Models.Cuenta", b =>
                 {
                     b.Property<int>("Id")
@@ -85,48 +62,6 @@ namespace ContabilidadWebApi.Migrations
                     b.HasIndex("CuentaSuperiorId");
 
                     b.ToTable("contb_cuentas");
-                });
-
-            modelBuilder.Entity("ContabilidadWebApi.Models.DetallePlanGI", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<decimal>("Abril");
-
-                    b.Property<decimal>("Agosto");
-
-                    b.Property<int>("ConceptoId");
-
-                    b.Property<decimal>("Diciembre");
-
-                    b.Property<decimal>("Enero");
-
-                    b.Property<decimal>("Febrero");
-
-                    b.Property<decimal>("Julio");
-
-                    b.Property<decimal>("Junio");
-
-                    b.Property<decimal>("Marzo");
-
-                    b.Property<decimal>("Mayo");
-
-                    b.Property<decimal>("Noviembre");
-
-                    b.Property<decimal>("Octubre");
-
-                    b.Property<int>("PlanId");
-
-                    b.Property<decimal>("Septiembre");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConceptoId");
-
-                    b.HasIndex("PlanId");
-
-                    b.ToTable("DetallePlanGI");
                 });
 
             modelBuilder.Entity("ContabilidadWebApi.Models.DiaContable", b =>
@@ -174,31 +109,17 @@ namespace ContabilidadWebApi.Migrations
             modelBuilder.Entity("ContabilidadWebApi.Models.PeriodoContable", b =>
                 {
                     b.Property<int>("Id")
-                            .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd();
 
                     b.Property<bool>("Activo");
 
-                    b.Property<DateTime>("FechaFin");
+                    b.Property<DateTime?>("FechaFin");
 
                     b.Property<DateTime>("FechaInicio");
 
                     b.HasKey("Id");
+
                     b.ToTable("PeriodoContable");
-                });
-            modelBuilder.Entity("ContabilidadWebApi.Models.PlanGI", b =>
-                {
-                    b.Property<int>("Id")
-                            .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("Fecha");
-
-                    b.Property<string>("Titulo");
-
-                    b.Property<string>("Year");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PlanesIngresosGastos");
                 });
 
             modelBuilder.Entity("ContabilidadWebApi.Models.Asiento", b =>
@@ -206,19 +127,6 @@ namespace ContabilidadWebApi.Migrations
                     b.HasOne("ContabilidadWebApi.Models.DiaContable", "DiaContable")
                         .WithMany("Asientos")
                         .HasForeignKey("DiaContableId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("ContabilidadWebApi.Models.ConceptoCuentas", b =>
-                {
-                    b.HasOne("ContabilidadWebApi.Models.ConceptoPlan", "ConceptoPlan")
-                        .WithMany("Cuentas")
-                        .HasForeignKey("ConceptoPlanId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ContabilidadWebApi.Models.Cuenta", "Cuenta")
-                        .WithMany()
-                        .HasForeignKey("CuentaId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -235,19 +143,6 @@ namespace ContabilidadWebApi.Migrations
                     b.HasOne("ContabilidadWebApi.Models.PeriodoContable", "PeriodoContable")
                         .WithMany()
                         .HasForeignKey("PeriodoContableId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("ContabilidadWebApi.Models.DetallePlanGI", b =>
-                {
-                    b.HasOne("ContabilidadWebApi.Models.ConceptoPlan", "Concepto")
-                        .WithMany()
-                        .HasForeignKey("ConceptoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ContabilidadWebApi.Models.PlanGI", "Plan")
-                        .WithMany("Detalles")
-                        .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
