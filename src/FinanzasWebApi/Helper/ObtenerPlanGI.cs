@@ -229,13 +229,13 @@ namespace FinanzasWebApi.Helper
             decimal ImporteAcumulado = GetMovimientoDeCuentaPeriodoAcumulado.Get(year, meses, cta, _config);
             foreach (var item in modelo.Where(s => s.Tipo.Equals("Utilidad")))
             {
-                string concepto = item.Dato.ToString();
-                var planEnMes = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto))[meses] : 0M;
-                var planAcum = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto)).Acumulado(meses) : 0M;
-
                 // Pago a cargo de la utilidad
-                if (item.Valor == 1001)
+                if (item.Valor == "1001")
                 {
+                    string concepto = item.Dato.ToString();
+                    var planEnMes = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto))[meses] : 0M;
+                    var planAcum = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto)).Acumulado(meses) : 0M;
+
                     var PlanMes = planEnMes;
                     var PlanAcumulado = planAcum;
                     var RealMes = Cuenta693;
