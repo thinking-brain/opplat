@@ -177,6 +177,7 @@ namespace ContabilidadWebApi.Services
             var movimientos = new List<Movimiento>();
             var movs = _db.Set<Movimiento>()
                     .Include(c => c.Asiento.DiaContable)
+                    .Include(c => c.Cuenta)
                     .Where(c => c.CuentaId == cuentaId && c.Asiento.DiaContable.Fecha >= fechaInicio.Date && c.Asiento.DiaContable.Fecha.Date <= fechaFin.Date)
                     .ToList();
             return movimientos;
