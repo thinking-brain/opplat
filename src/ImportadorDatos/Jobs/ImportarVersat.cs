@@ -35,8 +35,7 @@ namespace ImportadorDatos.Jobs
 
         public void ImportarCuentasAsync()
         {
-            //todo: revisar las cuentas que faltan por importar
-            //todo: guardar en bd independiente las cuentas que se importaron
+            //todo: revisar las cuentas que su padre es vacio            
             var cuentasImportadas = _enlaceContext.Set<Cuentas>().Select(c => c.CuentaVersatId).ToList();
             var cuentas = _vContext.Set<ConCuenta>()
                 .Include(c => c.IdaperturaNavigation.IdmascaraNavigation)
@@ -46,19 +45,6 @@ namespace ImportadorDatos.Jobs
             string baseUrl = "https://localhost:5001/contabilidad/cuentas";
             var handler = new HttpClientHandler();
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
-            var cuentasApi = new List<CuentaDto>();
-            using (HttpClient client = new HttpClient(handler))
-            {
-                using (HttpResponseMessage res = client.GetAsync(baseUrl).Result)
-                {
-                    if (res.StatusCode != HttpStatusCode.OK)
-                    {
-                        cuentasApi = res.Content.ReadAsAsync<List<CuentaDto>>().Result;
-                    }
-                }
-            }
-            handler = new HttpClientHandler();
-            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
             using (HttpClient client = new HttpClient(handler))
             {
                 foreach (var cta in cuentas)
@@ -66,7 +52,7 @@ namespace ImportadorDatos.Jobs
                     var numero = GetNumeroCuenta(cta.Clave, cta.IdaperturaNavigation.IdmascaraNavigation.Posicion);
                     var descripcion = _vContext.Query<Con_Cuentadescrip>().SingleOrDefault(c => c.Idcuenta == cta.Idcuenta).Descripcion;
                     var naturaleza = _vContext.Query<ConCuentanatur>().SingleOrDefault(c => c.Idcuenta == cta.Idcuenta).Naturaleza;
-                    if (!cuentasApi.Any(c => c.Numero == numero))
+                    if (!cuentasImportadas.Contains(cta.Idcuenta))
                     {
                         var datosLogin = new Dictionary<string, string>();
                         datosLogin.Add("numero", numero);
