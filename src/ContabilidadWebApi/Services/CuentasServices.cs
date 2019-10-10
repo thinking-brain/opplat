@@ -112,10 +112,10 @@ namespace ContabilidadWebApi.Services
         /// <returns>Cuenta que tenga el nombre por el que se busco o null si no existe</returns>
         public Cuenta FindCuentaByNumero(string numero)
         {
-            var cuentas = _db.Set<Cuenta>()
-                .Include(c => c.CuentaSuperior.CuentaSuperior.CuentaSuperior.CuentaSuperior)
-                .Include(c => c.Subcuentas);
-            var cuenta = cuentas.SingleOrDefault(c => c.Numero == numero);
+            var cuentasContables = _db.Set<Cuenta>()
+                .Include(c => c.CuentaSuperior)
+                .ToList();
+            var cuenta = cuentasContables.SingleOrDefault(c => c.Numero == numero);
             return cuenta;
         }
 
