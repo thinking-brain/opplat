@@ -85,7 +85,7 @@ namespace ImportadorDatos.Jobs
 
         public void ImportarPeriodosContables()
         {
-            //todo: guardar en db independiente los periodos migrados
+            //todo: revisar los periodos cuando ya existe uno en la BD
             var periodosVersat = _vContext.Set<GenPeriodo>().OrderBy(p => p.Inicio);
             foreach (var per in periodosVersat)
             {
@@ -117,7 +117,7 @@ namespace ImportadorDatos.Jobs
                 .GroupBy(c => c.IdcomprobanteNavigation).Select(c => new
                 {
                     Comprobante = c.Key,
-                    Operaciones = c
+                    Operaciones = c.Select(g => g)
                 });
             foreach (var asi in operacionesVersat)
             {
@@ -147,11 +147,12 @@ namespace ImportadorDatos.Jobs
                 {
                     var numero = GetNumeroCuenta(op.IdcuentaNavigation.Clave, op.IdcuentaNavigation.IdaperturaNavigation.IdmascaraNavigation.Posicion);
                     var cuenta = _cContext.Set<Cuenta>()
-                        .Include(c => c.CuentaSuperior.CuentaSuperior.CuentaSuperior.CuentaSuperior)
+                        .Include(c => c.CuentaSuperior)
+                        .ToList()
                         .SingleOrDefault(c => c.Numero == numero);
                     if (cuenta == null)
                     {
-                        Console.WriteLine($"Error cuenta {numero} no existe.");
+                        _logger.LogError($"Error cuenta {numero} no existe.");
                     }
                     else
                     {
@@ -172,6 +173,8 @@ namespace ImportadorDatos.Jobs
                 }
                 _cContext.Add(nuevoAsiento);
                 _cContext.SaveChanges();
+                _enlaceContext.Add(new Asientos { AsientoId = nuevoAsiento.Id, ComprobanteId = asi.Comprobante.Idcomprobante, Fecha = DateTime.Now });
+                _enlaceContext.SaveChanges();
             }
         }
 
