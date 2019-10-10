@@ -21,6 +21,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using FinanzasWebApi.Helper;
 using notificationsWebApi.Data;
 using opplatApplication.Hubs;
+using ContabilidadWebApi.Services;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -107,6 +108,8 @@ namespace opplatApplication
             services.AddTransient<OpplatAppDbContext>();
             services.AddSingleton<MenuLoader>();
             services.AddSingleton<LicenciaService>();
+
+            services.AddScoped<CuentasServices>();
 
             //finanzas services
             services.AddSingleton<ObtenerPlanGI>();
