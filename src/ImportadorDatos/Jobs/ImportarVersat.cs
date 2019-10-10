@@ -95,10 +95,14 @@ namespace ImportadorDatos.Jobs
                 }
                 else
                 {
-                    _cContext.Add(new PeriodoContable { FechaInicio = per.Inicio, FechaFin = per.Fin, Activo = per.Enuso ?? per.Enuso.Value });
+                    var nuevoPeriodo = new PeriodoContable { FechaInicio = per.Inicio, FechaFin = per.Fin, Activo = per.Enuso ?? per.Enuso.Value };
+                    _cContext.Add(nuevoPeriodo);
+                    _cContext.SaveChanges();
+                    _enlaceContext.Add(new PeriodosContables { PeriodoId = nuevoPeriodo.Id, PeriodoVersatId = per.Idperiodo, Fecha = DateTime.Now });
+                    _enlaceContext.SaveChanges();
                 }
             }
-            _cContext.SaveChanges();
+
         }
 
 
