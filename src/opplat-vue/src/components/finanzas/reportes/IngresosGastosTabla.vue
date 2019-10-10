@@ -49,7 +49,7 @@
             <th class="text-center">plan acum</th>
             <th class="text-center">real acum</th>
             <th class="text-center">% de cumplimiento</th>
-            <th class="text-center">% en ralacion a ingresos</th>
+            <th class="text-center">% en relacion a ingresos</th>
             <th class="text-center">% de gastos/total</th>
           </tr>
         </thead>
@@ -60,16 +60,16 @@
             v-bind:class="[(item.grupo === 'Ingresos')? 'negrita':'']"
           >
             <td v-bind:class="[(item.grupo === 'Ingresos')? 'text-right':'colum0']">{{ item.grupo }}</td>
-            <td>{{ item.planMes }}</td>
-            <td>{{ item.realMes }}</td>
-            <td>{{ item.porcCumplimiento }}</td>
-            <td>{{item.porcRelacionIngresos}}</td>
-            <td>{{item.porcGastosFuncionTotal}}</td>
-            <td>{{item.planAcumulado}}</td>
-            <td>{{item.realAcumulado}}</td>
-            <td>{{item.porcCumpAcumulado}}</td>
-            <td>{{item.porcIngresosFuncionTotal}}</td>
-            <td>{{item.porcGastosFuncionTotalAcumulado}}</td>
+            <td>$ {{ item.planMes }}</td>
+            <td>$ {{ item.realMes }}</td>
+            <td>{{ item.porcCumplimiento }} %</td>
+            <td>{{item.porcRelacionIngresos}} %</td>
+            <td class="deshabilitado"></td>
+            <td>$ {{item.planAcumulado}}</td>
+            <td>$ {{item.realAcumulado}}</td>
+            <td>{{item.porcCumpAcumulado}} %</td>
+            <td>{{item.porcIngresosFuncionTotal}} %</td>
+            <td class="deshabilitado"></td>
           </tr>
 
           <tr
@@ -78,16 +78,16 @@
             v-bind:class="[(item.grupo === 'Egresos')? 'negrita':'']"
           >
             <td v-bind:class="[(item.grupo === 'Egresos')? 'text-right':'colum0']">{{ item.grupo }}</td>
-            <td>{{ item.planMes }}</td>
-            <td>{{ item.realMes }}</td>
-            <td>{{ item.porcCumplimiento }}</td>
-            <td>{{item.porcRelacionIngresos}}</td>
-            <td>{{item.porcGastosFuncionTotal}}</td>
-            <td>{{item.planAcumulado}}</td>
-            <td>{{item.realAcumulado}}</td>
-            <td>{{item.porcCumpAcumulado}}</td>
-            <td>{{item.porcIngresosFuncionTotal}}</td>
-            <td>{{item.porcGastosFuncionTotalAcumulado}}</td>
+            <td>$ {{ item.planMes }}</td>
+            <td>$ {{ item.realMes }}</td>
+            <td>{{ item.porcCumplimiento }} %</td>
+            <td>{{item.porcRelacionIngresos}} %</td>
+            <td>{{item.porcGastosFuncionTotal}} %</td>
+            <td>$ {{item.planAcumulado}}</td>
+            <td>$ {{item.realAcumulado}}</td>
+            <td>{{item.porcCumpAcumulado}} %</td>
+            <td>{{item.porcIngresosFuncionTotal}} %</td>
+            <td>{{item.porcGastosFuncionTotalAcumulado}} %</td>
           </tr>
           <tr
             v-for="item in utilidades"
@@ -95,16 +95,16 @@
             v-bind:class="[(item.grupo === 'Utilidad')? 'negrita':'']"
           >
             <td v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
-            <td>{{ item.planMes }}</td>
-            <td>{{ item.realMes }}</td>
-            <td>{{ item.porcCumplimiento }}</td>
-            <td>{{item.porcRelacionIngresos}}</td>
-            <td>{{item.porcGastosFuncionTotal}}</td>
-            <td>{{item.planAcumulado}}</td>
-            <td>{{item.realAcumulado}}</td>
-            <td>{{item.porcCumpAcumulado}}</td>
-            <td>{{item.porcIngresosFuncionTotal}}</td>
-            <td>{{item.porcGastosFuncionTotalAcumulado}}</td>
+            <td>$ {{ item.planMes }}</td>
+            <td>$ {{ item.realMes }}</td>
+            <td>{{ item.porcCumplimiento }} %</td>
+            <td>{{item.porcRelacionIngresos}} %</td>
+            <td class="deshabilitado"></td>
+            <td>$ {{item.planAcumulado}}</td>
+            <td>$ {{item.realAcumulado}}</td>
+            <td>{{item.porcCumpAcumulado}} %</td>
+            <td>{{item.porcIngresosFuncionTotal}} %</td>
+            <td class="deshabilitado"></td>
           </tr>
         </tbody>
       </table>
@@ -183,6 +183,9 @@ th {
   text-align: left;
   width: 22%;
 }
+.deshabilitado {
+  background-color: #e0e0e0;
+}
 </style>
 <script>
 import api from '@/api';
@@ -213,7 +216,7 @@ export default {
     getIngresosFromApi() {
       const url = api.getUrl(
         'finanzas',
-        `PlanGI/Ingresos/${this.year}/${this.mes.id}`,
+        `ReporteIngresosGastos/ingresos/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
@@ -230,7 +233,7 @@ export default {
     getEgresosFromApi() {
       const url = api.getUrl(
         'finanzas',
-        `PlanGI/Egresos/${this.year}/${this.mes.id}`,
+        `ReporteIngresosGastos/egresos/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
@@ -247,7 +250,7 @@ export default {
     getUtilidadesFromApi() {
       const url = api.getUrl(
         'finanzas',
-        `PlanGI/Utilidades/${this.year}/${this.mes.id}`,
+        `ReporteIngresosGastos/utilidad/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
