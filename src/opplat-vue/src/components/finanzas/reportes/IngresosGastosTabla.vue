@@ -60,15 +60,15 @@
             v-bind:class="[(item.grupo === 'Ingresos')? 'negrita':'']"
           >
             <td v-bind:class="[(item.grupo === 'Ingresos')? 'text-right':'colum0']">{{ item.grupo }}</td>
-            <td>$ {{ item.planMes }}</td>
-            <td>$ {{ item.realMes }}</td>
-            <td>{{ item.porcCumplimiento }} %</td>
-            <td>{{item.porcRelacionIngresos}} %</td>
+            <td>{{ item.planMes }}</td>
+            <td>{{ item.realMes }}</td>
+            <td>{{ item.porcCumplimiento }}</td>
+            <td>{{item.porcRelacionIngresos}}</td>
             <td class="deshabilitado"></td>
-            <td>$ {{item.planAcumulado}}</td>
-            <td>$ {{item.realAcumulado}}</td>
-            <td>{{item.porcCumpAcumulado}} %</td>
-            <td>{{item.porcIngresosFuncionTotal}} %</td>
+            <td>{{item.planAcumulado}}</td>
+            <td>{{item.realAcumulado}}</td>
+            <td>{{item.porcCumpAcumulado}}</td>
+            <td>{{item.porcIngresosFuncionTotal}}</td>
             <td class="deshabilitado"></td>
           </tr>
 
@@ -78,16 +78,16 @@
             v-bind:class="[(item.grupo === 'Egresos')? 'negrita':'']"
           >
             <td v-bind:class="[(item.grupo === 'Egresos')? 'text-right':'colum0']">{{ item.grupo }}</td>
-            <td>$ {{ item.planMes }}</td>
-            <td>$ {{ item.realMes }}</td>
-            <td>{{ item.porcCumplimiento }} %</td>
-            <td>{{item.porcRelacionIngresos}} %</td>
-            <td>{{item.porcGastosFuncionTotal}} %</td>
-            <td>$ {{item.planAcumulado}}</td>
-            <td>$ {{item.realAcumulado}}</td>
-            <td>{{item.porcCumpAcumulado}} %</td>
-            <td>{{item.porcIngresosFuncionTotal}} %</td>
-            <td>{{item.porcGastosFuncionTotalAcumulado}} %</td>
+            <td>{{ item.planMes }}</td>
+            <td>{{ item.realMes }}</td>
+            <td>{{ item.porcCumplimiento }}</td>
+            <td>{{item.porcRelacionIngresos}}</td>
+            <td>{{item.porcGastosFuncionTotal}}</td>
+            <td>{{item.planAcumulado}}</td>
+            <td>{{item.realAcumulado}}</td>
+            <td>{{item.porcCumpAcumulado}}</td>
+            <td>{{item.porcIngresosFuncionTotal}}</td>
+            <td>{{item.porcGastosFuncionTotalAcumulado}}</td>
           </tr>
           <tr
             v-for="item in utilidades"
@@ -95,15 +95,15 @@
             v-bind:class="[(item.grupo === 'Utilidad')? 'negrita':'']"
           >
             <td v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
-            <td>$ {{ item.planMes }}</td>
-            <td>$ {{ item.realMes }}</td>
-            <td>{{ item.porcCumplimiento }} %</td>
-            <td>{{item.porcRelacionIngresos}} %</td>
+            <td>{{ item.planMes }}</td>
+            <td>{{ item.realMes }}</td>
+            <td>{{ item.porcCumplimiento }}</td>
+            <td>{{item.porcRelacionIngresos}}</td>
             <td class="deshabilitado"></td>
-            <td>$ {{item.planAcumulado}}</td>
-            <td>$ {{item.realAcumulado}}</td>
-            <td>{{item.porcCumpAcumulado}} %</td>
-            <td>{{item.porcIngresosFuncionTotal}} %</td>
+            <td>{{item.planAcumulado}}</td>
+            <td>{{item.realAcumulado}}</td>
+            <td>{{item.porcCumpAcumulado}}</td>
+            <td>{{item.porcIngresosFuncionTotal}}</td>
             <td class="deshabilitado"></td>
           </tr>
         </tbody>
