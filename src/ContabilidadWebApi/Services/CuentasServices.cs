@@ -26,7 +26,9 @@ namespace ContabilidadWebApi.Services
         /// <summary>
         /// Crea una cuenta nueva y devuelve el DTO con los datos de la misma
         /// </summary>
-        /// <param name="nuevaCuenta"></param>
+        /// <param name="numero"></param>
+        /// <param name="nombre"></param>
+        /// <param name="naturaleza"></param>
         /// <returns></returns>
         public CuentaDto CrearCuenta(string numero, string nombre, Naturaleza naturaleza)
         {
@@ -44,6 +46,10 @@ namespace ContabilidadWebApi.Services
                 {
                     numeros.Remove(numeroParcial);
                     var numeroSuperior = String.Join("-", numeros);
+                    if (numeros.Last() == "      ")
+                    {
+                        var dto = CrearCuenta(numeroSuperior, "VACIA", naturaleza);
+                    }
                     cuentaSuperior = FindCuentaByNumero(numeroSuperior);
                     if (cuentaSuperior == null)
                     {
