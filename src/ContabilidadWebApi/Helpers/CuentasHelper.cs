@@ -66,20 +66,7 @@ namespace ContabilidadWebApi.Helpers
             {
                 if (!ctas.Any(c => c.Id == cta.Id))
                 {
-                    if (cta.CuentaSuperior == null)
-                    {
-                        ctas.Add(new CuentaDto() { Id = cta.Id, Numero = cta.Numero, Descripcion = cta.Nombre });
-                    }
-                    else
-                    {
-                        var ctaVM = ctas.FirstOrDefault(c => c.Id == cta.CuentaSuperiorId);
-                        if (ctaVM != null)
-                        {
-                            var vm = new CuentaDto() { Id = cta.Id, Numero = cta.Numero, Descripcion = cta.Nombre, Padre = ctaVM };
-                            ctaVM.Subcuentas.Add(vm);
-                            ctas.Add(vm);
-                        }
-                    }
+                    ctas.Add(new CuentaDto() { Id = cta.Id, Numero = cta.Numero, Descripcion = cta.Nombre });
                 }
             }
             return ctas;
@@ -108,16 +95,20 @@ namespace ContabilidadWebApi.Helpers
         public List<CuentaDto> CuentasHijas(int id)
         {
             var ctas = new List<CuentaDto>();
-            var cta = Cuentas().SingleOrDefault(c => c.Id == id);
-            var cola = new Queue<CuentaDto>();
-            cola.Enqueue(cta);
+            var cola = new Queue<int>();
+            cola.Enqueue(id);
             while (cola.Any())
             {
-                var c = cola.Dequeue();
-                ctas.Add(c);
-                foreach (var item in c.Subcuentas)
+                var cuentaId = cola.Dequeue();
+                var cta = _db.Set<Cuenta>()
+                    .Include(c => c.CuentaSuperior)
+                    .Include(c => c.Subcuentas)
+                    .SingleOrDefault(c => c.Id == cuentaId);
+
+                ctas.Add(new CuentaDto { Id = cta.Id, Numero = cta.Numero, Descripcion = cta.Nombre, Naturaleza = cta.Naturaleza });
+                foreach (var item in cta.Subcuentas)
                 {
-                    cola.Enqueue(item);
+                    cola.Enqueue(item.Id);
                 }
             }
             return ctas;
