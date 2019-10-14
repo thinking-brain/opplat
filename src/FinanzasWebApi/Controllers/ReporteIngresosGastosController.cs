@@ -15,11 +15,11 @@ namespace FinanzasWebApi.Controllers
 {
     [Route("finanzas/[controller]")]
     [ApiController]
-    public class PlanGIOKController : ControllerBase
+    public class ReporteIngresosGastosController : ControllerBase
     {
         ObtenerPlanGI _obtenetPlan { get; set; }
 
-        public PlanGIOKController(ObtenerPlanGI obtenerPlan)
+        public ReporteIngresosGastosController(ObtenerPlanGI obtenerPlan)
         {
             _obtenetPlan = obtenerPlan;
         }
@@ -30,7 +30,7 @@ namespace FinanzasWebApi.Controllers
         /// <param name="años"></param>
         /// <param name="meses"></param>
         /// <returns></returns>
-        [HttpGet("Ingresos/{años}/{meses}")]
+        [HttpGet("ingresos/{años}/{meses}")]
         public IEnumerable<PlanGIViewModel> Ingresos([FromRoute] string años, int meses)
         {
             var plan = new List<PlanGIViewModel>();
@@ -39,35 +39,21 @@ namespace FinanzasWebApi.Controllers
             plan = _obtenetPlan.ObtenerIngresos(year, meses);
 
             var planes = new List<PlanGIViewModel>();
-            // planes.Add(new PlanGIViewModel
-            // {
-            //     Grupo = "Ingresos",
-            //     PlanMes = plan.Sum(s => s.PlanMes),
-            //     RealMes = plan.Sum(s => s.RealMes),
-            //     PorcCumplimiento = plan.Sum(s => s.PorcCumplimiento),
-            //     PorcRelacionIngresos = null,
-            //     PorcGastosFuncionTotal = null,
-            //     PlanAcumulado = plan.Sum(s => s.PlanAcumulado),
-            //     RealAcumulado = plan.Sum(s => s.RealAcumulado),
-            //     PorcCumpAcumulado = plan.Sum(s => s.PorcCumpAcumulado),
-            //     PorcIngresosFuncionTotal = null,
-            //     PorcGastosFuncionTotalAcumulado = null,
 
-            // });
             foreach (var item in plan)
             {
                 planes.Add(item);
             }
             return planes;
         }
-        
+
         /// <summary>
         /// Devuelve los Egresos para el plan de Gastos en Ingresos
         /// </summary>
         /// <param name="años"></param>
         /// <param name="meses"></param>
         /// <returns></returns>
-        [HttpGet("Egresos/{años}/{meses}")]
+        [HttpGet("egresos/{años}/{meses}")]
         public IEnumerable<PlanGIViewModel> Egresos([FromRoute] string años, int meses)
         {
             var plan = new List<PlanGIViewModel>();
@@ -76,7 +62,7 @@ namespace FinanzasWebApi.Controllers
             plan = _obtenetPlan.ObtenerEgresos(year, meses);
 
             var planes = new List<PlanGIViewModel>();
-           
+
             foreach (var item in plan)
             {
                 planes.Add(item);
@@ -84,13 +70,13 @@ namespace FinanzasWebApi.Controllers
             return planes;
         }
 
-     /// <summary>
+        /// <summary>
         /// Devuelve los Egresos para el plan de Gastos en Ingresos
         /// </summary>
         /// <param name="años"></param>
         /// <param name="meses"></param>
         /// <returns></returns>
-        [HttpGet("Utilidad/{años}/{meses}")]
+        [HttpGet("utilidad/{años}/{meses}")]
         public IEnumerable<PlanGIViewModel> Utilidad([FromRoute] string años, int meses)
         {
             var plan = new List<PlanGIViewModel>();
@@ -99,7 +85,7 @@ namespace FinanzasWebApi.Controllers
             plan = _obtenetPlan.ObtenerUtilidad(year, meses);
 
             var planes = new List<PlanGIViewModel>();
-           
+
             foreach (var item in plan)
             {
                 planes.Add(item);

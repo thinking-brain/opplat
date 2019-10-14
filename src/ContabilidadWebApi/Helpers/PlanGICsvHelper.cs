@@ -4,9 +4,7 @@ using System.Linq;
 using CsvHelper;
 using System.Text.RegularExpressions;
 using System.Globalization;
-
 using Microsoft.EntityFrameworkCore;
-using ContabilidadWebApi.VersatModels2;
 using ContabilidadWebApi.Models;
 using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Services;

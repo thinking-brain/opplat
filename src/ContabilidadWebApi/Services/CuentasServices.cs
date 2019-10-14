@@ -26,7 +26,9 @@ namespace ContabilidadWebApi.Services
         /// <summary>
         /// Crea una cuenta nueva y devuelve el DTO con los datos de la misma
         /// </summary>
-        /// <param name="nuevaCuenta"></param>
+        /// <param name="numero"></param>
+        /// <param name="nombre"></param>
+        /// <param name="naturaleza"></param>
         /// <returns></returns>
         public CuentaDto CrearCuenta(string numero, string nombre, Naturaleza naturaleza)
         {
@@ -44,6 +46,10 @@ namespace ContabilidadWebApi.Services
                 {
                     numeros.Remove(numeroParcial);
                     var numeroSuperior = String.Join("-", numeros);
+                    if (numeros.Last() == "      ")
+                    {
+                        var dto = CrearCuenta(numeroSuperior, "VACIA", naturaleza);
+                    }
                     cuentaSuperior = FindCuentaByNumero(numeroSuperior);
                     if (cuentaSuperior == null)
                     {
@@ -112,10 +118,10 @@ namespace ContabilidadWebApi.Services
         /// <returns>Cuenta que tenga el nombre por el que se busco o null si no existe</returns>
         public Cuenta FindCuentaByNumero(string numero)
         {
-            var cuentas = _db.Set<Cuenta>()
-                .Include(c => c.CuentaSuperior.CuentaSuperior.CuentaSuperior.CuentaSuperior)
-                .Include(c => c.Subcuentas);
-            var cuenta = cuentas.SingleOrDefault(c => c.Numero == numero);
+            var cuentasContables = _db.Set<Cuenta>()
+                .Include(c => c.CuentaSuperior)
+                .ToList();
+            var cuenta = cuentasContables.SingleOrDefault(c => c.Numero == numero);
             return cuenta;
         }
 
@@ -174,13 +180,12 @@ namespace ContabilidadWebApi.Services
         /// <returns></returns>
         public List<Movimiento> MovimientosDeCuenta(int cuentaId, DateTime fechaInicio, DateTime fechaFin)
         {
-            var movimientos = new List<Movimiento>();
             var movs = _db.Set<Movimiento>()
                     .Include(c => c.Asiento.DiaContable)
                     .Include(c => c.Cuenta)
                     .Where(c => c.CuentaId == cuentaId && c.Asiento.DiaContable.Fecha >= fechaInicio.Date && c.Asiento.DiaContable.Fecha.Date <= fechaFin.Date)
                     .ToList();
-            return movimientos;
+            return movs;
         }
 
         /// <summary>

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ContabilidadWebApi.VersatModels;
 using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Helpers;
 using ContabilidadWebApi.Dtos;

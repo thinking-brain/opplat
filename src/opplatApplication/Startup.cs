@@ -18,11 +18,10 @@ using Newtonsoft.Json;
 using opplatApplication.Data;
 using opplatApplication.Utils;
 using Swashbuckle.AspNetCore.Swagger;
-using ContabilidadWebApi.VersatModels;
-using ContabilidadWebApi.VersatModels2;
 using FinanzasWebApi.Helper;
 using notificationsWebApi.Data;
 using opplatApplication.Hubs;
+using ContabilidadWebApi.Services;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -41,13 +40,6 @@ namespace opplatApplication
             //contabilidad context
             services.AddDbContext<ContabilidadWebApi.Data.ContabilidadDbContext>(options =>
                     options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
-
-            services.AddDbContext<VersatDbContext>(options =>
-               options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
-
-            services.AddDbContext<VersatDbContext2>(options =>
-               options.UseSqlServer(context.Configuration.GetConnectionString("Versat2Connection")));
-            //
 
             //finanzas db context
             services.AddDbContext<FinanzasWebApi.Data.ApiDbContext>(options =>
@@ -116,6 +108,8 @@ namespace opplatApplication
             services.AddTransient<OpplatAppDbContext>();
             services.AddSingleton<MenuLoader>();
             services.AddSingleton<LicenciaService>();
+
+            services.AddScoped<CuentasServices>();
 
             //finanzas services
             services.AddSingleton<ObtenerPlanGI>();

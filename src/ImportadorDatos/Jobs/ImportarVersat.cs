@@ -8,8 +8,10 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Models;
+using ImportadorDatos.Models.EnlaceVersat;
 using ImportadorDatos.Models.Versat;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ImportadorDatos.Jobs
 {
@@ -18,37 +20,30 @@ namespace ImportadorDatos.Jobs
         VersatDbContext _vContext;
 
         ContabilidadDbContext _cContext;
-        public ImportarVersat(VersatDbContext vContext, ContabilidadDbContext cContext)
+
+        EnlaceVersatDbContext _enlaceContext;
+
+        ILogger _logger;
+
+        public ImportarVersat(VersatDbContext vContext, ContabilidadDbContext cContext, EnlaceVersatDbContext enlaceContext, ILogger<ImportarVersat> logger)
         {
             _vContext = vContext;
             _cContext = cContext;
+            _enlaceContext = enlaceContext;
+            _logger = logger;
         }
-
-
 
         public void ImportarCuentasAsync()
         {
-            //todo: revisar las cuentas que faltan por importar
-            //todo: guardar en bd independiente las cuentas que se importaron
+            //todo: revisar las cuentas que su padre es vacio            
+            var cuentasImportadas = _enlaceContext.Set<Cuentas>().Select(c => c.CuentaVersatId).ToList();
             var cuentas = _vContext.Set<ConCuenta>()
                 .Include(c => c.IdaperturaNavigation.IdmascaraNavigation)
+                .Where(c => !cuentasImportadas.Contains(c.Idcuenta))
                 .OrderBy(c => c.Clave.Length);
 
             string baseUrl = "https://localhost:5001/contabilidad/cuentas";
             var handler = new HttpClientHandler();
-            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
-            var cuentasApi = new List<CuentaDto>();
-            using (HttpClient client = new HttpClient(handler))
-            {
-                using (HttpResponseMessage res = client.GetAsync(baseUrl).Result)
-                {
-                    if (res.StatusCode != HttpStatusCode.OK)
-                    {
-                        cuentasApi = res.Content.ReadAsAsync<List<CuentaDto>>().Result;
-                    }
-                }
-            }
-            handler = new HttpClientHandler();
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
             using (HttpClient client = new HttpClient(handler))
             {
@@ -57,7 +52,7 @@ namespace ImportadorDatos.Jobs
                     var numero = GetNumeroCuenta(cta.Clave, cta.IdaperturaNavigation.IdmascaraNavigation.Posicion);
                     var descripcion = _vContext.Query<Con_Cuentadescrip>().SingleOrDefault(c => c.Idcuenta == cta.Idcuenta).Descripcion;
                     var naturaleza = _vContext.Query<ConCuentanatur>().SingleOrDefault(c => c.Idcuenta == cta.Idcuenta).Naturaleza;
-                    if (!cuentasApi.Any(c => c.Numero == numero))
+                    if (!cuentasImportadas.Contains(cta.Idcuenta))
                     {
                         var datosLogin = new Dictionary<string, string>();
                         datosLogin.Add("numero", numero);
@@ -68,7 +63,14 @@ namespace ImportadorDatos.Jobs
                             if (res.StatusCode != HttpStatusCode.OK)
                             {
                                 var data = res.Content.ReadAsStringAsync().Result;
-                                Console.WriteLine($"error con cuenta {numero},  {data}");
+                                _logger.LogError($"error con cuenta {numero},  {data}");
+                            }
+                            if (res.StatusCode == HttpStatusCode.OK)
+                            {
+                                var data = res.Content.ReadAsAsync<CuentaDto>().Result;
+                                var id = data.Id;
+                                _enlaceContext.Add(new Cuentas { CuentaId = id, CuentaVersatId = cta.Idcuenta, Fecha = DateTime.Now });
+                                _enlaceContext.SaveChanges();
                             }
                         }
                     }
@@ -83,7 +85,7 @@ namespace ImportadorDatos.Jobs
 
         public void ImportarPeriodosContables()
         {
-            //todo: guardar en db independiente los periodos migrados
+            //todo: revisar los periodos cuando ya existe uno en la BD
             var periodosVersat = _vContext.Set<GenPeriodo>().OrderBy(p => p.Inicio);
             foreach (var per in periodosVersat)
             {
@@ -93,10 +95,14 @@ namespace ImportadorDatos.Jobs
                 }
                 else
                 {
-                    _cContext.Add(new PeriodoContable { FechaInicio = per.Inicio, FechaFin = per.Fin, Activo = per.Enuso ?? per.Enuso.Value });
+                    var nuevoPeriodo = new PeriodoContable { FechaInicio = per.Inicio, FechaFin = per.Fin, Activo = per.Enuso ?? per.Enuso.Value };
+                    _cContext.Add(nuevoPeriodo);
+                    _cContext.SaveChanges();
+                    _enlaceContext.Add(new PeriodosContables { PeriodoId = nuevoPeriodo.Id, PeriodoVersatId = per.Idperiodo, Fecha = DateTime.Now });
+                    _enlaceContext.SaveChanges();
                 }
             }
-            _cContext.SaveChanges();
+
         }
 
 
@@ -111,7 +117,7 @@ namespace ImportadorDatos.Jobs
                 .GroupBy(c => c.IdcomprobanteNavigation).Select(c => new
                 {
                     Comprobante = c.Key,
-                    Operaciones = c
+                    Operaciones = c.Select(g => g)
                 });
             foreach (var asi in operacionesVersat)
             {
@@ -141,11 +147,12 @@ namespace ImportadorDatos.Jobs
                 {
                     var numero = GetNumeroCuenta(op.IdcuentaNavigation.Clave, op.IdcuentaNavigation.IdaperturaNavigation.IdmascaraNavigation.Posicion);
                     var cuenta = _cContext.Set<Cuenta>()
-                        .Include(c => c.CuentaSuperior.CuentaSuperior.CuentaSuperior.CuentaSuperior)
+                        .Include(c => c.CuentaSuperior)
+                        .ToList()
                         .SingleOrDefault(c => c.Numero == numero);
                     if (cuenta == null)
                     {
-                        Console.WriteLine($"Error cuenta {numero} no existe.");
+                        _logger.LogError($"Error cuenta {numero} no existe.");
                     }
                     else
                     {
@@ -166,6 +173,8 @@ namespace ImportadorDatos.Jobs
                 }
                 _cContext.Add(nuevoAsiento);
                 _cContext.SaveChanges();
+                _enlaceContext.Add(new Asientos { AsientoId = nuevoAsiento.Id, ComprobanteId = asi.Comprobante.Idcomprobante, Fecha = DateTime.Now });
+                _enlaceContext.SaveChanges();
             }
         }
 

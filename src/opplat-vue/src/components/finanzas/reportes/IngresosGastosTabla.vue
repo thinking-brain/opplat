@@ -49,7 +49,7 @@
             <th class="text-center">plan acum</th>
             <th class="text-center">real acum</th>
             <th class="text-center">% de cumplimiento</th>
-            <th class="text-center">% en ralacion a ingresos</th>
+            <th class="text-center">% en relacion a ingresos</th>
             <th class="text-center">% de gastos/total</th>
           </tr>
         </thead>
@@ -64,12 +64,12 @@
             <td>{{ item.realMes }}</td>
             <td>{{ item.porcCumplimiento }}</td>
             <td>{{item.porcRelacionIngresos}}</td>
-            <td>{{item.porcGastosFuncionTotal}}</td>
+            <td class="deshabilitado"></td>
             <td>{{item.planAcumulado}}</td>
             <td>{{item.realAcumulado}}</td>
             <td>{{item.porcCumpAcumulado}}</td>
             <td>{{item.porcIngresosFuncionTotal}}</td>
-            <td>{{item.porcGastosFuncionTotalAcumulado}}</td>
+            <td class="deshabilitado"></td>
           </tr>
 
           <tr
@@ -99,12 +99,12 @@
             <td>{{ item.realMes }}</td>
             <td>{{ item.porcCumplimiento }}</td>
             <td>{{item.porcRelacionIngresos}}</td>
-            <td>{{item.porcGastosFuncionTotal}}</td>
+            <td class="deshabilitado"></td>
             <td>{{item.planAcumulado}}</td>
             <td>{{item.realAcumulado}}</td>
             <td>{{item.porcCumpAcumulado}}</td>
             <td>{{item.porcIngresosFuncionTotal}}</td>
-            <td>{{item.porcGastosFuncionTotalAcumulado}}</td>
+            <td class="deshabilitado"></td>
           </tr>
         </tbody>
       </table>
@@ -183,6 +183,9 @@ th {
   text-align: left;
   width: 22%;
 }
+.deshabilitado {
+  background-color: #e0e0e0;
+}
 </style>
 <script>
 import api from '@/api';
@@ -213,7 +216,7 @@ export default {
     getIngresosFromApi() {
       const url = api.getUrl(
         'finanzas',
-        `PlanGI/Ingresos/${this.year}/${this.mes.id}`,
+        `ReporteIngresosGastos/ingresos/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
@@ -230,7 +233,7 @@ export default {
     getEgresosFromApi() {
       const url = api.getUrl(
         'finanzas',
-        `PlanGI/Egresos/${this.year}/${this.mes.id}`,
+        `ReporteIngresosGastos/egresos/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
@@ -247,7 +250,7 @@ export default {
     getUtilidadesFromApi() {
       const url = api.getUrl(
         'finanzas',
-        `PlanGI/Utilidades/${this.year}/${this.mes.id}`,
+        `ReporteIngresosGastos/utilidad/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
