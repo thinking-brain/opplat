@@ -2,5 +2,6 @@
         "api-account": "https://localhost:5001/auth/",
         "opplat-app": "https://localhost:5001/admin/",
         "finanzas": "https://localhost:5001/finanzas/",
-        "contabilidad": "https://localhost:5001/contabilidad/"
+        "contabilidad": "https://localhost:5001/contabilidad/",
+        "inventario": "/inventario/"
     }

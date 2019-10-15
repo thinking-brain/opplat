@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace InventarioWebApi.Migrations
 {
-    [DbContext(typeof(InventarioContext))]
+    [DbContext(typeof(InventarioDbContext))]
     partial class InventarioContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
