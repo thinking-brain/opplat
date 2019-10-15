@@ -269,8 +269,6 @@ namespace FinanzasWebApi.Helper
 
         }
 
-
-
         public List<PlanGIViewModel> ObtenerUtilidad(int year, int meses)
         {
             var plan = new List<PlanGIViewModel>();
@@ -280,43 +278,90 @@ namespace FinanzasWebApi.Helper
             var TotalEgresosEnMes = ObtenerTotalEgresos(year, meses);
             var TotalIngresosAcumulados = ObtenerTotalIngresosAcumulados(year, meses);
             var TotalEgresosAcumuados = ObtenerTotalEgresosAcumulados(year, meses);
-            var cta = "693";
-            decimal Cuenta693 = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
-            decimal ImporteAcumulado = GetMovimientoDeCuentaPeriodoAcumulado.Get(year, meses, cta, _config);
-            foreach (var item in modelo.Where(s => s.Tipo.Equals("Utilidad")))
+
+            //Utilidad
+            var utilidad = TotalIngresosEnMes - TotalEgresosEnMes;
+            var utilidadAcumulada = TotalIngresosAcumulados - TotalEgresosAcumuados;
+            var planUtilidad = planes.SingleOrDefault(p => p.Concepto == "Utilidad")[meses];
+            var planUtilidadAcumulado = planes.SingleOrDefault(p => p.Concepto == "Utilidad").Acumulado(meses);
+            plan.Add(new PlanGIViewModel
             {
-                var cost = new PlanGIViewModel
-                {
-                    //Grupo
-                    Grupo = item.Dato.ToString(),
-                    //Plan Mensual
-                    PlanMes = 0,
-                    //Real del Mes
-                    RealMes = 0,
+                Grupo = "Utilidad",
+                PlanMes = planUtilidad,
+                RealMes = utilidad,
+                PorcCumplimiento = planUtilidad != 0 ? Math.Round(utilidad * 100 / planUtilidad, 2, MidpointRounding.AwayFromZero) : 0,
+                PorcRelacionIngresos = TotalIngresosEnMes != 0 ? Math.Round((utilidad / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
+                PorcGastosFuncionTotal = null,
+                PlanAcumulado = planUtilidadAcumulado,
+                RealAcumulado = utilidadAcumulada,
+                PorcCumpAcumulado = planUtilidadAcumulado != 0 ? Math.Round(utilidadAcumulada * 100 / planUtilidadAcumulado, 2, MidpointRounding.AwayFromZero) : 0,
+                PorcIngresosFuncionTotal = TotalIngresosAcumulados != 0 ? Math.Round((utilidadAcumulada / (TotalIngresosAcumulados)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
+                PorcGastosFuncionTotalAcumulado = null,
+            });
+            //pago a cargo de utilidad
+            var planPago = planes.SingleOrDefault(p => p.Concepto == "Pago a cargo de la utilidad")[meses];
+            var planPagoAcumulado = planes.SingleOrDefault(p => p.Concepto == "Pago a cargo de la utilidad").Acumulado(meses);
+            var cta = "693";
+            decimal pago = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
+            decimal pagoAcumulado = GetMovimientoDeCuentaPeriodoAcumulado.Get(year, meses, cta, _config);
+            plan.Add(new PlanGIViewModel
+            {
+                Grupo = "Pago a cargo de la utilidad",
+                PlanMes = planPago,
+                RealMes = pago,
+                PorcCumplimiento = planPago != 0 ? Math.Round(pago * 100 / planPago, 2, MidpointRounding.AwayFromZero) : 0,
+                PorcRelacionIngresos = TotalIngresosEnMes != 0 ? Math.Round((pago / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
+                PorcGastosFuncionTotal = null,
+                PlanAcumulado = planPagoAcumulado,
+                RealAcumulado = pagoAcumulado,
+                PorcCumpAcumulado = planPagoAcumulado != 0 ? Math.Round(pagoAcumulado * 100 / planPagoAcumulado, 2, MidpointRounding.AwayFromZero) : 0,
+                PorcIngresosFuncionTotal = TotalIngresosAcumulados != 0 ? Math.Round((pagoAcumulado / (TotalIngresosAcumulados)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
+                PorcGastosFuncionTotalAcumulado = null,
+            });
 
-                    // % de Cumplimiento
-                    PorcCumplimiento = 0 > 0 ? Math.Round((0m / 100) * 100, 2, MidpointRounding.AwayFromZero) : 0,
+            //utilidad despues de pago
+            var planUtilidadPago = planUtilidad - planPago;
+            var planUtilidadPagoAcumulado = planUtilidadAcumulado - planPagoAcumulado;
+            var utilidadPago = utilidad - pago;
+            var utilidadPagoAcumulado = utilidadAcumulada - pagoAcumulado;
 
-                    // % en relación a ingresos
-                    PorcRelacionIngresos = TotalIngresosEnMes > 0 ? Math.Round((0 / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
+            plan.Add(new PlanGIViewModel
+            {
+                Grupo = "Utilidad despues de pagos de anticipos",
+                PlanMes = planUtilidadPago,
+                RealMes = utilidadPago,
+                PorcCumplimiento = planUtilidadPago != 0 ? Math.Round(utilidadPago * 100 / planUtilidadPago, 2, MidpointRounding.AwayFromZero) : 0,
+                PorcRelacionIngresos = TotalIngresosEnMes != 0 ? Math.Round((utilidadPago / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
+                PorcGastosFuncionTotal = null,
+                PlanAcumulado = planUtilidadPagoAcumulado,
+                RealAcumulado = utilidadPagoAcumulado,
+                PorcCumpAcumulado = planUtilidadPagoAcumulado != 0 ? Math.Round(utilidadPagoAcumulado * 100 / planUtilidadPagoAcumulado, 2, MidpointRounding.AwayFromZero) : 0,
+                PorcIngresosFuncionTotal = TotalIngresosAcumulados != 0 ? Math.Round((utilidadPagoAcumulado / (TotalIngresosAcumulados)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
+                PorcGastosFuncionTotalAcumulado = null,
+            });
+            //Reserva de contingencia del 2% al 10%
+            //todo: cangar desde un configurador
+            var porcientoContingencia = 2m;
+            var porcientoContingenciaPorMes = Math.Round(porcientoContingencia / 12m, 3);
+            var planContingencia = planes.SingleOrDefault(p => p.Concepto == "Egresos")[meses] * porcientoContingenciaPorMes / 100;
+            var planContingenciaAcumulado = planes.SingleOrDefault(p => p.Concepto == "Egresos").Acumulado(meses) * (porcientoContingenciaPorMes * meses) / 100;
+            var contingencia = TotalEgresosEnMes * porcientoContingenciaPorMes / 100;
+            var contingenciaAcumulada = TotalEgresosAcumuados * (porcientoContingenciaPorMes * meses) / 100;
 
-                    //% de los gastos en función del total
-                    PorcGastosFuncionTotal = null,
-                    //Plan Acumulado
-                    PlanAcumulado = 0,
-                    //Real Acumulado
-                    RealAcumulado = 0,
-                    //
-                    PorcCumpAcumulado = 0 > 0 ? Math.Round((0m / 100) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                    // % en relación a ingresos 
-                    PorcIngresosFuncionTotal = TotalIngresosAcumulados > 0 ? Math.Round((0 / (TotalIngresosAcumulados)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
-                    //% de los gastos en función del total 
-                    PorcGastosFuncionTotalAcumulado = null,
-                    //Total en el Grupo
-
-                };
-                plan.Add(cost);
-            }
+            plan.Add(new PlanGIViewModel
+            {
+                Grupo = "Reserva de contingencia del 2% al 10%",
+                PlanMes = planContingencia,
+                RealMes = contingencia,
+                PorcCumplimiento = planContingencia != 0 ? Math.Round(contingencia * 100 / planContingencia, 2, MidpointRounding.AwayFromZero) : 0,
+                PorcRelacionIngresos = TotalIngresosEnMes != 0 ? Math.Round((contingencia / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
+                PorcGastosFuncionTotal = null,
+                PlanAcumulado = planContingenciaAcumulado,
+                RealAcumulado = contingenciaAcumulada,
+                PorcCumpAcumulado = planUtilidadPagoAcumulado != 0 ? Math.Round(utilidadPagoAcumulado * 100 / planUtilidadPagoAcumulado, 2, MidpointRounding.AwayFromZero) : 0,
+                PorcIngresosFuncionTotal = TotalIngresosAcumulados != 0 ? Math.Round((utilidadPagoAcumulado / (TotalIngresosAcumulados)) * 100, 2, MidpointRounding.AwayFromZero) : 0M,
+                PorcGastosFuncionTotalAcumulado = null,
+            });
 
             return plan;
         }
