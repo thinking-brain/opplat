@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Helper;
 using ContabilidadWebApi.Models;
+using Newtonsoft.Json;
 
 namespace ContabilidadWebApi.Controllers
 {
@@ -27,20 +28,30 @@ namespace ContabilidadWebApi.Controllers
         /// Devuelve los Planes de IG
         /// </summary>
         /// <returns></returns>
-        [HttpGet("PlanesGI/")]
-        public List<PlanGI> PlanesGI()
+        [HttpGet]
+        public ActionResult PlanesGI()
         {
-            return _context.Set<PlanGI>().ToList();
+            var planes = _context.Set<PlanGI>().Include(p => p.Detalles)
+            .ThenInclude(p => p.Concepto).Select(
+                s => new
+                {
+                    id = s.Id,
+                    nombre = s.Titulo,
+                    year = s.Year
+                }).ToList();
+            return Ok(planes);
         }
+
 
         /// <summary>
         /// Subir Plan de Gastos e Ingresos del Año
         /// </summary>
         /// <param name="File"></param>
+        /// <param name="year"></param>
         /// <returns></returns>
         // GET api/values
         [HttpPost, Route("UploadPlanGI/")]
-        public async Task<IActionResult> UploadPlanGI(IFormFile File)
+        public async Task<IActionResult> UploadPlanGI(IFormFile File, [FromForm]string year)
         {
             try
             {
@@ -49,9 +60,9 @@ namespace ContabilidadWebApi.Controllers
                     var csvReader = new CsvReader(reader);
                     var planHelper = new PlanGICsvHelper(_context);
                     csvReader.Configuration.Delimiter = "|";
-                    planHelper.readCsv(csvReader);
+                    planHelper.readCsv(csvReader, year);
                 }
-                return Ok(); ;
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -89,7 +100,5 @@ namespace ContabilidadWebApi.Controllers
             }
             return Ok();
         }
-
-
     }
 }

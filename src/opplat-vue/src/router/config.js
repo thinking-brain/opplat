@@ -257,4 +257,25 @@ export const protectedRoute = [
     }],
   },
 
+  //Inventario
+  {
+    name: 'Inventario',
+    path: '/inventario',
+    component: DefaultLayout,
+    redirect: '/inventario/almacenes',
+    meta: {
+      title: 'inventario',
+      group: 'inventario',
+    },
+    children: [{
+      path: '/inventario/almacenes',
+      name: 'Almacenes',
+      meta: {
+        title: 'Almacenes',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/inventario/Almacenes.vue'),
+    }],
+  },
+
 ];

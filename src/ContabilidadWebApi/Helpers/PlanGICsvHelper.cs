@@ -37,12 +37,13 @@ namespace ContabilidadWebApi.Helper
         /// 
         /// </summary>
         /// <param name="reader">Instancia del nuget CsvReader que contine el puntero al fichero csv.</param>
-        public void readCsv(CsvReader reader)
+        /// <param name="year">Año del plan</param>
+        public void readCsv(CsvReader reader, string year)
         {
 
-            string año;
-            //Obtain the year
-            ReadingYear(reader, out año);
+            // string año;
+            // //Obtain the year
+            // ReadingYear(reader, out año);
 
             //Skip the um
             reader.Read();
@@ -52,7 +53,7 @@ namespace ContabilidadWebApi.Helper
             reader.Read();
 
             //Start reading the elements from the table.
-            readingElements(reader, año);
+            readingElements(reader, year);
 
 
         }

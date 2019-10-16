@@ -24,5 +24,14 @@
             "administrador",
             "economico"
         ]
+    },
+    {
+        "name": "inventario",
+        "title": "Inventario",
+        "icon": "mdi-notebook-multiple",
+        "roles": [
+            "administrador",
+            "economico"
+        ]
     }
 ]
