@@ -277,5 +277,26 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/views/inventario/Almacenes.vue'),
     }],
   },
+    //Inventario
+    {
+      name: 'Inventario',
+      path: '/inventario',
+      component: DefaultLayout,
+      redirect: '/inventario/productos',
+      meta: {
+        title: 'productos',
+        group: 'inventario',
+      },
+      children: [{
+        path: '/inventario/productos',
+        name: 'Productos',
+        meta: {
+          title: 'Productos',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/inventario/Productos.vue'),
+      }],
+    },
+
 
 ];

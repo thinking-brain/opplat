@@ -59,21 +59,60 @@
         <v-btn color="primary" @click="initialize">Reset</v-btn>
       </template>
     </v-data-table>
+
+    <v-dialog
+      v-model="dialog2"
+      fullscreen
+      hide-overlay
+      transition="dialog-bottom-transition"
+      scrollable
+    >
+      <v-card tile>
+        <v-toolbar flat dark color="primary">
+          <v-btn icon dark @click="dialog2 = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Editar Plan</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+            <v-btn dark text @click="dialog2 = false">Guardar</v-btn>
+          </v-toolbar-items>
+        </v-toolbar>
+        <v-card tile>
+          <Handsontable :data="data" />
+        </v-card>
+
+        <div style="flex: 1 1 auto;"></div>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
 import api from "@/api";
+import Handsontable from "@/components/Handsontable.vue";
 export default {
+  components: {
+    Handsontable
+  },
   data: () => ({
     dialog: false,
+    dialog2: false,
     search: "",
     plan: {
       year: "",
       file: null
     },
-    planes:[],
+    planes: [],
     errors: [],
+    data: [
+      ["", "Tesla", "Nissan", "Toyota", "Honda", "Mazda", "Ford"],
+      ["2017", 10, 11, 12, 13, 15, 16],
+      ["2018", 10, 11, 12, 13, 15, 16],
+      ["2019", 10, 11, 12, 13, 15, 16],
+      ["2020", 10, 11, 12, 13, 15, 16],
+      ["2021", 10, 11, 12, 13, 15, 16]
+    ],
     headers: [
       {
         text: "Año",
@@ -120,22 +159,28 @@ export default {
   methods: {
     initialize() {
       const url = api.getUrl("contabilidad", "PlanGI");
-      this.axios
-        .get(url)
-        .then(
-          response => {
-            this.planes = response.data;
-          },
-          error => {
-            console.log(error);
-          }
-        );
+      this.axios.get(url).then(
+        response => {
+          this.planes = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
     },
 
     editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
+      // const url = api.getUrl("contabilidad", "PlanGI");
+      // this.axios.get(url).then(
+      //   response => {
+      //     this.data = response.data;
+      //   },
+      //   error => {
+      //     console.log(error);
+      //   }
+      // );
+
+      this.dialog2 = true;
     },
 
     deleteItem(item) {
