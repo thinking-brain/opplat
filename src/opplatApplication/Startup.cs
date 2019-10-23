@@ -22,6 +22,7 @@ using FinanzasWebApi.Helper;
 using notificationsWebApi.Data;
 using opplatApplication.Hubs;
 using ContabilidadWebApi.Services;
+using FinanzasWebApi.Data;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -42,7 +43,7 @@ namespace opplatApplication
                     options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
 
             //finanzas db context
-            services.AddDbContext<FinanzasWebApi.Data.ApiDbContext>(options =>
+            services.AddDbContext<FinanzasWebApi.Data.FinanzasDbContext>(options =>
                     options.UseNpgsql(context.Configuration.GetConnectionString("FinanzasApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
             //
 
@@ -112,7 +113,8 @@ namespace opplatApplication
             services.AddScoped<CuentasServices>();
 
             //finanzas services
-            services.AddSingleton<ObtenerPlanGI>();
+            services.AddScoped<FinanzasDbContext>();
+            services.AddScoped<ObtenerPlanGI>();
             // services.AddSingleton<ObtenerPlanGI_Context>();
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();
