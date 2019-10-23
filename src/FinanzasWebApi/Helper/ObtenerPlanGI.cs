@@ -7,16 +7,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
+using FinanzasWebApi.Models;
 
 namespace FinanzasWebApi.Helper
 {
     public class ObtenerPlanGI
     {
         IConfiguration _config { get; set; }
+        FinanzasDbContext _context;
 
-        public ObtenerPlanGI(IConfiguration config)
+        public ObtenerPlanGI(IConfiguration config, FinanzasDbContext context)
         {
             _config = config;
+            _context = context;
         }
 
         public List<PlanGIViewModel> ObtenerIngresos(int year, int meses)
@@ -340,8 +343,8 @@ namespace FinanzasWebApi.Helper
                 PorcGastosFuncionTotalAcumulado = null,
             });
             //Reserva de contingencia del 2% al 10%
-            //todo: cangar desde un configurador
-            var porcientoContingencia = 2m;
+            var porcientoConfig = _context.Set<ConfiguracionPorciento>().SingleOrDefault(c => c.Titulo == "PorcientoContingencia");
+            var porcientoContingencia = porcientoConfig == null ? 2m : (decimal)porcientoConfig.Porciento;
             var porcientoContingenciaPorMes = Math.Round(porcientoContingencia / 12m, 3);
             var planContingencia = (planes.Any(p => p.Concepto == "Egresos") ? planes.SingleOrDefault(p => p.Concepto == "Egresos")[meses] : 0) * porcientoContingenciaPorMes / 100;
             var planContingenciaAcumulado = (planes.Any(p => p.Concepto == "Egresos") ? planes.SingleOrDefault(p => p.Concepto == "Egresos").Acumulado(meses) : 0) * (porcientoContingenciaPorMes * meses) / 100;
