@@ -60,8 +60,8 @@ namespace FinanzasWebApi
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();
 
-            services.AddDbContext<ApiDbContext>(options =>
-                    options.UseNpgsql(context.Configuration.GetConnectionString("ApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
+            services.AddDbContext<FinanzasDbContext>(options =>
+                    options.UseNpgsql(context.Configuration.GetConnectionString("FinanzasDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

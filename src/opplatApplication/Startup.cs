@@ -42,7 +42,7 @@ namespace opplatApplication
                     options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
 
             //finanzas db context
-            services.AddDbContext<FinanzasWebApi.Data.ApiDbContext>(options =>
+            services.AddDbContext<FinanzasWebApi.Data.FinanzasDbContext>(options =>
                     options.UseNpgsql(context.Configuration.GetConnectionString("FinanzasApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
             //
 

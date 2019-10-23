@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FinanzasWebApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanzasWebApi.Data
 {
-    public class ApiDbContext : DbContext
+    public class FinanzasDbContext : DbContext
     {
-        public ApiDbContext(DbContextOptions<ApiDbContext> options)
+        public FinanzasDbContext(DbContextOptions<FinanzasDbContext> options)
             : base(options)
         {
         }
@@ -20,6 +21,9 @@ namespace FinanzasWebApi.Data
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
         }
+
+        public DbSet<ConfiguracionFirmas> ConfiguracionesFirmas { get; set; }
+        public DbSet<ConfiguracionPorciento> ConfiguracionesPorcientos { get; set; }
 
 
     }
