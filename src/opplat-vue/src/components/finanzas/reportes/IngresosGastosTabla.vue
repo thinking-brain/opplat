@@ -25,112 +25,134 @@
         <span>Exportar a Excel</span>
       </v-tooltip>
     </v-row>
+    <v-row id="print">
+      <v-row class="my-4 mb-4">
+        <table id="table1">
+          <thead>
+            <tr>
+              <th colspan="11" class="text-center encabezado1">
+                <h2>CNA La Concordia</h2>
+              </th>
+            </tr>
+            <tr>
+              <th colspan="11" class="text-center encabezado">
+                <h2>Estado del cumplimiento del plan de ingresos y gastos {{year}} hasta {{mes.nombre}}</h2>
+              </th>
+            </tr>
+            <tr>
+              <th class="text-center"></th>
+              <th class="text-center negrita">Plan</th>
+              <th class="text-center negrita">Real</th>
+              <th class="text-center negrita">% de cumpl</th>
+              <th class="text-center negrita">% ingresos</th>
+              <th class="text-center negrita">% gastos</th>
+              <th class="text-center negrita">Plan acum</th>
+              <th class="text-center negrita">Real acum</th>
+              <th class="text-center negrita">% de cumpl</th>
+              <th class="text-center negrita">% ingresos</th>
+              <th class="text-center negrita">% gastos</th>
+            </tr>
+          </thead>
+          <tbody style="overflow-y:auto;">
+            <tr
+              v-for="item in ingresos"
+              :key="item.grupo"
+              v-bind:class="[(item.grupo === 'Ingresos')? 'negrita':'']"
+            >
+              <td
+                v-bind:class="[(item.grupo === 'Ingresos')? 'text-right':'colum0']"
+              >{{ item.grupo }}</td>
+              <td class="text-right">{{ item.planMes | format_two_decimals}}</td>
+              <td class="text-right">{{ item.realMes | format_two_decimals}}</td>
+              <td class="text-right">{{ item.porcCumplimiento }}</td>
+              <td class="text-right">{{item.porcRelacionIngresos}}</td>
+              <td class="deshabilitado"></td>
+              <td class="text-right">{{item.planAcumulado | format_two_decimals}}</td>
+              <td class="text-right">{{item.realAcumulado | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcCumpAcumulado}}</td>
+              <td class="text-right">{{item.porcIngresosFuncionTotal}}</td>
+              <td class="deshabilitado"></td>
+            </tr>
 
-    <v-row class="my-4 mb-4" id="print">
-      <table id="table1">
-        <thead>
-          <tr>
-            <th colspan="11" class="text-center encabezado1">
-              <h2>CNA La Concordia</h2>
-            </th>
-          </tr>
-          <tr>
-            <th colspan="11" class="text-center encabezado">
-              <h2>Estado del cumplimiento del plan de ingresos y gastos {{year}} hasta {{mes.nombre}}</h2>
-            </th>
-          </tr>
-          <tr>
-            <th class="text-center"></th>
-            <th class="text-center">plan</th>
-            <th class="text-center">real</th>
-            <th class="text-center">% de cumplimiento</th>
-            <th class="text-center">% en relacion a ingresos</th>
-            <th class="text-center">% de gastos/total</th>
-            <th class="text-center">plan acum</th>
-            <th class="text-center">real acum</th>
-            <th class="text-center">% de cumplimiento</th>
-            <th class="text-center">% en relacion a ingresos</th>
-            <th class="text-center">% de gastos/total</th>
-          </tr>
-        </thead>
-        <tbody style="overflow-y:auto;">
-          <tr
-            v-for="item in ingresos"
-            :key="item.grupo"
-            v-bind:class="[(item.grupo === 'Ingresos')? 'negrita':'']"
-          >
-            <td v-bind:class="[(item.grupo === 'Ingresos')? 'text-right':'colum0']">{{ item.grupo }}</td>
-            <td>{{ item.planMes }}</td>
-            <td>{{ item.realMes }}</td>
-            <td>{{ item.porcCumplimiento }}</td>
-            <td>{{item.porcRelacionIngresos}}</td>
-            <td class="deshabilitado"></td>
-            <td>{{item.planAcumulado}}</td>
-            <td>{{item.realAcumulado}}</td>
-            <td>{{item.porcCumpAcumulado}}</td>
-            <td>{{item.porcIngresosFuncionTotal}}</td>
-            <td class="deshabilitado"></td>
-          </tr>
-
-          <tr
-            v-for="item in egresos"
-            :key="item.grupo"
-            v-bind:class="[(item.grupo === 'Egresos')? 'negrita':'']"
-          >
-            <td v-bind:class="[(item.grupo === 'Egresos')? 'text-right':'colum0']">{{ item.grupo }}</td>
-            <td>{{ item.planMes }}</td>
-            <td>{{ item.realMes }}</td>
-            <td>{{ item.porcCumplimiento }}</td>
-            <td>{{item.porcRelacionIngresos}}</td>
-            <td>{{item.porcGastosFuncionTotal}}</td>
-            <td>{{item.planAcumulado}}</td>
-            <td>{{item.realAcumulado}}</td>
-            <td>{{item.porcCumpAcumulado}}</td>
-            <td>{{item.porcIngresosFuncionTotal}}</td>
-            <td>{{item.porcGastosFuncionTotalAcumulado}}</td>
-          </tr>
-          <tr
-            v-for="item in utilidades"
-            :key="item.grupo"
-            v-bind:class="[(item.grupo === 'Utilidad')? 'negrita':'']"
-          >
-            <td v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']">{{ item.grupo }}</td>
-            <td>{{ item.planMes }}</td>
-            <td>{{ item.realMes }}</td>
-            <td>{{ item.porcCumplimiento }}</td>
-            <td>{{item.porcRelacionIngresos}}</td>
-            <td class="deshabilitado"></td>
-            <td>{{item.planAcumulado}}</td>
-            <td>{{item.realAcumulado}}</td>
-            <td>{{item.porcCumpAcumulado}}</td>
-            <td>{{item.porcIngresosFuncionTotal}}</td>
-            <td class="deshabilitado"></td>
-          </tr>
-        </tbody>
+            <tr
+              v-for="item in egresos"
+              :key="item.grupo"
+              v-bind:class="[(item.grupo === 'Egresos')? 'negrita':'']"
+            >
+              <td
+                v-bind:class="[(item.grupo === 'Egresos')? 'text-right':'colum0']"
+              >{{ item.grupo }}</td>
+              <td class="text-right">{{ item.planMes | format_two_decimals}}</td>
+              <td class="text-right">{{ item.realMes | format_two_decimals }}</td>
+              <td class="text-right">{{ item.porcCumplimiento }}</td>
+              <td class="text-right">{{item.porcRelacionIngresos}}</td>
+              <td class="text-right">{{item.porcGastosFuncionTotal}}</td>
+              <td class="text-right">{{item.planAcumulado| format_two_decimals}}</td>
+              <td class="text-right">{{item.realAcumulado| format_two_decimals}}</td>
+              <td class="text-right">{{item.porcCumpAcumulado}}</td>
+              <td class="text-right">{{item.porcIngresosFuncionTotal}}</td>
+              <td class="text-right">{{item.porcGastosFuncionTotalAcumulado}}</td>
+            </tr>
+            <tr
+              v-for="item in utilidades"
+              :key="item.grupo"
+              v-bind:class="[(item.grupo === 'Utilidad')? 'negrita':'']"
+            >
+              <td
+                v-bind:class="[(item.grupo === 'Utilidad')? 'text-right':'colum0']"
+              >{{ item.grupo }}</td>
+              <td class="text-right">{{ item.planMes | format_two_decimals }}</td>
+              <td class="text-right">{{ item.realMes | format_two_decimals}}</td>
+              <td class="text-right">{{ item.porcCumplimiento }}</td>
+              <td class="text-right">{{item.porcRelacionIngresos}}</td>
+              <td class="deshabilitado"></td>
+              <td class="text-right">{{item.planAcumulado | format_two_decimals}}</td>
+              <td class="text-right">{{item.realAcumulado | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcCumpAcumulado}}</td>
+              <td class="text-right">{{item.porcIngresosFuncionTotal}}</td>
+              <td class="deshabilitado"></td>
+            </tr>
+          </tbody>
+        </table>
+      </v-row>
+      <table class="firmas">
+        <tr>
+          <th class="text-left">
+            <p>______________________________</p>
+            <p class="text-center">Cargo</p>
+          </th>
+          <th class="space"></th>
+          <th class="text-right">
+            <p>______________________________</p>
+            <p class="text-center">Cargo</p>
+          </th>
+        </tr>
       </table>
     </v-row>
   </v-container>
 </template>
 <style scoped>
 @media print {
-  #areatoPrint {
+  #print {
     display: block;
+    margin: 10px;
   }
+
   @page {
     size: landscape;
   }
   .tr-th:hover {
     background-color: white !important;
   }
+  .space {
+    width: 350px !important;
+  }
   .encabezado-tabla {
     padding-bottom: 30px;
   }
-  table,
-  th,
-  td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 5px;
+  table {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
   }
   .encabezado {
     padding-bottom: 20px;
@@ -139,6 +161,19 @@
   .encabezado1 {
     border-bottom: none;
   }
+}
+#print {
+  display: block;
+  margin: 20px;
+}
+.firmas,
+.firmas > tr > th {
+  border: none !important;
+  border-collapse: collapse;
+  padding: 5px;
+}
+.space {
+  width: 350px !important;
 }
 .tr-th:hover {
   background-color: white !important;
@@ -158,7 +193,7 @@ table {
   table-layout: fixed;
   max-width: 100%;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
+  font-size: 12px;
 }
 #areatoPrint {
   overflow-x: auto;
@@ -207,11 +242,14 @@ export default {
   },
   methods: {
     loadReporte(mes,year){
-      this.mes = mes;
-      this.year = year;
-      this.getIngresosFromApi();
-      this.getEgresosFromApi();
-      this.getUtilidadesFromApi();
+        this.mes = mes;
+        this.year = year;
+        this.ingresos = [];
+        this.egresos = [];
+        this.utilidades = [];
+        this.getIngresosFromApi();
+        this.getEgresosFromApi();
+        this.getUtilidadesFromApi();     
     },
     getIngresosFromApi() {
       const url = api.getUrl(
