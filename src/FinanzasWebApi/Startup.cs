@@ -55,8 +55,8 @@ namespace FinanzasWebApi
                    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                    c.IncludeXmlComments(xmlPath);
                });
-            // services.AddSingleton<ObtenerPlanGI_Context>();
-            services.AddSingleton<ObtenerPlanGI>();
+            services.AddScoped<FinanzasDbContext>();
+            services.AddScoped<ObtenerPlanGI>();
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();
 

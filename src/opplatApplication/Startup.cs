@@ -22,6 +22,7 @@ using FinanzasWebApi.Helper;
 using notificationsWebApi.Data;
 using opplatApplication.Hubs;
 using ContabilidadWebApi.Services;
+using FinanzasWebApi.Data;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -112,7 +113,8 @@ namespace opplatApplication
             services.AddScoped<CuentasServices>();
 
             //finanzas services
-            services.AddSingleton<ObtenerPlanGI>();
+            services.AddScoped<FinanzasDbContext>();
+            services.AddScoped<ObtenerPlanGI>();
             // services.AddSingleton<ObtenerPlanGI_Context>();
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();
