@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-divider></v-divider>
-    <v-row class="my-4 mb-4">
+    <v-row class="my-4 mb-4 d-print-none">
       <v-tooltip top>
         <template v-slot:activator="{ on }">
           <v-btn class="mx-2" fab small>
@@ -26,7 +26,7 @@
       </v-tooltip>
     </v-row>
     <v-row id="print">
-      <v-row class="my-4 mb-4">
+      <v-row>
         <table id="table1">
           <thead>
             <tr>
@@ -119,12 +119,18 @@
         <tr>
           <th class="text-left">
             <p>______________________________</p>
-            <p class="text-center">Cargo</p>
+            <p v-if="economico" class="text-center">{{economico.nombre}}</p>
+            <p v-if="!economico" class="text-center">Nombre:</p>
+            <p v-if="economico" class="text-center">{{economico.cargo}}</p>
+            <p v-if="!economico" class="text-center">Economico</p>
           </th>
           <th class="space"></th>
           <th class="text-right">
             <p>______________________________</p>
-            <p class="text-center">Cargo</p>
+            <p v-if="jefe" class="text-center">{{jefe.nombre}}</p>
+            <p v-if="!jefe" class="text-center">Nombre:</p>
+            <p v-if="jefe" class="text-center">{{jefe.cargo}}</p>
+            <p v-if="!jefe" class="text-center">Jefe</p>
           </th>
         </tr>
       </table>
@@ -237,16 +243,33 @@ export default {
       errors:[],
     };
   },
-  created() {
-    
-  },
+  computed: {
+    jefe() {
+      if (!this.$store.getters.jefe) {
+            this.$store
+              .dispatch('cargar')
+              .then(() => {})
+              .catch((err) => {console.log(err)});
+      }      
+      return this.$store.getters.jefe;
+    },
+    economico() {
+      if (!this.$store.getters.economico) {
+            this.$store
+              .dispatch('cargar')
+              .then(() => {})
+              .catch((err) => {console.log(err)});
+      }      
+      return this.$store.getters.economico;
+    }
+  },  
   methods: {
     loadReporte(mes,year){
         this.mes = mes;
         this.year = year;
         this.ingresos = [];
         this.egresos = [];
-        this.utilidades = [];
+        this.utilidades = [];        
         this.getIngresosFromApi();
         this.getEgresosFromApi();
         this.getUtilidadesFromApi();     
@@ -302,7 +325,10 @@ export default {
           );
         });
     },
-    imprimir() {
+    imprimir(){
+      window.print();
+    },
+    imprimirviejo() {
       // Get HTML to print from element
       const prtHtml = document.getElementById("print").innerHTML;
 
