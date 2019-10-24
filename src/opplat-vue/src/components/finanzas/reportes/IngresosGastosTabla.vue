@@ -241,20 +241,40 @@ export default {
       egresos: [],
       utilidades: [],
       errors:[],
-      jefe : this.$store.getters.jefe,
-      economico : this.$store.getters.economico,
+      //jefe : this.$store.getters.jefe,
+      //economico : this.$store.getters.economico,
     };
   },
-  created() {
-    if (!this.jefe) {
-      this.$store
+  computed: {
+    jefe() {
+      if (!this.$store.getters.jefe) {
+            this.$store
               .dispatch('cargar')
               .then(() => {})
               .catch((err) => {console.log(err)});
-              this.jefe = this.$store.getters.jefe;
-              this.economico = this.$store.getters.economico;
-    }    
+      }      
+      return this.$store.getters.jefe;
+    },
+    economico() {
+      if (!this.$store.getters.economico) {
+            this.$store
+              .dispatch('cargar')
+              .then(() => {})
+              .catch((err) => {console.log(err)});
+      }      
+      return this.$store.getters.economico;
+    }
   },
+  // mounted() {
+  //   if (!this.jefe) {
+  //     this.$store
+  //             .dispatch('cargar')
+  //             .then(() => {})
+  //             .catch((err) => {console.log(err)});
+  //             this.jefe = this.$store.getters.jefe;
+  //             this.economico = this.$store.getters.economico;
+  //   }    
+  // },
   methods: {
     loadReporte(mes,year){
         this.mes = mes;
