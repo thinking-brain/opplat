@@ -119,12 +119,18 @@
         <tr>
           <th class="text-left">
             <p>______________________________</p>
-            <p class="text-center">Cargo</p>
+            <p v-if="economico" class="text-center">{{economico.nombre}}</p>
+            <p v-if="!economico" class="text-center">Nombre:</p>
+            <p v-if="economico" class="text-center">{{economico.cargo}}</p>
+            <p v-if="!economico" class="text-center">Economico</p>
           </th>
           <th class="space"></th>
           <th class="text-right">
             <p>______________________________</p>
-            <p class="text-center">Cargo</p>
+            <p v-if="jefe" class="text-center">{{jefe.nombre}}</p>
+            <p v-if="!jefe" class="text-center">Nombre:</p>
+            <p v-if="jefe" class="text-center">{{jefe.cargo}}</p>
+            <p v-if="!jefe" class="text-center">Jefe</p>
           </th>
         </tr>
       </table>
@@ -235,10 +241,19 @@ export default {
       egresos: [],
       utilidades: [],
       errors:[],
+      jefe : this.$store.getters.jefe,
+      economico : this.$store.getters.economico,
     };
   },
   created() {
-    
+    if (!this.jefe) {
+      this.$store
+              .dispatch('cargar')
+              .then(() => {})
+              .catch((err) => {console.log(err)});
+              this.jefe = this.$store.getters.jefe;
+              this.economico = this.$store.getters.economico;
+    }    
   },
   methods: {
     loadReporte(mes,year){
@@ -246,7 +261,7 @@ export default {
         this.year = year;
         this.ingresos = [];
         this.egresos = [];
-        this.utilidades = [];
+        this.utilidades = [];        
         this.getIngresosFromApi();
         this.getEgresosFromApi();
         this.getUtilidadesFromApi();     
