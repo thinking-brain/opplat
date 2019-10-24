@@ -1,5 +1,11 @@
 <template>
-  <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="blue darken-3" dark>
+  <v-app-bar
+    :clipped-left="$vuetify.breakpoint.lgAndUp"
+    app
+    color="blue darken-3"
+    class="d-print-none"
+    dark
+  >
     <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
       <v-app-bar-nav-icon @click.stop="changeDrawer"></v-app-bar-nav-icon>
       <span class="hidden-sm-and-down">Opplat</span>

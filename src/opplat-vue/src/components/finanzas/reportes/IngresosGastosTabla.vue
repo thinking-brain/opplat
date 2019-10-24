@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-divider></v-divider>
-    <v-row class="my-4 mb-4">
+    <v-row class="my-4 mb-4 d-print-none">
       <v-tooltip top>
         <template v-slot:activator="{ on }">
           <v-btn class="mx-2" fab small>
@@ -26,7 +26,7 @@
       </v-tooltip>
     </v-row>
     <v-row id="print">
-      <v-row class="my-4 mb-4">
+      <v-row>
         <table id="table1">
           <thead>
             <tr>
@@ -317,7 +317,10 @@ export default {
           );
         });
     },
-    imprimir() {
+    imprimir(){
+      window.print();
+    },
+    imprimirviejo() {
       // Get HTML to print from element
       const prtHtml = document.getElementById("print").innerHTML;
 
