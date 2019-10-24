@@ -241,8 +241,6 @@ export default {
       egresos: [],
       utilidades: [],
       errors:[],
-      //jefe : this.$store.getters.jefe,
-      //economico : this.$store.getters.economico,
     };
   },
   computed: {
@@ -264,17 +262,7 @@ export default {
       }      
       return this.$store.getters.economico;
     }
-  },
-  // mounted() {
-  //   if (!this.jefe) {
-  //     this.$store
-  //             .dispatch('cargar')
-  //             .then(() => {})
-  //             .catch((err) => {console.log(err)});
-  //             this.jefe = this.$store.getters.jefe;
-  //             this.economico = this.$store.getters.economico;
-  //   }    
-  // },
+  },  
   methods: {
     loadReporte(mes,year){
         this.mes = mes;
