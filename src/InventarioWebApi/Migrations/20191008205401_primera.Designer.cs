@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace InventarioWebApi.Migrations
 {
-    [DbContext(typeof(InventarioContext))]
+    [DbContext(typeof(InventarioDbContext))]
     [Migration("20191008205401_primera")]
     partial class primera
     {

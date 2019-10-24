@@ -3,9 +3,9 @@ using InventarioWebApi.Models;
 
 namespace InventarioWebApi.Data
 {
-    public class InventarioContext : DbContext
+    public class InventarioDbContext : DbContext
     {
-        public InventarioContext(DbContextOptions<InventarioContext> options)
+        public InventarioDbContext(DbContextOptions<InventarioDbContext> options)
             : base(options)
         {
         }

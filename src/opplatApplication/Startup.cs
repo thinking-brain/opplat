@@ -23,6 +23,7 @@ using notificationsWebApi.Data;
 using opplatApplication.Hubs;
 using ContabilidadWebApi.Services;
 using FinanzasWebApi.Data;
+using InventarioWebApi.Data;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -52,6 +53,10 @@ namespace opplatApplication
             options.UseNpgsql(context.Configuration.GetConnectionString("notificationsApi"), b => b.MigrationsAssembly("notificationsWebApi")));
             //
 
+            //inventario DbContext
+            services.AddDbContext<InventarioDbContext>(options =>
+            options.UseNpgsql(context.Configuration.GetConnectionString("InventarioConnection"), b => b.MigrationsAssembly("InventarioWebApi")));
+            //
             services.AddDbContext<AccountDbContext>(options =>
             options.UseNpgsql(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
 

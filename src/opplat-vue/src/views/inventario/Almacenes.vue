@@ -2,14 +2,13 @@
   <v-container>
     <v-data-table
       :headers="headers"
-      :items="planes"
+      :items="almacenes"
       :search="search"
-      sort-by="ano"
       class="elevation-1"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
-          <v-toolbar-title>Listado de Planes</v-toolbar-title>
+          <v-toolbar-title>Listado de Almacenes</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
           <v-text-field
@@ -27,16 +26,16 @@
               </template>
               <v-card>
                 <v-card-title>
-                  <span class="headline">Agregar Plan</span>
+                  <span class="headline">Nuevo Almacén</span>
                 </v-card-title>
                 <v-card-text>
                   <v-container grid-list-md>
                     <v-layout wrap>
                       <v-flex xs12 sm4 md2>
-                        <v-text-field label="AÑO" required v-model="plan.year"></v-text-field>
+                        <v-text-field label="NOMBRE" required v-model="almacen.nombre"></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm6 md6>
-                        <v-file-input show-size label="SELECCIONAR FICHERO" v-model="plan.file"></v-file-input>
+                        <v-text-field label="CODIGO" v-model="almacen.codigo"></v-text-field>
                       </v-flex>
                     </v-layout>
                   </v-container>
@@ -44,7 +43,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="blue darken-1" text @click="dialog = false">Cerrar</v-btn>
-                  <v-btn color="green darken-1" text @click="guargarPlan">Guardar</v-btn>
+                  <v-btn color="green darken-1" text @click="guargarAlmacen">Guardar</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -68,18 +67,18 @@ export default {
   data: () => ({
     dialog: false,
     search: "",
-    plan: {
-      year: "",
-      file: null
+    almacen:{
+      codigo:'',
+      nombre:'',
     },
-    planes:[],
+    almacenes:[],
     errors: [],
     headers: [
       {
-        text: "Año",
+        text: "Código",
         align: "left",
         sortable: true,
-        value: "year"
+        value: "codigo"
       },
       { text: "Nombre", value: "nombre" },
       { text: "Actions", value: "action", sortable: false }
@@ -119,12 +118,12 @@ export default {
 
   methods: {
     initialize() {
-      const url = api.getUrl("contabilidad", "PlanGI");
+      const url = api.getUrl("inventario", "Almacenes");
       this.axios
         .get(url)
         .then(
           response => {
-            this.planes = response.data;
+            this.almacenes = response.data;
           },
           error => {
             console.log(error);
@@ -169,7 +168,7 @@ export default {
         this.initialize();
       }
     },
-    guargarPlan: function() {
+    guargarAlmacen: function() {
       if (this.plan.file != null) {
         var formData = new FormData();
         formData.append("File", this.plan.file);
