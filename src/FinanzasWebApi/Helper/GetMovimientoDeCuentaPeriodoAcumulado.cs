@@ -13,7 +13,8 @@ namespace FinanzasWebApi.Helper
         public static decimal Get(int year, int meses, string cuenta, IConfiguration config)
         {
             string fechaInicio = year + "-" + 1 + "-" + 1;
-            string fechaFin = year + "-" + meses + "-" + 31;
+            var date = new DateTime(year, meses, 1).AddMonths(1).AddDays(-1);
+            string fechaFin = year + "-" + meses + "-" + date.Day;
             //SUBMAYOR DE CUENTAS
             var handler = new HttpClientHandler();
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };

@@ -12,14 +12,15 @@ namespace FinanzasWebApi.Helper
     {
         public static decimal Get(int year, int meses, string cuenta, IConfiguration config)
         {
-            string fechaInicio = year+"-"+meses+"-"+1;
-            string fechaFin = year+"-"+meses+"-"+31;
+            string fechaInicio = year + "-" + meses + "-" + 1;
+            var date = new DateTime(year, meses, 1).AddMonths(1).AddDays(-1);
+            string fechaFin = year + "-" + meses + "-" + date.Day;
             //SUBMAYOR DE CUENTAS
             var handler = new HttpClientHandler();
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
             HttpClient client = new HttpClient(handler);
             MovimientoCuentaPeriodoVM subMCuentas = new MovimientoCuentaPeriodoVM();
-            var url = config.GetValue<string>("ContabilidadApi") + "/MovimientoDeCuentas" +"/"+cuenta+"/"+fechaInicio+"/"+fechaFin;
+            var url = config.GetValue<string>("ContabilidadApi") + "/MovimientoDeCuentas" + "/" + cuenta + "/" + fechaInicio + "/" + fechaFin;
             var result = client.GetAsync(url).Result;
             if (result.IsSuccessStatusCode)
             {

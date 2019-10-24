@@ -1,6 +1,6 @@
 <template>
   <v-app id="inspire">
-    <NavigationDrawer :drawer="drawer" />
+    <NavigationDrawer class="d-print-none" :drawer="drawer" />
     <AppBar />
     <v-content>
       <div class="page-wrapper">
@@ -8,7 +8,7 @@
       </div>
       <vue-snotify></vue-snotify>
       <!-- App Footer -->
-      <v-footer height="auto" class="white pa-3 app--footer">
+      <v-footer height="auto" class="white pa-3 app--footer d-print-none">
         <span class="caption">EFAVAI Tech &copy; {{ new Date().getFullYear() }}</span>
         <v-spacer></v-spacer>
         <span

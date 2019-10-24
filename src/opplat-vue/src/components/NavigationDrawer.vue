@@ -1,5 +1,10 @@
 <template>
-  <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
+  <v-navigation-drawer
+    class="d-print-none"
+    v-model="drawer"
+    :clipped="$vuetify.breakpoint.lgAndUp"
+    app
+  >
     <vue-perfect-scrollbar class="drawer-menu--scroll" :settings="scrollSettings">
       <v-list dense expand>
         <v-subheader>Personalizados</v-subheader>
