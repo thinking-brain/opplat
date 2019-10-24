@@ -13,6 +13,7 @@ namespace InventarioWebApi.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Submayor>().HasKey(k => new { k.AlmacenId, k.ProductoId });
+            modelBuilder.Entity<Almacen>().Property(k => k.Id).ValueGeneratedOnAdd();
         }
 
         public DbSet<Almacen> Almacenes { get; set; }

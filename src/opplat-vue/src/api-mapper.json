@@ -3,5 +3,5 @@
         "opplat-app": "https://localhost:5001/admin/",
         "finanzas": "https://localhost:5001/finanzas/",
         "contabilidad": "https://localhost:5001/contabilidad/",
-        "inventario": "/inventario/"
+        "inventario": "https://localhost:5001/inventario/"
     }
