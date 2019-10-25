@@ -46,6 +46,27 @@ namespace FinanzasWebApi.Controllers
             }
             return planes;
         }
+        /// <summary>
+        /// Devuelve una lista con el real y el plan por meses en el año de los Ingresos para el plan de Gastos en Ingresos
+        /// </summary>
+        /// <param name="años"></param>
+        /// <returns></returns>
+        [HttpGet("ingresosTotal/{años}")]
+        public IEnumerable<TotalIngGastUtilViewModel> IngresosTotal([FromRoute] string años)
+        {
+            var planes = new List<TotalIngGastUtilViewModel>();
+
+            int year = Convert.ToInt32(años);
+
+            for (int i = 1; i < 13; i++)
+            {
+                var real = _obtenetPlan.ObtenerTotalIngresos(year, i);
+                var plan = _obtenetPlan.ObtenerTotalPlanIngresos(year, i);
+                planes.Add(new TotalIngGastUtilViewModel { Mes = i, Real = real, Plan = plan });
+            }
+
+            return planes;
+        }
 
         /// <summary>
         /// Devuelve los Egresos para el plan de Gastos en Ingresos
@@ -71,6 +92,27 @@ namespace FinanzasWebApi.Controllers
         }
 
         /// <summary>
+        /// Devuelve una lista con el real y el plan por meses en el año de los Egresos para el plan de Gastos en Ingresos
+        /// </summary>
+        /// <param name="años"></param>
+        /// <returns></returns>
+        [HttpGet("egresosTotal/{años}")]
+        public IEnumerable<TotalIngGastUtilViewModel> EgresosTotal([FromRoute] string años)
+        {
+            var planes = new List<TotalIngGastUtilViewModel>();
+
+            int year = Convert.ToInt32(años);
+
+            for (int i = 1; i < 13; i++)
+            {
+                var real = _obtenetPlan.ObtenerTotalEgresos(year, i);
+                var plan = _obtenetPlan.ObtenerTotalPlanEgresos(year, i);
+                planes.Add(new TotalIngGastUtilViewModel { Mes = i, Real = real, Plan = plan });
+            }
+
+            return planes;
+        }
+        /// <summary>
         /// Devuelve los Egresos para el plan de Gastos en Ingresos
         /// </summary>
         /// <param name="años"></param>
@@ -90,6 +132,28 @@ namespace FinanzasWebApi.Controllers
             {
                 planes.Add(item);
             }
+            return planes;
+        }
+
+        /// <summary>
+        /// Devuelve una lista con el real y el plan por meses en el año de los Egresos para el plan de Gastos en Ingresos
+        /// </summary>
+        /// <param name="años"></param>
+        /// <returns></returns>
+        [HttpGet("utilidadesTotal/{años}")]
+        public IEnumerable<TotalIngGastUtilViewModel> UtilidadesTotal([FromRoute] string años)
+        {
+            var planes = new List<TotalIngGastUtilViewModel>();
+
+            int year = Convert.ToInt32(años);
+
+            for (int i = 1; i < 13; i++)
+            {
+                var real = _obtenetPlan.ObtenerTotalUtilidades(year, i);
+                var plan = _obtenetPlan.ObtenerTotalPlanUtilidades(year, i);
+                planes.Add(new TotalIngGastUtilViewModel { Mes = i, Real = real, Plan = plan });
+            }
+
             return planes;
         }
     }

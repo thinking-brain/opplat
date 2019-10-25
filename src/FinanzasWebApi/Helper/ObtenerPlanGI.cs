@@ -124,6 +124,27 @@ namespace FinanzasWebApi.Helper
             return plan.Sum(s => s.Importe);
 
         }
+        public decimal ObtenerTotalPlanIngresos(int year, int meses)
+        {
+            var plan = new List<MovimientoCuentaPeriodoVM>();
+            var modelo = DatosPlanGI.Datos();
+            var planes = GetPlanIngresosPeriodo.Get(year, _config);
+            foreach (var item in modelo.Where(s => s.Tipo.Equals("Ingresos")))
+            {
+                string cta = item.Valor.ToString();
+                string concepto = item.Dato.ToString();
+                var planEnMes = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto))[meses] : 0M;
+                var cost = new MovimientoCuentaPeriodoVM
+                {
+                    Cuenta = cta,
+                    Importe = planEnMes,
+                };
+                plan.Add(cost);
+            }
+
+            return plan.Sum(s => s.Importe);
+
+        }
         public decimal ObtenerTotalIngresosAcumulados(int year, int meses)
         {
             var plan = new List<MovimientoCuentaPeriodoVM>();
@@ -244,6 +265,27 @@ namespace FinanzasWebApi.Helper
                 {
                     Cuenta = cta,
                     Importe = Importe,
+                };
+                plan.Add(cost);
+            }
+
+            return plan.Sum(s => s.Importe);
+
+        }
+        public decimal ObtenerTotalPlanEgresos(int year, int meses)
+        {
+            var plan = new List<MovimientoCuentaPeriodoVM>();
+            var modelo = DatosPlanGI.Datos();
+            var planes = GetPlanIngresosPeriodo.Get(year, _config);
+            foreach (var item in modelo.Where(s => s.Tipo.Equals("Egresos")))
+            {
+                string cta = item.Valor.ToString();
+                string concepto = item.Dato.ToString();
+                var planEnMes = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto))[meses] : 0M;
+                var cost = new MovimientoCuentaPeriodoVM
+                {
+                    Cuenta = cta,
+                    Importe = planEnMes,
                 };
                 plan.Add(cost);
             }
@@ -426,6 +468,20 @@ namespace FinanzasWebApi.Helper
             });
 
             return plan;
+        }
+        public decimal ObtenerTotalPlanUtilidades(int year, int meses)
+        {
+            var planIngresos = ObtenerTotalPlanIngresos(year, meses);
+            var planEgresos = ObtenerTotalPlanEgresos(year, meses);
+            var total = planIngresos - planEgresos;
+            return total;
+        }
+        public decimal ObtenerTotalUtilidades(int year, int meses)
+        {
+            var planIngresos = ObtenerTotalIngresos(year, meses);
+            var planEgresos = ObtenerTotalEgresos(year, meses);
+            var total = planIngresos - planEgresos;
+            return total;
         }
     }
 }

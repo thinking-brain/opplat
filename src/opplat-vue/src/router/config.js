@@ -233,10 +233,18 @@ export const protectedRoute = [
         requiresAuth: true,
       },
       component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/IngresosGastos.vue'),
+    },
+    {
+      path: '/finanzas/configuraciones',
+      name: 'Configuraciones',
+      meta: {
+        title: 'Configuraciones de finanzas',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/finanzas/configuracion/Configuraciones.vue'),
     }],
   },
-
-  // Plan
+  //Plan
   {
     name: 'Contabilidad',
     path: '/contabilidad',
@@ -275,28 +283,15 @@ export const protectedRoute = [
         requiresAuth: true,
       },
       component: () => import(/* webpackChunkName: "table" */ '@/views/inventario/Almacenes.vue'),
+    },
+    {
+      path: '/inventario/productos',
+      name: 'Productos',
+      meta: {
+        title: 'Productos',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/inventario/Productos.vue'),
     }],
   },
-    //Inventario
-    {
-      name: 'Inventario',
-      path: '/inventario',
-      component: DefaultLayout,
-      redirect: '/inventario/productos',
-      meta: {
-        title: 'productos',
-        group: 'inventario',
-      },
-      children: [{
-        path: '/inventario/productos',
-        name: 'Productos',
-        meta: {
-          title: 'Productos',
-          requiresAuth: true,
-        },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/inventario/Productos.vue'),
-      }],
-    },
-
-
 ];
