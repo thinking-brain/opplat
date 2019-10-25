@@ -66,7 +66,7 @@ namespace FinanzasWebApi.Controllers
             return Ok(config);
         }
 
-        [HttpPut("/{key}")]
+        [HttpPut("{key}")]
         public IActionResult Put(string key, ConfigDto config)
         {
             if (!ModelState.IsValid)
@@ -95,7 +95,7 @@ namespace FinanzasWebApi.Controllers
             return Ok(config);
         }
 
-        [HttpDelete("/{key}")]
+        [HttpDelete("{key}")]
         public IActionResult Delete(string key)
         {
             if (key.Contains("Porciento"))
