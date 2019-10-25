@@ -5,6 +5,7 @@ import app from './modules/app';
 import drawer from './modules/drawer';
 import auth from './modules/auth';
 import licencia from './modules/licencia';
+import firmasFinanzas from './modules/firmas_finanzas';
 import getters from './getters';
 
 Vue.use(Vuex);
@@ -15,6 +16,7 @@ export default new Vuex.Store({
     drawer,
     auth,
     licencia,
+    firmasFinanzas,
   },
   state: {},
   mutations: {},

@@ -5,6 +5,7 @@ import 'vue-snotify/styles/material.css';
 import snotify, {
   SnotifyPosition,
 } from 'vue-snotify';
+import numeral from 'numeral';
 import vuetify from './plugins/vuetify';
 import router from './router/index';
 import store from './store/index';
@@ -32,6 +33,64 @@ const token = sessionStorage.getItem('token');
 if (token) {
   axios.defaults.headers.common.Authorization = token;
 }
+
+// const format = '0,0 $';
+// // load a language
+// numeral.language('es-Mx', {
+//   delimiters: {
+//     thousands: ' ',
+//     decimal: ','
+//   },
+//   abbreviations: {
+//     thousand: 'k',
+//     million: 'm',
+//     billion: 'b',
+//     trillion: 't',
+//   },
+//   ordinal(number) {
+//     return number === 1 ? 'er' : 's';
+//   },
+//   currency: {
+//     symbol: '$',
+//   },
+// });
+// numeral.language('es-Mx');
+
+// Vue.filter('format_money', {
+//   // Model => View
+//   read(val) {
+//     return numeral(val).format(format);
+//   },
+//   // View => Model
+//   write(val, oldVal) {
+//     const number = +val.replace(/[^\d.,]/g, '');
+//     return isNaN(number) ? 0 : parseFloat(number.toFixed(2));
+//   },
+// });
+// load a locale
+numeral.register('locale', 'fr', {
+  delimiters: {
+    thousands: ' ',
+    decimal: ','
+  },
+  abbreviations: {
+    thousand: 'k',
+    million: 'm',
+    billion: 'b',
+    trillion: 't'
+  },
+  ordinal(number) {
+    return number === 1 ? 'er' : 'ème';
+  },
+  currency: {
+    symbol: '$'
+  }
+});
+
+// switch between locales
+numeral.locale('fr');
+Vue.filter('format_money', value => numeral(value).format('$ 0,0.00'));
+Vue.filter('format_two_decimals', value => numeral(value).format('0,0.00'));
 
 const vm = new Vue({
   router,

@@ -56,8 +56,22 @@ namespace InventarioWebApi.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> Put(int id, [FromBody] Almacen almacen)
         {
+            if (ModelState.IsValid)
+            {
+                var a = await _context.Almacenes.FindAsync(id);
+                if (a != null)
+                {
+                    a.Codigo = almacen.Codigo;
+                    a.Nombre = almacen.Nombre;
+                    _context.Update(a);
+                    await _context.SaveChangesAsync();
+                    return Ok();
+                }
+                return NotFound();
+            }
+            return BadRequest(ModelState);
         }
 
         // DELETE api/values/5
@@ -65,7 +79,8 @@ namespace InventarioWebApi.Controllers
         public ActionResult Delete(int id)
         {
             var almacen = _context.Almacenes.Find(id);
-            if(almacen != null){
+            if (almacen != null)
+            {
                 _context.Remove(almacen);
                 _context.SaveChanges();
                 return Ok();

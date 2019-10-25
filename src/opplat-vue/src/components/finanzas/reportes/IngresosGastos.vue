@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-form v-model="valid">
+    <v-form v-model="valid" class="d-print-none">
       <v-row>
         <v-col cols="12" md="4">
           <v-select

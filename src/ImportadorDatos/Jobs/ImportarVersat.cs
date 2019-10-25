@@ -157,7 +157,7 @@ namespace ImportadorDatos.Jobs
                     else
                     {
                         var tipoOperacion = TipoDeOperacion.Debito;
-                        if ((cuenta.Naturaleza == Naturaleza.Deudora && op.Importe < 0) || (cuenta.Naturaleza == Naturaleza.Acreedora && op.Importe > 0))
+                        if (op.Importe < 0)
                         {
                             tipoOperacion = TipoDeOperacion.Credito;
                         }
