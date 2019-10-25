@@ -24,17 +24,19 @@ namespace InventarioWebApi.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Producto>> Get()
         {
-            return _context.Productos.Include(p => p.Unidad).ToList();
+            return _context.Productos.Include(p => p.Unidad).Include(p => p.Tipo).ToList();
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
         public ActionResult<Almacen> Get(int id)
         {
-            var almacen = _context.Almacenes.Find(id);
-            if (almacen != null)
+            var producto = _context.Productos.Include(p => p.Unidad)
+            .Include(p => p.Categoria).Include(p => p.Tipo).FirstOrDefault(p => p.Id == id);
+            
+            if (producto != null)
             {
-                return Ok(almacen);
+                return Ok(producto);
             }
             else
             {
@@ -44,11 +46,11 @@ namespace InventarioWebApi.Controllers
 
         // POST api/values
         [HttpPost]
-        public ActionResult Post([FromBody] Almacen almacen)
+        public ActionResult Post([FromBody] Producto producto)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(almacen);
+                _context.Add(producto);
                 _context.SaveChanges();
                 return Ok();
             }
@@ -65,9 +67,10 @@ namespace InventarioWebApi.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            var almacen = _context.Almacenes.Find(id);
-            if(almacen != null){
-                _context.Remove(almacen);
+            var producto = _context.Productos.Find(id);
+            if (producto != null)
+            {
+                _context.Remove(producto);
                 _context.SaveChanges();
                 return Ok();
             }
