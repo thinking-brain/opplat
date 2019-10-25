@@ -16,6 +16,7 @@
     "highcharts": "^7.2.0",
     "highcharts-vue": "^1.3.5",
     "nprogress": "^0.2.0",
+    "numeral": "^2.0.6",
     "print-js": "^1.0.61",
     "register-service-worker": "^1.6.2",
     "tableexport": "^5.2.0",
