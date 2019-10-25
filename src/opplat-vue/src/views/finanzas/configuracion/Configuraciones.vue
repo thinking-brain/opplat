@@ -170,7 +170,10 @@ export default {
             errorCount ++;
             this.errors.push(e.response.data.errors);
           });       
-
+        this.$store
+              .dispatch('cargar')
+              .then(() => {})
+              .catch((err) => {console.log(err)});
         if(errorCount > 0){
           vm.$snotify.error(this.errors);
         } else{
