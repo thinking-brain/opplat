@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <charts :options="chartIngresosOptions" :callback="update" :updateArgs="[redraw]" />
+    <charts :options="chartIngresosOptions" :callback="window.resize" />
     <charts :options="chartIngresosOptions" />
     <charts :options="chartIngresosOptions" />
   </v-container>
