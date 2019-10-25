@@ -155,8 +155,29 @@ export default {
   created() {
     this.initialize();
   },
-
+  mounthed() {
+    this.initPopper();
+  },
   methods: {
+    initPopper() {
+      const chart = document.querySelector(".vtc");
+      const ref = chart.querySelector(".active-line");
+      const tooltip = this.$refs.tooltip;
+      this.popper = new Popper(ref, tooltip, {
+        placement: "right",
+        modifiers: {
+          offset: { offset: "0,10" },
+          preventOverflow: {
+            boundariesElement: chart
+          }
+        }
+      });
+    },
+    onMouseMove(params) {
+      this.popperIsActive = !!params;
+      this.popper.scheduleUpdate();
+      this.tooltipData = params || null;
+    },
     initialize() {
       const url = api.getUrl("contabilidad", "PlanGI");
       this.axios.get(url).then(
@@ -184,9 +205,9 @@ export default {
     },
 
     deleteItem(item) {
-      const index = this.desserts.indexOf(item);
+      const index = this.planes.indexOf(item);
       confirm("¿Está seguro de eliminar este plan?") &&
-        this.desserts.splice(index, 1);
+        this.planes.splice(index, 1);
     },
 
     close() {

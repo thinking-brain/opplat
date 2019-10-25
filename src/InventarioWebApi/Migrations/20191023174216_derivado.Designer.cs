@@ -2,15 +2,17 @@
 using InventarioWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace InventarioWebApi.Migrations
 {
     [DbContext(typeof(InventarioDbContext))]
-    partial class InventarioContextModelSnapshot : ModelSnapshot
+    [Migration("20191023174216_derivado")]
+    partial class derivado
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,6 +98,18 @@ namespace InventarioWebApi.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired();
+
+                    b.Property<decimal>("PrecioCompraMlc")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<decimal>("PrecioCompraMn")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<decimal>("PrecioVentaMlc")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<decimal>("PrecioVentaMn")
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<int>("TipoId");
 
