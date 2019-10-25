@@ -21,5 +21,16 @@
                 ]
             }
         ]
+    },
+    {
+        "title": "Configuraciones",
+        "group": "finanzas",
+        "icon": "mdi-cogs",
+        "name": "Configuraciones",
+        "component": "Configuraciones",
+        "roles": [
+            "administrador",
+            "economico"
+        ]
     }
 ]
