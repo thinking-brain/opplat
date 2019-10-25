@@ -1,8 +1,28 @@
 <template>
-  <v-container fluid>
-    <charts :options="chartIngresosOptions" :callback="update" :updateArgs="[redraw]" />
-    <charts :options="chartIngresosOptions" />
-    <charts :options="chartIngresosOptions" />
+  <v-container grid-list-xl fluid>
+    <v-layout row wrap>
+      <v-flex sm12>
+        <h3>Cuadro de Mando</h3>
+      </v-flex>
+      <v-flex lg12>
+        <v-card>
+          <v-card-text>
+            <charts
+              ref="ch"
+              :options="chartIngresosOptions"
+              :callback="update"
+              :updateArgs="[redraw]"
+            />
+          </v-card-text>
+        </v-card>
+      </v-flex>
+      <v-flex sm12>
+        <charts :options="chartIngresosOptions" />
+      </v-flex>
+      <v-flex sm12>
+        <charts :options="chartIngresosOptions" />
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
