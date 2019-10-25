@@ -31,27 +31,6 @@ namespace InventarioWebApi.Models
         public int TipoId { get; set; }
 
         public virtual TipoDeProducto Tipo { get; set; }
-
-        [Required]
-        [Column(TypeName = "decimal(18, 2)")]
-        [Display(Name = "Precio de venta MN")]
-        public decimal PrecioVentaMn { get; set; }
-
-        [Required]
-        [Column(TypeName = "decimal(18, 2)")]
-        [Display(Name = "Precio de venta Mlc")]
-        public decimal PrecioVentaMlc { get; set; }
-
-        [Required]
-        [Column(TypeName = "decimal(18, 2)")]
-        [Display(Name = "Precio de compra MN")]
-        public decimal PrecioCompraMn { get; set; }
-
-        [Required]
-        [Column(TypeName = "decimal(18, 2)")]
-        [Display(Name = "Precio de compra Mlc")]
-        public decimal PrecioCompraMlc { get; set; }
-
         public virtual ICollection<Derivado> Derivados { get; set; }
     }
 }

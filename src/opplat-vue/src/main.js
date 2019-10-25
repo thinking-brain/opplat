@@ -12,7 +12,12 @@ import store from './store/index';
 import './registerServiceWorker';
 import App from './App.vue';
 import notificationsHub from './notificationsHub';
+// import TrendChart from "vue-trend-chart";
+import HighchartsVue from "highcharts-vue"
+import Highcharts from 'highcharts'
+import exportingInit from 'highcharts/modules/exporting'
 
+exportingInit(Highcharts)
 const options = {
   toast: {
     position: SnotifyPosition.rightBottom,
@@ -24,7 +29,7 @@ const options = {
 };
 
 Vue.use(snotify, options);
-
+Vue.use(HighchartsVue, {tagName: 'charts'});
 Vue.config.productionTip = false;
 Vue.use(VueAxios, axios);
 Vue.use(notificationsHub);
