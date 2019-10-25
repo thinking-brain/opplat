@@ -1,19 +1,33 @@
 <template>
-  <v-container fluid >
-    <v-layout text-center wrap>
-      <v-flex ls12 xs12>
-        <charts :options="chartIngresosOptions" />
-      </v-flex>
-    </v-layout>
+  <v-container fluid>
+    <charts :options="chartIngresosOptions" :callback="update" :updateArgs="[redraw]" />
+    <charts :options="chartIngresosOptions" />
+    <charts :options="chartIngresosOptions" />
   </v-container>
 </template>
 
 <script>
 export default {
   data: () => ({
-    chartIngresosOptions:{
+    chartIngresosOptions: {
       title: {
         text: "Ingresos"
+      },
+      responsive: {
+        rules: [
+          {
+            condition: {
+              maxWidth: 500
+            },
+            chartOptions: {
+              legend: {
+                layout: "horizontal",
+                align: "center",
+                verticalAlign: "bottom"
+              }
+            }
+          }
+        ]
       },
       reflow: true,
       xAxis: {
@@ -31,6 +45,11 @@ export default {
           "Nov",
           "Dic"
         ]
+      },
+      legend: {
+        layout: "vertical",
+        align: "right",
+        verticalAlign: "middle"
       },
       yAxis: {
         title: {
@@ -77,7 +96,33 @@ export default {
             148.5
           ]
         }
-      ]}
-  }),
+      ]
+    },
+    exporting: {
+      enabled: true,
+      buttons: {
+        contextButton: {
+          enabled: true,
+          text: "Some text"
+        }
+      }
+    },
+    responsive: {
+      rules: [
+        {
+          condition: {
+            maxWidth: 500
+          },
+          chartOptions: {
+            legend: {
+              layout: "horizontal",
+              align: "center",
+              verticalAlign: "bottom"
+            }
+          }
+        }
+      ]
+    }
+  })
 };
 </script>

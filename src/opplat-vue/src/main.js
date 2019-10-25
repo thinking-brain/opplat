@@ -14,7 +14,10 @@ import App from './App.vue';
 import notificationsHub from './notificationsHub';
 // import TrendChart from "vue-trend-chart";
 import HighchartsVue from "highcharts-vue"
+import Highcharts from 'highcharts'
+import exportingInit from 'highcharts/modules/exporting'
 
+exportingInit(Highcharts)
 const options = {
   toast: {
     position: SnotifyPosition.rightBottom,
