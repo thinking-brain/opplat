@@ -56,7 +56,7 @@ const firmasFinanzas = {
       return new Promise((resolve, reject) => {
         const url = api.getUrl('finanzas', 'configuraciones');
         let errorCount = 0;
-        const url = api.getUrl('finanzas', 'configuraciones');
+        //const url = api.getUrl('finanzas', 'configuraciones');
         let form = {
           Nombre: "PorcientoContingencia",
           Valor: this.porcientoContingencia
