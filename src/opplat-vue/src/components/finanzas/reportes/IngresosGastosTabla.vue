@@ -25,7 +25,7 @@
         <span>Exportar a Excel</span>
       </v-tooltip>
     </v-row>
-    <v-row id="print">
+    <v-row id="print" v-if="notloading">
       <v-row>
         <table id="table1">
           <thead>
@@ -53,7 +53,14 @@
               <th class="text-center negrita">% gastos</th>
             </tr>
           </thead>
-          <tbody style="overflow-y:auto;">
+          <tbody v-if="!hasdata">
+            <tr>
+              <td colspan="11">
+                <v-skeleton-loader type="table-row@6"></v-skeleton-loader>
+              </td>
+            </tr>
+          </tbody>
+          <tbody v-if="hasdata">
             <tr
               v-for="item in ingresos"
               :key="item.grupo"
@@ -248,9 +255,9 @@ export default {
     return {
       mes:{id:0,nombre:'Ninguno'},
       year:0,
-      ingresos: [],
-      egresos: [],
-      utilidades: [],
+      ingresos: null,
+      egresos: null,
+      utilidades: null,
       errors:[],
     };
   },
@@ -272,15 +279,31 @@ export default {
               .catch((err) => {console.log(err)});
       }      
       return this.$store.getters.economico;
+    },
+    hasdata(){
+      let hd = false;
+      if(this.egresos && this.ingresos && this.utilidades){
+        if(this.ingresos.length > 0 && this.egresos.length > 0 && this.utilidades.length > 0){
+          hd = true;
+        }
+      }      
+      return hd;
+    },
+    notloading(){
+      let hd = false;
+      if(this.egresos && this.ingresos && this.utilidades){
+          hd = true;
+      }      
+      return hd;
     }
   },  
   methods: {
     loadReporte(mes,year){
         this.mes = mes;
         this.year = year;
-        this.ingresos = [];
-        this.egresos = [];
-        this.utilidades = [];        
+        this.ingresos = [];        
+        this.utilidades = []; 
+        this.egresos = [];       
         this.getIngresosFromApi();
         this.getEgresosFromApi();
         this.getUtilidadesFromApi();     
