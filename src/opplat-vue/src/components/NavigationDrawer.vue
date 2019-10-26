@@ -7,6 +7,12 @@
   >
     <vue-perfect-scrollbar class="drawer-menu--scroll" :settings="scrollSettings">
       <v-list dense expand>
+        <v-list-item link to="/dashboard">
+          <v-list-item-icon>
+            <v-icon>mdi-desktop-mac-dashboard</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Cuadro de Mando</v-list-item-title>
+        </v-list-item>
         <v-subheader>Personalizados</v-subheader>
         <div>
           <template v-for="item in personalizados">
