@@ -395,7 +395,7 @@ namespace FinanzasWebApi.Helper
 
             plan.Add(new PlanGIViewModel
             {
-                Grupo = "Reserva de contingencia del 2% al 10%",
+                Grupo = "Reserva del 2% al 10%",
                 PlanMes = Math.Round(planContingencia, 2),
                 RealMes = Math.Round(contingencia, 2),
                 PorcCumplimiento = planContingencia != 0 ? Math.Round(contingencia * 100 / planContingencia, 2, MidpointRounding.AwayFromZero) : 0,

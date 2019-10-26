@@ -75,4 +75,9 @@ export default {
 .page-wrapper {
   min-height: calc(100vh - 64px - 50px - 1px);
 }
+@media print {
+  .v-content {
+    padding: 0 !important;
+  }
+}
 </style>

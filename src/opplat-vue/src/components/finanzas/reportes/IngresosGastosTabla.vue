@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-divider></v-divider>
+    <v-divider class="d-print-none"></v-divider>
     <v-row class="my-4 mb-4 d-print-none">
       <v-tooltip top>
         <template v-slot:activator="{ on }">
@@ -64,13 +64,13 @@
               >{{ item.grupo }}</td>
               <td class="text-right">{{ item.planMes | format_two_decimals}}</td>
               <td class="text-right">{{ item.realMes | format_two_decimals}}</td>
-              <td class="text-right">{{ item.porcCumplimiento }}</td>
-              <td class="text-right">{{item.porcRelacionIngresos}}</td>
+              <td class="text-right">{{ item.porcCumplimiento | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcRelacionIngresos | format_two_decimals}}</td>
               <td class="deshabilitado"></td>
               <td class="text-right">{{item.planAcumulado | format_two_decimals}}</td>
               <td class="text-right">{{item.realAcumulado | format_two_decimals}}</td>
-              <td class="text-right">{{item.porcCumpAcumulado}}</td>
-              <td class="text-right">{{item.porcIngresosFuncionTotal}}</td>
+              <td class="text-right">{{item.porcCumpAcumulado | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcIngresosFuncionTotal | format_two_decimals}}</td>
               <td class="deshabilitado"></td>
             </tr>
 
@@ -84,14 +84,14 @@
               >{{ item.grupo }}</td>
               <td class="text-right">{{ item.planMes | format_two_decimals}}</td>
               <td class="text-right">{{ item.realMes | format_two_decimals }}</td>
-              <td class="text-right">{{ item.porcCumplimiento }}</td>
-              <td class="text-right">{{item.porcRelacionIngresos}}</td>
-              <td class="text-right">{{item.porcGastosFuncionTotal}}</td>
+              <td class="text-right">{{ item.porcCumplimiento| format_two_decimals}}</td>
+              <td class="text-right">{{item.porcRelacionIngresos | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcGastosFuncionTotal | format_two_decimals}}</td>
               <td class="text-right">{{item.planAcumulado| format_two_decimals}}</td>
               <td class="text-right">{{item.realAcumulado| format_two_decimals}}</td>
-              <td class="text-right">{{item.porcCumpAcumulado}}</td>
-              <td class="text-right">{{item.porcIngresosFuncionTotal}}</td>
-              <td class="text-right">{{item.porcGastosFuncionTotalAcumulado}}</td>
+              <td class="text-right">{{item.porcCumpAcumulado | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcIngresosFuncionTotal | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcGastosFuncionTotalAcumulado | format_two_decimals}}</td>
             </tr>
             <tr
               v-for="item in utilidades"
@@ -103,13 +103,13 @@
               >{{ item.grupo }}</td>
               <td class="text-right">{{ item.planMes | format_two_decimals }}</td>
               <td class="text-right">{{ item.realMes | format_two_decimals}}</td>
-              <td class="text-right">{{ item.porcCumplimiento }}</td>
-              <td class="text-right">{{item.porcRelacionIngresos}}</td>
+              <td class="text-right">{{ item.porcCumplimiento | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcRelacionIngresos | format_two_decimals}}</td>
               <td class="deshabilitado"></td>
               <td class="text-right">{{item.planAcumulado | format_two_decimals}}</td>
               <td class="text-right">{{item.realAcumulado | format_two_decimals}}</td>
-              <td class="text-right">{{item.porcCumpAcumulado}}</td>
-              <td class="text-right">{{item.porcIngresosFuncionTotal}}</td>
+              <td class="text-right">{{item.porcCumpAcumulado | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcIngresosFuncionTotal | format_two_decimals}}</td>
               <td class="deshabilitado"></td>
             </tr>
           </tbody>
@@ -143,6 +143,9 @@
     display: block;
     margin: 10px;
   }
+  .v-tooltip__content {
+    display: none !important;
+  }
 
   @page {
     size: landscape;
@@ -154,14 +157,15 @@
     width: 350px !important;
   }
   .encabezado-tabla {
-    padding-bottom: 30px;
+    padding-bottom: 20px;
   }
   table {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
+    font-size: 10.5px !important;
   }
   .encabezado {
-    padding-bottom: 20px;
+    padding-bottom: 5px;
+    padding-top: 0px;
     border-top: none;
   }
   .encabezado1 {
@@ -185,7 +189,7 @@
   background-color: white !important;
 }
 .encabezado-tabla {
-  padding-bottom: 30px;
+  padding-bottom: 20px;
 }
 table,
 th,
@@ -208,7 +212,8 @@ td {
   word-wrap: normal;
 }
 .encabezado {
-  padding-bottom: 20px;
+  padding-bottom: 5px;
+  padding-top: 0px;
   border-top: none;
 }
 .encabezado1 {
@@ -226,6 +231,12 @@ th {
 }
 .deshabilitado {
   background-color: #e0e0e0;
+}
+.firmas > tr > th {
+  padding-top: 30px;
+}
+.firmas > tr > th > p {
+  margin: 0px;
 }
 </style>
 <script>
