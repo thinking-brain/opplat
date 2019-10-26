@@ -6,8 +6,10 @@
       </v-flex>
       <v-flex lg12>
         <v-card v-if="licencia">
-          <v-card-text>Sistema licenciado a nombre de : {{licencia.subscriptor}}
-             hasta : {{licencia.vencimiento}}</v-card-text>
+          <v-card-text>
+            Sistema licenciado a nombre de : {{licencia.subscriptor}}
+            hasta : {{licencia.vencimiento}}
+          </v-card-text>
           <v-divider class="mt-5"></v-divider>
           <v-card-actions>
             <v-btn color="secundary" @click="eliminar">Eliminar Licencia</v-btn>
@@ -81,12 +83,7 @@ export default {
         });
     },
     submit() {
-      this.formHasErrors = false;
-      // Object.keys(this.form).forEach(f => {
-      //   if (!this.form[f]) this.formHasErrors = true;
-
-      //   this.$refs[f].validate(true);
-      // });
+      this.formHasErrors = false;    
       if (!this.formHasErrors) {
         const formData = new FormData();
         formData.append('licence', this.imageFile);
@@ -102,17 +99,7 @@ export default {
             this.$store
               .dispatch('agregar', lic)
               .then(() => {})
-              .catch(() => {});
-            // this.$store
-            //   .dispatch("cargar")
-            //   .then(() => {
-            //     this.licencia = vm.$store.getters.licencia;
-            //   })
-            //   .catch(err => {
-            //     vm.$snotify.error(
-            //       "No se pudo cargar la licencia. Contacte su administrador."
-            //     );
-            //   });
+              .catch(() => {});            
             vm.$snotify.success('Licencia agregada correctamente.');
           })
           .catch(() => {
