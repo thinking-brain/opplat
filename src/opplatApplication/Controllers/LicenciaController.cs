@@ -93,16 +93,12 @@ namespace opplatApplication.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete()
         {
-            var licencia = _db.Set<Licencia>().SingleOrDefault();
-            if (licencia == null)
+            var result = _licenciaService.Eliminar();
+            if (result)
             {
-                return BadRequest("El sistema no tiene licencia.");
+                return Ok("Licencia borrada correctamente.");
             }
-            var path = _enviroment.ContentRootPath;
-            System.IO.File.Delete(Path.Combine(path, "licencia.lic"));
-            _db.Remove(licencia);
-            _db.SaveChanges();
-            return Ok("Licencia agregada correctamente.");
+            return BadRequest("Error eliminando la licencia, contacte al administrador.");
         }
     }
 }
