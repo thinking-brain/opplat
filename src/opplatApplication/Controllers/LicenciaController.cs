@@ -37,6 +37,19 @@ namespace opplatApplication.Controllers
             {
                 return BadRequest("La aplicacion no posee una licencia activa");
             }
+            var path = _enviroment.ContentRootPath;
+            var cl = new LicenceChecker.Checker(Path.Combine(_enviroment.ContentRootPath, "keys/"));
+            var isCorrect = cl.CheckIntegrity(new LicenceChecker.Licence
+            {
+                Application = licencia.Aplicacion,
+                ExpirationDate = licencia.Vencimiento,
+                LicenceHash = licencia.Hash,
+                Suscriptor = licencia.Subscriptor
+            });
+            if (!isCorrect)
+            {
+                return BadRequest("Su licencia esta corructa. Contacte al proveedor del sistema.");
+            }
             if (licencia.Vencimiento < DateTime.Now.AddDays(15))
             {
                 return BadRequest("Su licencia esta vencida. Contacte al administrador.");
