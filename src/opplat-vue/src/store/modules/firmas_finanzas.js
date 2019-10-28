@@ -52,105 +52,13 @@ const firmasFinanzas = {
     },
     update({
       commit,
-    }) {
+    }, data) {
       return new Promise((resolve, reject) => {
-        const url = api.getUrl('finanzas', 'configuraciones');
-        let errorCount = 0;
-        //const url = api.getUrl('finanzas', 'configuraciones');
-        let form = {
-          Nombre: "PorcientoContingencia",
-          Valor: this.porcientoContingencia
-        };
-        this.axios
-          .put(url + '/PorcientoContingencia', form)
-          .then((
-            p, // console.log(p)
-          ) => {
-          })
-          .catch((e) => {
-            errorCount++;
-            this.errors.push(e.response.data.errors);
-          });
-
-        form = {
-          Nombre: "NombreJefe",
-          Valor: this.nombreJefe
-        };
-        this.axios
-          .put(url + '/NombreJefe', form)
-          .then((
-            p, // console.log(p)
-          ) => {
-          })
-          .catch((e) => {
-            errorCount++;
-            this.errors.push(e.response.data.errors);
-          });
-
-        form = {
-          Nombre: "CargoJefe",
-          Valor: this.cargoJefe
-        };
-        this.axios
-          .put(url + '/CargoJefe', form)
-          .then((
-            p, // console.log(p)
-          ) => {
-          })
-          .catch((e) => {
-            errorCount++;
-            this.errors.push(e.response.data.errors);
-          });
-        form = {
-          Nombre: "NombreEconomico",
-          Valor: this.nombreEconomico
-        };
-        this.axios
-          .put(url + '/NombreEconomico', form)
-          .then((
-            p, // console.log(p)
-          ) => {
-          })
-          .catch((e) => {
-            errorCount++;
-            this.errors.push(e.response.data.errors);
-          });
-        form = {
-          Nombre: "CargoEconomico",
-          Valor: this.cargoEconomico
-        };
-        this.axios
-          .put(url + '/CargoEconomico', form)
-          .then((
-            p, // console.log(p)
-          ) => {
-          })
-          .catch((e) => {
-            errorCount++;
-            this.errors.push(e.response.data.errors);
-          });
-        axios({
-          url,
-          method: 'GET',
-        })
-          .then((resp) => {
-            const configs = resp.data;
-            const jefeNombre = configs.find(config => config.nombre === 'NombreJefe');
-            const jefeCargo = configs.find(config => config.nombre === 'CargoJefe');
-            const economicoNombre = configs.find(config => config.nombre === 'NombreEconomico');
-            const economicoCargo = configs.find(config => config.nombre === 'CargoEconomico');
-            const data = {
-              jefe: { nombre: jefeNombre.valor, cargo: jefeCargo.valor },
-              economico: { nombre: economicoNombre.valor, cargo: economicoCargo.valor },
-            };
-
-            commit('agregarfirmas', data);
-            resolve(resp);
-          })
-          .catch((err) => {
-            reject(err);
-          });
-        resolve();
+        if (!data) {
+          reject('datos vacios');
+        }
+        commit('agregarfirmas', data);
+        resolve(data);
       });
     },
     quitar({

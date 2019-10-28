@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-divider></v-divider>
+    <v-divider class="d-print-none"></v-divider>
     <v-row class="my-4 mb-4 d-print-none">
       <v-tooltip top>
         <template v-slot:activator="{ on }">
@@ -25,7 +25,7 @@
         <span>Exportar a Excel</span>
       </v-tooltip>
     </v-row>
-    <v-row id="print">
+    <v-row id="print" v-if="notloading">
       <v-row>
         <table id="table1">
           <thead>
@@ -53,7 +53,14 @@
               <th class="text-center negrita">% gastos</th>
             </tr>
           </thead>
-          <tbody style="overflow-y:auto;">
+          <tbody v-if="!hasdata">
+            <tr>
+              <td colspan="11">
+                <v-skeleton-loader type="table-row@6"></v-skeleton-loader>
+              </td>
+            </tr>
+          </tbody>
+          <tbody v-if="hasdata">
             <tr
               v-for="item in ingresos"
               :key="item.grupo"
@@ -64,13 +71,13 @@
               >{{ item.grupo }}</td>
               <td class="text-right">{{ item.planMes | format_two_decimals}}</td>
               <td class="text-right">{{ item.realMes | format_two_decimals}}</td>
-              <td class="text-right">{{ item.porcCumplimiento }}</td>
-              <td class="text-right">{{item.porcRelacionIngresos}}</td>
+              <td class="text-right">{{ item.porcCumplimiento | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcRelacionIngresos | format_two_decimals}}</td>
               <td class="deshabilitado"></td>
               <td class="text-right">{{item.planAcumulado | format_two_decimals}}</td>
               <td class="text-right">{{item.realAcumulado | format_two_decimals}}</td>
-              <td class="text-right">{{item.porcCumpAcumulado}}</td>
-              <td class="text-right">{{item.porcIngresosFuncionTotal}}</td>
+              <td class="text-right">{{item.porcCumpAcumulado | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcIngresosFuncionTotal | format_two_decimals}}</td>
               <td class="deshabilitado"></td>
             </tr>
 
@@ -84,14 +91,14 @@
               >{{ item.grupo }}</td>
               <td class="text-right">{{ item.planMes | format_two_decimals}}</td>
               <td class="text-right">{{ item.realMes | format_two_decimals }}</td>
-              <td class="text-right">{{ item.porcCumplimiento }}</td>
-              <td class="text-right">{{item.porcRelacionIngresos}}</td>
-              <td class="text-right">{{item.porcGastosFuncionTotal}}</td>
+              <td class="text-right">{{ item.porcCumplimiento| format_two_decimals}}</td>
+              <td class="text-right">{{item.porcRelacionIngresos | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcGastosFuncionTotal | format_two_decimals}}</td>
               <td class="text-right">{{item.planAcumulado| format_two_decimals}}</td>
               <td class="text-right">{{item.realAcumulado| format_two_decimals}}</td>
-              <td class="text-right">{{item.porcCumpAcumulado}}</td>
-              <td class="text-right">{{item.porcIngresosFuncionTotal}}</td>
-              <td class="text-right">{{item.porcGastosFuncionTotalAcumulado}}</td>
+              <td class="text-right">{{item.porcCumpAcumulado | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcIngresosFuncionTotal | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcGastosFuncionTotalAcumulado | format_two_decimals}}</td>
             </tr>
             <tr
               v-for="item in utilidades"
@@ -103,13 +110,13 @@
               >{{ item.grupo }}</td>
               <td class="text-right">{{ item.planMes | format_two_decimals }}</td>
               <td class="text-right">{{ item.realMes | format_two_decimals}}</td>
-              <td class="text-right">{{ item.porcCumplimiento }}</td>
-              <td class="text-right">{{item.porcRelacionIngresos}}</td>
+              <td class="text-right">{{ item.porcCumplimiento | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcRelacionIngresos | format_two_decimals}}</td>
               <td class="deshabilitado"></td>
               <td class="text-right">{{item.planAcumulado | format_two_decimals}}</td>
               <td class="text-right">{{item.realAcumulado | format_two_decimals}}</td>
-              <td class="text-right">{{item.porcCumpAcumulado}}</td>
-              <td class="text-right">{{item.porcIngresosFuncionTotal}}</td>
+              <td class="text-right">{{item.porcCumpAcumulado | format_two_decimals}}</td>
+              <td class="text-right">{{item.porcIngresosFuncionTotal | format_two_decimals}}</td>
               <td class="deshabilitado"></td>
             </tr>
           </tbody>
@@ -143,6 +150,9 @@
     display: block;
     margin: 10px;
   }
+  .v-tooltip__content {
+    display: none !important;
+  }
 
   @page {
     size: landscape;
@@ -154,14 +164,15 @@
     width: 350px !important;
   }
   .encabezado-tabla {
-    padding-bottom: 30px;
+    padding-bottom: 20px;
   }
   table {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
+    font-size: 10.5px !important;
   }
   .encabezado {
-    padding-bottom: 20px;
+    padding-bottom: 5px;
+    padding-top: 0px;
     border-top: none;
   }
   .encabezado1 {
@@ -185,7 +196,7 @@
   background-color: white !important;
 }
 .encabezado-tabla {
-  padding-bottom: 30px;
+  padding-bottom: 20px;
 }
 table,
 th,
@@ -208,7 +219,8 @@ td {
   word-wrap: normal;
 }
 .encabezado {
-  padding-bottom: 20px;
+  padding-bottom: 5px;
+  padding-top: 0px;
   border-top: none;
 }
 .encabezado1 {
@@ -227,6 +239,12 @@ th {
 .deshabilitado {
   background-color: #e0e0e0;
 }
+.firmas > tr > th {
+  padding-top: 30px;
+}
+.firmas > tr > th > p {
+  margin: 0px;
+}
 </style>
 <script>
 import api from '@/api';
@@ -237,9 +255,9 @@ export default {
     return {
       mes:{id:0,nombre:'Ninguno'},
       year:0,
-      ingresos: [],
-      egresos: [],
-      utilidades: [],
+      ingresos: null,
+      egresos: null,
+      utilidades: null,
       errors:[],
     };
   },
@@ -261,15 +279,31 @@ export default {
               .catch((err) => {console.log(err)});
       }      
       return this.$store.getters.economico;
+    },
+    hasdata(){
+      let hd = false;
+      if(this.egresos && this.ingresos && this.utilidades){
+        if(this.ingresos.length > 0 && this.egresos.length > 0 && this.utilidades.length > 0){
+          hd = true;
+        }
+      }      
+      return hd;
+    },
+    notloading(){
+      let hd = false;
+      if(this.egresos && this.ingresos && this.utilidades){
+          hd = true;
+      }      
+      return hd;
     }
   },  
   methods: {
     loadReporte(mes,year){
         this.mes = mes;
         this.year = year;
-        this.ingresos = [];
-        this.egresos = [];
-        this.utilidades = [];        
+        this.ingresos = [];        
+        this.utilidades = []; 
+        this.egresos = [];       
         this.getIngresosFromApi();
         this.getEgresosFromApi();
         this.getUtilidadesFromApi();     

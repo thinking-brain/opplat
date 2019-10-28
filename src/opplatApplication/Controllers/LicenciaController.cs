@@ -37,6 +37,19 @@ namespace opplatApplication.Controllers
             {
                 return BadRequest("La aplicacion no posee una licencia activa");
             }
+            var path = _enviroment.ContentRootPath;
+            var cl = new LicenceChecker.Checker(Path.Combine(_enviroment.ContentRootPath, "keys/"));
+            var isCorrect = cl.CheckIntegrity(new LicenceChecker.Licence
+            {
+                Application = licencia.Aplicacion,
+                ExpirationDate = licencia.Vencimiento,
+                LicenceHash = licencia.Hash,
+                Suscriptor = licencia.Subscriptor
+            });
+            if (!isCorrect)
+            {
+                return BadRequest("Su licencia esta corructa. Contacte al proveedor del sistema.");
+            }
             if (licencia.Vencimiento < DateTime.Now.AddDays(15))
             {
                 return BadRequest("Su licencia esta vencida. Contacte al administrador.");
@@ -80,16 +93,12 @@ namespace opplatApplication.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete()
         {
-            var licencia = _db.Set<Licencia>().SingleOrDefault();
-            if (licencia == null)
+            var result = _licenciaService.Eliminar();
+            if (result)
             {
-                return BadRequest("El sistema no tiene licencia.");
+                return Ok("Licencia borrada correctamente.");
             }
-            var path = _enviroment.ContentRootPath;
-            System.IO.File.Delete(Path.Combine(path, "licencia.lic"));
-            _db.Remove(licencia);
-            _db.SaveChanges();
-            return Ok("Licencia agregada correctamente.");
+            return BadRequest("Error eliminando la licencia, contacte al administrador.");
         }
     }
 }

@@ -7,12 +7,7 @@
       <v-flex lg12>
         <v-card>
           <v-card-text>
-            <charts
-              ref="ch"
-              :options="chartIngresosOptions"
-              :callback="update"
-              :updateArgs="[redraw]"
-            />
+            <charts ref="chart" :options="chartIngresosOptions" :callback="update" />
           </v-card-text>
         </v-card>
       </v-flex>
@@ -143,6 +138,11 @@ export default {
         }
       ]
     }
-  })
+  }),
+  methods:{
+    update(){
+      //this.$refs.chart;
+    }
+  }
 };
 </script>
