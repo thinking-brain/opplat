@@ -96,9 +96,86 @@ export default {
   methods: {   
     submit() {      
       if (!this.formHasErrors) {
-               
+        let errorCount = 0;        
+        const url = api.getUrl('finanzas', 'configuraciones');
+        let form = {
+          Nombre : "PorcientoContingencia",
+          Valor: this.porcientoContingencia
+        };
+        this.axios
+          .put(url+ '/PorcientoContingencia', form)
+          .then((
+            p, // console.log(p)
+          ) => {            
+          })
+          .catch((e) => {
+            errorCount ++;
+            this.errors.push(e.response.data.errors);
+          });
+        
+        form = {
+          Nombre : "NombreJefe",
+          Valor: this.nombreJefe
+        };
+        this.axios
+          .put(url+ '/NombreJefe', form)
+          .then((
+            p, // console.log(p)
+          ) => {            
+          })
+          .catch((e) => {
+            errorCount ++;
+            this.errors.push(e.response.data.errors);
+          });
+        
+        form = {
+          Nombre : "CargoJefe",
+          Valor: this.cargoJefe
+        };
+        this.axios
+          .put(url+ '/CargoJefe', form)
+          .then((
+            p, // console.log(p)
+          ) => {            
+          })
+          .catch((e) => {
+            errorCount ++;
+            this.errors.push(e.response.data.errors);
+          });
+        form = {
+          Nombre : "NombreEconomico",
+          Valor: this.nombreEconomico
+        };
+        this.axios
+          .put(url+ '/NombreEconomico', form)
+          .then((
+            p, // console.log(p)
+          ) => {            
+          })
+          .catch((e) => {
+            errorCount ++;
+            this.errors.push(e.response.data.errors);
+          });
+        form = {
+          Nombre : "CargoEconomico",
+          Valor: this.cargoEconomico
+        };
+        this.axios
+          .put(url+ '/CargoEconomico', form)
+          .then((
+            p, // console.log(p)
+          ) => {            
+          })
+          .catch((e) => {
+            errorCount ++;
+            this.errors.push(e.response.data.errors);
+          });  
+        const data = {
+          jefe: { nombre: this.nombreJefe, cargo: this.cargoJefe },
+          economico: { nombre: this.nombreEconomico, cargo: this.cargoEconomico },
+        };         
         this.$store
-              .dispatch('cargar')
+              .dispatch('update',data)
               .then(() => {})
               .catch((err) => {console.log(err)});
         if(errorCount > 0){
