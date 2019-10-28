@@ -5,10 +5,17 @@ using System.Threading.Tasks;
 
 namespace FinanzasWebApi.ViewModels
 {
-    public class TotalIngGastUtilViewModel
+    public class TotalIngresosViewModel
     {
-        public int Mes { get; set; }
         public decimal Real { get; set; }
         public decimal Plan { get; set; }
+        public  ICollection<decimal> Reales{ get; set; }
+        public  ICollection<decimal> Planes{ get; set; }
+
+        public TotalIngresosViewModel()
+        {
+            this.Reales= new HashSet<decimal>();
+            this.Planes= new HashSet<decimal>();
+        }
     }
 }
