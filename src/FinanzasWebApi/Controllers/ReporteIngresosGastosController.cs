@@ -58,17 +58,13 @@ namespace FinanzasWebApi.Controllers
 
             int year = Convert.ToInt32(años);
 
-            // for (int i = 1; i < 13; i++)
-            // {
-            //     decimal real = _obtenetPlan.ObtenerTotalIngresos(year, i);                
-            //     decimal plan = _obtenetPlan.ObtenerTotalPlanIngresos(year, i);
-            //     resultado.Reales.Add(real);
-            //     resultado.Planes.Add(plan);
-            // }
-            resultado.Plan = 256987.55M;
-            resultado.Real = 236589.90M;
-            resultado.Planes = new List<decimal>() { 23455.90M, 2323.55M, 2323.20M, 2323.55M, 2323.90M, 2323.55M, 43545.30M, 4646.25M, 46464.55M, 3424M, 67879M, 5656M };
-            resultado.Reales = new List<decimal>() { 6789.90M, 23232.25M, 454646.50M, 23232.00M, 23232.00M, 23232.00M, 2323.00M, 2323.00M, 2323.00M, 2323.00M, 2323.00M, 2323.00M };
+            for (int i = 1; i < 13; i++)
+            {
+                decimal real = _obtenetPlan.ObtenerTotalIngresos(year, i);
+                decimal plan = _obtenetPlan.ObtenerTotalPlanIngresos(year, i);
+                resultado.Reales.Add(real);
+                resultado.Planes.Add(plan);
+            }
             return Ok(resultado);
         }
 
@@ -100,22 +96,22 @@ namespace FinanzasWebApi.Controllers
         /// </summary>
         /// <param name="años"></param>
         /// <returns></returns>
-        // [HttpGet("egresosTotal/{años}")]
-        // public TotalIngresosViewModel EgresosTotal([FromRoute] string años)
-        // {
-        //     var resultado = new TotalIngresosViewModel();
+        [HttpGet("egresosTotal/{años}")]
+        public TotalIngresosViewModel EgresosTotal([FromRoute] string años)
+        {
+            var resultado = new TotalIngresosViewModel();
 
-        //     int year = Convert.ToInt32(años);
+            int year = Convert.ToInt32(años);
 
-        //     for (int i = 1; i < 13; i++)
-        //     {
-        //         var real = _obtenetPlan.ObtenerTotalEgresos(year, i);
-        //         var plan = _obtenetPlan.ObtenerTotalPlanEgresos(year, i);
-        //         resultado.Reales.Add(real);
-        //         resultado.Planes.Add(plan);
-        //     }
-        //     return resultado;
-        // }
+            for (int i = 1; i < 13; i++)
+            {
+                var real = _obtenetPlan.ObtenerTotalEgresos(year, i);
+                var plan = _obtenetPlan.ObtenerTotalPlanEgresos(year, i);
+                resultado.Reales.Add(real);
+                resultado.Planes.Add(plan);
+            }
+            return resultado;
+        }
         /// <summary>
         /// Devuelve los Egresos para el plan de Gastos en Ingresos
         /// </summary>
@@ -151,13 +147,13 @@ namespace FinanzasWebApi.Controllers
 
             int year = Convert.ToInt32(años);
 
-            // for (int i = 1; i < 13; i++)
-            // {
-            //     var real = _obtenetPlan.ObtenerTotalUtilidades(year, i);
-            //     var plan = _obtenetPlan.ObtenerTotalPlanUtilidades(year, i);
-            //     resultado.Reales.Add(real);
-            //     resultado.Planes.Add(plan);
-            // }
+            for (int i = 1; i < 13; i++)
+            {
+                var real = _obtenetPlan.ObtenerTotalUtilidades(year, i);
+                var plan = _obtenetPlan.ObtenerTotalPlanUtilidades(year, i);
+                resultado.Reales.Add(real);
+                resultado.Planes.Add(plan);
+            }
             return resultado;
         }
     }
