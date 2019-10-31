@@ -242,6 +242,15 @@ export const protectedRoute = [
         requiresAuth: true,
       },
       component: () => import(/* webpackChunkName: "table" */ '@/views/finanzas/configuracion/Configuraciones.vue'),
+    },
+    {
+      path: '/finanzas/actualizardatos',
+      name: 'ActualizarDatos',
+      meta: {
+        title: 'Actualizar Datos',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/finanzas/ActualizarCache.vue'),
     }],
   },
   //Plan
