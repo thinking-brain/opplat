@@ -8,6 +8,7 @@
 
 <script>
 import VueApexCharts from "vue-apexcharts";
+import api from "@/api";
 
 export default {
   components: {
@@ -15,6 +16,8 @@ export default {
   },
   data: function() {
     return {
+      ingresos_reales: [],
+      ingresos_planes: [],
       ingresosOptions: {
         title: {
           text: "Ingresos",
@@ -65,17 +68,34 @@ export default {
           forceNiceScale: true
         }
       },
-      ingresos_series: [
-        {
-          name: "Real",
-          data: [30, 40, 45, 50, 49, 60, 70]
-        },
-        {
-          name: "Plan",
-          data: [38, 45, 46, 34, 78, 78, 45, 100, 85, 56, 74, 42]
-        }
-      ]
+      ingresos_series: []
     };
+  },
+  created() {
+    const url = api.getUrl(
+      "finanzas",
+      `ReporteIngresosGastos/ingresosTotal/${2019}`
+    );
+    this.axios
+      .get(url)
+      .then(response => {
+        this.ingresos_series = [
+          {
+            name: "Real",
+            data: response.data.reales
+          },
+          {
+            name: "Plan",
+            data: response.data.planes
+          },
+        ];
+      })
+      .catch(e => {
+        this.errors.push(e);
+        vm.$snotify.error(
+          "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+        );
+      });
   }
 };
 </script>
