@@ -77,7 +77,7 @@ export const protectedRoute = [
         group: 'apps',
         icon: 'dashboard',
       },
-      component: () => import(/* webpackChunkName: "dashboard" */ '@/components/Dashboard.vue'),
+      component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Home.vue'),
     },
     ],
   },
