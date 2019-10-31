@@ -24,6 +24,7 @@ namespace FinanzasWebApi.Data
 
         public DbSet<ConfiguracionFirmas> ConfiguracionesFirmas { get; set; }
         public DbSet<ConfiguracionPorciento> ConfiguracionesPorcientos { get; set; }
+        public DbSet<CacheCuentaPeriodo> CachesCuentasEnPeriodos { get; set; }
 
 
     }
