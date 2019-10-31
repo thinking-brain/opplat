@@ -48,7 +48,7 @@ namespace opplatApplication.Controllers
             });
             if (!isCorrect)
             {
-                return BadRequest("Su licencia esta corructa. Contacte al proveedor del sistema.");
+                return BadRequest("Su licencia esta corrupta. Contacte al proveedor del sistema.");
             }
             if (licencia.Vencimiento < DateTime.Now.AddDays(15))
             {

@@ -32,5 +32,16 @@
             "administrador",
             "economico"
         ]
+    },
+    {
+        "title": "Actualizar Datos",
+        "group": "finanzas",
+        "icon": "mdi-update",
+        "name": "ActualizarDatos",
+        "component": "ActualizarDatos",
+        "roles": [
+            "administrador",
+            "economico"
+        ]
     }
 ]
