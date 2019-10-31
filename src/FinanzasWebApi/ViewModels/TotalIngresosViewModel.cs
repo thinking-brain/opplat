@@ -7,10 +7,22 @@ namespace FinanzasWebApi.ViewModels
 {
     public class TotalIngresosViewModel
     {
-        public decimal Real { get; set; }
-        public decimal Plan { get; set; }
-        public List<decimal> Reales{ get; set; }
-        public List<decimal> Planes{ get; set; }
+        public decimal Real
+        {
+            get
+            {
+                return Reales.Sum(c => c);
+            }
+        }
+        public decimal Plan
+        {
+            get
+            {
+                return Planes.Sum(p => p);
+            }
+        }
+        public List<decimal> Reales { get; set; }
+        public List<decimal> Planes { get; set; }
 
         public TotalIngresosViewModel()
         {
