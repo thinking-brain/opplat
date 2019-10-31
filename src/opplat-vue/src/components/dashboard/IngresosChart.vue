@@ -68,7 +68,8 @@ export default {
           forceNiceScale: true
         }
       },
-      ingresos_series: []
+      ingresos_series: [],
+      errors:[]
     };
   },
   created() {
