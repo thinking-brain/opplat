@@ -1,18 +1,13 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using RhWebApi.Models;
-using RhWebApi.VersatModels;
-using RhWebApi.VersatModels2;
 using Swashbuckle.AspNetCore.Swagger;
 
 [assembly: HostingStartup(typeof(RhWebApi.Startup))]
@@ -44,14 +39,14 @@ namespace RhWebApi
                 c.IncludeXmlComments(xmlPath);
             });
 
-            services.AddDbContext<ApiDbContext>(options =>
-                    options.UseSqlServer(context.Configuration.GetConnectionString("ApiDbContext")));
+            services.AddDbContext<RhWebApiDbContext>(options =>
+                    options.UseSqlServer(context.Configuration.GetConnectionString("RhWebApiDbContext")));
 
-            services.AddDbContext<VersatDbContext>(options =>
-               options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
+            // services.AddDbContext<VersatDbContext>(options =>
+            //    options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
 
-            services.AddDbContext<VersatDbContext2>(options =>
-               options.UseSqlServer(context.Configuration.GetConnectionString("Versat2Connection")));
+            // services.AddDbContext<VersatDbContext2>(options =>
+            //    options.UseSqlServer(context.Configuration.GetConnectionString("Versat2Connection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -12,8 +12,8 @@ namespace RhWebApi.Controllers
     [ApiController]
     public class ActividadContratoController : Controller
     {
-        private readonly RhWebApiContext context;
-        public ActividadContratoController(RhWebApiContext context)
+        private readonly RhWebApiDbContext context;
+        public ActividadContratoController(RhWebApiDbContext context)
         {
             this.context = context;
         }

@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RhWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RhWebApi.Dtos;
+using RhWebApi.Models;
 
 namespace RhWebApi.Controllers {
     [Route ("api/[controller]")]
     [ApiController]
     public class CargosController : Controller {
-        private readonly RhWebApiContext context;
-        public CargosController (RhWebApiContext context) {
+        private readonly RhWebApiDbContext context;
+        public CargosController (RhWebApiDbContext context) {
             this.context = context;
         }
 
@@ -35,8 +36,13 @@ namespace RhWebApi.Controllers {
 
         // POST api/areas
         [HttpPost]
-        public IActionResult POST ([FromBody] Cargo cargo) {
+        public IActionResult POST ([FromBody] CargoDto cargoDto) {
             if (ModelState.IsValid) {
+                var cargo = new Cargo () {
+                    Id = cargoDto.Id,
+                    Nombre = cargoDto.Nombre,
+                    Sigla = cargoDto.Sigla,
+                };
                 context.Cargo.Add (cargo);
                 context.SaveChanges ();
                 return new CreatedAtRouteResult ("GetCargo", new { id = cargo.Id });

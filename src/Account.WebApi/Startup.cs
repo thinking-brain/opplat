@@ -1,3 +1,5 @@
+
+
 using System;
 using System.IO;
 using System.Reflection;
@@ -31,7 +33,7 @@ namespace Account.WebApi
         public void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
             services.AddDbContext<AccountDbContext>(options =>
-            options.UseSqlServer(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
+            options.UseNpgsql(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
 
             services.AddIdentity<Usuario, IdentityRole>()
                 .AddEntityFrameworkStores<AccountDbContext>()

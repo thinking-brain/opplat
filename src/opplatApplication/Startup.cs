@@ -18,8 +18,12 @@ using Newtonsoft.Json;
 using opplatApplication.Data;
 using opplatApplication.Utils;
 using Swashbuckle.AspNetCore.Swagger;
-using ContabilidadWebApi.VersatModels;
-using ContabilidadWebApi.VersatModels2;
+using FinanzasWebApi.Helper;
+using notificationsWebApi.Data;
+using opplatApplication.Hubs;
+using ContabilidadWebApi.Services;
+using FinanzasWebApi.Data;
+using InventarioWebApi.Data;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -36,24 +40,30 @@ namespace opplatApplication
         public void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
             //contabilidad context
-            services.AddDbContext<ContabilidadWebApi.Data.ApiDbContext>(options =>
-                    options.UseSqlServer(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
+            services.AddDbContext<ContabilidadWebApi.Data.ContabilidadDbContext>(options =>
+                    options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
 
-
-            services.AddDbContext<VersatDbContext>(options =>
-               options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
-
-
-            services.AddDbContext<VersatDbContext2>(options =>
-               options.UseSqlServer(context.Configuration.GetConnectionString("Versat2Connection")));
-            //fin
             //finanzas db context
-            services.AddDbContext<FinanzasWebApi.Data.ApiDbContext>(options =>
-                    options.UseSqlServer(context.Configuration.GetConnectionString("FinanzasApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
+            services.AddDbContext<FinanzasWebApi.Data.FinanzasDbContext>(options =>
+                    options.UseNpgsql(context.Configuration.GetConnectionString("FinanzasApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
             //
 
+            // NotificationsDbContext
+            services.AddDbContext<notificationsDbContext>(options =>
+            options.UseNpgsql(context.Configuration.GetConnectionString("notificationsApi"), b => b.MigrationsAssembly("notificationsWebApi")));
+            //
+
+            //inventario DbContext
+            services.AddDbContext<InventarioDbContext>(options =>
+            options.UseNpgsql(context.Configuration.GetConnectionString("InventarioConnection"), b => b.MigrationsAssembly("InventarioWebApi")));
+            //
             services.AddDbContext<AccountDbContext>(options =>
-            options.UseSqlServer(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
+            options.UseNpgsql(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
+
+            services.AddDbContext<OpplatAppDbContext>(options =>
+                options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")));
+
+            services.AddSignalR();
 
             services.AddIdentity<Usuario, IdentityRole>()
                 .AddEntityFrameworkStores<AccountDbContext>()
@@ -101,16 +111,24 @@ namespace opplatApplication
                     c.IncludeXmlComments(xmlPath);
                 });
 
-            services.AddDbContext<OpplatAppDbContext>(options =>
-                options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")));
             services.AddTransient<OpplatAppDbContext>();
             services.AddSingleton<MenuLoader>();
             services.AddSingleton<LicenciaService>();
+
+            services.AddScoped<CuentasServices>();
+
+            //finanzas services
+            services.AddScoped<FinanzasDbContext>();
+            services.AddScoped<ObtenerPlanGI>();
+            // services.AddSingleton<ObtenerPlanGI_Context>();
+            // services.AddSingleton<GetTotalIngresosEnMes>();
+            // services.AddSingleton<GetTotalEgresosEnMes>();
+            //fin
             services.AddSpaStaticFiles(config =>
             {
                 config.RootPath = context.Configuration.GetValue<string>("ClientApp");
             });
-
+            services.AddCors();
             var mvcBuilder = services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2).AddJsonOptions(options =>
                 {
                     options.SerializerSettings.Formatting = Formatting.Indented;
@@ -145,13 +163,17 @@ namespace opplatApplication
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
             app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/docs/v1/docs.json", "Account API v1");
                 c.RoutePrefix = "docs";
             });
+            app.UseSignalR(routes =>
+        {
+            routes.MapHub<NotificationsHub>("/notihub");
+        });
+            app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseMvc(builder =>
             {
                 builder.MapRoute(

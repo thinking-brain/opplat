@@ -1,56 +1,57 @@
-import Vue from "vue";
-import Router from "vue-router";
+import Vue from 'vue';
+import Router from 'vue-router';
+import NProgress from 'nprogress';
 import {
   publicRoute,
-  protectedRoute
-} from "./config";
-import store from "../store/index";
-import NProgress from "nprogress";
-import "nprogress/nprogress.css";
+  protectedRoute,
+} from './config';
+import store from '../store/index';
+import 'nprogress/nprogress.css';
+
 const routes = publicRoute.concat(protectedRoute);
 
 Vue.use(Router);
 const router = new Router({
-  mode: "hash",
-  linkActiveClass: "active",
-  routes: routes
+  mode: 'hash',
+  linkActiveClass: 'active',
+  routes,
 });
 // router gards
 router.beforeEach((to, from, next) => {
   NProgress.start();
-  //console.log(to);
+  // console.log(to);
   if (!to.matched.some(record => record.meta.requiresAuth)) {
-    //console.log("sin autenticacion");
+    // console.log("sin autenticacion");
     next();
     return;
   }
   if (!store.getters.isLoggedIn) {
-    //console.log("no logueado");
+    // console.log("no logueado");
     next('/auth/login');
     return;
   }
-  if ((to.name != "Licencia" || to.path != "/admin/licencia") && (to.name != "login" || to.path != "/auth/login")) {    
+  if ((to.name != 'Licencia' || to.path != '/admin/licencia') && (to.name != 'login' || to.path != '/auth/login')) {
     if (!store.getters.hasLicence) {
-      //console.log("sin licencia");
-      next({name:'Licencia'});
+      // console.log("sin licencia");
+      next({ name: 'Licencia' });
       return;
-    }    
+    }
   }
-  //auth route is authenticated
+  // auth route is authenticated
   // redirect to login page if not logged in and trying to access a restricted page
-  //todo: redireccionar cuando se autentique para la pagina de donde vino la peticion  
-  
+  // todo: redireccionar cuando se autentique para la pagina de donde vino la peticion
+
   if (to.meta.roles) {
-    let roles_count = to.meta.roles.filter(value => store.getters.roles.includes(value));
+    const roles_count = to.meta.roles.filter(value => store.getters.roles.includes(value));
     if (roles_count.length > 0) {
       next();
       return;
-    }    
-    //console.log("sin roles");
+    }
+    // console.log("sin roles");
     next('/403');
-    return;  
+    return;
   }
-  next();    
+  next();
 });
 
 router.afterEach((to, from) => {

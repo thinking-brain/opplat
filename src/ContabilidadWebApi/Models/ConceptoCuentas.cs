@@ -9,6 +9,10 @@ namespace ContabilidadWebApi.Models
     {
         public int ConceptoPlanId { get; set; }
 
+        public virtual ConceptoPlan ConceptoPlan { get; set; }
+
         public int CuentaId { get; set; }
+
+        public virtual Cuenta Cuenta { get; set; }
     }
 }

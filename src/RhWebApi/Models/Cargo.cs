@@ -10,18 +10,13 @@ namespace RhWebApi.Models {
     [Table ("cargo")]
     public class Cargo {
         public int Id { get; set; }
-
-        [Required]
         public string Nombre { get; set; }
         public string Sigla { get; set; }
-        //public virtual NivelDeEscolaridad NivelDeEscolaridad { get; set; }
-        public int GrupoEscalaId { get; set; }
-        public virtual GrupoEscala GrupoEscala { get; set; }
-        public virtual ICollection<PuestoDeTrabajo> PuestosDeTrabajo { get; set; }
+        
+        public int? GrupoEscalaId { get; set; }
+        public virtual GrupoEscala GrupoEscala { get; set; }    
 
-        public bool Activo { get; set; }
-        public Cargo () {
-            PuestosDeTrabajo = new HashSet<PuestoDeTrabajo> ();
-        }
+        public int? JefeId { get; set; }
+        public virtual Cargo Jefe { get; set; }
     }
 }

@@ -27,7 +27,7 @@
               :items="lista_usuarios"
               :footer-props="{
                 showFirstLastPage: true,
-                itemsPerPage : [10, 25, 50, { text: 'All', value: -1 }],                
+                itemsPerPage : [10, 25, 50, { text: 'All', value: -1 }],
               }"
               class="elevation-1"
               item-key="name"
@@ -43,7 +43,9 @@
                     <td>{{ item.apellidos }}</td>
                     <td>{{ item.username }}</td>
                     <td>
-                      <RolesList v-bind:roles="item.roles" v-bind:usuario="item.username"></RolesList>
+                      <RolesList v-bind:roles="item.roles"
+                        v-bind:usuario="item.username">
+                      </RolesList>
                     </td>
                     <td>
                       <v-btn
@@ -74,44 +76,47 @@
 </template>
 
 <script>
-import api from "@/api.js";
-import RolesList from "@/components/admin/RolesList";
-import CambiarEstadoUsuario from "@/components/admin/CambiarEstadoUsuario";
-import ResetPassword from "@/components/admin/ResetPassword";
-import EditarUsuario from "@/components/admin/EditarUsuario";
+import api from '@/api';
+import RolesList from '@/components/admin/RolesList.vue';
+import CambiarEstadoUsuario from '@/components/admin/CambiarEstadoUsuario.vue';
+import ResetPassword from '@/components/admin/ResetPassword.vue';
+import EditarUsuario from '@/components/admin/EditarUsuario.vue';
+
 export default {
-  components: { RolesList, CambiarEstadoUsuario, ResetPassword, EditarUsuario },
+  components: {
+    RolesList, CambiarEstadoUsuario, ResetPassword, EditarUsuario,
+  },
   data() {
     return {
-      search: "",
+      search: '',
       lista_usuarios: [],
       errors: [],
       usuarios: {
         selected: [],
         headers: [
           {
-            text: "Nombres",
-            value: "nombres"
+            text: 'Nombres',
+            value: 'nombres',
           },
           {
-            text: "Apellidos",
-            value: "apellidos"
+            text: 'Apellidos',
+            value: 'apellidos',
           },
           {
-            text: "Usuario",
-            value: "username"
+            text: 'Usuario',
+            value: 'username',
           },
           {
-            text: "Roles",
-            value: "roles"
+            text: 'Roles',
+            value: 'roles',
           },
           {
-            text: "Acciones",
-            value: ""
-          }
+            text: 'Acciones',
+            value: '',
+          },
         ],
-        items: this.lista_usuarios
-      }
+        items: this.lista_usuarios,
+      },
     };
   },
   created() {
@@ -120,53 +125,35 @@ export default {
   computed: {
     users() {
       return this.lista_usuarios;
-    }
+    },
   },
   methods: {
-    getUsuariosFromApi: function() {
-      let url = api.getUrl("api-account", "account/usuarios");
+    getUsuariosFromApi() {
+      const url = api.getUrl('api-account', 'account/usuarios');
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.lista_usuarios = response.data;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
           vm.$snotify.error(
-            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
           );
         });
     },
-    getUsuarios: function(limit) {
+    getUsuarios(limit) {
       return limit ? this.lista_usuarios.slice(0, limit) : this.lista_usuarios;
     },
     gestionaRoles(usuario) {
       this.$router.push({
-        name: "gestionar-roles",
+        name: 'gestionar-roles',
         query: {
-          usuario: usuario
-        }
+          usuario,
+        },
       });
     },
-    resetPassword(usuario) {
-      // this.$router.push({
-      //   name: "gestionar-roles",
-      //   query: {
-      //     usuario: usuario
-      //   }
-      // });
-      console.log("reset password al usuario: " + usuario.username);
-    },
-    editar(usuario) {
-      // this.$router.push({
-      //   name: "gestionar-roles",
-      //   query: {
-      //     usuario: usuario
-      //   }
-      // });
-      console.log("editar usuario: " + usuario.username);
-    }
-  }
+  },
 };
 </script>
 

@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using notificationsWebApi.Hubs;
+using notificationsWebApi.Data;
 using Swashbuckle.AspNetCore.Swagger;
 
 [assembly: HostingStartup(typeof(notificationsWebApi.Startup))]
@@ -30,11 +31,12 @@ namespace notificationsWebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
+            services.AddDbContext<notificationsDbContext>(options => options.UseNpgsql(context.Configuration.GetConnectionString("notificationsApi"), b => b.MigrationsAssembly("notificationsWebApi")));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSignalR();
             services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v2", new Info
+                    c.SwaggerDoc("notificationsApi_v1", new Info
                     {
                         Version = "v1",
                         Title = "Notifications Api",
@@ -75,20 +77,17 @@ namespace notificationsWebApi
             app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/docs/v1/docs.json", "Notifications Api v1");
+                c.SwaggerEndpoint("/docs/notificationsApi_v1/docs.json", "Notifications Api v1");
                 c.RoutePrefix = "docs";
             });
 
             app.UseCors(builder =>
-   {
-       builder.AllowAnyOrigin()
-           .AllowAnyHeader()
-           .AllowAnyMethod();
-   });
-            app.UseSignalR(routes =>
-        {
-            routes.MapHub<NotificationsHub>("/notiHub");
-        });
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
             app.UseMvc();
         }
     }

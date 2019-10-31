@@ -25,20 +25,11 @@ namespace RhWebApi.Models
 
         [Display(Name = "Valor de la mano de obra en CUP")]
         [DataType(DataType.Currency)]
-        public decimal MontoCUP { get; set; }
-
-        [Display(Name = "Entidad que Recibe el Servicio")]
-        public int EntidadId { get; set; }
-
-        [Display(Name = "Entidad")]
-        public virtual Entidad Entidad { get; set; }
+        public decimal MontoCUP { get; set; }      
 
         [Display(Name = "Empresa que Recibe el Servicio")]
         public int EmpresaId { get; set; }
-
-        [Display(Name = "Empresa")]
-        public virtual Entidad Empresa { get; set; }
-
+       
         [Display(Name = "Fecha  de Inicio")]
         public DateTime FechaInicio { get; set; }
 

@@ -10,7 +10,25 @@
     {
         "name": "finanzas",
         "title": "Finanzas",
-        "icon": "mdi-square-inc-cash",
+        "icon": "mdi-finance",
+        "roles": [
+            "administrador",
+            "economico"
+        ]
+    },
+    {
+        "name": "contabilidad",
+        "title": "Contabilidad",
+        "icon": "mdi-account-cash",
+        "roles": [
+            "administrador",
+            "economico"
+        ]
+    },
+    {
+        "name": "inventario",
+        "title": "Inventario",
+        "icon": "mdi-notebook-multiple",
         "roles": [
             "administrador",
             "economico"

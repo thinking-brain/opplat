@@ -53,9 +53,10 @@
   </v-dialog>
 </template>
 <script>
-import api from "@/api.js";
+import api from '@/api';
+
 export default {
-  props: ["usuario"],
+  props: ['usuario'],
   data: () => ({
     dialog: false,
     show_password: false,
@@ -65,11 +66,11 @@ export default {
     contraseña: null,
     confirmarContraseña: null,
     rules: {
-      required: value => !!value || "Obligatorio.",
-      min: v => (!!v && v.length >= 8) || "Min 8 caracteres"
+      required: value => !!value || 'Obligatorio.',
+      min: v => (!!v && v.length >= 8) || 'Min 8 caracteres',
     },
     formHasErrors: false,
-    errors: []
+    errors: [],
   }),
   computed: {
     form() {
@@ -77,23 +78,22 @@ export default {
         usuarioId: this.usuario.userId,
         contraseñaActual: this.contraseñaActual,
         contraseña: this.contraseña,
-        confirmarContraseña: this.confirmarContraseña
+        confirmarContraseña: this.confirmarContraseña,
       };
-    }
+    },
   },
   created() {},
   watch: {
     nombres() {
       this.errorMessages = [];
-    }
+    },
   },
 
   methods: {
     confirmPasswordCheck() {
-      this.errorMessagesPassword =
-        this.contraseña != this.confirmarContraseña
-          ? ["No coinciden la contraseña y la confirmacion."]
-          : [];
+      this.errorMessagesPassword = this.contraseña !== this.confirmarContraseña
+        ? ['No coinciden la contraseña y la confirmacion.']
+        : [];
 
       return true;
     },
@@ -101,27 +101,27 @@ export default {
       this.errorMessages = [];
       this.formHasErrors = false;
 
-      Object.keys(this.form).forEach(f => {
+      Object.keys(this.form).forEach((f) => {
         this.$refs[f].reset();
       });
     },
     submit() {
       this.formHasErrors = false;
       if (!this.formHasErrors) {
-        let url = api.getUrl("api-account", "account/change-password");
+        const url = api.getUrl('api-account', 'account/change-password');
         this.axios
           .post(url, this.form)
-          .then(p => {
+          .then(() => {
             this.dialog = false;
-            vm.$snotify.success("Contraseña cambiada correctamente.");
+            vm.$snotify.success('Contraseña cambiada correctamente.');
           })
-          .catch(err => {
+          .catch((err) => {
             this.dialog = false;
-            vm.$snotify.error("Error cambiando la contraseña. " + err.message);
+            vm.$snotify.error(`Error cambiando la contraseña. ${err.message}`);
           });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style></style>

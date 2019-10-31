@@ -12,8 +12,8 @@ namespace RhWebApi.Controllers
     [ApiController]
     public class HistoricoPuestoDeTrabajoController : Controller
     {
-        private readonly RhWebApiContext context;
-        public HistoricoPuestoDeTrabajoController(RhWebApiContext context)
+        private readonly RhWebApiDbContext context;
+        public HistoricoPuestoDeTrabajoController(RhWebApiDbContext context)
         {
             this.context = context;
         }

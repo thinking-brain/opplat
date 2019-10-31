@@ -11,11 +11,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
-using FinanzasWebApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 using System.IO;
 using FinanzasWebApi.Data;
+using FinanzasWebApi.Helper;
+using Microsoft.EntityFrameworkCore;
 
 [assembly: HostingStartup(typeof(FinanzasWebApi.Startup))]
 
@@ -38,7 +39,7 @@ namespace FinanzasWebApi
                    c.SwaggerDoc("finanzas_v1", new Info
                    {
                        Version = "v1",
-                       Title = "Contabilidad API",
+                       Title = "Finanzas API",
                        Description = "Gestión Financiera dentro del Sistema OPPLAT.",
                        TermsOfService = "APACHE 2.0",
                        Contact = new Contact
@@ -49,19 +50,18 @@ namespace FinanzasWebApi
                        }
                    });
 
-                    // Set the comments path for the Swagger JSON and UI.
-                    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                   // Set the comments path for the Swagger JSON and UI.
+                   var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                    c.IncludeXmlComments(xmlPath);
                });
+            services.AddScoped<FinanzasDbContext>();
+            services.AddScoped<ObtenerPlanGI>();
+            // services.AddSingleton<GetTotalIngresosEnMes>();
+            // services.AddSingleton<GetTotalEgresosEnMes>();
 
-            services.AddDbContext<ApiDbContext>(options =>
-                    options.UseSqlServer(context.Configuration.GetConnectionString("ApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
-
-
-
-
-
+            services.AddDbContext<FinanzasDbContext>(options =>
+                    options.UseNpgsql(context.Configuration.GetConnectionString("FinanzasDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
