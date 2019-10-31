@@ -3,13 +3,13 @@
 </template>
 
 <script>
-import Layout from './components/layouts/DefaultLayout';
+// import Layout from "./components/layouts/DefaultLayout";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {},
   data: () => ({
     //
-  }),
+  })
 };
 </script>
