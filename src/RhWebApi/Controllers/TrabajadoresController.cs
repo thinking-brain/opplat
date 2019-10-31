@@ -132,9 +132,7 @@ namespace RhWebApi.Controllers {
                 return NotFound($"No se encuentra el Trabajador con id {id}");
             }           
             var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == id);
-            if (trabajador == null) {
-                return BadRequest (ModelState);
-            }
+          
             trabajador.Id = trabajadorDto.Id;
             trabajador.Nombre = trabajadorDto.Nombre;
             trabajador.Apellidos = trabajadorDto.Apellidos;
