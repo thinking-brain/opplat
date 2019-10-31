@@ -9,13 +9,13 @@ namespace FinanzasWebApi.ViewModels
     {
         public decimal Real { get; set; }
         public decimal Plan { get; set; }
-        public  ICollection<decimal> Reales{ get; set; }
-        public  ICollection<decimal> Planes{ get; set; }
+        public List<decimal> Reales{ get; set; }
+        public List<decimal> Planes{ get; set; }
 
         public TotalIngresosViewModel()
         {
-            this.Reales= new HashSet<decimal>();
-            this.Planes= new HashSet<decimal>();
+            Reales = new List<decimal>();
+            Planes = new List<decimal>();
         }
     }
 }
