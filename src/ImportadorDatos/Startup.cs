@@ -10,8 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Hangfire.PostgreSql;
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using ImportadorDatos.Jobs;
 using ImportadorDatos.Models.Versat;
@@ -32,9 +30,6 @@ namespace ImportadorDatos
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHangfire(config =>
-                config.UsePostgreSqlStorage(Configuration.GetConnectionString("HangfireConnection")));
-
             services.AddDbContext<VersatDbContext>(options =>
                options.UseSqlServer(Configuration.GetConnectionString("VersatConnection")));
 
@@ -64,9 +59,6 @@ namespace ImportadorDatos
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            app.UseHangfireDashboard();
-            app.UseHangfireServer();
 
             //todo: agregar job para importar cuentas que no de problemas de concurrencia
             //RecurringJob.AddOrUpdate(() => ImportarVersat.ImportarCuentasAsync(), Cron.Daily);
