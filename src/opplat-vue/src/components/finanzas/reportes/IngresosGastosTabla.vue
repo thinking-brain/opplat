@@ -31,11 +31,8 @@
           <thead>
             <tr>
               <th colspan="11" class="text-center encabezado1">
+                <img src="img/logo.png" class="float-left" />
                 <h2>CNA La Concordia</h2>
-              </th>
-            </tr>
-            <tr>
-              <th colspan="11" class="text-center encabezado">
                 <h2>Estado del cumplimiento del plan de ingresos y gastos {{year}} hasta {{mes.nombre}}</h2>
               </th>
             </tr>
@@ -234,7 +231,6 @@ th {
 }
 .colum0 {
   text-align: left;
-  width: 22%;
 }
 .deshabilitado {
   background-color: #e0e0e0;

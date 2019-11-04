@@ -24,6 +24,11 @@ using opplatApplication.Hubs;
 using ContabilidadWebApi.Services;
 using FinanzasWebApi.Data;
 using InventarioWebApi.Data;
+using ImportadorDatos.Models.Versat;
+using ContabilidadWebApi.Data;
+using ImportadorDatos.Models.EnlaceVersat;
+using ImportadorDatos.Jobs;
+using ImportadorDatos.HostedServices;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -62,6 +67,12 @@ namespace opplatApplication
 
             services.AddDbContext<OpplatAppDbContext>(options =>
                 options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")));
+
+            services.AddDbContext<VersatDbContext>(options =>
+               options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
+
+            services.AddDbContext<EnlaceVersatDbContext>(options =>
+                 options.UseNpgsql(context.Configuration.GetConnectionString("EnlaceVersatDbContext")));
 
             services.AddSignalR();
 
@@ -123,6 +134,17 @@ namespace opplatApplication
             // services.AddSingleton<ObtenerPlanGI_Context>();
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();
+            //fin
+
+            //importador
+            services.AddScoped<VersatDbContext>();
+            services.AddScoped<ContabilidadDbContext>();
+            services.AddScoped<EnlaceVersatDbContext>();
+            services.AddTransient<ImportarVersat>();
+
+            services.AddHostedService<UpdateCuentasHostedService>();
+            services.AddHostedService<UpdatePeriodosHostedService>();
+            services.AddHostedService<UpdateAsientosHostedService>();
             //fin
             services.AddSpaStaticFiles(config =>
             {
