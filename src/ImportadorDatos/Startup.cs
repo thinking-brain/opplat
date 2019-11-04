@@ -15,6 +15,7 @@ using ImportadorDatos.Jobs;
 using ImportadorDatos.Models.Versat;
 using ContabilidadWebApi.Data;
 using ImportadorDatos.Models.EnlaceVersat;
+using ImportadorDatos.HostedServices;
 
 namespace ImportadorDatos
 {
@@ -43,6 +44,10 @@ namespace ImportadorDatos
             services.AddScoped<ContabilidadDbContext>();
             services.AddScoped<EnlaceVersatDbContext>();
             services.AddTransient<ImportarVersat>();
+
+            services.AddHostedService<UpdateCuentasHostedService>();
+            services.AddHostedService<UpdatePeriodosHostedService>();
+            services.AddHostedService<UpdateAsientosHostedService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
