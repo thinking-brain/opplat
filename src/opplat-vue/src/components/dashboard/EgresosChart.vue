@@ -8,13 +8,14 @@
 
 <script>
 import VueApexCharts from "vue-apexcharts";
-import api from "@/api"
+import api from "@/api";
 export default {
   components: {
     VueApexCharts
   },
   data() {
     return {
+      egresos_series: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       egresosOptions: {
         title: {
           text: "Egresos",
@@ -56,7 +57,7 @@ export default {
         }
       },
       egresos_series: [],
-      errors:[]
+      errors: []
     };
   },
   created() {
