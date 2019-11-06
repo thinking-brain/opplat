@@ -14,6 +14,21 @@ namespace InventarioWebApi.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Submayor>().HasKey(k => new { k.AlmacenId, k.ProductoId });
             modelBuilder.Entity<Almacen>().Property(k => k.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<MovimientoDeProducto>().Property(m => m.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<TipoMovimiento>().HasData(
+                new TipoMovimiento { Id = 1, Descripcion = "Entrada", Factor = 1 },
+                new TipoMovimiento { Id = 2, Descripcion = "Entrada traslado interno", Factor = 1 },
+                new TipoMovimiento { Id = 3, Descripcion = "Merma", Factor = -1 },
+                new TipoMovimiento { Id = 4, Descripcion = "Salida a producción", Factor = -1 },
+                new TipoMovimiento { Id = 5, Descripcion = "Salida traslado interno", Factor = -1 },
+                new TipoMovimiento { Id = 6, Descripcion = "Venta independiente", Factor = -1 },
+                new TipoMovimiento { Id = 7, Descripcion = "Entrada por error en salida", Factor = 1 },
+                new TipoMovimiento { Id = 8, Descripcion = "Salida por error en entrada", Factor = -1 },
+                new TipoMovimiento { Id = 9, Descripcion = "Entrada por ajuste", Factor = 1 },
+                new TipoMovimiento { Id = 10, Descripcion = "Salida", Factor = -1 },
+                new TipoMovimiento { Id = 11, Descripcion = "Entrada por conversión de producto", Factor = 1 },
+                new TipoMovimiento { Id = 12, Descripcion = "Salida por conversion de producto", Factor = -1 }
+            );
         }
 
         public DbSet<Almacen> Almacenes { get; set; }

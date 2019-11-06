@@ -6,6 +6,7 @@ namespace InventarioWebApi.Models
     {
         public int Id { get; set; }
         public int AlmacenId { get; set; }
+    
         public virtual Almacen Almacen { get; set; }
         public int ProductoId { get; set; }
         public virtual Producto Producto { get; set; }

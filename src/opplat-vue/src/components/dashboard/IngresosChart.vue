@@ -16,7 +16,14 @@ export default {
   },
   data: function() {
     return {
-      ingresos_series: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      ingresos_series: [{
+            name: "Real",
+            data: [0,0,0,0,0,0,0,0,0,0,0,0]
+          },
+          {
+            name: "Plan",
+            data: [0,0,0,0,0,0,0,0,0,0,0,0]
+          }],
       ingresos_reales: [],
       ingresos_planes: [],
       ingresosOptions: {

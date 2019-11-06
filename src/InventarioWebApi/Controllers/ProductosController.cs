@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using InventarioWebApi.Data;
 using InventarioWebApi.Models;
+using InventarioWebApi.Services.InventarioService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,10 +15,12 @@ namespace InventarioWebApi.Controllers
     public class ProductosController : ControllerBase
     {
         private readonly InventarioDbContext _context;
+        private readonly InventarioService _inventario;
 
         public ProductosController(InventarioDbContext context)
         {
             _context = context;
+            _inventario = new InventarioService(context);
         }
 
         // GET api/values
@@ -33,7 +36,7 @@ namespace InventarioWebApi.Controllers
         {
             var producto = _context.Productos.Include(p => p.Unidad)
             .Include(p => p.Categoria).Include(p => p.Tipo).FirstOrDefault(p => p.Id == id);
-            
+
             if (producto != null)
             {
                 return Ok(producto);
@@ -52,6 +55,21 @@ namespace InventarioWebApi.Controllers
             {
                 _context.Add(producto);
                 _context.SaveChanges();
+                return Ok();
+            }
+            return BadRequest(ModelState);
+        }
+
+        [HttpPost("/entrada")]
+        public async Task<IActionResult> Entrada([FromBody] MovimientoDeProducto movimiento)
+        {
+            movimiento.TipoMovimientoId = 1;
+
+            if (ModelState.IsValid)
+            {
+                _context.MovimientosDeProductos.Add(movimiento);
+                await _context.SaveChangesAsync();
+                await _inventario.ActualizarSubmayor(movimiento.Id);
                 return Ok();
             }
             return BadRequest(ModelState);
