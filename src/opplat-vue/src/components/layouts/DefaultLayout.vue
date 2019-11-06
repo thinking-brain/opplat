@@ -2,10 +2,10 @@
   <v-app id="inspire">
     <NavigationDrawer class="d-print-none" :drawer="drawer" />
     <AppBar />
-    <v-content>
-      <div class="page-wrapper">
-        <router-view></router-view>
-      </div>
+    <v-content flat wraper>
+      <!-- <div class="page-wrapper"> -->
+        <router-view />
+      <!-- </div> -->
       <vue-snotify></vue-snotify>
       <!-- App Footer -->
       <v-footer height="auto" class="white pa-3 app--footer d-print-none">
@@ -36,7 +36,7 @@ export default {
   },
   data: () => ({
     dialog: false,
-    drawer: null,
+    drawer: false,
     items: [
       { icon: 'contacts', text: 'Contacts' },
       { icon: 'history', text: 'Frequently contacted' },

@@ -52,20 +52,20 @@ namespace FinanzasWebApi.Controllers
         /// <param name="años"></param>
         /// <returns></returns>
         [HttpGet("ingresosTotal/{años}")]
-        public IEnumerable<TotalIngGastUtilViewModel> IngresosTotal([FromRoute] string años)
+        public ActionResult IngresosTotal([FromRoute] string años)
         {
-            var planes = new List<TotalIngGastUtilViewModel>();
+            var resultado = new TotalIngresosViewModel();
 
             int year = Convert.ToInt32(años);
 
             for (int i = 1; i < 13; i++)
             {
-                var real = _obtenetPlan.ObtenerTotalIngresos(year, i);
-                var plan = _obtenetPlan.ObtenerTotalPlanIngresos(year, i);
-                planes.Add(new TotalIngGastUtilViewModel { Mes = i, Real = real, Plan = plan });
+                decimal real = _obtenetPlan.ObtenerTotalIngresos(year, i);
+                decimal plan = _obtenetPlan.ObtenerTotalPlanIngresos(year, i);
+                resultado.Reales.Add(real);
+                resultado.Planes.Add(plan);
             }
-
-            return planes;
+            return Ok(resultado);
         }
 
         /// <summary>
@@ -97,9 +97,9 @@ namespace FinanzasWebApi.Controllers
         /// <param name="años"></param>
         /// <returns></returns>
         [HttpGet("egresosTotal/{años}")]
-        public IEnumerable<TotalIngGastUtilViewModel> EgresosTotal([FromRoute] string años)
+        public TotalIngresosViewModel EgresosTotal([FromRoute] string años)
         {
-            var planes = new List<TotalIngGastUtilViewModel>();
+            var resultado = new TotalIngresosViewModel();
 
             int year = Convert.ToInt32(años);
 
@@ -107,10 +107,10 @@ namespace FinanzasWebApi.Controllers
             {
                 var real = _obtenetPlan.ObtenerTotalEgresos(year, i);
                 var plan = _obtenetPlan.ObtenerTotalPlanEgresos(year, i);
-                planes.Add(new TotalIngGastUtilViewModel { Mes = i, Real = real, Plan = plan });
+                resultado.Reales.Add(real);
+                resultado.Planes.Add(plan);
             }
-
-            return planes;
+            return resultado;
         }
         /// <summary>
         /// Devuelve los Egresos para el plan de Gastos en Ingresos
@@ -141,9 +141,9 @@ namespace FinanzasWebApi.Controllers
         /// <param name="años"></param>
         /// <returns></returns>
         [HttpGet("utilidadesTotal/{años}")]
-        public IEnumerable<TotalIngGastUtilViewModel> UtilidadesTotal([FromRoute] string años)
+        public TotalIngresosViewModel UtilidadesTotal([FromRoute] string años)
         {
-            var planes = new List<TotalIngGastUtilViewModel>();
+            var resultado = new TotalIngresosViewModel();
 
             int year = Convert.ToInt32(años);
 
@@ -151,10 +151,10 @@ namespace FinanzasWebApi.Controllers
             {
                 var real = _obtenetPlan.ObtenerTotalUtilidades(year, i);
                 var plan = _obtenetPlan.ObtenerTotalPlanUtilidades(year, i);
-                planes.Add(new TotalIngGastUtilViewModel { Mes = i, Real = real, Plan = plan });
+                resultado.Reales.Add(real);
+                resultado.Planes.Add(plan);
             }
-
-            return planes;
+            return resultado;
         }
     }
 }

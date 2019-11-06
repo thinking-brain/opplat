@@ -22,7 +22,13 @@ namespace FinanzasWebApi.Helper
             _context = context;
         }
 
-        public List<PlanGIViewModel> ObtenerIngresos(int year, int meses)
+        /// <summary>
+        /// Devuelve los ingresos en un mes y un año
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="mes"></param>
+        /// <returns></returns>
+        public List<PlanGIViewModel> ObtenerIngresos(int year, int mes)
         {
             var plan = new List<PlanGIViewModel>();
             var modelo = DatosPlanGI.Datos();
@@ -31,80 +37,56 @@ namespace FinanzasWebApi.Helper
             {
                 string cta = item.Valor.ToString();
                 string concepto = item.Dato.ToString();
-                decimal Importe = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
-                decimal ImporteAcumulado = GetMovimientoDeCuentaPeriodoAcumulado.Get(year, meses, cta, _config);
-                var planEnMes = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto))[meses] : 0M;
-                var planAcum = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto)).Acumulado(meses) : 0M;
+                var cache = _context.Set<CacheCuentaPeriodo>().SingleOrDefault(c => c.Cuenta == cta && c.Mes == mes && c.Year == year);
+                decimal importe = 0;
+                decimal acumulado = 0;
+                if (cache != null)
+                {
+                    importe = cache.Saldo;
+                    acumulado = cache.Acumulado;
+                }
+                var planEnMes = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto))[mes] : 0M;
+                var planAcum = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto)).Acumulado(mes) : 0M;
 
                 var PlanMes = planEnMes;
                 var PlanAcumulado = planAcum;
-                var RealMes = Importe;
-                var RealAcumulado = ImporteAcumulado;
+                var RealMes = importe;
+                var RealAcumulado = acumulado;
 
                 var cost = new PlanGIViewModel
                 {
-                    //Grupo
                     Grupo = item.Dato.ToString(),
-                    //Plan Mensual
                     PlanMes = PlanMes,
-                    //Real del Mes
                     RealMes = RealMes,
-
-                    // % de Cumplimiento
                     PorcCumplimiento = PlanMes > 0 ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                    // % en relación a ingresos
                     PorcRelacionIngresos = null,
-                    //% de los gastos en función del total
                     PorcGastosFuncionTotal = null,
-                    //Plan Acumulado
                     PlanAcumulado = PlanAcumulado,
-                    //Real Acumulado
                     RealAcumulado = RealAcumulado,
-                    //% Cumplimiento
                     PorcCumpAcumulado = PlanAcumulado > 0 ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                    // % en relación a ingresos 
                     PorcIngresosFuncionTotal = null,
-                    //% de los gastos en función del total 
                     PorcGastosFuncionTotalAcumulado = null,
-                    ////Total en el Grupo
-                    //
-
                 };
                 plan.Add(cost);
             }
             plan.Insert(0, new PlanGIViewModel
             {
-                //Grupo
                 Grupo = "Ingresos",
-                //Plan Mensual
                 PlanMes = plan.Sum(p => p.PlanMes),
-                //Real del Mes
                 RealMes = plan.Sum(p => p.RealMes),
-
-                // % de Cumplimiento
                 PorcCumplimiento = plan.Sum(p => p.PlanMes) > 0 ? Math.Round((plan.Sum(p => p.RealMes) / plan.Sum(p => p.PlanMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                // % en relación a ingresos
                 PorcRelacionIngresos = null,
-                //% de los gastos en función del total
                 PorcGastosFuncionTotal = null,
-                //Plan Acumulado
                 PlanAcumulado = plan.Sum(p => p.PlanAcumulado),
-                //Real Acumulado
                 RealAcumulado = plan.Sum(p => p.RealAcumulado),
-                //% Cumplimiento
                 PorcCumpAcumulado = plan.Sum(p => p.PlanAcumulado) > 0 ? Math.Round((plan.Sum(p => p.RealAcumulado) / plan.Sum(p => p.PlanAcumulado)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                // % en relación a ingresos 
                 PorcIngresosFuncionTotal = null,
-                //% de los gastos en función del total 
                 PorcGastosFuncionTotalAcumulado = null,
-                ////Total en el Grupo
-                //
-
             });
             return plan;
-
         }
-        public decimal ObtenerTotalIngresos(int year, int meses)
+
+        public decimal ObtenerTotalIngresos(int year, int mes)
         {
             var plan = new List<MovimientoCuentaPeriodoVM>();
             var modelo = DatosPlanGI.Datos();
@@ -112,15 +94,19 @@ namespace FinanzasWebApi.Helper
             {
                 string cta = item.Valor.ToString();
                 string concepto = item.Dato.ToString();
-                decimal Importe = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
+                var cache = _context.Set<CacheCuentaPeriodo>().SingleOrDefault(c => c.Cuenta == cta && c.Mes == mes && c.Year == year);
+                decimal importe = 0;
+                if (cache != null)
+                {
+                    importe = cache.Saldo;
+                }
                 var cost = new MovimientoCuentaPeriodoVM
                 {
                     Cuenta = cta,
-                    Importe = Importe,
+                    Importe = importe,
                 };
                 plan.Add(cost);
             }
-
             return plan.Sum(s => s.Importe);
 
         }
@@ -150,7 +136,7 @@ namespace FinanzasWebApi.Helper
             return plan.Sum(s => s.Importe);
 
         }
-        public decimal ObtenerTotalIngresosAcumulados(int year, int meses)
+        public decimal ObtenerTotalIngresosAcumulados(int year, int mes)
         {
             var plan = new List<MovimientoCuentaPeriodoVM>();
             var modelo = DatosPlanGI.Datos();
@@ -158,106 +144,86 @@ namespace FinanzasWebApi.Helper
             {
                 string cta = item.Valor.ToString();
                 string concepto = item.Dato.ToString();
-                decimal Importe = GetMovimientoDeCuentaPeriodoAcumulado.Get(year, meses, cta, _config);
+                var cache = _context.Set<CacheCuentaPeriodo>().SingleOrDefault(c => c.Cuenta == cta && c.Mes == mes && c.Year == year);
+                decimal importe = 0;
+                decimal acumulado = 0;
+                if (cache != null)
+                {
+                    importe = cache.Saldo;
+                    acumulado = cache.Acumulado;
+                }
                 var cost = new MovimientoCuentaPeriodoVM
                 {
                     Cuenta = cta,
-                    Importe = Importe,
+                    Importe = acumulado,
                 };
                 plan.Add(cost);
             }
-
             return plan.Sum(s => s.Importe);
-
         }
 
-        public List<PlanGIViewModel> ObtenerEgresos(int year, int meses)
+        public List<PlanGIViewModel> ObtenerEgresos(int year, int mes)
         {
             var plan = new List<PlanGIViewModel>();
             var modelo = DatosPlanGI.Datos();
             var planes = GetPlanEgresosPeriodo.Get(year, _config);
-            var TotalIngresosEnMes = ObtenerTotalIngresos(year, meses);
-            var TotalEgresosEnMes = ObtenerTotalEgresos(year, meses);
-            var TotalIngresosAcumulados = ObtenerTotalIngresosAcumulados(year, meses);
-            var TotalEgresosAcumuados = ObtenerTotalEgresosAcumulados(year, meses);
+            var TotalIngresosEnMes = ObtenerTotalIngresos(year, mes);
+            var TotalEgresosEnMes = ObtenerTotalEgresos(year, mes);
+            var TotalIngresosAcumulados = ObtenerTotalIngresosAcumulados(year, mes);
+            var TotalEgresosAcumuados = ObtenerTotalEgresosAcumulados(year, mes);
             foreach (var item in modelo.Where(s => s.Tipo.Equals("Egresos")))
             {
                 string cta = item.Valor.ToString();
                 string concepto = item.Dato.ToString();
-                decimal Importe = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
-                decimal ImporteAcumulado = GetMovimientoDeCuentaPeriodoAcumulado.Get(year, meses, cta, _config);
-                var planEnMes = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto))[meses] : 0M;
-                var planAcum = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto)).Acumulado(meses) : 0M;
+                var cache = _context.Set<CacheCuentaPeriodo>().SingleOrDefault(c => c.Cuenta == cta && c.Mes == mes && c.Year == year);
+                decimal importe = 0;
+                decimal acumulado = 0;
+                if (cache != null)
+                {
+                    importe = cache.Saldo;
+                    acumulado = cache.Acumulado;
+                }
+                var planEnMes = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto))[mes] : 0M;
+                var planAcum = planes.SingleOrDefault(s => s.Concepto.Equals(concepto)) != null ? planes.SingleOrDefault(s => s.Concepto.Equals(concepto)).Acumulado(mes) : 0M;
 
                 var PlanMes = planEnMes;
                 var PlanAcumulado = planAcum;
-                var RealMes = Importe;
-                var RealAcumulado = ImporteAcumulado;
+                var RealMes = importe;
+                var RealAcumulado = acumulado;
 
                 var cost = new PlanGIViewModel
                 {
-                    //Grupo
                     Grupo = item.Dato.ToString(),
-                    //Plan Mensual
                     PlanMes = PlanMes,
-                    //Real del Mes
                     RealMes = RealMes,
-
-                    // % de Cumplimiento
                     PorcCumplimiento = PlanMes > 0 ? Math.Round((RealMes / PlanMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                    // % en relación a ingresos
                     PorcRelacionIngresos = (TotalIngresosEnMes > 0 && RealMes > 0) ? Math.Round((RealMes / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                    //% de los gastos en función del total
                     PorcGastosFuncionTotal = TotalEgresosEnMes > 0 ? Math.Round((RealMes / TotalEgresosEnMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                    //Plan Acumulado
                     PlanAcumulado = PlanAcumulado,
-                    //Real Acumulado
                     RealAcumulado = RealAcumulado,
-                    //
                     PorcCumpAcumulado = PlanAcumulado > 0 ? Math.Round((RealAcumulado / PlanAcumulado) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-
-                    // % en relación a ingresos 
                     PorcIngresosFuncionTotal = TotalIngresosAcumulados > 0 ? Math.Round((RealMes / TotalIngresosAcumulados) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-
-                    //% de los gastos en función del total 
                     PorcGastosFuncionTotalAcumulado = TotalEgresosAcumuados > 0 ? Math.Round((RealMes / TotalEgresosAcumuados) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-
                 };
                 plan.Add(cost);
             }
             plan.Insert(0, new PlanGIViewModel
             {
-                //Grupo
                 Grupo = "Egresos",
-                //Plan Mensual
                 PlanMes = plan.Sum(p => p.PlanMes),
-                //Real del Mes
                 RealMes = plan.Sum(p => p.RealMes),
-
-                // % de Cumplimiento
                 PorcCumplimiento = plan.Sum(p => p.PlanMes) > 0 ? Math.Round((plan.Sum(p => p.RealMes) / plan.Sum(p => p.PlanMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                // % en relación a ingresos
                 PorcRelacionIngresos = (TotalIngresosEnMes > 0 && plan.Sum(p => p.RealMes) > 0) ? Math.Round((plan.Sum(p => p.RealMes) / (TotalIngresosEnMes)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                //% de los gastos en función del total
                 PorcGastosFuncionTotal = TotalEgresosEnMes > 0 ? Math.Round((plan.Sum(p => p.RealMes) / TotalEgresosEnMes) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-                //Plan Acumulado
                 PlanAcumulado = plan.Sum(p => p.PlanAcumulado),
-                //Real Acumulado
                 RealAcumulado = plan.Sum(p => p.RealAcumulado),
-                //
                 PorcCumpAcumulado = plan.Sum(p => p.PlanAcumulado) > 0 ? Math.Round((plan.Sum(p => p.RealAcumulado) / plan.Sum(p => p.PlanAcumulado)) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-
-                // % en relación a ingresos 
                 PorcIngresosFuncionTotal = TotalIngresosAcumulados > 0 ? Math.Round((plan.Sum(p => p.RealMes) / TotalIngresosAcumulados) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-
-                //% de los gastos en función del total 
                 PorcGastosFuncionTotalAcumulado = TotalEgresosAcumuados > 0 ? Math.Round((plan.Sum(p => p.RealMes) / TotalEgresosAcumuados) * 100, 2, MidpointRounding.AwayFromZero) : 0,
-
             });
             return plan;
-
         }
-        public decimal ObtenerTotalEgresos(int year, int meses)
+        public decimal ObtenerTotalEgresos(int year, int mes)
         {
             var plan = new List<MovimientoCuentaPeriodoVM>();
             var modelo = DatosPlanGI.Datos();
@@ -265,11 +231,18 @@ namespace FinanzasWebApi.Helper
             {
                 string cta = item.Valor.ToString();
                 string concepto = item.Dato.ToString();
-                decimal Importe = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
+                var cache = _context.Set<CacheCuentaPeriodo>().SingleOrDefault(c => c.Cuenta == cta && c.Mes == mes && c.Year == year);
+                decimal importe = 0;
+                decimal acumulado = 0;
+                if (cache != null)
+                {
+                    importe = cache.Saldo;
+                    acumulado = cache.Acumulado;
+                }
                 var cost = new MovimientoCuentaPeriodoVM
                 {
                     Cuenta = cta,
-                    Importe = Importe,
+                    Importe = importe,
                 };
                 plan.Add(cost);
             }
@@ -298,7 +271,7 @@ namespace FinanzasWebApi.Helper
             return plan.Sum(s => s.Importe);
 
         }
-        public decimal ObtenerTotalEgresosAcumulados(int year, int meses)
+        public decimal ObtenerTotalEgresosAcumulados(int year, int mes)
         {
             var plan = new List<MovimientoCuentaPeriodoVM>();
             var modelo = DatosPlanGI.Datos();
@@ -306,11 +279,18 @@ namespace FinanzasWebApi.Helper
             {
                 string cta = item.Valor.ToString();
                 string concepto = item.Dato.ToString();
-                decimal Importe = GetMovimientoDeCuentaPeriodoAcumulado.Get(year, meses, cta, _config);
+                var cache = _context.Set<CacheCuentaPeriodo>().SingleOrDefault(c => c.Cuenta == cta && c.Mes == mes && c.Year == year);
+                decimal importe = 0;
+                decimal acumulado = 0;
+                if (cache != null)
+                {
+                    importe = cache.Saldo;
+                    acumulado = cache.Acumulado;
+                }
                 var cost = new MovimientoCuentaPeriodoVM
                 {
                     Cuenta = cta,
-                    Importe = Importe,
+                    Importe = acumulado,
                 };
                 plan.Add(cost);
             }
@@ -324,6 +304,8 @@ namespace FinanzasWebApi.Helper
             var plan = new List<PlanGIViewModel>();
             var modelo = DatosPlanGI.Datos();
             var planes = GetPlanUtilidadPeriodo.Get(year, _config);
+            var planesE = GetPlanEgresosPeriodo.Get(year, _config);
+            var planesI = GetPlanIngresosPeriodo.Get(year, _config);
             var TotalIngresosEnMes = ObtenerTotalIngresos(year, meses);
             var TotalEgresosEnMes = ObtenerTotalEgresos(year, meses);
             var TotalIngresosAcumulados = ObtenerTotalIngresosAcumulados(year, meses);
@@ -332,8 +314,12 @@ namespace FinanzasWebApi.Helper
             //Utilidad
             var utilidad = TotalIngresosEnMes - TotalEgresosEnMes;
             var utilidadAcumulada = TotalIngresosAcumulados - TotalEgresosAcumuados;
-            var planUtilidad = planes.Any(p => p.Concepto == "Utilidad") ? planes.SingleOrDefault(p => p.Concepto == "Utilidad")[meses] : 0;
-            var planUtilidadAcumulado = planes.Any(p => p.Concepto == "Utilidad") ? planes.SingleOrDefault(p => p.Concepto == "Utilidad").Acumulado(meses) : 0;
+            var planIngreso = planesI.Sum(p => p[meses]);
+            var planIngresoAcumulado = planesI.Sum(p => p.Acumulado(meses));
+            var planEgreso = planesE.Sum(p => p[meses]);
+            var planEgresoAcumulado = planesE.Sum(p => p.Acumulado(meses));
+            var planUtilidad = planIngreso - planEgreso;
+            var planUtilidadAcumulado = planIngresoAcumulado - planEgresoAcumulado;
             plan.Add(new PlanGIViewModel
             {
                 Grupo = "Utilidad",
@@ -352,8 +338,14 @@ namespace FinanzasWebApi.Helper
             var planPago = planes.Any(p => p.Concepto == "Pago a cargo de la utilidad") ? planes.SingleOrDefault(p => p.Concepto == "Pago a cargo de la utilidad")[meses] : 0;
             var planPagoAcumulado = planes.Any(p => p.Concepto == "Pago a cargo de la utilidad") ? planes.SingleOrDefault(p => p.Concepto == "Pago a cargo de la utilidad").Acumulado(meses) : 0;
             var cta = "693";
-            decimal pago = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
-            decimal pagoAcumulado = GetMovimientoDeCuentaPeriodoAcumulado.Get(year, meses, cta, _config);
+            var cache = _context.Set<CacheCuentaPeriodo>().SingleOrDefault(c => c.Cuenta == cta && c.Mes == meses && c.Year == year);
+            decimal pago = 0;
+            decimal pagoAcumulado = 0;
+            if (cache != null)
+            {
+                pago = cache.Saldo;
+                pagoAcumulado = cache.Acumulado;
+            }
             plan.Add(new PlanGIViewModel
             {
                 Grupo = "Pago a cargo de la utilidad",

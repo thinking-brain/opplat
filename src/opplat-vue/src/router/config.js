@@ -77,7 +77,7 @@ export const protectedRoute = [
         group: 'apps',
         icon: 'dashboard',
       },
-      component: () => import(/* webpackChunkName: "dashboard" */ '@/components/Dashboard.vue'),
+      component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Home.vue'),
     },
     ],
   },
@@ -242,6 +242,15 @@ export const protectedRoute = [
         requiresAuth: true,
       },
       component: () => import(/* webpackChunkName: "table" */ '@/views/finanzas/configuracion/Configuraciones.vue'),
+    },
+    {
+      path: '/finanzas/actualizardatos',
+      name: 'ActualizarDatos',
+      meta: {
+        title: 'Actualizar Datos',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/finanzas/ActualizarCache.vue'),
     }],
   },
   //Plan
