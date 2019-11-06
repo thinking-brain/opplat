@@ -21,5 +21,6 @@
         <ProjectReference Include="..\ContabilidadWebApi\ContabilidadWebApi.csproj" />
         <ProjectReference Include="..\FinanzasWebApi\FinanzasWebApi.csproj" />
         <ProjectReference Include="..\InventarioWebApi\InventarioWebApi.csproj" />
+        <ProjectReference Include="..\ImportadorDatos\ImportadorDatos.csproj" />
     </ItemGroup>
 </Project>
