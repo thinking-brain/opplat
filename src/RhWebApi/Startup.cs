@@ -1,14 +1,22 @@
 using System;
-using System.IO;
-using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Swagger;
+using System.Reflection;
+using System.IO;
 using RhWebApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.EntityFrameworkCore;
 
 [assembly: HostingStartup(typeof(RhWebApi.Startup))]
 namespace RhWebApi
@@ -40,7 +48,7 @@ namespace RhWebApi
             });
 
             services.AddDbContext<RhWebApiDbContext>(options =>
-                    options.UseSqlServer(context.Configuration.GetConnectionString("RhWebApiDbContext")));
+                    options.UseNpgsql(context.Configuration.GetConnectionString("RhWebApiDbContext"), b => b.MigrationsAssembly("RhWebApi")));
 
             // services.AddDbContext<VersatDbContext>(options =>
             //    options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));

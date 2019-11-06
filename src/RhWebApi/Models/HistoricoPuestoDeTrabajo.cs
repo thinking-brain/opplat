@@ -16,9 +16,7 @@ namespace RhWebApi.Models
 
         public virtual Trabajador Trabajador { get; set; }
 
-        public int PuestoDeTrabajoId { get; set; }
-
-        public virtual PuestoDeTrabajo PuestoDeTrabajo { get; set; }
+        public int? PuestoDeTrabajoId { get; set; }
 
         public DateTime FechaInicio { get; set; }
 

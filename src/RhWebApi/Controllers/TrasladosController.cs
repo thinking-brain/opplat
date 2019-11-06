@@ -60,11 +60,23 @@ namespace RhWebApi.Controllers {
                     CargoDestinoId = trasladoDto.CargoDestinoId,
                 };
                 context.Traslado.Add (traslado);
-
-                trabajador.PuestoDeTrabajoId=puesto.Id;
+                trabajador.PuestoDeTrabajoId = puesto.Id;
                 context.SaveChanges ();
 
-                return new CreatedAtRouteResult ("GetTraslado", new { id = traslado.Id });
+                // var hist = context.HistoricoPuestoDeTrabajo.FirstOrDefault (s => s.TrabajadorId == trabajador.Id);
+                // if (hist.FechaInicio != DateTime.Now && hist.FechaTerminado == null) {
+                //     hist.FechaTerminado = DateTime.Now;
+                // }
+
+                var historico = new HistoricoPuestoDeTrabajo () {
+                    TrabajadorId = trabajador.Id,
+                    PuestoDeTrabajoId = trabajador.PuestoDeTrabajoId,
+                    FechaInicio = DateTime.Now,
+                };
+
+                context.HistoricoPuestoDeTrabajo.Add (historico);
+                context.SaveChanges ();
+               // return new CreatedAtRouteResult ("GetTraslado", new { id = traslado.Id });
             }
             return BadRequest (ModelState);
         }

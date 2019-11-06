@@ -53,40 +53,29 @@ namespace RhWebApi.Controllers {
         public IActionResult POST ([FromBody] EntradaDto entradaDto) {
             if (ModelState.IsValid) {
                 var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == entradaDto.TrabajadorId);
-
                 var puesto = context.PuestoDeTrabajo.SingleOrDefault (p => p.CargoId == entradaDto.CargoId && p.UnidadOrganizativaId == entradaDto.UnidadOrganizativaId);
 
-                if (context.Entrada.Any (p => p.TrabajadorId == entradaDto.TrabajadorId)) {
-                    return BadRequest ($"Error al trabajador {trabajador.Nombre +" "+ trabajador.Apellidos}, ya se le ha dado entrada");
-                } else {
-                    var entrada = new Entrada () {
-                        TrabajadorId = entradaDto.TrabajadorId,
-                        CargoId = entradaDto.CargoId,
-                        Fecha = entradaDto.Fecha,
-                        UnidadOrganizativaId = entradaDto.UnidadOrganizativaId,
-                    };
-                    context.Entrada.Add (entrada);
-                    context.SaveChanges ();
+                var entrada = new Entrada () {
+                    TrabajadorId = entradaDto.TrabajadorId,
+                    CargoId = entradaDto.CargoId,
+                    Fecha = entradaDto.Fecha,
+                    UnidadOrganizativaId = entradaDto.UnidadOrganizativaId,
+                };
+                context.Entrada.Add (entrada);
+                trabajador.PuestoDeTrabajoId = puesto.Id;
+                puesto.CantidadPorPlantilla++;
+                trabajador.EstadoTrabajador = "Activo";
+                context.Entry (trabajador).State = EntityState.Modified;
 
-                    trabajador.PuestoDeTrabajoId = puesto.Id;
-                    puesto.CantidadPorPlantilla++;
-                    trabajador.EstadoTrabajador = "Activo";
-                    context.Entry (trabajador).State = EntityState.Modified;
-                    context.SaveChanges ();
+                var historico = new HistoricoPuestoDeTrabajo () {
+                    TrabajadorId = trabajador.Id,
+                    PuestoDeTrabajoId = trabajador.PuestoDeTrabajoId,
+                    FechaInicio = DateTime.Now,
+                };
+                context.HistoricoPuestoDeTrabajo.Add (historico);
+                context.SaveChanges ();
 
-                    // if (context.PuestoDeTrabajo.Any (p => p.CargoId == entradaDto.CargoId)) {
-                    //     puesto.CantidadPorPlantilla++;
-                    //     context.Entry (puesto).State = EntityState.Modified;
-                    // } else {
-                    //     puesto = new PuestoDeTrabajo () {
-                    //         CantidadPorPlantilla = 1,
-                    //         CargoId = entradaDto.CargoId,
-                    //     };
-                    //     context.Add (puesto);
-                    // }
-
-                    return new CreatedAtRouteResult ("GetEntrada", new { id = entradaDto.Id });
-                }
+                return new CreatedAtRouteResult ("GetEntrada", new { id = entradaDto.Id });
             }
             return BadRequest (ModelState);
         }

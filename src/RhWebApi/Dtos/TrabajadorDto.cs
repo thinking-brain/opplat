@@ -16,7 +16,6 @@ namespace RhWebApi.Dtos {
     public virtual Sexo Sexo { get; set; }
     public string Direccion { get; set; }
     public int? MunicipioId { get; set; }
-    public string MunicipioProv { get; set; }    
     public virtual NivelDeEscolaridad NivelDeEscolaridad { get; set; }  
     public string EstadoTrabajador { get; set; }
      [NotMapped]

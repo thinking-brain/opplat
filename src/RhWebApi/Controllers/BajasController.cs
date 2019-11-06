@@ -54,6 +54,7 @@ namespace RhWebApi.Controllers {
 
                 var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == bajaDto.TrabajadorId);
                 trabajador.EstadoTrabajador = "Baja";
+                trabajador.PuestoDeTrabajoId = null;
                 context.SaveChanges ();
 
                 return new CreatedAtRouteResult ("GetBaja", new { id = baja.Id });
