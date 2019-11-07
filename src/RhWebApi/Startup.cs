@@ -15,8 +15,6 @@ using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 using System.IO;
 using RhWebApi.Models;
-using Swashbuckle.AspNetCore.Swagger;
-using Microsoft.EntityFrameworkCore;
 
 [assembly: HostingStartup(typeof(RhWebApi.Startup))]
 namespace RhWebApi
@@ -52,9 +50,6 @@ namespace RhWebApi
 
             // services.AddDbContext<VersatDbContext>(options =>
             //    options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
-
-            // services.AddDbContext<VersatDbContext2>(options =>
-            //    options.UseSqlServer(context.Configuration.GetConnectionString("Versat2Connection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

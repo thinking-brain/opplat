@@ -294,4 +294,35 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/views/inventario/Productos.vue'),
     }],
   },
+
+  //Recursos Humanos
+  {
+    name: 'Recursos Humanos',
+    path: '/recursos_humanos',
+    component: DefaultLayout,
+    redirect: '/recursos_humanos/trabajadores',
+    meta: {
+      title: 'recursos_humanos',
+      group: 'recursos_humanos',
+    },
+    children: [{
+      path: '/recursos_humanos/trabajadores',
+      name: 'Recursos Humanos',
+      meta: {
+        title: 'Recursos Humanos',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Trabajadores.vue'),
+    },
+      // {
+      //   path: '/recursos_Humanos/productos',
+      //   name: 'Productos',
+      //   meta: {
+      //     title: 'Productos',
+      //     requiresAuth: true,
+      //   },
+      //   component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_Humanos/Productos.vue'),
+      // }
+    ],
+  },
 ];
