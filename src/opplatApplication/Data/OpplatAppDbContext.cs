@@ -11,6 +11,11 @@ namespace opplatApplication.Data
 
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ForNpgsqlUseIdentityColumns();
+        }
+
         public DbSet<Licencia> Licencias { get; set; }
     }
 }

@@ -1,218 +1,328 @@
 import {
   AuthLayout,
-  DefaultLayout
-} from "@/components/layouts";
+  DefaultLayout,
+} from '@/components/layouts';
 // import {
 //   UserList
 // } from "@/components/admin/UserList";
 
 export const publicRoute = [
   {
-    path: "*",
-    component: () => import( /* webpackChunkName: "errors-404" */ "@/views/error/NotFound.vue")
+    path: '*',
+    component: () => import(/* webpackChunkName: "errors-404" */ '@/views/error/NotFound.vue'),
   },
   {
-    path: "/auth",
+    path: '/auth',
     component: AuthLayout,
     meta: {
-      title: "Login"
+      title: 'Login',
     },
-    redirect: "/auth/login",
+    redirect: '/auth/login',
     hidden: true,
     children: [{
-      path: "login",
-      name: "login",
+      path: 'login',
+      name: 'login',
       meta: {
-        title: "Login"
+        title: 'Login',
       },
-      component: () => import( /* webpackChunkName: "login" */ "@/views/auth/Login.vue")
-    }]
+      component: () => import(/* webpackChunkName: "login" */ '@/views/auth/Login.vue'),
+    }],
   },
 
   {
-    path: "/404",
-    name: "404",
+    path: '/404',
+    name: '404',
     meta: {
-      title: "Not Found"
+      title: 'Not Found',
     },
-    component: () => import( /* webpackChunkName: "errors-404" */ "@/views/error/NotFound.vue")
+    component: () => import(/* webpackChunkName: "errors-404" */ '@/views/error/NotFound.vue'),
   },
 
   {
-    path: "/500",
-    name: "500",
+    path: '/500',
+    name: '500',
     meta: {
-      title: "Server Error"
+      title: 'Server Error',
     },
-    component: () => import( /* webpackChunkName: "errors-500" */ "@/views/error/Error.vue")
+    component: () => import(/* webpackChunkName: "errors-500" */ '@/views/error/Error.vue'),
   },
   {
-    path: "/403",
-    name: "Denegado",
+    path: '/403',
+    name: 'Denegado',
     meta: {
-      title: "Acceso denegado",
-      hiddenInMenu: true
+      title: 'Acceso denegado',
+      hiddenInMenu: true,
     },
-    component: () => import( /* webpackChunkName: "error-403" */ "@/views/error/Deny.vue")
-  }
-]
+    component: () => import(/* webpackChunkName: "error-403" */ '@/views/error/Deny.vue'),
+  },
+];
 
 export const protectedRoute = [
   {
-    path: "/",
+    path: '/',
     component: DefaultLayout,
     meta: {
-      title: "Home",
-      group: "apps",
+      title: 'Home',
+      group: 'apps',
       requiresAuth: true,
-      icon: ""
+      icon: '',
     },
-    redirect: "/dashboard",
+    redirect: '/dashboard',
     children: [{
-      path: "/dashboard",
-      name: "Dashboard",
+      path: '/dashboard',
+      name: 'Dashboard',
       meta: {
-        title: "Home",
+        title: 'Home',
         requiresAuth: true,
-        group: "apps",
-        icon: "dashboard"
+        group: 'apps',
+        icon: 'dashboard',
       },
-      component: () => import( /* webpackChunkName: "dashboard" */ "@/components/HelloWorld.vue")
+      component: () => import(/* webpackChunkName: "dashboard" */ '@/components/Dashboard.vue'),
     },
-    ]
+    ],
   },
 
-  //usuarios
+  // usuarios
   {
-    name: "Administracion",
-    path: "/admin",
+    name: 'Administracion',
+    path: '/admin',
     component: DefaultLayout,
-    redirect: "/admin/usuarios",
+    redirect: '/admin/usuarios',
     meta: {
-      title: "Admin",
-      icon: "view_compact",
-      group: "admin"
+      title: 'Admin',
+      icon: 'view_compact',
+      group: 'admin',
     },
     children: [{
-      path: "/admin/usuarios",
-      name: "Usuarios",
+      path: '/admin/usuarios',
+      name: 'Usuarios',
       meta: {
-        title: "Usuarios",
+        title: 'Usuarios',
         requiresAuth: true,
-        roles: ["administrador"]
+        roles: ['administrador'],
       },
-      component: () => import( /* webpackChunkName: "table" */ "@/components/admin/UserList.vue")
-    }]
+      component: () => import(/* webpackChunkName: "table" */ '@/components/admin/UserList.vue'),
+    }],
   },
-  //nuevo usuario
+  // nuevo usuario
   {
-    name: "nuevo",
-    path: "/admin/usuarios",
+    name: 'nuevo',
+    path: '/admin/usuarios',
     component: DefaultLayout,
-    redirect: "/admin/usuarios/nuevo",
+    redirect: '/admin/usuarios/nuevo',
     meta: {
-      title: "Admin",
-      icon: "view_compact",
-      group: "admin"
+      title: 'Admin',
+      icon: 'view_compact',
+      group: 'admin',
     },
     children: [{
-      path: "/admin/usuarios/nuevo",
-      name: "Nuevo Usuario",
+      path: '/admin/usuarios/nuevo',
+      name: 'Nuevo Usuario',
       meta: {
-        title: "Nuevo Usuario",
+        title: 'Nuevo Usuario',
         requiresAuth: true,
-        roles: ["administrador"]
+        roles: ['administrador'],
       },
-      component: () => import( /* webpackChunkName: "table" */ "@/components/admin/NuevoUsuario.vue")
-    }]
+      component: () => import(/* webpackChunkName: "table" */ '@/components/admin/NuevoUsuario.vue'),
+    }],
   },
-  //gestion de roles
+  // gestion de roles
   {
-    name: "gestionar-roles",
-    path: "/admin/usuarios",
+    name: 'gestionar-roles',
+    path: '/admin/usuarios',
     component: DefaultLayout,
-    redirect: "/admin/usuarios/gestionar-roles",
+    redirect: '/admin/usuarios/gestionar-roles',
     meta: {
-      title: "Admin",
-      icon: "view_compact",
-      group: "admin"
+      title: 'Admin',
+      icon: 'view_compact',
+      group: 'admin',
     },
     children: [{
-      path: "/admin/usuarios/gestionar-roles",
-      name: "Gestionar Roles",
-      props: (route) => ({
-        usuario: route.query.usuario
+      path: '/admin/usuarios/gestionar-roles',
+      name: 'Gestionar Roles',
+      props: route => ({
+        usuario: route.query.usuario,
       }),
       meta: {
-        title: "Gestionar Roles",
+        title: 'Gestionar Roles',
         requiresAuth: true,
-        roles: ["administrador"]
+        roles: ['administrador'],
       },
-      component: () => import( /* webpackChunkName: "roles" */ "@/components/admin/GestionRoles.vue")
-    }]
+      component: () => import(/* webpackChunkName: "roles" */ '@/components/admin/GestionRoles.vue'),
+    }],
   },
-  //licencia
+  // licencia
   {
-    name: "licencia",
-    path: "/admin",
+    name: 'licencia',
+    path: '/admin',
     component: DefaultLayout,
-    redirect: "/admin/licencia",
+    redirect: '/admin/licencia',
     meta: {
-      title: "Licencia",
-      icon: "view_compact",
-      group: "admin"
+      title: 'Licencia',
+      icon: 'view_compact',
+      group: 'admin',
     },
     children: [{
-      path: "/admin/licencia",
-      name: "Licencia",
+      path: '/admin/licencia',
+      name: 'Licencia',
       meta: {
-        title: "Licencia",
+        title: 'Licencia',
         requiresAuth: true,
-        roles: ["administrador"]
+        roles: ['administrador'],
       },
-      component: () => import( /* webpackChunkName: "roles" */ "@/components/admin/Licencia.vue")
-    }]
+      component: () => import(/* webpackChunkName: "roles" */ '@/components/admin/Licencia.vue'),
+    }],
   },
-  //configuracion
+  // configuracion
   {
-    name: "configuracion",
-    path: "/admin",
+    name: 'configuracion',
+    path: '/admin',
     component: DefaultLayout,
-    redirect: "/admin/configuracion",
+    redirect: '/admin/configuracion',
     meta: {
-      title: "Admin",
-      icon: "view_compact",
-      group: "admin"
+      title: 'Admin',
+      icon: 'view_compact',
+      group: 'admin',
     },
     children: [{
-      path: "/admin/configuracion",
-      name: "Configuracion",
+      path: '/admin/configuracion',
+      name: 'Configuracion',
       meta: {
-        title: "Configuracion",
+        title: 'Configuracion',
         requiresAuth: true,
-        roles: ["administrador"]
+        roles: ['administrador'],
       },
-      component: () => import( /* webpackChunkName: "roles" */ "@/components/admin/Configuracion.vue")
-    }]
+      component: () => import(/* webpackChunkName: "roles" */ '@/components/admin/Configuracion.vue'),
+    }],
   },
-  //perfil de usuario
+  // perfil de usuario
   {
-    name: "Account",
-    path: "/account",
+    name: 'Account',
+    path: '/account',
     component: DefaultLayout,
-    redirect: "/account/perfil",
+    redirect: '/account/perfil',
     meta: {
-      title: "PerfilDeUsuario",
-      group: "account"
+      title: 'PerfilDeUsuario',
+      group: 'account',
     },
     children: [{
-      path: "/account/perfil",
-      name: "PerfilDeUsuario",
+      path: '/account/perfil',
+      name: 'PerfilDeUsuario',
       meta: {
-        title: "Perfil de Usuario",
+        title: 'Perfil de Usuario',
         requiresAuth: true,
       },
-      component: () => import( /* webpackChunkName: "table" */ "@/views/auth/PerfilDeUsuario.vue")
-    }]
+      component: () => import(/* webpackChunkName: "table" */ '@/views/auth/PerfilDeUsuario.vue'),
+    }],
+  },
+  // Reporte Ingresos y Gastos
+  {
+    name: 'Finanzas',
+    path: '/finanzas',
+    component: DefaultLayout,
+    redirect: '/finanzas/ingresos_gastos',
+    meta: {
+      title: 'ReporteIngresosGastos',
+      group: 'finanzas',
+    },
+    children: [{
+      path: '/finanzas/ingresos_gastos',
+      name: 'ReporteIngresosGastos',
+      meta: {
+        title: 'Reporte de Ingresos y Gastos',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/IngresosGastos.vue'),
+    },
+    {
+      path: '/finanzas/configuraciones',
+      name: 'Configuraciones',
+      meta: {
+        title: 'Configuraciones de finanzas',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/finanzas/configuracion/Configuraciones.vue'),
+    }],
+  },
+  //Plan
+  {
+    name: 'Contabilidad',
+    path: '/contabilidad',
+    component: DefaultLayout,
+    redirect: '/contabilidad/planes',
+    meta: {
+      title: 'planes',
+      group: 'contabilidad',
+    },
+    children: [{
+      path: '/contabilidad/planes',
+      name: 'Planes',
+      meta: {
+        title: 'Planes',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/planes/Planes.vue'),
+    }],
+  },
+
+  //Inventario
+  {
+    name: 'Inventario',
+    path: '/inventario',
+    component: DefaultLayout,
+    redirect: '/inventario/almacenes',
+    meta: {
+      title: 'inventario',
+      group: 'inventario',
+    },
+    children: [{
+      path: '/inventario/almacenes',
+      name: 'Almacenes',
+      meta: {
+        title: 'Almacenes',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/inventario/Almacenes.vue'),
+    },
+    {
+      path: '/inventario/productos',
+      name: 'Productos',
+      meta: {
+        title: 'Productos',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/inventario/Productos.vue'),
+    }],
+  },
+
+  //Recursos Humanos
+  {
+    name: 'Recursos Humanos',
+    path: '/recursos_humanos',
+    component: DefaultLayout,
+    redirect: '/recursos_humanos/trabajadores',
+    meta: {
+      title: 'recursos_humanos',
+      group: 'recursos_humanos',
+    },
+    children: [{
+      path: '/recursos_humanos/trabajadores',
+      name: 'Recursos Humanos',
+      meta: {
+        title: 'Recursos Humanos',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Trabajadores.vue'),
+    },
+      // {
+      //   path: '/recursos_Humanos/productos',
+      //   name: 'Productos',
+      //   meta: {
+      //     title: 'Productos',
+      //     requiresAuth: true,
+      //   },
+      //   component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_Humanos/Productos.vue'),
+      // }
+    ],
   },
 ];

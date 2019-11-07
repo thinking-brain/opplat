@@ -16,7 +16,7 @@
         "component": "Configuracion",
         "name": "Configuracion",
         "roles": [
-            "administrador"
+            "ninguno"
         ]
     },
     {

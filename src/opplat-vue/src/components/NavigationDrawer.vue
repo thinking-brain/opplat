@@ -1,7 +1,18 @@
 <template>
-  <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
+  <v-navigation-drawer
+    class="d-print-none"
+    v-model="drawer"
+    :clipped="$vuetify.breakpoint.lgAndUp"
+    app
+  >
     <vue-perfect-scrollbar class="drawer-menu--scroll" :settings="scrollSettings">
       <v-list dense expand>
+        <v-list-item link to="/dashboard">
+          <v-list-item-icon>
+            <v-icon>mdi-desktop-mac-dashboard</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Cuadro de Mando</v-list-item-title>
+        </v-list-item>
         <v-subheader>Personalizados</v-subheader>
         <div>
           <template v-for="item in personalizados">
@@ -55,7 +66,17 @@
             <template v-slot:activator :ripple="true">
               <v-list-item-title>{{ item.title }}</v-list-item-title>
             </template>
-            <v-list-item v-for="subItem in item.items" :key="subItem.name" link>
+            <v-list-item
+              v-for="subItem in item.items"
+              :key="subItem.name"
+              link
+              :to="!subItem.href ? { name: subItem.name } : null"
+              :href="subItem.href"
+              ripple="ripple"
+              :disabled="subItem.disabled"
+              :target="subItem.target"
+              rel="noopener"
+            >
               <v-list-item-title>{{ subItem.title }}</v-list-item-title>
               <v-list-item-icon>
                 <v-icon>{{ subItem.icon }}</v-icon>
@@ -95,22 +116,22 @@
 </template>
 
 <script>
-import api from "@/api.js";
-import VuePerfectScrollbar from "vue-perfect-scrollbar";
+import VuePerfectScrollbar from 'vue-perfect-scrollbar';
+import api from '@/api';
 
 export default {
   components: {
-    VuePerfectScrollbar
+    VuePerfectScrollbar,
   },
   props: {
     expanded: {
       type: Boolean,
-      default: true
+      default: true,
     },
     drawWidth: {
       type: [Number, String],
-      default: "260"
-    }
+      default: '260',
+    },
   },
   computed: {
     drawer: {
@@ -118,12 +139,11 @@ export default {
         return this.$store.getters.drawerVisibility;
       },
       set(value) {
-        let visibility = !this.$store.getters.drawerVisibility;
-        this.$store
-          .dispatch("changeVisibility", value)
+          this.$store
+          .dispatch('changeVisibility', value)
           .then(() => {})
-          .catch(err => {});
-      }
+          .catch(() => {});
+      },
     },
     computeGroupActive() {
       return true;
@@ -131,7 +151,7 @@ export default {
 
     sideToolbarColor() {
       return this.$vuetify.options.extra.sideNav;
-    }
+    },
   },
   data() {
     return {
@@ -140,21 +160,21 @@ export default {
       personalizados: [],
       menus_modulo_actual: [],
       scrollSettings: {
-        maxScrollbarLength: 160
-      }
+        maxScrollbarLength: 160,
+      },
     };
   },
   created() {
-    let url = api.getUrl("opplat-app", "menus");
+    const url = api.getUrl('opplat-app', 'menus');
     this.axios
       .get(url)
-      .then(response => {
+      .then((response) => {
         this.modulos = response.data.modulos;
         this.personalizados = response.data.personalizados;
       })
-      .catch(e => {
+      .catch((e) => {
         this.errors.push(e);
-        this.$snotify.error("Error cargando los menus. " + e);
+        this.$snotify.error(`Error cargando los menus. ${e}`);
       });
   },
 
@@ -163,23 +183,23 @@ export default {
       if (subItem.href) return;
       if (subItem.component) {
         return {
-          name: subItem.component
+          name: subItem.component,
         };
       }
       return { name: `${item.group}/${subItem.name}` };
     },
     getMenusDeModulo(modulo) {
-      let url = api.getUrl("opplat-app", "menus/frommodulo?modulo=" + modulo);
+      const url = api.getUrl('opplat-app', `menus/frommodulo?modulo=${modulo}`);
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.menus_modulo_actual = response.data;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
-          vm.$snotify.error("Error cargando los menus. " + e);
+          vm.$snotify.error(`Error cargando los menus. ${e}`);
         });
-    }
-  }
+    },
+  },
 };
 </script>

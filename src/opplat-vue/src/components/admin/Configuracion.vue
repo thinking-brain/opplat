@@ -44,23 +44,23 @@ export default {
     licencia: null,
     licencia_file: null,
     rules: {
-      required: value => !!value || "Obligatorio."
+      required: value => !!value || 'Obligatorio.',
     },
     formHasErrors: false,
-    errors: []
+    errors: [],
   }),
   computed: {
     form() {
       return {
-        licencia: this.licencia_file
+        licencia: this.licencia_file,
       };
-    }
+    },
   },
   created() {},
   watch: {
     nombres() {
       this.errorMessages = [];
-    }
+    },
   },
 
   methods: {
@@ -73,17 +73,17 @@ export default {
       // });
       if (!this.formHasErrors) {
         this.axios
-          .post("http://localhost:5200/config/licencia", this.form)
-          .then(p => {
-            licencia = p.data;
-            vm.$snotify.success("Licencia agregada satisfactorimente.");
+          .post('http://localhost:5200/config/licencia', this.form)
+          .then((p) => {
+            this.licencia = p.data;
+            vm.$snotify.success('Licencia agregada satisfactorimente.');
           })
-          .catch(e => {
+          .catch((e) => {
             vm.$snotify.error(e.response.data.errors);
           });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style></style>

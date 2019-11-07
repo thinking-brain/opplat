@@ -1,0 +1,24 @@
+[
+    {
+        "title": "Almacenes",
+        "group": "inventario",
+        "icon": "mdi-forklift",
+        "component": "Almacenes",
+        "name": "Almacenes",
+        "roles": [
+            "administrador",
+            "economico"
+        ]        
+    },
+    {
+        "title": "Productos",
+        "group": "inventario",
+        "icon": "mdi-hexagon-multiple",
+        "component": "Productos",
+        "name": "Productos",
+        "roles": [
+            "administrador",
+            "economico"
+        ]        
+    }
+]
