@@ -6,16 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RhWebApi.Dtos;
 using RhWebApi.Models;
+using RhWebApi.Data;
 
 namespace RhWebApi.Controllers {
-    [Route ("api/[controller]")]
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
     public class TrabajadoresController : Controller {
         private readonly RhWebApiDbContext context;
         public TrabajadoresController (RhWebApiDbContext context) {
             this.context = context;
         }
-        // GET api/trabajadores
+        // GET recursos_humanos/trabajadores
         [HttpGet]
         public IActionResult GetAll () {
             var trabajadores = context.Trabajador.Where (t => t.EstadoTrabajador == "Activo")
@@ -42,7 +43,7 @@ namespace RhWebApi.Controllers {
             return Ok (trabajadores);
         }
 
-        // GET: api/trabajadores/Id
+        // GET: recursos_humanos/trabajadores/Id
         [HttpGet ("{id}", Name = "GetTrab")]
         public IActionResult GetbyId (int id) {
 
@@ -70,7 +71,7 @@ namespace RhWebApi.Controllers {
             return Ok (trabajador);
         }
 
-        // POST api/trabajadores
+        // POST recursos_humanos/trabajadores
         [HttpPost]
         public IActionResult POST ([FromBody] TrabajadorDto trabajadorDto) {
             if (ModelState.IsValid) {
@@ -96,7 +97,7 @@ namespace RhWebApi.Controllers {
             return BadRequest (ModelState);
         }
 
-        // PUT api/trabajadores/id
+        // PUT recursos_humanos/trabajadores/id
         [HttpPut ("{id}")]
         public async Task<IActionResult> PUT (TrabajadorDto trabajadorDto, int id) {
 
@@ -133,7 +134,7 @@ namespace RhWebApi.Controllers {
             return NoContent ();
         }
 
-        // DELETE api/trabajadores/id
+        // DELETE recursos_humanos/trabajadores/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == id);
@@ -146,8 +147,8 @@ namespace RhWebApi.Controllers {
             return Ok (trabajador);
         }
        
-        // GET: api/trabajadores/estado
-        [HttpGet ("/api/TrabByEstado/{estado}")]
+        // GET: recursos_humanos/trabajadores/estado
+        [HttpGet ("/recursos_humanos/TrabByEstado/{estado}")]
         public IActionResult GetTrab (string estado) {
             var trabajadores = context.Trabajador.Where (m => m.EstadoTrabajador == estado)
                 .Select (t => new {
@@ -171,7 +172,7 @@ namespace RhWebApi.Controllers {
             return Ok (trabajadores);
         }
 
-        [HttpGet ("/api/TrabBySexo/{sexo}")]
+        [HttpGet ("/recursos_humanos/TrabBySexo/{sexo}")]
         public IActionResult GetBySex (Sexo sexo) {
             var trabajadores = context.Trabajador.Where (t => t.Sexo == sexo && t.EstadoTrabajador != "pendiente").Select (t => new {
                     Id = t.Id,

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RhWebApi.Dtos;
 using RhWebApi.Models;
+using RhWebApi.Data;
 
 namespace RhWebApi.Controllers {
     [Route ("api/[controller]")]

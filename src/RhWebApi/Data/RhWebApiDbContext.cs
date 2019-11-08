@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using RhWebApi.Models;
 
-namespace RhWebApi.Models {
+namespace RhWebApi.Data 
+{
     public class RhWebApiDbContext : DbContext {
         public RhWebApiDbContext (DbContextOptions<RhWebApiDbContext> options) : base (options) { }
         protected override void OnModelCreating (ModelBuilder builder) {

@@ -1,10 +1,10 @@
 [
     {
-        "title": "Planes",
+        "title": "Trabajadores",
         "group": "contabilidad",
-        "icon": "mdi-file-chart",
+        "icon": "mdi-worker",
         "component": "Planes",
-        "name": "Planes",
+        "name": "Recusos Humanos",
         "roles": [
             "administrador",
             "economico"

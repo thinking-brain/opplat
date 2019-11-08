@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 using System.IO;
-using RhWebApi.Models;
+using RhWebApi.Data;
 
 [assembly: HostingStartup(typeof(RhWebApi.Startup))]
 namespace RhWebApi
