@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RhWebApi.Data;
 using RhWebApi.Dtos;
 using RhWebApi.Models;
-using RhWebApi.Data;
 
 namespace RhWebApi.Controllers {
-    [Route ("api/[controller]")]
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
     public class UnidadOrganizativaController : Controller {
         private readonly RhWebApiDbContext context;
@@ -17,7 +17,20 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // GET: api/UnidadOrganizativa/Id
+        // GET: recursos_humanos/UnidadOrganizativa
+         [HttpGet]
+        public IActionResult GetAll () {
+            var unidadOrganizativa = context.UnidadOrganizativa.Select (t => new {
+                Id = t.Id,
+                    Nombre = t.Nombre,
+            });
+            if (unidadOrganizativa == null) {
+                return NotFound ();
+            }
+            return Ok (unidadOrganizativa);
+        }
+
+        // GET: recursos_humanos/UnidadOrganizativa/Id
         [HttpGet ("{id}")]
         public IActionResult GetByUnidadOrganizativa (int id) {
             var trabajadores = context.Trabajador

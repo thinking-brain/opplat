@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RhWebApi.Data;
 using RhWebApi.Dtos;
 using RhWebApi.Models;
-using RhWebApi.Data;
 
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
@@ -34,7 +34,9 @@ namespace RhWebApi.Controllers {
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         CargoId = t.PuestoDeTrabajo.CargoId,
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
+                        UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
                         EstadoTrabajador = t.EstadoTrabajador,
+                        Nombre_Completo = t.Nombre + " " + t.Apellidos,
                 });
 
             if (trabajadores == null) {
@@ -146,7 +148,7 @@ namespace RhWebApi.Controllers {
             context.SaveChanges ();
             return Ok (trabajador);
         }
-       
+
         // GET: recursos_humanos/trabajadores/estado
         [HttpGet ("/recursos_humanos/TrabByEstado/{estado}")]
         public IActionResult GetTrab (string estado) {
@@ -175,28 +177,28 @@ namespace RhWebApi.Controllers {
         [HttpGet ("/recursos_humanos/TrabBySexo/{sexo}")]
         public IActionResult GetBySex (Sexo sexo) {
             var trabajadores = context.Trabajador.Where (t => t.Sexo == sexo && t.EstadoTrabajador != "pendiente").Select (t => new {
-                    Id = t.Id,
-                        Nombre = t.Nombre,
-                        Apellidos = t.Apellidos,
-                        CI = t.CI,
-                        Sexo = t.Sexo,
-                        TelefonoFijo = t.TelefonoFijo,
-                        TelefonoMovil = t.TelefonoMovil,
-                        Direccion = t.Direccion,
-                        NivelDeEscolaridad = t.NivelDeEscolaridad,
-                        MunicipioId = t.MunicipioId,
-                        MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
-                        CargoId = t.PuestoDeTrabajo.CargoId,
-                        Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
-                        EstadoTrabajador = t.EstadoTrabajador,
-                });
+                Id = t.Id,
+                    Nombre = t.Nombre,
+                    Apellidos = t.Apellidos,
+                    CI = t.CI,
+                    Sexo = t.Sexo,
+                    TelefonoFijo = t.TelefonoFijo,
+                    TelefonoMovil = t.TelefonoMovil,
+                    Direccion = t.Direccion,
+                    NivelDeEscolaridad = t.NivelDeEscolaridad,
+                    MunicipioId = t.MunicipioId,
+                    MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
+                    CargoId = t.PuestoDeTrabajo.CargoId,
+                    Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
+                    EstadoTrabajador = t.EstadoTrabajador,
+            });
 
             if (trabajadores == null) {
                 return NotFound ();
             }
             return Ok (trabajadores);
         }
-         private bool TrabajadorExists (int id) {
+        private bool TrabajadorExists (int id) {
             return context.Trabajador.Any (e => e.Id == id);
         }
     }
