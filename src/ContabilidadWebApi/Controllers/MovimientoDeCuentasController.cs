@@ -47,10 +47,16 @@ namespace ContabilidadWebApi.Controllers
         [HttpGet("{cuenta}/{fechaInicio}/{fechaFin}")]
         public MovimientoCuentaPeriodoVM GetMovimientoCuentaPeriodo(string cuenta, DateTime fechaInicio, DateTime fechaFin)
         {
+
             var cuentaContable = _cuentaService.FindCuentaByNumero(cuenta);
-            var movimientoCuentas = _cuentaService.MovimientosDeCuentaYDescendientes(cuentaContable.Id, fechaInicio, fechaFin);
-            var movimiento = new MovimientoCuentaPeriodoVM() { Cuenta = cuenta, Importe = movimientoCuentas.Sum(s => _cuentaHelper.ImporteMovimiento(s.Cuenta.Naturaleza, s.TipoDeOperacion, s.Importe)) };
-            return movimiento;
+            if (cuentaContable != null)
+            {
+                var movimientoCuentas = _cuentaService.MovimientosDeCuentaYDescendientes(cuentaContable.Id, fechaInicio, fechaFin);
+                var movimiento = new MovimientoCuentaPeriodoVM() { Cuenta = cuenta, Importe = movimientoCuentas.Sum(s => _cuentaHelper.ImporteMovimiento(s.Cuenta.Naturaleza, s.TipoDeOperacion, s.Importe)) };
+                return movimiento;
+            }
+            var movimientoVacio = new MovimientoCuentaPeriodoVM() { Cuenta = cuenta, Importe = 0 };
+            return movimientoVacio;
         }
 
 

@@ -34,8 +34,8 @@ namespace FinanzasWebApi.Helper
             for (int i = 0; i < variableCuentas.Length; i++)
             {
                 string cta = variableCuentas[i].ToString();
-                // decimal Importe = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
-                decimal Importe = 0;
+                decimal Importe = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
+                // decimal Importe = 0;
                 variableValue = variableValue + Importe;
             }
             return variableValue;

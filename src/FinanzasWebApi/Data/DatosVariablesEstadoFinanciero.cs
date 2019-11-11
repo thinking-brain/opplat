@@ -36,7 +36,7 @@ namespace FinanzasWebApi.Data
                 new { Dato = "Inventario de Mercancías de Importación", Valor = "194"},
                 new { Dato = "Inventario de Mercancias de Exportación", Valor = "195"},
                 new { Dato = "Producciones para Insumo o Autoconsumo", Valor = "196"},
-                new { Dato = "Otros Inventario", Valor = "205,206,207"},
+                new { Dato = "Otros Inventarios", Valor = "205,206,207"},
                 new { Dato = "Inventarios Ociosos", Valor = "208"},
                 new { Dato = "Inventarios de lento Movimiento", Valor = "209"},
                 new { Dato = "Producción en Proceso", Valor = "700,701,702,703,704,705,706,707,708,709,710,711,712,713,714,715,716,717,718,719,720,721,722,723,724"},
@@ -48,6 +48,14 @@ namespace FinanzasWebApi.Data
                 new { Dato = "Menos: Desgaste de Vestuario y Lenceria", Valor = "367"},
                
                //Activos a Largo Plazo
+               
+                new { Dato = "Efectos por Cobrar a Largo Plazo", Valor = "215,217"},
+                new { Dato = "Cuentas por Cobrar a Largo Plazo", Valor = "218,220"},
+                new { Dato = "Préstamos Concedidos a Cobrar a Largo Plazo", Valor = "221,224"},
+                new { Dato = "Inversiones a Largo Plazo o Permanentes", Valor = "225,234"},
+               
+
+               //Activos Fijos
 
                 new { Dato = "Medios y Equipos para Alquilar", Valor = "253"},
                 new { Dato = "Fondos Bibliotecarios", Valor = "252"},
@@ -121,8 +129,6 @@ namespace FinanzasWebApi.Data
                 new { Dato = "Compra de Moneda", Valor = "569"},
                 new { Dato = "Ingresos de Períodos Futuros ", Valor = "570,571,572,573,574"},
                 //Efectivo en Caja  
-                new { Dato = "Efectivo en Caja", Valor = "101,102,103,104,105,106,107,108"},
-                new { Dato = "Efectivo en Banco y en otras instituciones", Valor = "109,110,111,112,113,114,115,116,117,118,119"},
                 
                 // new { Dato = "Inversión Estatal", Valor = "600,601,602,603,604,605,606,607,608,609,610,611,612"},
                 // new { Dato = "Sector Público + Patrimonio", Valor = "600"},

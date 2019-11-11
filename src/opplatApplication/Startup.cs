@@ -131,6 +131,7 @@ namespace opplatApplication
             //finanzas services
             services.AddScoped<FinanzasDbContext>();
             services.AddScoped<ObtenerPlanGI>();
+            services.AddScoped<ObtenerValuesEnVariablesEstadoFinanciero>();
             // services.AddSingleton<ObtenerPlanGI_Context>();
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();
