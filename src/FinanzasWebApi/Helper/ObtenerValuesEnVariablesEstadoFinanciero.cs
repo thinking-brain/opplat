@@ -16,7 +16,7 @@ namespace FinanzasWebApi.Helper
         IConfiguration _config { get; set; }
         FinanzasDbContext _context;
 
-        public ObtenerValuesEnVariablesEstadoFinanciero(IConfiguration config, FinanzasDbContext context)
+        public ObtenerValuesEnVariablesEstadoFinanciero(FinanzasDbContext context, IConfiguration config)
         {
             _config = config;
             _context = context;
@@ -34,7 +34,8 @@ namespace FinanzasWebApi.Helper
             for (int i = 0; i < variableCuentas.Length; i++)
             {
                 string cta = variableCuentas[i].ToString();
-                decimal Importe = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
+                // decimal Importe = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
+                decimal Importe = 0;
                 variableValue = variableValue + Importe;
             }
             return variableValue;
