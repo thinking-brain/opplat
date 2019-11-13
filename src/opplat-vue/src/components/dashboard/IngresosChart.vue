@@ -16,6 +16,14 @@ export default {
   },
   data: function() {
     return {
+      ingresos_series: [{
+            name: "Real",
+            data: [0,0,0,0,0,0,0,0,0,0,0,0]
+          },
+          {
+            name: "Plan",
+            data: [0,0,0,0,0,0,0,0,0,0,0,0]
+          }],
       ingresos_reales: [],
       ingresos_planes: [],
       ingresosOptions: {
@@ -69,7 +77,7 @@ export default {
         }
       },
       ingresos_series: [],
-      errors:[]
+      errors: []
     };
   },
   created() {
@@ -88,8 +96,9 @@ export default {
           {
             name: "Plan",
             data: response.data.planes
-          },
+          }
         ];
+        this.loading = false;
       })
       .catch(e => {
         this.errors.push(e);

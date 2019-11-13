@@ -287,3 +287,5 @@ yarn-error.log*
 *.sln
 *.sw?
 src/opplat-vue/vue.config.js
+src/InventarioWebApi/global.json
+src/opplatApplication/global.json

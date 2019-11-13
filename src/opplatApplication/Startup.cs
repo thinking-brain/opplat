@@ -29,6 +29,7 @@ using ContabilidadWebApi.Data;
 using ImportadorDatos.Models.EnlaceVersat;
 using ImportadorDatos.Jobs;
 using ImportadorDatos.HostedServices;
+using Microsoft.Extensions.Logging;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -39,6 +40,7 @@ namespace opplatApplication
         {
 
             builder.ConfigureServices(ConfigureServices);
+            builder.Configure(Configure);
             builder.Configure(Configure);
         }
 
@@ -52,7 +54,6 @@ namespace opplatApplication
             services.AddDbContext<FinanzasWebApi.Data.FinanzasDbContext>(options =>
                     options.UseNpgsql(context.Configuration.GetConnectionString("FinanzasApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
             //
-
             // NotificationsDbContext
             services.AddDbContext<notificationsDbContext>(options =>
             options.UseNpgsql(context.Configuration.GetConnectionString("notificationsApi"), b => b.MigrationsAssembly("notificationsWebApi")));
@@ -171,6 +172,9 @@ namespace opplatApplication
         {
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<IConfiguration>();
+            var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
+            
+            loggerFactory.AddFile("Logs/Log-{Date}.txt");
 
             app.UseAuthentication();
             if (env.IsDevelopment())
@@ -183,7 +187,6 @@ namespace opplatApplication
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");

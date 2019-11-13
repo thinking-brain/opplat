@@ -2,15 +2,17 @@
 using InventarioWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace InventarioWebApi.Migrations
 {
     [DbContext(typeof(InventarioDbContext))]
-    partial class InventarioContextModelSnapshot : ModelSnapshot
+    [Migration("20191105164244_tipo_movimiento")]
+    partial class tipo_movimiento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -233,26 +235,6 @@ namespace InventarioWebApi.Migrations
                         });
                 });
 
-            modelBuilder.Entity("InventarioWebApi.Models.TipoUnidadDeMedida", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Nombre")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TiposUnidadDeMedida");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Nombre = "Masa"
-                        });
-                });
-
             modelBuilder.Entity("InventarioWebApi.Models.UnidadDeMedida", b =>
                 {
                     b.Property<int>("Id")
@@ -270,48 +252,6 @@ namespace InventarioWebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UnidadesDeMedida");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Descripcion = "g",
-                            FactorConversion = 1m,
-                            Nombre = "Gramo",
-                            TipoId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Descripcion = "kg",
-                            FactorConversion = 1000m,
-                            Nombre = "Kilogramo",
-                            TipoId = 1
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Descripcion = "q",
-                            FactorConversion = 100000m,
-                            Nombre = "Quintal",
-                            TipoId = 1
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Descripcion = "t",
-                            FactorConversion = 1000000m,
-                            Nombre = "Tonelada",
-                            TipoId = 1
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Descripcion = "lb",
-                            FactorConversion = 453.59m,
-                            Nombre = "Libra",
-                            TipoId = 1
-                        });
                 });
 
             modelBuilder.Entity("InventarioWebApi.Models.Derivado", b =>
