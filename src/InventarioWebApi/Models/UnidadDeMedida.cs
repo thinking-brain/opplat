@@ -12,6 +12,7 @@ namespace InventarioWebApi.Models
         [DataType(DataType.MultilineText)]
         public string Descripcion { get; set; }
         public int TipoId { get; set; }
+        //basado en una unidad de medida, en este caso gramo
         public decimal FactorConversion {get;set;}
     }
 }

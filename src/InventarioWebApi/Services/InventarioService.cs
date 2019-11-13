@@ -14,18 +14,53 @@ namespace InventarioWebApi.Services.InventarioService
             _context = context;
         }
 
-        public async Task<decimal> ActualizarSubmayor(int movimientoId)
+        public async Task<bool> ActualizarSubmayor(
+            int almacenId,
+            int productoId,
+            decimal cantidad,
+            int unidadMedidaId,
+            int tipoMovimientoId)
         {
             using (var tran = _context.Database.BeginTransaction())
             {
-                MovimientoDeProducto movimiento = await _context.MovimientosDeProductos.FindAsync(movimientoId);
-                Submayor submayor = await _context.Submayores.FirstOrDefaultAsync(s => s.AlmacenId == movimiento.AlmacenId & s.ProductoId == movimiento.ProductoId);
-                submayor.Cantidad += movimiento.Cantidad * movimiento.TipoMovimiento.Factor;
-                _context.Update(submayor);
-                await _context.SaveChangesAsync();
-                tran.Commit();
-                return submayor.Cantidad;
+                TipoMovimiento tipoM = _context.TiposDeMovimiento.Find(tipoMovimientoId);
+                Submayor submayor = await _context.Submayores.FirstOrDefaultAsync(s => s.AlmacenId == almacenId & s.ProductoId == productoId);
+
+                if (submayor != null)
+                {
+                    var cc = await Convertir(cantidad, unidadMedidaId, productoId);
+                    submayor.Cantidad += cc * tipoM.Factor;
+                    _context.Submayores.Update(submayor);
+                }
+                else
+                {
+                    Submayor submayor2 = new Submayor
+                    {
+                        AlmacenId = almacenId,
+                        ProductoId = productoId,
+                        Cantidad = await Convertir(cantidad, unidadMedidaId, productoId)
+                    };
+                    _context.Submayores.Add(submayor2);
+                };
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                    return true;
+                }
+                catch (System.Exception)
+                {
+                    return false;
+                    throw;
+                }
             }
+        }
+
+        public async Task<decimal> Convertir(decimal cantidad, int unidadMedidaId, int productoId)
+        {
+            var um = await _context.UnidadesDeMedida.FindAsync(unidadMedidaId);
+            Producto producto = await _context.Productos.Include(p => p.Unidad).FirstOrDefaultAsync(p => p.Id == productoId);
+            return (cantidad * um.FactorConversion) / producto.Unidad.FactorConversion;
         }
     }
 }

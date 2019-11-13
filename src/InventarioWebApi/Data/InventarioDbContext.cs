@@ -29,6 +29,16 @@ namespace InventarioWebApi.Data
                 new TipoMovimiento { Id = 11, Descripcion = "Entrada por conversión de producto", Factor = 1 },
                 new TipoMovimiento { Id = 12, Descripcion = "Salida por conversion de producto", Factor = -1 }
             );
+            modelBuilder.Entity<TipoUnidadDeMedida>().HasData(
+                new TipoUnidadDeMedida { Id = 1, Nombre = "Masa" }
+            );
+            modelBuilder.Entity<UnidadDeMedida>().HasData(
+                new UnidadDeMedida { Id = 1, Descripcion = "g", Nombre = "Gramo", FactorConversion = 1, TipoId = 1 },
+                new UnidadDeMedida { Id = 2, Descripcion = "kg", Nombre = "Kilogramo", FactorConversion = 1000, TipoId = 1 },
+                new UnidadDeMedida { Id = 3, Descripcion = "q", Nombre = "Quintal", FactorConversion = 100000, TipoId = 1 },
+                new UnidadDeMedida { Id = 4, Descripcion = "t", Nombre = "Tonelada", FactorConversion = 1000000, TipoId = 1 },
+                new UnidadDeMedida { Id = 5, Descripcion = "lb", Nombre = "Libra", FactorConversion = 453.59M, TipoId = 1 }
+            );
         }
 
         public DbSet<Almacen> Almacenes { get; set; }
@@ -38,6 +48,7 @@ namespace InventarioWebApi.Data
         public DbSet<MovimientoDeProducto> MovimientosDeProductos { get; set; }
         public DbSet<UnidadDeMedida> UnidadesDeMedida { get; set; }
         public DbSet<TipoMovimiento> TiposDeMovimiento { get; set; }
+        public DbSet<TipoUnidadDeMedida> TiposUnidadDeMedida { get; set; }
     }
 
 }
