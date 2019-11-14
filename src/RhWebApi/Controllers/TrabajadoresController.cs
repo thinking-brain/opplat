@@ -150,7 +150,7 @@ namespace RhWebApi.Controllers {
         }
 
         // GET: recursos_humanos/trabajadores/estado
-        [HttpGet ("/recursos_humanos/TrabByEstado/{estado}")]
+        [HttpGet ("/recursos_humanos/TrabajadoresByEstado/{estado}")]
         public IActionResult GetTrab (string estado) {
             var trabajadores = context.Trabajador.Where (m => m.EstadoTrabajador == estado)
                 .Select (t => new {
@@ -174,7 +174,7 @@ namespace RhWebApi.Controllers {
             return Ok (trabajadores);
         }
 
-        [HttpGet ("/recursos_humanos/TrabBySexo/{sexo}")]
+        [HttpGet ("/recursos_humanos/TrabajadoresBySexo/{sexo}")]
         public IActionResult GetBySex (Sexo sexo) {
             var trabajadores = context.Trabajador.Where (t => t.Sexo == sexo && t.EstadoTrabajador != "pendiente").Select (t => new {
                 Id = t.Id,

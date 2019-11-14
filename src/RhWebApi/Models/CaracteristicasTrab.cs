@@ -15,9 +15,7 @@ namespace RhWebApi.Models {
         public virtual Trabajador Trabajador { get; set; }
 
         // public byte[] Foto { get; set; }
-
-        // [Display(Name = "Color de piel")]
-        // public ColorDePiel ColorDePiel { get; set; }
+        public ColorDePiel ColorDePiel { get; set; }
 
         public string ColorDeOjos { get; set; }
 

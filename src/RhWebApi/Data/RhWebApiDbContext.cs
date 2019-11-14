@@ -31,5 +31,6 @@ namespace RhWebApi.Data
         public DbSet<RhWebApi.Models.Traslado> Traslado { get; set; }
         public DbSet<RhWebApi.Models.OtroMovimiento> OtroMovimiento { get; set; }
         public DbSet<RhWebApi.Models.UnidadOrganizativa> UnidadOrganizativa { get; set; }
+        public DbSet<RhWebApi.Models.Plantilla> Plantilla { get; set; }
     }
 }

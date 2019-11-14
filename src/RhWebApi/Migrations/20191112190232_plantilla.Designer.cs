@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RhWebApi.Data;
@@ -9,9 +10,10 @@ using RhWebApi.Data;
 namespace RhWebApi.Migrations
 {
     [DbContext(typeof(RhWebApiDbContext))]
-    partial class RhWebApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191112190232_plantilla")]
+    partial class plantilla
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,8 +79,6 @@ namespace RhWebApi.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("ColorDeOjos");
-
-                    b.Property<int>("ColorDePiel");
 
                     b.Property<string>("OtrasCaracteristicas");
 
@@ -262,26 +262,6 @@ namespace RhWebApi.Migrations
                     b.HasIndex("TrabajadorId");
 
                     b.ToTable("OtrosMovimientos");
-                });
-
-            modelBuilder.Entity("RhWebApi.Models.Plantilla", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("CargoId");
-
-                    b.Property<int>("PlantillaAprobada");
-
-                    b.Property<int>("UnidadOrganizativaId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CargoId");
-
-                    b.HasIndex("UnidadOrganizativaId");
-
-                    b.ToTable("Plantilla");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.Provincia", b =>
@@ -516,19 +496,6 @@ namespace RhWebApi.Migrations
                     b.HasOne("RhWebApi.Models.Trabajador", "Trabajador")
                         .WithMany()
                         .HasForeignKey("TrabajadorId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("RhWebApi.Models.Plantilla", b =>
-                {
-                    b.HasOne("RhWebApi.Models.Cargo", "Cargo")
-                        .WithMany()
-                        .HasForeignKey("CargoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("RhWebApi.Models.UnidadOrganizativa", "UnidadOrganizativa")
-                        .WithMany()
-                        .HasForeignKey("UnidadOrganizativaId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

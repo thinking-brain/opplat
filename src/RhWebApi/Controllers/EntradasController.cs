@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RhWebApi.Data;
 using RhWebApi.Dtos;
 using RhWebApi.Models;
-using RhWebApi.Data;
-
 
 namespace RhWebApi.Controllers {
     [Route ("api/[controller]")]
@@ -28,7 +27,11 @@ namespace RhWebApi.Controllers {
                     Cargo = e.Cargo.Nombre,
                     UnidadOrganizativa = e.UnidadOrganizativa.Nombre,
             }).ToList ();
-            return Ok (entrada);
+            if (entrada == null) {
+                return NotFound ();
+            } else {
+                return Ok (entrada);
+            }
         }
 
         // GET: api/Entradas/Id
