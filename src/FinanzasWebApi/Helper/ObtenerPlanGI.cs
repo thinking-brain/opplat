@@ -110,6 +110,11 @@ namespace FinanzasWebApi.Helper
             return plan.Sum(s => s.Importe);
 
         }
+        public decimal ObtenerTotalIngresosEnCuenta(int year, int meses, string cuenta)
+        {
+            decimal Importe = GetMovimientoDeCuentaPeriodo.Get(year, meses, cuenta, _config);
+            return Importe;
+        }
         public decimal ObtenerTotalPlanIngresos(int year, int meses)
         {
             var plan = new List<MovimientoCuentaPeriodoVM>();

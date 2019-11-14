@@ -21,6 +21,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+[Ll]ogs/
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -287,3 +288,5 @@ yarn-error.log*
 *.sln
 *.sw?
 src/opplat-vue/vue.config.js
+src/InventarioWebApi/global.json
+src/opplatApplication/global.json
