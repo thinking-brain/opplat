@@ -49,22 +49,22 @@ namespace RhWebApi.Controllers {
                 return Ok (plantilla);
             }
         }
-        // GET: recursos_humanos/PlantillaByUnidadOrg/Id
-        [HttpGet ("/recursos_humanos/PlantillaByUnidadOrg/{Id}")]
-        public IActionResult GetbyUnidOrganizativa (int id) {
-            var puestoDeTrabajo = context.PuestoDeTrabajo.Where (s => s.UnidadOrganizativaId == id);
-            var plantilla = context.Plantilla.Where (p => p.UnidadOrganizativaId == id).Select (p => new {
-                Id = p.Id,
-                    UnidadOrganizativa = p.UnidadOrganizativa.Nombre,
-                    Cargo = p.Cargo.Nombre,
-                    Plantilla = p.PlantillaAprobada,
-            }).ToList ();
-            if (plantilla == null) {
-                return NotFound ();
-            } else {
-                return Ok (plantilla);
-            }
-        }
+        // // GET: recursos_humanos/PlantillaByUnidadOrg/Id
+        // [HttpGet ("/recursos_humanos/PlantillaByUnidadOrg/{Id}")]
+        // public IActionResult GetbyUnidOrganizativa (int id) {
+        //     var puestoDeTrabajo = context.PuestoDeTrabajo.Where (s => s.UnidadOrganizativaId == id);
+        //     var plantilla = context.Plantilla.Where (p => p.UnidadOrganizativaId == id).Select (p => new {
+        //         Id = p.Id,
+        //             UnidadOrganizativa = p.UnidadOrganizativa.Nombre,
+        //             Cargo = p.Cargo.Nombre,
+        //             Plantilla = p.PlantillaAprobada,
+        //     }).ToList ();
+        //     if (plantilla == null) {
+        //         return NotFound ();
+        //     } else {
+        //         return Ok (plantilla);
+        //     }
+        // }
 
         // POST recursos_humanos/Plantilla
         [HttpPost]
