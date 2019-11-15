@@ -127,25 +127,32 @@ namespace FinanzasWebApi.Data
                 new { Dato = "Sobrantes en Investigación", Valor = "555,556,557,558,559,560,561,562,563,564"},
                 new { Dato = "Cuentas por Pagar Diversas", Valor = "565,566,567,568"},
                 new { Dato = "Compra de Moneda", Valor = "569"},
-                new { Dato = "Ingresos de Períodos Futuros ", Valor = "570,571,572,573,574"},
-                //Efectivo en Caja  
-                
-                // new { Dato = "Inversión Estatal", Valor = "600,601,602,603,604,605,606,607,608,609,610,611,612"},
-                // new { Dato = "Sector Público + Patrimonio", Valor = "600"},
-                // new { Dato = "Sector Privado + Capital Social Suscrito y Pagado + Recursos Recibidos", Valor = "617,618"},
-                // new { Dato = "Sector Publico + Donaciones Recibidas - Nacionales", Valor = "620"},
-                // new { Dato = "Donaciones Recibidas - Exterior", Valor = "621"},
-                // new { Dato = "Utilidad  Retenida", Valor = "630,631,632,633,634"},
-                // new { Dato = "Subvención por Pérdida Sector Publico", Valor = "635,636,637,638,639"},
-                // new { Dato = "Reservas para Contingencias", Valor = "645"},
-                // new { Dato = "Otras Reservas Patrimoniales", Valor = "646,647,648,649,650,651,652,653,654"},
-                // new { Dato = "Recursos Entregados", Valor = "619"},
-                // new { Dato = "Sector Publico + Donaciones Entregadas - Nacionales", Valor = "600"},
-                // new { Dato = "Sector", Valor = "600"},
-                // new { Dato = "Sector", Valor = "600"},
-                // new { Dato = "Sector", Valor = "600"},
+                new { Dato = "Ingresos de Períodos Futuros", Valor = "570,571,572,573,574"},
+              
+             
+          
+                //Total de Patrimonio Neto
+                new { Dato = "Inversión Estatal", Valor = "600,601,602,603,604,605,606,607,608,609,610,611,612"},
+                new { Dato = "Sector Público + Patrimonio", Valor = "600"},
+                new { Dato = "Sector Privado + Capital Social Suscrito y Pagado + Recursos Recibidos", Valor = "617,618"},
+                new { Dato = "Sector Publico + Donaciones Recibidas - Nacionales", Valor = "620"},
+                new { Dato = "Donaciones Recibidas - Exterior", Valor = "621"},
+                new { Dato = "Utilidad  Retenida", Valor = "630,631,632,633,634"},
+                new { Dato = "Subvención por Pérdida Sector Publico", Valor = "635,636,637,638,639"},
+                new { Dato = "Reservas para Contingencias", Valor = "645"},
+                new { Dato = "Otras Reservas Patrimoniales", Valor = "646,647,648,649,650,651,652,653,654"},
+                new { Dato = "Recursos Entregados", Valor = "619"},
+                new { Dato = "Sector Publico + Donaciones Entregadas - Nacionales", Valor = "600"},
+                new { Dato = "Donaciones Entregadas - Exterior", Valor = "627"},
+                new { Dato = "Pago a Cuenta de Utilidades", Valor = "690"},
+                new { Dato = "Pago a Cuenta de Dividendos", Valor = "691"},
+                new { Dato = "Pérdida", Valor = "640,641,642,643,644"},
+                new { Dato = "Mas o Menos: Reevalucion de Activos Fijos Tangibles", Valor = "613,614,615"},
+                new { Dato = "Otras Operaciones de Capital", Valor = "616,617,618,619"},
+                new { Dato = "Sector Privado Revaluación de Inventarios", Valor = "697"},
+                new { Dato = "Ganancia o Pérdida no Realizada", Valor = "698"},
 
-                
+
 
             };
 
