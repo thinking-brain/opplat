@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RhWebApi.Data;
 using RhWebApi.Dtos;
 using RhWebApi.Models;
-using RhWebApi.Data;
 
 namespace RhWebApi.Controllers {
     [Route ("api/[controller]")]
@@ -38,7 +38,6 @@ namespace RhWebApi.Controllers {
                 return NotFound ();
             }
             return Ok (baja);
-
         }
 
         // POST api/baja
@@ -54,11 +53,16 @@ namespace RhWebApi.Controllers {
                 context.SaveChanges ();
 
                 var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == bajaDto.TrabajadorId);
-                trabajador.EstadoTrabajador = "Baja";
-                trabajador.PuestoDeTrabajoId = null;
-                context.SaveChanges ();
+                if (trabajador == null) {
+                    return NotFound ();
+                } else {
+                    trabajador.EstadoTrabajador = "Baja";
+                    trabajador.PuestoDeTrabajo.PlantillaOcupada--;
+                    trabajador.PuestoDeTrabajoId = null;
+                    context.SaveChanges ();
 
-                return new CreatedAtRouteResult ("GetBaja", new { id = baja.Id });
+                    return new CreatedAtRouteResult ("GetBaja", new { id = baja.Id });
+                }
             }
             return BadRequest (ModelState);
         }

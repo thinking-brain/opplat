@@ -1,0 +1,22 @@
+[
+    {
+        "title": "Usuarios",
+        "group": "modulos",
+        "icon": "mdi-account-multiple",
+        "component": "UserList",
+        "name": "Usuarios",
+        "roles": [
+            "administrador"
+        ]
+    },
+    {
+        "title": "Licencia",
+        "group": "modulos",
+        "icon": "mdi-license",
+        "component": "Licencia",
+        "name": "Licencia",
+        "roles": [
+            "administrador"
+        ]
+    }
+]

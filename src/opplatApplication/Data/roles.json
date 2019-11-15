@@ -1,0 +1,18 @@
+[
+    {
+        "Modulo": "Generales",
+        "Roles": [
+            "administrador",
+            "usuario",
+            "auditor",
+            "consultor"
+        ]
+    },
+    {
+        "Modulo": "Reportes",
+        "Roles": [
+            "economico",
+            "contador"
+        ]
+    }
+]

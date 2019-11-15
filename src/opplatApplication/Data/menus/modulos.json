@@ -1,0 +1,37 @@
+[
+    {
+        "name": "administracion",
+        "title": "Admistración",
+        "icon": "mdi-settings",
+        "roles": [
+            "administrador"
+        ]
+    },
+    {
+        "name": "finanzas",
+        "title": "Finanzas",
+        "icon": "mdi-finance",
+        "roles": [
+            "administrador",
+            "economico"
+        ]
+    },
+    {
+        "name": "contabilidad",
+        "title": "Contabilidad",
+        "icon": "mdi-account-cash",
+        "roles": [
+            "administrador",
+            "economico"
+        ]
+    },
+    {
+        "name": "inventario",
+        "title": "Inventario",
+        "icon": "mdi-notebook-multiple",
+        "roles": [
+            "administrador",
+            "economico"
+        ]
+    }
+]

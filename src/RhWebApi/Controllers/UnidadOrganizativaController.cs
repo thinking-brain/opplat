@@ -18,7 +18,7 @@ namespace RhWebApi.Controllers {
         }
 
         // GET: recursos_humanos/UnidadOrganizativa
-         [HttpGet]
+        [HttpGet]
         public IActionResult GetAll () {
             var unidadOrganizativa = context.UnidadOrganizativa.Select (t => new {
                 Id = t.Id,
@@ -44,5 +44,19 @@ namespace RhWebApi.Controllers {
                 .ToList ();
             return Ok (trabajadores);
         }
+    //     // GET: recursos_humanos/UnidadOrgaSexo/{id},{sexo}
+    //    [HttpGet ("{id}")]
+    //     public IActionResult GetByUnidadOrgSexo (int id, Sexo sexo) {
+    //         var trabajadores = context.Trabajador
+    //             .Include (t => t.PuestoDeTrabajo)
+    //             .Where (s => s.PuestoDeTrabajo.UnidadOrganizativaId == id && s.Sexo == sexo)
+    //             .Select (s => new {
+    //                 Id = s.Id,
+    //                     Nombre = s.Nombre + " " + s.Apellidos,
+    //                     Cargo = s.PuestoDeTrabajo.Cargo.Nombre,
+    //             })
+    //             .ToList ();
+    //         return Ok (trabajadores);
+    //     }
     }
 }

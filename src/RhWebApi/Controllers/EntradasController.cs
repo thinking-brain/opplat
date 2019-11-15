@@ -68,7 +68,7 @@ namespace RhWebApi.Controllers {
                 };
                 context.Entrada.Add (entrada);
                 trabajador.PuestoDeTrabajoId = puesto.Id;
-                puesto.CantidadPorPlantilla++;
+                puesto.PlantillaOcupada++;
                 trabajador.EstadoTrabajador = "Activo";
                 context.Entry (trabajador).State = EntityState.Modified;
 
