@@ -34,7 +34,12 @@ namespace FinanzasWebApi.Helper
             for (int i = 0; i < variableCuentas.Length; i++)
             {
                 string cta = variableCuentas[i].ToString();
-                decimal Importe = GetMovimientoDeCuentaPeriodo.Get(year, meses, cta, _config);
+                var cache = _context.Set<CacheCuentaPeriodo>().SingleOrDefault(c => c.Cuenta == cta && c.Mes == meses && c.Year == year);
+                decimal Importe = 0;
+                if (cache != null)
+                {
+                    Importe = cache.Saldo;
+                }
                 variableValue = variableValue + Importe;
             }
             return variableValue;
@@ -126,8 +131,8 @@ namespace FinanzasWebApi.Helper
         {
             decimal perdidasEnInvestigacion = Valor("Pérdidas en Investigación", year, meses);
             decimal faltanteDeBienesEnInvestigacion = Valor("Faltante de Bienes en Investigación", year, meses);
-            decimal cuentasPorCobrarDiversasOperacionesCorrientes = Valor("Cuentas por Cobrar Diversas-Operaciones Corrientes", year, meses);
-            decimal cuentasPorCobrarCompraDeMonedas = Valor("Cuentas por Cobrar- Compra de Monedas", year, meses);
+            decimal cuentasPorCobrarDiversasOperacionesCorrientes = Valor("Cuentas por Cobrar Diversas - Operaciones Corrientes", year, meses);
+            decimal cuentasPorCobrarCompraDeMonedas = Valor("Cuentas por Cobrar - Compra de Monedas", year, meses);
             decimal cuentasPorCobrarDiversaDelProcesoInversionista = Valor("Cuentas por Cobrar Diversa del Proceso Inversionista", year, meses);
             decimal efectosPorCobrarEnLitigio = Valor("Efectos por Cobrar en Litigio", year, meses);
             decimal cuentasPorCobrarEnLitigio = Valor("Cuentas por Cobrar en Litigio", year, meses);
@@ -135,7 +140,7 @@ namespace FinanzasWebApi.Helper
             decimal cuentasPorCobrarEnProcesoJudicial = Valor("Cuentas por Cobrar en Proceso Judicial", year, meses);
             decimal depositosYFianzas = Valor("Depósitos y Fianzas", year, meses);
             decimal fondoDeAmortizacionDeBonosEfectivoEnValores = Valor("Fondo de Amortización de Bonos - Efectivo en Valores", year, meses);
-            decimal menosOtrasProvisionesReguladorasDeActivos = Valor("Menos:Otras Provisiones Reguladoras de Activos", year, meses);
+            decimal menosOtrasProvisionesReguladorasDeActivos = Valor("Otras Provisiones Reguladoras de Activos", year, meses);
             decimal resultado =
               perdidasEnInvestigacion
               + faltanteDeBienesEnInvestigacion
@@ -178,8 +183,8 @@ namespace FinanzasWebApi.Helper
 
 
             decimal desgasteDeUtilesYHerramientas = Valor("Desgaste de Utiles y Herramientas", year, meses);
-            decimal menosDesgasteDeBaseMaterialDeEstudio = Valor("Menos: Desgaste de Base Material de Estudio", year, meses);
-            decimal menosDesgasteDeVestuarioYLenceria = Valor("Menos: Desgaste de Vestuario y Lenceria", year, meses);
+            decimal menosDesgasteDeBaseMaterialDeEstudio = Valor("Desgaste de Base Material de Estudio", year, meses);
+            decimal menosDesgasteDeVestuarioYLenceria = Valor("Desgaste de Vestuario y Lenceria", year, meses);
 
 
             decimal resultado =
@@ -294,7 +299,7 @@ namespace FinanzasWebApi.Helper
         {
             decimal sobrantesEnInvestigacion = Valor("Sobrantes en Investigación", year, meses);
             decimal cuentasPorPagarDiversas = Valor("Cuentas por Pagar Diversas", year, meses);
-            decimal cuentasPorPagarCompraDeMoneda = Valor("Cuentas por Pagar- Compra de Moneda", year, meses);
+            decimal cuentasPorPagarCompraDeMoneda = Valor("Cuentas por Pagar - Compra de Moneda", year, meses);
             decimal ingresosDePeriodosFuturos = Valor("Ingresos de Períodos Futuros", year, meses);
 
             decimal resultado =
@@ -342,7 +347,7 @@ namespace FinanzasWebApi.Helper
             decimal pagoACuentaDeDividendos = Valor("Pago a Cuenta de Dividendos", year, meses);
             decimal pagoACuentaDeUtilidades = Valor("Pago a Cuenta de Utilidades", year, meses);
             decimal perdida = Valor("Pérdida", year, meses);
-            decimal masoMenosReevalucionDeActivosFijosTangibles = Valor("Mas o Menos: Reevalucion de Activos Fijos Tangibles", year, meses);
+            decimal masoMenosReevalucionDeActivosFijosTangibles = Valor("Reevalucion de Activos Fijos Tangibles", year, meses);
             decimal otrasOperacionesDeCapital = Valor("Otras Operaciones de Capital", year, meses);
             decimal sectorPrivadoRevaluaciónDeInventarios = Valor("Sector Privado Revaluación de Inventarios", year, meses);
             decimal gananciaOPerdidaNoRealizada = Valor("Ganancia o Pérdida no Realizada", year, meses);
@@ -375,6 +380,34 @@ namespace FinanzasWebApi.Helper
                 + gananciaOPerdidaNoRealizada
             )
             ;
+            return resultado;
+        }
+
+        /// <summary>
+        /// Devuelve los ingresos de las Ventas en un mes y un año
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="mes"></param>
+        /// <returns></returns>
+        public decimal ObtenerVentas(int year, int mes)
+        {
+            var plan = new List<PlanGIViewModel>();
+            var modelo = DatosPlanGI.Datos();
+            var planes = GetPlanIngresosPeriodo.Get(year, _config);
+            var ventasMN = _context.Set<CacheCuentaPeriodo>().SingleOrDefault(c => c.Cuenta == "912" && c.Mes == mes && c.Year == year);
+            var ventasCUC = _context.Set<CacheCuentaPeriodo>().SingleOrDefault(c => c.Cuenta == "913" && c.Mes == mes && c.Year == year);
+            decimal importeMN = 0;
+            if (ventasMN != null)
+            {
+                importeMN = ventasMN.Saldo;
+            }
+            decimal importeCUC = 0;
+            if (ventasCUC != null)
+            {
+                importeCUC = ventasCUC.Saldo;
+            }
+
+            decimal resultado = importeMN + importeCUC;
             return resultado;
         }
     }
