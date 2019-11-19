@@ -3,15 +3,17 @@ using System;
 using InventarioWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace InventarioWebApi.Migrations
 {
     [DbContext(typeof(InventarioDbContext))]
-    partial class InventarioContextModelSnapshot : ModelSnapshot
+    [Migration("20191118053151_FechaEnMovimiento")]
+    partial class FechaEnMovimiento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -42,6 +42,15 @@ namespace ContabilidadWebApi.Controllers
             return Ok(planes);
         }
 
+        [HttpGet("{id}")]
+        public ActionResult Get(int id)
+        {
+            var detalles = _context.Set<DetallePlanGI>().Include(d => d.Concepto )
+            .Where(d => d.PlanId == id).OrderBy(d => d.Id).ToList();
+               
+            return Ok(detalles);
+        }
+
 
         /// <summary>
         /// Subir Plan de Gastos e Ingresos del Año

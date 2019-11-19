@@ -11,6 +11,7 @@ namespace InventarioWebApi.Models
         public int ProductoId { get; set; }
         public virtual Producto Producto { get; set; }
         [Required]
+        [ConcurrencyCheck]
         public decimal Cantidad { get; set; }
     }
 }
