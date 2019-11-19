@@ -44,8 +44,8 @@ namespace FinanzasWebApi.Data
                 new { Dato = "Reparaciones Capitales con Medios Propios", Valor = "726"},
                 new { Dato = "Inversiones con Medios Propios", Valor = "728"},
                 new { Dato = "Desgaste de Utiles y Herramientas", Valor = "373"},
-                new { Dato = "Menos: Desgaste de Base Material de Estudio", Valor = "366"},
-                new { Dato = "Menos: Desgaste de Vestuario y Lenceria", Valor = "367"},
+                new { Dato = "Desgaste de Base Material de Estudio", Valor = "366"},
+                new { Dato = "Desgaste de Vestuario y Lenceria", Valor = "367"},
                
                //Activos a Largo Plazo
                
@@ -76,16 +76,16 @@ namespace FinanzasWebApi.Data
                 //Otros Activos
                 new { Dato = "Pérdidas en Investigación", Valor = "330,331"},
                 new { Dato = "Faltante de Bienes en Investigación", Valor = "332,333"},
-                new { Dato = "Cuentas por Cobrar Diversas-Operaciones Corrientes", Valor = "334,335,336,337,338,339,340,341"},
-                new { Dato = "Cuentas por Cobrar- Compra de Monedas", Valor = "342"},
+                new { Dato = "Cuentas por Cobrar Diversas - Operaciones Corrientes", Valor = "334,335,336,337,338,339,340,341"},
+                new { Dato = "Cuentas por Cobrar - Compra de Monedas", Valor = "342"},
                 new { Dato = "Cuentas por Cobrar Diversa del Proceso Inversionista", Valor = "343,344,345"},
                 new { Dato = "Efectos por Cobrar en Litigio", Valor = "346"},
                 new { Dato = "Cuentas por Cobrar en Litigio", Valor = "347"},
-                new { Dato = "Efectos por Cobrar Protestado", Valor = "348"},
+                new { Dato = "Efectos por Cobrar Protestados", Valor = "348"},
                 new { Dato = "Cuentas por Cobrar en Proceso Judicial", Valor = "349"},
                 new { Dato = "Depósitos y Fianzas", Valor = "354,355"},
                 new { Dato = "Fondo de Amortización de Bonos - Efectivo en Valores", Valor = "364"},
-                new { Dato = "Menos:Otras Provisiones Reguladoras de Activos", Valor = "374"},
+                new { Dato = "Otras Provisiones Reguladoras de Activos", Valor = "374"},
 
                 //Pasivo Circulante	
 
@@ -126,7 +126,7 @@ namespace FinanzasWebApi.Data
                 //Otros Pasivos
                 new { Dato = "Sobrantes en Investigación", Valor = "555,556,557,558,559,560,561,562,563,564"},
                 new { Dato = "Cuentas por Pagar Diversas", Valor = "565,566,567,568"},
-                new { Dato = "Compra de Moneda", Valor = "569"},
+                new { Dato = "Cuentas por Pagar - Compra de Moneda ", Valor = "569"},
                 new { Dato = "Ingresos de Períodos Futuros", Valor = "570,571,572,573,574"},
               
              
@@ -137,7 +137,7 @@ namespace FinanzasWebApi.Data
                 new { Dato = "Sector Privado + Capital Social Suscrito y Pagado + Recursos Recibidos", Valor = "617,618"},
                 new { Dato = "Sector Publico + Donaciones Recibidas - Nacionales", Valor = "620"},
                 new { Dato = "Donaciones Recibidas - Exterior", Valor = "621"},
-                new { Dato = "Utilidad  Retenida", Valor = "630,631,632,633,634"},
+                new { Dato = "Utilidad Retenida", Valor = "630,631,632,633,634"},
                 new { Dato = "Subvención por Pérdida Sector Publico", Valor = "635,636,637,638,639"},
                 new { Dato = "Reservas para Contingencias", Valor = "645"},
                 new { Dato = "Otras Reservas Patrimoniales", Valor = "646,647,648,649,650,651,652,653,654"},
@@ -147,7 +147,7 @@ namespace FinanzasWebApi.Data
                 new { Dato = "Pago a Cuenta de Utilidades", Valor = "690"},
                 new { Dato = "Pago a Cuenta de Dividendos", Valor = "691"},
                 new { Dato = "Pérdida", Valor = "640,641,642,643,644"},
-                new { Dato = "Mas o Menos: Reevalucion de Activos Fijos Tangibles", Valor = "613,614,615"},
+                new { Dato = "Reevalucion de Activos Fijos Tangibles", Valor = "613,614,615"},
                 new { Dato = "Otras Operaciones de Capital", Valor = "616,617,618,619"},
                 new { Dato = "Sector Privado Revaluación de Inventarios", Valor = "697"},
                 new { Dato = "Ganancia o Pérdida no Realizada", Valor = "698"},
