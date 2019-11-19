@@ -7,14 +7,10 @@ using System.Web;
 using RhWebApi.Models;
 
 namespace RhWebApi.Models {
-    [Table ("caracteristicas_del_trabjador")]
-    public class CaracteristicasTrab {
+    public class CaracteristicasTrabDto {
         public int Id { get; set; }
         public int? TrabajadorId { get; set; }
 
-        public virtual Trabajador Trabajador { get; set; }
-
-        public byte[] Foto { get; set; }
         public ColorDePiel ColorDePiel { get; set; }
 
         public ColorDeOjos ColorDeOjos { get; set; }

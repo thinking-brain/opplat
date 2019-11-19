@@ -25,11 +25,11 @@ namespace RhWebApi.Controllers {
                         Nombre = t.Nombre,
                         Apellidos = t.Apellidos,
                         CI = t.CI,
-                        Sexo = t.Sexo,
+                        Sexo = t.Sexo.ToString(),
                         TelefonoFijo = t.TelefonoFijo,
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
-                        NivelDeEscolaridad = t.NivelDeEscolaridad,
+                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
                         MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         CargoId = t.PuestoDeTrabajo.CargoId,
@@ -55,11 +55,11 @@ namespace RhWebApi.Controllers {
                         Nombre = t.Nombre,
                         Apellidos = t.Apellidos,
                         CI = t.CI,
-                        Sexo = t.Sexo,
+                        Sexo = t.Sexo.ToString(),
                         TelefonoFijo = t.TelefonoFijo,
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
-                        NivelDeEscolaridad = t.NivelDeEscolaridad,
+                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
                         MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         CargoId = t.PuestoDeTrabajo.CargoId,
@@ -129,7 +129,7 @@ namespace RhWebApi.Controllers {
             } catch (DbUpdateConcurrencyException) {
                 if (!TrabajadorExists (id)) {
                     return NotFound ();
-                } else {
+                } else { 
                     throw;
                 }
             }
@@ -158,11 +158,11 @@ namespace RhWebApi.Controllers {
                         Nombre = t.Nombre,
                         Apellidos = t.Apellidos,
                         CI = t.CI,
-                        Sexo = t.Sexo,
+                        Sexo = t.Sexo.ToString(),
                         TelefonoFijo = t.TelefonoFijo,
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
-                        NivelDeEscolaridad = t.NivelDeEscolaridad,
+                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
                         MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         EstadoTrabajador = t.EstadoTrabajador,
@@ -181,11 +181,11 @@ namespace RhWebApi.Controllers {
                     Nombre = t.Nombre,
                     Apellidos = t.Apellidos,
                     CI = t.CI,
-                    Sexo = t.Sexo,
+                    Sexo = t.Sexo.ToString(),
                     TelefonoFijo = t.TelefonoFijo,
                     TelefonoMovil = t.TelefonoMovil,
                     Direccion = t.Direccion,
-                    NivelDeEscolaridad = t.NivelDeEscolaridad,
+                    NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
                     MunicipioId = t.MunicipioId,
                     MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                     CargoId = t.PuestoDeTrabajo.CargoId,

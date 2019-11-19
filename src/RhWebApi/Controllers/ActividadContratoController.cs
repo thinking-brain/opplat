@@ -9,7 +9,7 @@ using RhWebApi.Data;
 
 namespace RhWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("recursos_humanos/[controller]")]
     [ApiController]
     public class ActividadContratoController : Controller
     {
@@ -19,14 +19,14 @@ namespace RhWebApi.Controllers
             this.context = context;
         }
 
-        // GET api/ActividadContrato
+        // GET recursos_humanos/ActividadContrato
         [HttpGet]
         public IEnumerable<ActividadContrato> GetAll()
         {                            
             return context.ActividadContrato.ToList();            
         }       
        
-      // GET: api/ActividadContrato/Id
+      // GET: recursos_humanos/ActividadContrato/Id
         [HttpGet("{id}", Name = "GetActCont")]
         public IActionResult GetbyId(int id)
         {
@@ -40,7 +40,7 @@ namespace RhWebApi.Controllers
            
         }
 
-        // POST api/actividadContrato
+        // POST recursos_humanos/actividadContrato
        [HttpPost]
         public IActionResult POST([FromBody] ActividadContrato actividadContrato)
         {            
@@ -53,7 +53,7 @@ namespace RhWebApi.Controllers
             return BadRequest(ModelState);
         }
 
-        // PUT api/actividadContrato/id
+        // PUT recursos_humanos/actividadContrato/id
        [HttpPut("{id}")]
         public IActionResult PUT([FromBody] ActividadContrato actividadContrato, int id)
         {
@@ -67,7 +67,7 @@ namespace RhWebApi.Controllers
             return Ok();
         }
 
-        // DELETE api/actividadContrato/id
+        // DELETE recursos_humanos/actividadContrato/id
        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
