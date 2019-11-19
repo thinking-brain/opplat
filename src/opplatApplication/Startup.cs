@@ -30,6 +30,7 @@ using ImportadorDatos.Models.EnlaceVersat;
 using ImportadorDatos.Jobs;
 using ImportadorDatos.HostedServices;
 using Microsoft.Extensions.Logging;
+using RhWebApi.Data;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -74,6 +75,9 @@ namespace opplatApplication
 
             services.AddDbContext<EnlaceVersatDbContext>(options =>
                  options.UseNpgsql(context.Configuration.GetConnectionString("EnlaceVersatDbContext")));
+
+                 services.AddDbContext<RhWebApiDbContext>(options =>
+                options.UseNpgsql(context.Configuration.GetConnectionString("RhWebApiDbContext"), b => b.MigrationsAssembly("RhWebApi")));
 
             services.AddSignalR();
 
