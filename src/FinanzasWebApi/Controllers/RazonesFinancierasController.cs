@@ -29,9 +29,6 @@ namespace FinanzasWebApi.Controllers
             _obtenetPlan = obtenerPlan;
         }
 
-
-
-
         /// <summary>
         /// Devuelve el valor de la Razon (Solvencia Financiera)
         /// </summary>
@@ -86,10 +83,27 @@ namespace FinanzasWebApi.Controllers
         [HttpGet("liquidezDeTesoreria/{años}/{meses}")]
         public decimal liquidezDeTesoreria(int años, int meses)
         {
-            //ACTIVOS LIQUIDOS NO ESTAN
-            decimal al = _obtenerVariables.activoCirculante(años, meses);
+
+            decimal ec = _obtenerVariables.efectivoEnCaja(años, meses);
+            decimal eb = _obtenerVariables.efectivoEnBanco(años, meses);
+            decimal al = ec + eb;
             decimal pc = _obtenerVariables.pasivoCirculante(años, meses);
             decimal resultado = pc != 0 ? al / pc : 0;
+            return resultado;
+        }
+
+        /// <summary>
+        /// Devuelve el valor de la Razon (Activos Liquidos)
+        /// </summary>
+        /// <param name="años"></param>
+        /// <param name="meses"></param>
+        /// <returns></returns>
+        [HttpGet("activosLiquidos/{años}/{meses}")]
+        public decimal activosLiquidos(int años, int meses)
+        {
+            decimal ec = _obtenerVariables.efectivoEnCaja(años, meses);
+            decimal eb = _obtenerVariables.efectivoEnBanco(años, meses);
+            decimal resultado = ec + eb;
             return resultado;
         }
 
@@ -135,6 +149,82 @@ namespace FinanzasWebApi.Controllers
             decimal ac = _obtenerVariables.activoCirculante(años, meses);
 
             decimal resultado = ac != 0 ? (ec + eb) / ac : 0;
+            return resultado;
+        }
+
+
+
+        /// <summary>
+        /// Devuelve el valor de la Razon (Indice de disponibilidad)
+        /// </summary>
+        /// <param name="años"></param>
+        /// <param name="meses"></param>
+        /// <returns></returns>
+        [HttpGet("mesActual/{años}/{meses}")]
+        public IEnumerable<RazonesVM> mesActual(int años, int meses)
+        {
+            var resultado = new List<RazonesVM>();
+
+            //Solvencia Financiera
+            decimal ingresos = _obtenetPlan.ObtenerTotalIngresos(años, meses);
+            decimal egresos = _obtenetPlan.ObtenerTotalEgresos(años, meses);
+            decimal solvenciaFinanciera = egresos != 0 ? ingresos / egresos : 0;
+            resultado.Add(new RazonesVM { Razon = "Solvencia Financiera", Valor = solvenciaFinanciera });
+
+            //Capital de Trabajo
+            decimal ac = _obtenerVariables.activoCirculante(años, meses);
+            decimal pc = _obtenerVariables.pasivoCirculante(años, meses);
+            decimal capitalDeTrabajo = ac - pc;
+            resultado.Add(new RazonesVM { Razon = "Capital de Trabajo", Valor = capitalDeTrabajo });
+
+            //Indice de Disponibilidad
+            decimal ec = _obtenerVariables.efectivoEnCaja(años, meses);
+            decimal eb = _obtenerVariables.efectivoEnBanco(años, meses);
+            decimal indiceDeDisponibilidad = ac != 0 ? (ec + eb) / ac : 0;
+            resultado.Add(new RazonesVM { Razon = "Indice de Disponibilidad", Valor = indiceDeDisponibilidad });
+
+            //Indice de Liquidez General
+            decimal indiceDeLiquidezGneral = pc != 0 ? ac / pc : 0;
+            resultado.Add(new RazonesVM { Razon = "Indice de Liquidez General", Valor = indiceDeLiquidezGneral });
+
+            //liquidezDeTesoreria
+            decimal al = ec + eb;
+            decimal liquidezDeTesoreria = pc != 0 ? al / pc : 0;
+            resultado.Add(new RazonesVM { Razon = "Liquidez de Tesorería", Valor = liquidezDeTesoreria });
+
+            //Indice de Deuda o Razon de Endeudamiento
+            decimal plp = _obtenerVariables.pasivosALargoPlazo(años, meses);
+            decimal pd = _obtenerVariables.pasivosDiferidos(años, meses);
+            decimal op = _obtenerVariables.otrosPasivos(años, meses);
+            decimal tp = pc + plp + pd + op;
+
+            decimal ad = _obtenerVariables.activosDiferidos(años, meses);
+            decimal af = _obtenerVariables.activosFijos(años, meses);
+            decimal alp = _obtenerVariables.activosLargoPlazo(años, meses);
+            decimal oa = _obtenerVariables.otrosActivos(años, meses);
+            decimal ta = ac + ad + af + alp + oa;
+
+            decimal indiceDeDeudaORazonDeEndeudamiento = ta != 0 ? tp / ta : 0;
+            resultado.Add(new RazonesVM { Razon = "Indice de Deuda o Razon de Endeudamiento", Valor = indiceDeDeudaORazonDeEndeudamiento });
+
+            //Margen de utilidad 
+            decimal utilidadAntesDeImpuesto = ingresos - egresos;
+            decimal ventas = _obtenerVariables.ObtenerVentas(años, meses);
+            decimal margenDeUtilidad = ventas != 0 ? utilidadAntesDeImpuesto / ventas : 0;
+            resultado.Add(new RazonesVM { Razon = "Margen de utilidad", Valor = margenDeUtilidad });
+
+
+            //Rentabilidad economica 
+            decimal totalDeActivosPromedio = ((af + ac + ad + alp + oa) / 1);
+            decimal rentabilidadEconomica = totalDeActivosPromedio != 0 ? utilidadAntesDeImpuesto / totalDeActivosPromedio : 0;
+            resultado.Add(new RazonesVM { Razon = "Rentabilidad Económica", Valor = rentabilidadEconomica });
+
+            //Rentabilidad financiera 
+            decimal patrimonioNeto = _obtenerVariables.totalDePatrimonioNeto(años, meses);
+            decimal rentabilidadFinanciera = patrimonioNeto != 0 ? utilidadAntesDeImpuesto / patrimonioNeto : 0;
+            resultado.Add(new RazonesVM { Razon = "Rentabilidad Financiera", Valor = rentabilidadFinanciera });
+
+
             return resultado;
         }
 

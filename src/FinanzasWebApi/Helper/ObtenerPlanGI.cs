@@ -480,5 +480,6 @@ namespace FinanzasWebApi.Helper
             var total = planIngresos - planEgresos;
             return total;
         }
+
     }
 }
