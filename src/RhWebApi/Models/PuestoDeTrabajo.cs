@@ -20,7 +20,7 @@ namespace RhWebApi.Models {
 
         public string Descripcion { get; set; }
 
-        public int CantidadPorPlantilla { get; set; }
+        public int PlantillaOcupada { get; set; }
 
         public int? JefeId { get; set; }
         public virtual PuestoDeTrabajo Jefe { get; set; }

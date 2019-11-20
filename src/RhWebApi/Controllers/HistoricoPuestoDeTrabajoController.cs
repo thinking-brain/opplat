@@ -10,7 +10,7 @@ using RhWebApi.Data;
 
 namespace RhWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("recursos_humanos/[controller]")]
     [ApiController]
     public class HistoricoPuestoDeTrabajoController : Controller
     {
@@ -20,14 +20,14 @@ namespace RhWebApi.Controllers
             this.context = context;
         }
 
-        // GET api/HistoricoPuestoDeTrabajo
+        // GET recursos_humanos/HistoricoPuestoDeTrabajo
         [HttpGet]
         public IEnumerable<HistoricoPuestoDeTrabajo> GetAll()
         {                            
             return context.HistoricoPuestoDeTrabajo.ToList();            
         }       
        
-      // GET: api/historicoPuestoDeTrabajo/Id
+      // GET: recursos_humanos/historicoPuestoDeTrabajo/Id
         [HttpGet("{id}", Name = "GetHistoricoPuestoDeTrabajo")]
         public IActionResult GetbyId(int id)
         {
@@ -41,7 +41,7 @@ namespace RhWebApi.Controllers
            
         }
 
-        // POST api/historicoPuestoDeTrabajo
+        // POST recursos_humanos/historicoPuestoDeTrabajo
        [HttpPost]
         public IActionResult POST([FromBody] HistoricoPuestoDeTrabajo historicoPuestoDeTrabajo)
         {            
@@ -54,7 +54,7 @@ namespace RhWebApi.Controllers
             return BadRequest(ModelState);
         }
 
-        // PUT api/historicoPuestoDeTrabajo/id
+        // PUT recursos_humanos/historicoPuestoDeTrabajo/id
        [HttpPut("{id}")]
         public IActionResult PUT([FromBody] HistoricoPuestoDeTrabajo historicoPuestoDeTrabajo, int id)
         {
@@ -68,7 +68,7 @@ namespace RhWebApi.Controllers
             return Ok();
         }
 
-        // DELETE api/historicoPuestoDeTrabajo/id
+        // DELETE recursos_humanos/historicoPuestoDeTrabajo/id
        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

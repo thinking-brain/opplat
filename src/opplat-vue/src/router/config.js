@@ -303,4 +303,53 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/views/inventario/Productos.vue'),
     }],
   },
+  //Recursos Humanos
+  {
+    name: 'Recusos Humanos',
+    path: '/recursos_humanos',
+    component: DefaultLayout,
+    redirect: '/recursos_humanos/Trabajadores',
+    meta: {
+      title: 'Trabajadores',
+      group: 'recursos_humanos',
+    },
+    children: [{
+      path: '/recursos_humanos/Trabajadores',
+      name: 'Trabajadores',
+      meta: {
+        title: 'Trabajadores',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Trabajadores.vue'),
+    }],
+  },
+
+  // {
+  //   name: 'Recusos Humanos',
+  //   path: '/recursos_humanos',
+  //   component: DefaultLayout,
+  //   redirect: '/recursos_humanos/Traslados',
+  //   meta: {
+  //     title: 'Movimientos',
+  //     group: 'recursos_humanos',
+  //   },
+  //   children: [{
+  //     path: '/recursos_humanos/Traslados',
+  //     name: 'Movimientos',
+  //     meta: {
+  //       title: 'Movimientos',
+  //       requiresAuth: true,
+  //     },
+  //     component: () => import(/* webpackChunkName: "table" */ '@/components/recursos_humanos/movimientos/Movimientos.vue'),
+  //   },
+  //   {
+  //     path: '/recursos_humanos/UnidadOrganizativa',
+  //     name: 'UnidadOrganizativa',
+  //     meta: {
+  //       title: 'Unidad Organizativa',
+  //       requiresAuth: true,
+  //     },
+  //     component: () => import(/* webpackChunkName: "table" */ '@/components/recursos_humanos/reportes/UnidadOrganizativa.vue'),
+  //   }],
+  // },  
 ];

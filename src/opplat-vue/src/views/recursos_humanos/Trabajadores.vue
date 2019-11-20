@@ -14,7 +14,7 @@
             hide-details
           ></v-text-field>
           <v-spacer></v-spacer>
-          <!-- <v-layout>
+          <v-layout>
             <v-dialog v-model="dialog" persistent max-width="600px">
               <template v-slot:activator="{ on }">
                 <v-btn color="primary" dark v-on="on">Agregar Trabajador</v-btn>
@@ -63,7 +63,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-          </v-layout>-->
+          </v-layout>
         </v-toolbar>
       </template>
       <template v-slot:item.action="{ item }">
@@ -107,8 +107,8 @@ export default {
       { text: "Teléfono Fijo", value: "telefonoFijo" },
       { text: "Teléfono Móvil", value: "telefonoMovil" },
       { text: "Unidad Organizativa", value: "unidadOrganizativa" },
-      { text: "Cargo", value: "cargo", sortable: false }
-      // { text: "Actions", value: "action", sortable: false }
+      { text: "Cargo", value: "cargo", sortable: false },
+      { text: "Actions", value: "action", sortable: false }
     ],
     editedIndex: -1
   }),

@@ -33,5 +33,14 @@
             "administrador",
             "economico"
         ]
+    },
+    {
+        "name": "recursos_humanos",
+        "title": "Recursos Humanos",
+        "icon": "mdi-human-male-female",
+        "roles": [
+            "administrador",
+            "recursos_humanos"
+        ]
     }
 ]

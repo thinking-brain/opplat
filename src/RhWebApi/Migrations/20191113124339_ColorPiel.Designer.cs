@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RhWebApi.Data;
@@ -9,9 +10,10 @@ using RhWebApi.Data;
 namespace RhWebApi.Migrations
 {
     [DbContext(typeof(RhWebApiDbContext))]
-    partial class RhWebApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191113124339_ColorPiel")]
+    partial class ColorPiel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -301,13 +303,13 @@ namespace RhWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int>("CantidadPorPlantilla");
+
                     b.Property<int>("CargoId");
 
                     b.Property<string>("Descripcion");
 
                     b.Property<int?>("JefeId");
-
-                    b.Property<int>("PlantillaOcupada");
 
                     b.Property<int>("UnidadOrganizativaId");
 

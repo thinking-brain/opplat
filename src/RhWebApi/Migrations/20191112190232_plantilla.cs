@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace RhWebApi.Migrations
 {
-    public partial class postgre : Migration
+    public partial class plantilla : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

@@ -25,11 +25,11 @@ namespace RhWebApi.Controllers {
                         Nombre = t.Nombre,
                         Apellidos = t.Apellidos,
                         CI = t.CI,
-                        Sexo = t.Sexo,
+                        Sexo = t.Sexo.ToString(),
                         TelefonoFijo = t.TelefonoFijo,
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
-                        NivelDeEscolaridad = t.NivelDeEscolaridad,
+                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
                         MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         CargoId = t.PuestoDeTrabajo.CargoId,
@@ -55,11 +55,11 @@ namespace RhWebApi.Controllers {
                         Nombre = t.Nombre,
                         Apellidos = t.Apellidos,
                         CI = t.CI,
-                        Sexo = t.Sexo,
+                        Sexo = t.Sexo.ToString(),
                         TelefonoFijo = t.TelefonoFijo,
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
-                        NivelDeEscolaridad = t.NivelDeEscolaridad,
+                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
                         MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         CargoId = t.PuestoDeTrabajo.CargoId,
@@ -129,7 +129,7 @@ namespace RhWebApi.Controllers {
             } catch (DbUpdateConcurrencyException) {
                 if (!TrabajadorExists (id)) {
                     return NotFound ();
-                } else {
+                } else { 
                     throw;
                 }
             }
@@ -150,7 +150,7 @@ namespace RhWebApi.Controllers {
         }
 
         // GET: recursos_humanos/trabajadores/estado
-        [HttpGet ("/recursos_humanos/TrabByEstado/{estado}")]
+        [HttpGet ("/recursos_humanos/TrabajadoresByEstado/{estado}")]
         public IActionResult GetTrab (string estado) {
             var trabajadores = context.Trabajador.Where (m => m.EstadoTrabajador == estado)
                 .Select (t => new {
@@ -158,11 +158,11 @@ namespace RhWebApi.Controllers {
                         Nombre = t.Nombre,
                         Apellidos = t.Apellidos,
                         CI = t.CI,
-                        Sexo = t.Sexo,
+                        Sexo = t.Sexo.ToString(),
                         TelefonoFijo = t.TelefonoFijo,
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
-                        NivelDeEscolaridad = t.NivelDeEscolaridad,
+                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
                         MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         EstadoTrabajador = t.EstadoTrabajador,
@@ -174,18 +174,18 @@ namespace RhWebApi.Controllers {
             return Ok (trabajadores);
         }
 
-        [HttpGet ("/recursos_humanos/TrabBySexo/{sexo}")]
+        [HttpGet ("/recursos_humanos/TrabajadoresBySexo/{sexo}")]
         public IActionResult GetBySex (Sexo sexo) {
             var trabajadores = context.Trabajador.Where (t => t.Sexo == sexo && t.EstadoTrabajador != "pendiente").Select (t => new {
                 Id = t.Id,
                     Nombre = t.Nombre,
                     Apellidos = t.Apellidos,
                     CI = t.CI,
-                    Sexo = t.Sexo,
+                    Sexo = t.Sexo.ToString(),
                     TelefonoFijo = t.TelefonoFijo,
                     TelefonoMovil = t.TelefonoMovil,
                     Direccion = t.Direccion,
-                    NivelDeEscolaridad = t.NivelDeEscolaridad,
+                    NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
                     MunicipioId = t.MunicipioId,
                     MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                     CargoId = t.PuestoDeTrabajo.CargoId,

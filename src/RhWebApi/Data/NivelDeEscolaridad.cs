@@ -10,19 +10,19 @@ namespace RhWebApi.Models
     public enum NivelDeEscolaridad
     {
         [Display(Name = "Sin Definir")]
-        SinDefinir = 0,
-        [Display(Name = "Nivel Superior")]
-        NivelSuperior = 1,
+        SinDefinir,        
+        [Display( Name = "csv", Description ="Nivel Superior" )]
+        NivelSuperior,
         [Display(Name = "Técnico Médio")]
-        TecnicoMedio = 2,
+        TecnicoMedio,
         [Display(Name = "12 Grado(Medio Sup.)")]
-        DoceGrado = 3,
+        DoceGrado,
         [Display(Name = "9no Grado(Medio)")]
-        NovenoGrado = 4,
+        NovenoGrado,
         [Display(Name = " 6to Grado(Básico)")]
-        SextoGrado = 5,
+        SextoGrado,
         [Display(Name = "Menos de 6to Grado")]
-        MenosDeSextoGrado = 6
+        MenosDeSextoGrado
 
     }
 }
