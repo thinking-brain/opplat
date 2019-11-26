@@ -42,6 +42,20 @@ namespace ContabilidadWebApi.Controllers
             return Ok(planes);
         }
 
+        /// <summary>
+        /// Eliminar Plan
+        /// </summary>
+        /// <returns></returns>
+        // GET: api/DeletePlanesGI
+        [HttpDelete("{id}")]
+        public ActionResult DeletePlanesGI(int id)
+        {
+            var planes = _context.Set<PlanGI>().Find(id);
+            _context.Set<PlanGI>().Remove(planes);
+            _context.SaveChanges();
+            return Ok();
+        }
+
 
 
         [HttpPost, Route("UploadPlanGI/")]
@@ -69,7 +83,7 @@ namespace ContabilidadWebApi.Controllers
                 }
                 catch (System.Exception)
                 {
-                    return Ok();
+                    return BadRequest();
                 }
 
             }
