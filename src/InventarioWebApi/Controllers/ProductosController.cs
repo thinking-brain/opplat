@@ -65,44 +65,14 @@ namespace InventarioWebApi.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpPost("/movimiento")]
-        public async Task<IActionResult> Movimiento([FromBody] MovimientoViewModel viewModel)
-        {
-            if (ModelState.IsValid)
-            {
-                MovimientoDeProducto movimiento = new MovimientoDeProducto()
-                {
-                    AlmacenId = viewModel.AlmacenId,
-                    ProductoId = viewModel.ProductoId,
-                    TipoMovimientoId = viewModel.TipoMovimientoId,
-                    Cantidad = viewModel.Cantidad,
-                    UnidadDeMedidaId = viewModel.UnidadDeMedidaId,
-                };
-
-                if (await _inventario.ActualizarSubmayor(
-                    viewModel.AlmacenId,
-                    viewModel.ProductoId,
-                    viewModel.Cantidad,
-                    viewModel.UnidadDeMedidaId,
-                    viewModel.TipoMovimientoId
-                    ))
-                {
-                    _context.MovimientosDeProductos.Add(movimiento);
-                    await _context.SaveChangesAsync();
-                    return Ok();
-                }
-                return BadRequest("Ha ocurrido algun problema");
-            };
-            return BadRequest(ModelState);
-        }
-
-        [HttpPost("/transferir")]
+        
+        [HttpPost("transferir")]
         public async Task<IActionResult> Transferir([FromBody] TransferenciaViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
                 //Este movimiento representa la salida del almacen de Origen
-                MovimientoDeProducto movimiento1 = new MovimientoDeProducto()
+                MovimientoDeProducto salida = new MovimientoDeProducto()
                 {
                     AlmacenId = viewModel.AlmacenOrigenId,
                     ProductoId = viewModel.ProductoId,
@@ -111,7 +81,7 @@ namespace InventarioWebApi.Controllers
                     UnidadDeMedidaId = viewModel.UnidadDeMedidaId,
                 };
                 //Este otro la entrada en el almacen de destino
-                MovimientoDeProducto movimiento2 = new MovimientoDeProducto()
+                MovimientoDeProducto entrada = new MovimientoDeProducto()
                 {
                     AlmacenId = viewModel.AlmacenDestinoId,
                     ProductoId = viewModel.ProductoId,
@@ -120,26 +90,31 @@ namespace InventarioWebApi.Controllers
                     UnidadDeMedidaId = viewModel.UnidadDeMedidaId,
                 };
 
+                var t1 = await _inventario.ActualizarSubmayor(
+                    salida.AlmacenId,
+                    salida.ProductoId,
+                    salida.Cantidad,
+                    salida.UnidadDeMedidaId,
+                    salida.TipoMovimientoId
+                );
 
-                if (await _inventario.ActualizarSubmayor(
-                    movimiento1.AlmacenId,
-                    movimiento1.ProductoId,
-                    movimiento1.Cantidad,
-                    movimiento1.UnidadDeMedidaId,
-                    movimiento1.TipoMovimientoId
-                    ) && await _inventario.ActualizarSubmayor(
-                    movimiento2.AlmacenId,
-                    movimiento2.ProductoId,
-                    movimiento2.Cantidad,
-                    movimiento2.UnidadDeMedidaId,
-                    movimiento2.TipoMovimientoId))
+                var t2 = await _inventario.ActualizarSubmayor(
+                    entrada.AlmacenId,
+                    entrada.ProductoId,
+                    entrada.Cantidad,
+                    entrada.UnidadDeMedidaId,
+                    entrada.TipoMovimientoId
+                );
+
+                if (t1.IsSuccess && t2.IsSuccess)
                 {
-                    _context.MovimientosDeProductos.Add(movimiento1);
-                    _context.MovimientosDeProductos.Add(movimiento2);
+                    _context.MovimientosDeProductos.Add(salida);
+                    _context.MovimientosDeProductos.Add(entrada);
                     await _context.SaveChangesAsync();
                     return Ok();
                 }
-                return BadRequest("Ha ocurrido algun problema");
+                string[] errors = { t1.Message, t2.Message };
+                return BadRequest(errors);
             };
             return BadRequest(ModelState);
         }

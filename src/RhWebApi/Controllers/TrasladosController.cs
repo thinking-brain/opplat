@@ -8,7 +8,7 @@ using RhWebApi.Models;
 using RhWebApi.Data;
 
 namespace RhWebApi.Controllers {
-    [Route ("api/[controller]")]
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
     public class TrasladosController : Controller {
         private readonly RhWebApiDbContext context;
@@ -16,7 +16,7 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // GET api/traslado
+        // GET recursos_humanos/traslado
         [HttpGet]
         public IActionResult GetAll () {
             var traslados = context.Traslado.Select (t => new {
@@ -32,7 +32,7 @@ namespace RhWebApi.Controllers {
             return Ok (traslados);
         }
 
-        // GET: api/traslado/Id
+        // GET: recursos_humanos/traslado/Id
         [HttpGet ("{id}", Name = "GetTraslado")]
         public IActionResult GetbyId (int id) {
             var traslado = context.Traslado.FirstOrDefault (s => s.Id == id);
@@ -44,7 +44,7 @@ namespace RhWebApi.Controllers {
 
         }
 
-        // POST api/traslado
+        // POST recursos_humanos/traslado
         [HttpPost]
         public IActionResult POST ([FromBody] TrasladoDto trasladoDto) {
             if (ModelState.IsValid) {
@@ -82,7 +82,7 @@ namespace RhWebApi.Controllers {
             return BadRequest (ModelState);
         }
 
-        // PUT api/traslado/id
+        // PUT recursos_humanos/traslado/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] Traslado traslado, int id) {
             if (traslado.Id != id) {
@@ -94,7 +94,7 @@ namespace RhWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE api/traslado/id
+        // DELETE recursos_humanos/traslado/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var traslado = context.Traslado.FirstOrDefault (s => s.Id == id);

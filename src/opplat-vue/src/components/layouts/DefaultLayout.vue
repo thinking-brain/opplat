@@ -4,11 +4,11 @@
     <AppBar />
     <v-content flat wraper>
       <!-- <div class="page-wrapper"> -->
-        <router-view />
+      <router-view />
       <!-- </div> -->
       <vue-snotify></vue-snotify>
       <!-- App Footer -->
-      <v-footer height="auto" class="white pa-3 app--footer d-print-none">
+      <v-footer height="auto" absolute class="white pa-3 app--footer d-print-none">
         <span class="caption">EFAVAI Tech &copy; {{ new Date().getFullYear() }}</span>
         <v-spacer></v-spacer>
         <span

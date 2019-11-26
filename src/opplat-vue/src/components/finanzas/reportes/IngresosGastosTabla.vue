@@ -122,7 +122,7 @@
       <table class="firmas">
         <tr>
           <th class="text-left">
-            <p>______________________________</p>
+            <p class="text-center">______________________________</p>
             <p v-if="economico" class="text-center">{{economico.nombre}}</p>
             <p v-if="!economico" class="text-center">Nombre:</p>
             <p v-if="economico" class="text-center">{{economico.cargo}}</p>
@@ -130,7 +130,7 @@
           </th>
           <th class="space"></th>
           <th class="text-right">
-            <p>______________________________</p>
+            <p class="text-center">______________________________</p>
             <p v-if="jefe" class="text-center">{{jefe.nombre}}</p>
             <p v-if="!jefe" class="text-center">Nombre:</p>
             <p v-if="jefe" class="text-center">{{jefe.cargo}}</p>
@@ -204,8 +204,9 @@ td {
   text-align: center;
 }
 table {
-  table-layout: fixed;
+  /* table-layout: fixed; */
   max-width: 100%;
+  min-width: 100%;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
 }
@@ -243,119 +244,126 @@ th {
 }
 </style>
 <script>
-import api from '@/api';
+import api from "@/api";
 
 export default {
-  
   data() {
     return {
-      mes:{id:0,nombre:'Ninguno'},
-      year:0,
+      mes: { id: 0, nombre: "Ninguno" },
+      year: 0,
       ingresos: null,
       egresos: null,
       utilidades: null,
-      errors:[],
+      errors: []
     };
   },
   computed: {
     jefe() {
       if (!this.$store.getters.jefe) {
-            this.$store
-              .dispatch('cargar')
-              .then(() => {})
-              .catch((err) => {console.log(err)});
-      }      
+        this.$store
+          .dispatch("cargar")
+          .then(() => {})
+          .catch(err => {
+            console.log(err);
+          });
+      }
       return this.$store.getters.jefe;
     },
     economico() {
       if (!this.$store.getters.economico) {
-            this.$store
-              .dispatch('cargar')
-              .then(() => {})
-              .catch((err) => {console.log(err)});
-      }      
+        this.$store
+          .dispatch("cargar")
+          .then(() => {})
+          .catch(err => {
+            console.log(err);
+          });
+      }
       return this.$store.getters.economico;
     },
-    hasdata(){
+    hasdata() {
       let hd = false;
-      if(this.egresos && this.ingresos && this.utilidades){
-        if(this.ingresos.length > 0 && this.egresos.length > 0 && this.utilidades.length > 0){
+      if (this.egresos && this.ingresos && this.utilidades) {
+        if (
+          this.ingresos.length > 0 &&
+          this.egresos.length > 0 &&
+          this.utilidades.length > 0
+        ) {
           hd = true;
         }
-      }      
+      }
       return hd;
     },
-    notloading(){
+    notloading() {
       let hd = false;
-      if(this.egresos && this.ingresos && this.utilidades){
-          hd = true;
-      }      
+      if (this.egresos && this.ingresos && this.utilidades) {
+        hd = true;
+      }
       return hd;
     }
-  },  
+  },
   methods: {
-    loadReporte(mes,year){
-        this.mes = mes;
-        this.year = year;
-        this.ingresos = [];        
-        this.utilidades = []; 
-        this.egresos = [];       
-        this.getIngresosFromApi();
-        this.getEgresosFromApi();
-        this.getUtilidadesFromApi();     
+    loadReporte(mes, year) {
+      this.mes = mes;
+      this.year = year;
+      this.ingresos = [];
+      this.utilidades = [];
+      this.egresos = [];
+      this.getIngresosFromApi();
+      this.getEgresosFromApi();
+      this.getUtilidadesFromApi();
     },
     getIngresosFromApi() {
       const url = api.getUrl(
-        'finanzas',
-        `ReporteIngresosGastos/ingresos/${this.year}/${this.mes.id}`,
+        "finanzas",
+        `ReporteIngresosGastos/ingresos/${this.year}/${this.mes.id}`
       );
       this.axios
         .get(url)
-        .then((response) => {
+        .then(response => {
           this.ingresos = response.data;
         })
-        .catch((e) => {
+        .catch(e => {
           this.errors.push(e);
           vm.$snotify.error(
-            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
+            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
           );
         });
     },
     getEgresosFromApi() {
       const url = api.getUrl(
-        'finanzas',
-        `ReporteIngresosGastos/egresos/${this.year}/${this.mes.id}`,
+        "finanzas",
+        `ReporteIngresosGastos/egresos/${this.year}/${this.mes.id}`
       );
       this.axios
         .get(url)
-        .then((response) => {
+        .then(response => {
           this.egresos = response.data;
         })
-        .catch((e) => {
+        .catch(e => {
           this.errors.push(e);
           vm.$snotify.error(
-            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
+            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
           );
         });
     },
     getUtilidadesFromApi() {
       const url = api.getUrl(
-        'finanzas',
-        `ReporteIngresosGastos/utilidad/${this.year}/${this.mes.id}`,
+        "finanzas",
+        `ReporteIngresosGastos/utilidad/${this.year}/${this.mes.id}`
       );
       this.axios
         .get(url)
-        .then((response) => {
+        .then(response => {
           this.utilidades = response.data;
         })
-        .catch((e) => {
+        .catch(e => {
           this.errors.push(e);
           vm.$snotify.error(
-            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
+            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
           );
         });
     },
-    imprimir(){
+    imprimir() {
       window.print();
     },
     imprimirviejo() {
@@ -400,7 +408,6 @@ export default {
 
       // Specify file name
       filename = filename ? filename + ".xls" : "excel_data.xls";
-
 
       // Create download link element
       downloadLink = document.createElement("a");

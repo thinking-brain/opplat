@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RhWebApi.Data;
 using RhWebApi.Dtos;
 using RhWebApi.Models;
-using RhWebApi.Data;
 
 namespace RhWebApi.Controllers {
-    [Route ("api/[controller]")]
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
     public class BajasController : Controller {
         private readonly RhWebApiDbContext context;
@@ -16,7 +16,7 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // GET api/baja
+        // GET recursos_humanos/baja
         [HttpGet]
         public IEnumerable<BajaDto> GetAll () {
             var baja = context.Baja.Select (s => new BajaDto {
@@ -29,7 +29,7 @@ namespace RhWebApi.Controllers {
             return baja;
         }
 
-        // GET: api/baja/Id
+        // GET: recursos_humanos/baja/Id
         [HttpGet ("{id}", Name = "GetBaja")]
         public IActionResult GetbyId (int id) {
             var baja = context.Baja.FirstOrDefault (s => s.Id == id);
@@ -38,10 +38,9 @@ namespace RhWebApi.Controllers {
                 return NotFound ();
             }
             return Ok (baja);
-
         }
 
-        // POST api/baja
+        // POST recursos_humanos/baja
         [HttpPost]
         public IActionResult POST ([FromBody] BajaDto bajaDto) {
             if (ModelState.IsValid) {
@@ -54,16 +53,21 @@ namespace RhWebApi.Controllers {
                 context.SaveChanges ();
 
                 var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == bajaDto.TrabajadorId);
-                trabajador.EstadoTrabajador = "Baja";
-                trabajador.PuestoDeTrabajoId = null;
-                context.SaveChanges ();
+                if (trabajador == null) {
+                    return NotFound ();
+                } else {
+                    trabajador.EstadoTrabajador = "Baja";
+                    trabajador.PuestoDeTrabajo.PlantillaOcupada--;
+                    trabajador.PuestoDeTrabajoId = null;
+                    context.SaveChanges ();
 
-                return new CreatedAtRouteResult ("GetBaja", new { id = baja.Id });
+                    return new CreatedAtRouteResult ("GetBaja", new { id = baja.Id });
+                }
             }
             return BadRequest (ModelState);
         }
 
-        // PUT api/baja/id
+        // PUT recursos_humanos/baja/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] Baja baja, int id) {
             if (baja.Id != id) {
@@ -75,7 +79,7 @@ namespace RhWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE api/baja/id
+        // DELETE recursos_humanos/baja/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var baja = context.Baja.FirstOrDefault (s => s.Id == id);

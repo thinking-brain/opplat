@@ -42,6 +42,7 @@ namespace ContabilidadWebApi.Controllers
             return Ok(planes);
         }
 
+
         /// <summary>
         /// Eliminar Plan
         /// </summary>
@@ -54,6 +55,16 @@ namespace ContabilidadWebApi.Controllers
             _context.Set<PlanGI>().Remove(planes);
             _context.SaveChanges();
             return Ok();
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult Get(int id)
+        {
+            var detalles = _context.Set<DetallePlanGI>().Include(d => d.Concepto)
+            .Where(d => d.PlanId == id).OrderBy(d => d.Id).ToList();
+
+            return Ok(detalles);
+
         }
 
 

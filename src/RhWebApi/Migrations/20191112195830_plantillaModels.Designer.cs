@@ -10,8 +10,8 @@ using RhWebApi.Data;
 namespace RhWebApi.Migrations
 {
     [DbContext(typeof(RhWebApiDbContext))]
-    [Migration("20191107023255_postgre")]
-    partial class postgre
+    [Migration("20191112195830_plantillaModels")]
+    partial class plantillaModels
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

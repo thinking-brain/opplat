@@ -9,7 +9,7 @@ using RhWebApi.Data;
 
 
 namespace RhWebApi.Controllers {
-    [Route ("api/[controller]")]
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
     public class ContratosController : Controller {
         private readonly RhWebApiDbContext context;
@@ -17,13 +17,13 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // GET api/Contrato
+        // GET recursos_humanos/Contrato
         [HttpGet]
         public IEnumerable<Contrato> GetAll () {
             return context.Contrato.ToList ();
         }
 
-        // GET: api/Contrato/Id
+        // GET: recursos_humanos/Contrato/Id
         [HttpGet ("{id}", Name = "GetContrato")]
         public IActionResult GetbyId (int id) {
             var contrato = context.Contrato.FirstOrDefault (s => s.Id == id);
@@ -35,7 +35,7 @@ namespace RhWebApi.Controllers {
 
         }
 
-        // POST api/Contrato
+        // POST recursos_humanos/Contrato
         [HttpPost]
         public IActionResult POST ([FromBody] Contrato contrato) {
             if (ModelState.IsValid) {
@@ -46,7 +46,7 @@ namespace RhWebApi.Controllers {
             return BadRequest (ModelState);
         }
 
-        // PUT api/areas/id
+        // PUT recursos_humanos/areas/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] Contrato contrato, int id) {
             if (contrato.Id != id) {
@@ -58,7 +58,7 @@ namespace RhWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE api/areas/id
+        // DELETE recursos_humanos/areas/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var contrato = context.Contrato.FirstOrDefault (s => s.Id == id);
