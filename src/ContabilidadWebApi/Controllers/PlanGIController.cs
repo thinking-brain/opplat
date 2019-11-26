@@ -42,13 +42,29 @@ namespace ContabilidadWebApi.Controllers
             return Ok(planes);
         }
 
+
+        /// <summary>
+        /// Eliminar Plan
+        /// </summary>
+        /// <returns></returns>
+        // GET: api/DeletePlanesGI
+        [HttpDelete("{id}")]
+        public ActionResult DeletePlanesGI(int id)
+        {
+            var planes = _context.Set<PlanGI>().Find(id);
+            _context.Set<PlanGI>().Remove(planes);
+            _context.SaveChanges();
+            return Ok();
+        }
+
         [HttpGet("{id}")]
         public ActionResult Get(int id)
         {
-            var detalles = _context.Set<DetallePlanGI>().Include(d => d.Concepto )
+            var detalles = _context.Set<DetallePlanGI>().Include(d => d.Concepto)
             .Where(d => d.PlanId == id).OrderBy(d => d.Id).ToList();
-               
+
             return Ok(detalles);
+
         }
 
 
@@ -78,7 +94,7 @@ namespace ContabilidadWebApi.Controllers
                 }
                 catch (System.Exception)
                 {
-                    return Ok();
+                    return BadRequest();
                 }
 
             }
