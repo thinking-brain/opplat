@@ -7,7 +7,7 @@ using System.Web;
 
 namespace RhWebApi.Data
 {
-    public enum Sexo : int
+    public enum Sexo
     {
         M,
         F,

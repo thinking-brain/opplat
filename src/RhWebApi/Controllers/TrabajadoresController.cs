@@ -25,11 +25,11 @@ namespace RhWebApi.Controllers {
                         Nombre = t.Nombre,
                         Apellidos = t.Apellidos,
                         CI = t.CI,
-                        Sexo = t.Sexo.ToString(),
+                        Sexo = t.Sexo.ToString (),
                         TelefonoFijo = t.TelefonoFijo,
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
-                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
+                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
                         MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         CargoId = t.PuestoDeTrabajo.CargoId,
@@ -55,11 +55,11 @@ namespace RhWebApi.Controllers {
                         Nombre = t.Nombre,
                         Apellidos = t.Apellidos,
                         CI = t.CI,
-                        Sexo = t.Sexo.ToString(),
+                        Sexo = t.Sexo.ToString (),
                         TelefonoFijo = t.TelefonoFijo,
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
-                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
+                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
                         MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         CargoId = t.PuestoDeTrabajo.CargoId,
@@ -129,7 +129,7 @@ namespace RhWebApi.Controllers {
             } catch (DbUpdateConcurrencyException) {
                 if (!TrabajadorExists (id)) {
                     return NotFound ();
-                } else { 
+                } else {
                     throw;
                 }
             }
@@ -149,8 +149,8 @@ namespace RhWebApi.Controllers {
             return Ok (trabajador);
         }
 
-        // GET: recursos_humanos/trabajadores/estado
-        [HttpGet ("/recursos_humanos/TrabajadoresByEstado/{estado}")]
+        // GET: recursos_humanos/trabajadores/Estado/estado
+        [HttpGet ("/recursos_humanos/Trabajadores/Estado/{estado}")]
         public IActionResult GetTrab (string estado) {
             var trabajadores = context.Trabajador.Where (m => m.EstadoTrabajador == estado)
                 .Select (t => new {
@@ -158,11 +158,11 @@ namespace RhWebApi.Controllers {
                         Nombre = t.Nombre,
                         Apellidos = t.Apellidos,
                         CI = t.CI,
-                        Sexo = t.Sexo.ToString(),
+                        Sexo = t.Sexo.ToString (),
                         TelefonoFijo = t.TelefonoFijo,
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
-                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
+                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
                         MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         EstadoTrabajador = t.EstadoTrabajador,
@@ -174,25 +174,69 @@ namespace RhWebApi.Controllers {
             return Ok (trabajadores);
         }
 
-        [HttpGet ("/recursos_humanos/TrabajadoresBySexo/{sexo}")]
+        // GET: recursos_humanos/trabajadores/Sexo/sexo
+        [HttpGet ("/recursos_humanos/Trabajadores/Sexo/{sexo}")]
         public IActionResult GetBySex (Sexo sexo) {
-            var trabajadores = context.Trabajador.Where (t => t.Sexo == sexo && t.EstadoTrabajador != "pendiente").Select (t => new {
+            var trabajadores = context.Trabajador
+                .Where (t => t.Sexo == sexo && t.EstadoTrabajador != "pendiente")
+                .Select (t => new {
+                    Id = t.Id,
+                        Nombre = t.Nombre,
+                        Apellidos = t.Apellidos,
+                        CI = t.CI,
+                        Sexo = t.Sexo.ToString (),
+                        TelefonoFijo = t.TelefonoFijo,
+                        TelefonoMovil = t.TelefonoMovil,
+                        Direccion = t.Direccion,
+                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
+                        MunicipioId = t.MunicipioId,
+                        MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
+                        CargoId = t.PuestoDeTrabajo.CargoId,
+                        Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
+                        EstadoTrabajador = t.EstadoTrabajador,
+                });
+
+            if (trabajadores == null) {
+                return NotFound ();
+            }
+            return Ok (trabajadores);
+        }
+        // GET: recursos_humanos/trabajadores/Filtro
+        [HttpGet ("/recursos_humanos/Trabajadores/Filtro")]
+        public IActionResult GetByFiltro (FiltroDto filtroDto) {
+            var trabajadores = context.Trabajador.Select (t => new {
                 Id = t.Id,
                     Nombre = t.Nombre,
                     Apellidos = t.Apellidos,
                     CI = t.CI,
-                    Sexo = t.Sexo.ToString(),
+                    Sexo = t.Sexo.ToString (),
                     TelefonoFijo = t.TelefonoFijo,
                     TelefonoMovil = t.TelefonoMovil,
                     Direccion = t.Direccion,
-                    NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
+                    NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
                     MunicipioId = t.MunicipioId,
                     MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                     CargoId = t.PuestoDeTrabajo.CargoId,
                     Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
+                    UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
                     EstadoTrabajador = t.EstadoTrabajador,
+                    Nombre_Completo = t.Nombre + " " + t.Apellidos,
             });
-
+            if (!filtroDto.UnidadOrganizativa.ToString ().Equals ("")) {
+                trabajadores = trabajadores.Where (t => t.UnidadOrganizativa.ToString ().Equals (filtroDto.UnidadOrganizativa.ToString ()));
+            }
+            if (!filtroDto.Cargo.ToString ().Equals ("")) {
+                trabajadores = trabajadores.Where (t => t.Cargo.ToString ().Equals (filtroDto.Cargo.ToString ()));
+            }
+            if (!filtroDto.Sexo.ToString ().Equals ("")) {
+                trabajadores = trabajadores.Where (t => t.Sexo.ToString ().Equals (filtroDto.Sexo.ToString ()));
+            }
+            if (!filtroDto.Estado.ToString ().Equals ("")) {
+                trabajadores = trabajadores.Where (t => t.EstadoTrabajador.ToString ().Equals (filtroDto.Estado.ToString ()));
+            }
+            // if (!filtroDto.ColorDePiel.ToString ().Equals ("")) {
+            //     trabajadores = trabajadores.Include (c => c.CaracteristicasTrab).Where (t => t.CaracteristicasTrab.ColorDePiel.ToString ().Equals (filtroDto.ColorDePiel.ToString ()));
+            // }
             if (trabajadores == null) {
                 return NotFound ();
             }
