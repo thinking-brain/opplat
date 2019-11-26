@@ -196,10 +196,19 @@ export default {
       this.dialog2 = true;
     },
 
-    deleteItem(item) {
+deleteItem(item) {
       const index = this.planes.indexOf(item);
+      const url = api.getUrl("contabilidad", "DeletePlanGI");
+
       confirm("¿Está seguro de eliminar este plan?") &&
-        this.planes.splice(index, 1);
+        this.axios.delete(url + "/" + item.id).then(
+          response => {
+            this.getResponse(response);
+          },
+          error => {
+            console.log(error);
+          }
+        );
     },
 
     close() {
