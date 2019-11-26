@@ -53,7 +53,7 @@
           </v-toolbar>
         </template>
         <template v-slot:item.action="{ item }">
-          <v-icon small class="mr-2" @click="detallesPlan(item)">mdi-pencil</v-icon>
+          <!-- <v-icon small class="mr-2" @click="detallesPlan(item)">mdi-pencil</v-icon> -->
           <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
         </template>
         <template v-slot:no-data>
@@ -61,12 +61,7 @@
         </template>
       </v-data-table>
     </v-container>
-    <v-dialog
-      v-model="dialog2"
-      fullscreen
-      hide-overlay
-      transition="dialog-bottom-transition"
-    >
+    <v-dialog v-model="dialog2" fullscreen hide-overlay transition="dialog-bottom-transition">
       <v-card tile>
         <v-toolbar flat dark color="primary">
           <v-toolbar-title>Detalles del Plan</v-toolbar-title>
