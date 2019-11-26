@@ -87,13 +87,10 @@ namespace ImportadorDatos.Jobs
         {
             //todo: revisar los periodos cuando ya existe uno en la BD
             var periodosVersat = _vContext.Set<GenPeriodo>().OrderBy(p => p.Inicio);
+            var periodosImportados = _enlaceContext.Set<PeriodosContables>().Select(c => c.PeriodoVersatId).ToList();
             foreach (var per in periodosVersat)
             {
-                if (_cContext.Set<PeriodoContable>().Any(p => p.FechaInicio == per.Inicio && p.FechaFin == per.Fin))
-                {
-
-                }
-                else
+                if (!periodosImportados.Contains(per.Idperiodo))
                 {
                     var nuevoPeriodo = new PeriodoContable { FechaInicio = per.Inicio, FechaFin = per.Fin, Activo = per.Enuso ?? per.Enuso.Value };
                     _cContext.Add(nuevoPeriodo);
@@ -102,7 +99,6 @@ namespace ImportadorDatos.Jobs
                     _enlaceContext.SaveChanges();
                 }
             }
-
         }
 
 
@@ -119,62 +115,71 @@ namespace ImportadorDatos.Jobs
                     Comprobante = c.Key,
                     Operaciones = c.Select(g => g)
                 });
+            var comprobantesImportados = _enlaceContext.Set<Asientos>().Select(c => c.ComprobanteId).ToList();
             foreach (var asi in operacionesVersat)
             {
-
-                var diaContable = _cContext.Set<DiaContable>().SingleOrDefault(d => d.Fecha.Date == asi.Comprobante.ConComprobanteoperacion.Fecha.Date);
-                if (diaContable == null)
+                if (!comprobantesImportados.Contains(asi.Comprobante.Idcomprobante))
                 {
-                    var periodo = _cContext.Set<PeriodoContable>()
-                    .SingleOrDefault(p => p.FechaInicio.Date == asi.Comprobante.ConComprobanteoperacion.IdperiodoNavigation.Inicio.Date
-                        && p.FechaFin.Date == asi.Comprobante.ConComprobanteoperacion.IdperiodoNavigation.Fin.Date);
-                    diaContable = new DiaContable
+                    var diaContable = _cContext.Set<DiaContable>().SingleOrDefault(d => d.Fecha.Date == asi.Comprobante.ConComprobanteoperacion.Fecha.Date);
+                    if (diaContable == null)
                     {
-                        Fecha = asi.Comprobante.ConComprobanteoperacion.Fecha,
-                        Abierto = false,
-                        HoraEnQueCerro = asi.Comprobante.ConComprobanteoperacion.Fecha.Date.AddHours(23),
-                        PeriodoContableId = periodo.Id
-                    };
-                }
-                var nuevoAsiento = new Asiento
-                {
-                    Detalle = asi.Comprobante.Descripcion,
-                    Fecha = asi.Comprobante.ConComprobanteoperacion.Fecha,
-                    UsuarioId = asi.Comprobante.ConComprobanteoperacion.IdusuarioNavigation.Loginusuario,
-                    DiaContable = diaContable,
-                };
-                foreach (var op in asi.Operaciones)
-                {
-                    var numero = GetNumeroCuenta(op.IdcuentaNavigation.Clave, op.IdcuentaNavigation.IdaperturaNavigation.IdmascaraNavigation.Posicion);
-                    var cuenta = _cContext.Set<Cuenta>()
-                        .Include(c => c.CuentaSuperior)
-                        .ToList()
-                        .SingleOrDefault(c => c.Numero == numero);
-                    if (cuenta == null)
-                    {
-                        _logger.LogError($"Error cuenta {numero} no existe.");
-                    }
-                    else
-                    {
-                        var tipoOperacion = TipoDeOperacion.Debito;
-                        if (op.Importe < 0)
+                        var periodo = _cContext.Set<PeriodoContable>()
+                        .SingleOrDefault(p => p.FechaInicio.Date == asi.Comprobante.ConComprobanteoperacion.IdperiodoNavigation.Inicio.Date
+                            && p.FechaFin.Date == asi.Comprobante.ConComprobanteoperacion.IdperiodoNavigation.Fin.Date);
+                        diaContable = new DiaContable
                         {
-                            tipoOperacion = TipoDeOperacion.Credito;
-                        }
-                        var mov = new Movimiento
-                        {
-                            CuentaId = cuenta.Id,
-                            Importe = Math.Abs(op.Importe),
-                            TipoDeOperacion = tipoOperacion
+                            Fecha = asi.Comprobante.ConComprobanteoperacion.Fecha,
+                            Abierto = false,
+                            HoraEnQueCerro = asi.Comprobante.ConComprobanteoperacion.Fecha.Date.AddHours(23),
+                            PeriodoContableId = periodo.Id
                         };
-                        nuevoAsiento.Movimientos.Add(mov);
                     }
+                    var nuevoAsiento = new Asiento
+                    {
+                        Detalle = asi.Comprobante.Descripcion,
+                        Fecha = asi.Comprobante.ConComprobanteoperacion.Fecha,
+                        UsuarioId = asi.Comprobante.ConComprobanteoperacion.IdusuarioNavigation.Loginusuario,
+                        DiaContable = diaContable,
+                    };
+                    bool valid = true;
+                    foreach (var op in asi.Operaciones)
+                    {
+                        var numero = GetNumeroCuenta(op.IdcuentaNavigation.Clave, op.IdcuentaNavigation.IdaperturaNavigation.IdmascaraNavigation.Posicion);
+                        var cuenta = _cContext.Set<Cuenta>()
+                            .Include(c => c.CuentaSuperior)
+                            .ToList()
+                            .SingleOrDefault(c => c.Numero == numero);
+                        if (cuenta == null)
+                        {
+                            _logger.LogError($"Error cuenta {numero} no existe.");
+                            valid = false;
+                            break;
+                        }
+                        else
+                        {
+                            var tipoOperacion = TipoDeOperacion.Debito;
+                            if (op.Importe < 0)
+                            {
+                                tipoOperacion = TipoDeOperacion.Credito;
+                            }
+                            var mov = new Movimiento
+                            {
+                                CuentaId = cuenta.Id,
+                                Importe = Math.Abs(op.Importe),
+                                TipoDeOperacion = tipoOperacion
+                            };
+                            nuevoAsiento.Movimientos.Add(mov);
+                        }
 
+                    }
+                    if (valid)
+                    {
+                        _cContext.Add(nuevoAsiento);
+                        _cContext.SaveChanges();
+                        _enlaceContext.Add(new Asientos { AsientoId = nuevoAsiento.Id, ComprobanteId = asi.Comprobante.Idcomprobante, Fecha = DateTime.Now });
+                        _enlaceContext.SaveChanges();
+                    }
                 }
-                _cContext.Add(nuevoAsiento);
-                _cContext.SaveChanges();
-                _enlaceContext.Add(new Asientos { AsientoId = nuevoAsiento.Id, ComprobanteId = asi.Comprobante.Idcomprobante, Fecha = DateTime.Now });
-                _enlaceContext.SaveChanges();
             }
         }
 
