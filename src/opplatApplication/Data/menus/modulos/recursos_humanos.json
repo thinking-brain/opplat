@@ -9,28 +9,5 @@
             "administrador",
             "recursos_humanos"
         ]        
-    },
-  
-    {
-        "title": "Reportes",
-        "group": "recursos_humanos",
-        "icon": "mdi-file-chart",
-        "name": "Reportes",
-        "roles": [
-            "administrador",
-            "recursos_humanos"
-        ],
-        "items": [
-            {
-                "title": "Por Unidad Organizativa",
-                "group": "recursos_humanos",
-                "icon": "mdi-worker",
-                "name": "UnidadOrganizativa",
-                "roles": [
-                    "administrador",
-                    "recursos_humanos"
-                ]
-            }
-        ]
     }
 ]
