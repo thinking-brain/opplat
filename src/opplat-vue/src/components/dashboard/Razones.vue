@@ -1,19 +1,19 @@
 <template>
   <v-flex md6 lg6 xs12 pa-2>
-    <v-card :elevation="4">
+    <v-card>
       <v-card-title>Razones Financieras</v-card-title>
-      <v-simple-table fixed-header height="300px">
+      <v-simple-table fixed-header>
         <template v-slot:default>
           <thead>
             <tr>
-              <th class="text-left">Name</th>
-              <th class="text-left">Calories</th>
+              <th class="text-left">Nombre</th>
+              <th class="text-left">Valor</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="item in data" :key="item.name">
-              <td>{{ item.name }}</td>
-              <td>{{ item.calories }}</td>
+              <td>{{ item.razon }}</td>
+              <td>{{ item.valor }}</td>
             </tr>
           </tbody>
         </template>
@@ -27,13 +27,15 @@ import api from "@/api";
 export default {
   data() {
     return {
-      data: [{name:'Vicente', calories:'345'}]
+      data: [{name:'', calories:'0'}]
     };
   },
   created() {
+    const year = new Date().getFullYear();
+    const mes = new Date().getMonth();
     const url = api.getUrl(
       "finanzas",
-      `RazonesFinancieras/MesActual/${2019}/${2}`
+      `RazonesFinancieras/MesActual/${year}/${mes}`
     );
     this.axios
       .get(url)
