@@ -44,6 +44,39 @@ namespace RhWebApi.Controllers {
             return stringBuilder.ToString ();
         }
 
+        // GET: recursos_humanos/CaracteristicasTrab/Sexo
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/Sexo")]
+        public IActionResult GetAllSexo () {
+            var sexo = new List<dynamic> () {
+                new { Id = Sexo.M, Nombre = Sexo.M.ToString () },
+                new { Id = Sexo.F, Nombre = Sexo.F.ToString () },
+            };
+            return Ok (sexo);
+        }
+        // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/ColordePiel")]
+        public IActionResult GetAllColorDePiel () {
+            var colorDePiel = new List<dynamic> () {
+                new { Id = ColorDePiel.Blanca, Nombre = ColorDePiel.Blanca.ToString () },
+                new { Id = ColorDePiel.Negra, Nombre = ColorDePiel.Negra.ToString () },
+                new { Id = ColorDePiel.Mestiza, Nombre = ColorDePiel.Mestiza.ToString () },
+            };
+            return Ok (colorDePiel);
+        }
+        // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/NivelEscolaridad")]
+        public IActionResult GetAllEscolaridad () {
+            var nivelEscolaridad = new List<dynamic> () {
+                new { Id = NivelDeEscolaridad.SinDefinir, Nombre = NivelDeEscolaridad.SinDefinir.ToString () },
+                new { Id = NivelDeEscolaridad.NivelSuperior, Nombre = NivelDeEscolaridad.NivelSuperior.ToString () },
+                new { Id = NivelDeEscolaridad.DoceGrado, Nombre = NivelDeEscolaridad.DoceGrado.ToString () },
+                new { Id = NivelDeEscolaridad.NovenoGrado, Nombre = NivelDeEscolaridad.NovenoGrado.ToString () },
+                new { Id = NivelDeEscolaridad.SextoGrado, Nombre = NivelDeEscolaridad.SextoGrado.ToString () },
+                new { Id = NivelDeEscolaridad.MenosDeSextoGrado, Nombre = NivelDeEscolaridad.MenosDeSextoGrado.ToString () },
+            };
+            return Ok (nivelEscolaridad);
+        }
+
         // GET: recursos_humanos/CaracteristicasTrab/Id
         [HttpGet ("{id}", Name = "GetCaracteristicasTrab")]
         public IActionResult GetbyId (int id) {
