@@ -122,7 +122,7 @@
       <table class="firmas">
         <tr>
           <th class="text-left">
-            <p>______________________________</p>
+            <p class="text-center">______________________________</p>
             <p v-if="economico" class="text-center">{{economico.nombre}}</p>
             <p v-if="!economico" class="text-center">Nombre:</p>
             <p v-if="economico" class="text-center">{{economico.cargo}}</p>
@@ -130,7 +130,7 @@
           </th>
           <th class="space"></th>
           <th class="text-right">
-            <p>______________________________</p>
+            <p class="text-center">______________________________</p>
             <p v-if="jefe" class="text-center">{{jefe.nombre}}</p>
             <p v-if="!jefe" class="text-center">Nombre:</p>
             <p v-if="jefe" class="text-center">{{jefe.cargo}}</p>
