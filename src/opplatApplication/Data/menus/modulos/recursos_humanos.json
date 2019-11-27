@@ -1,0 +1,13 @@
+[
+    {
+        "title": "Trabajadores",
+        "group": "recursos_humanos",
+        "icon": "mdi-worker",
+        "name": "Trabajadores",
+        "component": "Trabajadores",
+        "roles": [
+            "administrador",
+            "recursos_humanos"
+        ]        
+    }
+]

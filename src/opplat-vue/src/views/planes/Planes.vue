@@ -53,7 +53,7 @@
           </v-toolbar>
         </template>
         <template v-slot:item.action="{ item }">
-          <v-icon small class="mr-2" @click="detallesPlan(item)">mdi-pencil</v-icon>
+          <!-- <v-icon small class="mr-2" @click="detallesPlan(item)">mdi-pencil</v-icon> -->
           <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
         </template>
         <template v-slot:no-data>
@@ -61,12 +61,7 @@
         </template>
       </v-data-table>
     </v-container>
-    <v-dialog
-      v-model="dialog2"
-      fullscreen
-      hide-overlay
-      transition="dialog-bottom-transition"
-    >
+    <v-dialog v-model="dialog2" fullscreen hide-overlay transition="dialog-bottom-transition">
       <v-card tile>
         <v-toolbar flat dark color="primary">
           <v-toolbar-title>Detalles del Plan</v-toolbar-title>
@@ -201,10 +196,19 @@ export default {
       this.dialog2 = true;
     },
 
-    deleteItem(item) {
+deleteItem(item) {
       const index = this.planes.indexOf(item);
+      const url = api.getUrl("contabilidad", "PlanGI");
+
       confirm("¿Está seguro de eliminar este plan?") &&
-        this.planes.splice(index, 1);
+        this.axios.delete(url + "/" + item.id).then(
+          response => {
+            this.getResponse(response);
+          },
+          error => {
+            console.log(error);
+          }
+        );
     },
 
     close() {

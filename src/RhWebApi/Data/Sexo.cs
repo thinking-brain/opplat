@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
-namespace RhWebApi.Models
+namespace RhWebApi.Data
 {
-    public enum Sexo : int
+    public enum Sexo
     {
         M,
         F,

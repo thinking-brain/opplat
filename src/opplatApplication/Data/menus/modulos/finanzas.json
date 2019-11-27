@@ -19,6 +19,17 @@
                     "administrador",
                     "economico"
                 ]
+            },
+            {
+                "title": "Razones Financieras",
+                "group": "reportes",
+                "icon": "mdi-chart-areaspline",
+                "component": "RazonesFinancieras",
+                "name": "RazonesFinancieras",
+                "roles": [
+                    "administrador",
+                    "economico"
+                ]
             }
         ]
     },

@@ -8,7 +8,7 @@ using RhWebApi.Models;
 using RhWebApi.Data;
 
 namespace RhWebApi.Controllers {
-    [Route ("api/[controller]")]
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
     public class OtrosMovimientosController : Controller {
         private readonly RhWebApiDbContext context;
@@ -16,7 +16,7 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // GET api/otroMovimiento
+        // GET recursos_humanos/otroMovimiento
         [HttpGet]
         public IEnumerable<OtroMovimientoDto> GetAll () {
             var otroMovimiento = context.OtroMovimiento.Select (t => new OtroMovimientoDto {
@@ -30,7 +30,7 @@ namespace RhWebApi.Controllers {
             return otroMovimiento;
         }
 
-        // GET: api/otroMovimiento/Id
+        // GET: recursos_humanos/otroMovimiento/Id
         [HttpGet ("{id}", Name = "GetOtrosMov")]
         public IEnumerable<OtroMovimientoDto> GetbyId (int id) {
 
@@ -47,7 +47,7 @@ namespace RhWebApi.Controllers {
             return otroMovimiento;
         }
 
-        // POST api/otroMovimiento
+        // POST recursos_humanos/otroMovimiento
         [HttpPost]
         public IActionResult POST ([FromBody] OtroMovimientoDto otroMovimientoDto) {
             if (ModelState.IsValid) {
@@ -71,7 +71,7 @@ namespace RhWebApi.Controllers {
             return BadRequest (ModelState);
         }
 
-        // PUT api/otroMovimiento/id
+        // PUT recursos_humanos/otroMovimiento/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] OtroMovimiento otroMovimiento, int id) {
             if (otroMovimiento.Id != id) {
@@ -83,7 +83,7 @@ namespace RhWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE api/otroMovimiento/id
+        // DELETE recursos_humanos/otroMovimiento/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var otroMovimiento = context.OtroMovimiento.FirstOrDefault (s => s.Id == id);

@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RhWebApi.Data;
 using RhWebApi.Dtos;
 using RhWebApi.Models;
-using RhWebApi.Data;
-
 
 namespace RhWebApi.Controllers {
-    [Route ("api/[controller]")]
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
     public class EntradasController : Controller {
         private readonly RhWebApiDbContext context;
@@ -17,7 +16,7 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // GET api/EntradasController
+        // GET recursos_humanos/EntradasController
         [HttpGet]
         public ActionResult GetAll () {
 
@@ -28,10 +27,14 @@ namespace RhWebApi.Controllers {
                     Cargo = e.Cargo.Nombre,
                     UnidadOrganizativa = e.UnidadOrganizativa.Nombre,
             }).ToList ();
-            return Ok (entrada);
+            if (entrada == null) {
+                return NotFound ();
+            } else {
+                return Ok (entrada);
+            }
         }
 
-        // GET: api/Entradas/Id
+        // GET: recursos_humanos/Entradas/Id
         [HttpGet ("{id}", Name = "GetEntrada")]
         public IActionResult GetbyId (int id) {
             var entrada = context.Entrada.FirstOrDefault (s => s.Id == id);
@@ -50,7 +53,7 @@ namespace RhWebApi.Controllers {
             return Ok (result);
         }
 
-        // POST api/Entradas
+        // POST recursos_humanos/Entradas
         [HttpPost]
         public IActionResult POST ([FromBody] EntradaDto entradaDto) {
             if (ModelState.IsValid) {
@@ -65,7 +68,7 @@ namespace RhWebApi.Controllers {
                 };
                 context.Entrada.Add (entrada);
                 trabajador.PuestoDeTrabajoId = puesto.Id;
-                puesto.CantidadPorPlantilla++;
+                puesto.PlantillaOcupada++;
                 trabajador.EstadoTrabajador = "Activo";
                 context.Entry (trabajador).State = EntityState.Modified;
 
@@ -82,7 +85,7 @@ namespace RhWebApi.Controllers {
             return BadRequest (ModelState);
         }
 
-        // PUT api/Entradas/id
+        // PUT recursos_humanos/Entradas/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] EntradaDto entradaDto, int id) {
             if (entradaDto.Id != id) {
@@ -94,7 +97,7 @@ namespace RhWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE api/Entradas/id
+        // DELETE recursos_humanos/Entradas/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var entrada = context.Entrada.FirstOrDefault (s => s.Id == id);
