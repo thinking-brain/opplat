@@ -11,7 +11,7 @@
       </v-row>
     </v-form>
     <v-flex lg12>
-      <IngresosGastosTabla ref="tabla"></IngresosGastosTabla>
+      <RazonesFinancierasTabla ref="tabla"></RazonesFinancierasTabla>
     </v-flex>
   </v-container>
 </template>
