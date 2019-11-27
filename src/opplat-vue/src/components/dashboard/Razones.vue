@@ -1,23 +1,44 @@
 <template>
   <v-flex md6 lg6 xs12 pa-2>
     <v-card :elevation="4">
-      <v-card-title>Razones Financieras</v-card-title>
-      <v-simple-table fixed-header height="300px">
-        <template v-slot:default>
+      <v-subheader :inset="inset">
+        <h2>Razones Financieras</h2>
+      </v-subheader>
+      <v-card-text>
+        <v-simple-table fixed-header height="300px">
           <thead>
             <tr>
-              <th class="text-left">Name</th>
-              <th class="text-left">Calories</th>
+              <th class="text-left">Razon</th>
+              <th class="text-left">Valor</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in data" :key="item.name">
-              <td>{{ item.name }}</td>
-              <td>{{ item.calories }}</td>
+            <tr v-for="item in razones" :key="item.razor">
+              <td>{{ item.razon }}</td>
+              <td>
+                <h3>{{ item.valor }}</h3>
+              </td>
             </tr>
           </tbody>
-        </template>
-      </v-simple-table>
+        </v-simple-table>
+      </v-card-text>
+
+      <!-- <v-alert
+        border="left"
+        colored-border
+        color="deep-purple accent-4"
+        elevation="2"
+        v-for="item in razones"
+        :key="item.name">
+        <v-row align="center">
+          <v-col class="grow">
+            <h3 class="headline">{{item.name}}</h3>
+          </v-col>
+          <v-col class="shrink">
+            <v-btn>d</v-btn>
+          </v-col>
+        </v-row>
+      </v-alert>-->
     </v-card>
   </v-flex>
 </template>
@@ -27,24 +48,25 @@ import api from "@/api";
 export default {
   data() {
     return {
-      data: [{name:'Vicente', calories:'345'}]
+      razones: []
     };
   },
   created() {
+    var d = new Date();
+    var year = d.getFullYear();
+    var month = d.getMonth() + 1;
     const url = api.getUrl(
       "finanzas",
-      `RazonesFinancieras/MesActual/${2019}/${2}`
+      `RazonesFinancieras/MesActual/${year}/${month}`
     );
     this.axios
       .get(url)
       .then(response => {
-        this.data = response.data
+        this.razones = response.data;
       })
       .catch(e => {
         this.errors.push(e);
-        vm.$snotify.error(
-          "Error al conctarse con la API Finanzas"
-        );
+        vm.$snotify.error("Error al conectarse con la API Finanzas");
       });
   }
 };
