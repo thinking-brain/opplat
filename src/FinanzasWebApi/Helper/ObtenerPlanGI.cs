@@ -254,7 +254,7 @@ namespace FinanzasWebApi.Helper
         {
             var plan = new List<MovimientoCuentaPeriodoVM>();
             var modelo = DatosPlanGI.Datos();
-            var planes = GetPlanIngresosPeriodo.Get(year, _config);
+            var planes = GetPlanEgresosPeriodo.Get(year, _config);
             foreach (var item in modelo.Where(s => s.Tipo.Equals("Egresos")))
             {
                 string cta = item.Valor.ToString();
@@ -480,6 +480,7 @@ namespace FinanzasWebApi.Helper
             var total = planIngresos - planEgresos;
             return total;
         }
+
 
     }
 }

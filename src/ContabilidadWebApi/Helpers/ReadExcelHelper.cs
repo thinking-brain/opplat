@@ -46,7 +46,7 @@ namespace ContabilidadWebApi.Helpers
 
             for (int row = 3; row <= rowCount.Value; row++)
             {
-                var element = (worksheet.Cells[row, 1].Value) != null ? (worksheet.Cells[row, 1].Value).ToString() : "";
+                var element = (worksheet.Cells[row, 1].Value) != null ? (worksheet.Cells[row, 1].Value).ToString().Trim() : "";
 
                 if (!_context.Set<ConceptoPlan>().Any(s => s.Concepto.ToUpper().TrimEnd().Equals(element.ToUpper().TrimEnd())))
                 {
