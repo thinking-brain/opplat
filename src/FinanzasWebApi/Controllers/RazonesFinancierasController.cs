@@ -228,6 +228,179 @@ namespace FinanzasWebApi.Controllers
             return resultado;
         }
 
+        /// <summary>
+        /// Devuelve un Listado de Razones Financieras en un año
+        /// </summary>
+        /// <returns></returns>
+        // GET: api/RazonesYear
+        [HttpGet("{year}")]
+        public IEnumerable<DetalleRazonYearVM> GetRazonesYear(string year)
+        {
+            var año = Convert.ToInt32(year);
+            var detalle = new List<DetalleRazonYearVM>();
+
+            //Solvencia Financiera
+            detalle.Add(new DetalleRazonYearVM
+            {
+                Razon = "Solvencia Financiera",
+                Enero = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 1),
+                Febrero = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 2),
+                Marzo = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 3),
+                Abril = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 4),
+                Mayo = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 5),
+                Junio = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 6),
+                Julio = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 7),
+                Agosto = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 8),
+                Septiembre = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 9),
+                Octubre = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 10),
+                Noviembre = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 11),
+                Diciembre = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 12),
+            });
+
+            //Capital de Trabajo
+            detalle.Add(new DetalleRazonYearVM
+            {
+                Razon = "Capital de Trabajo",
+                Enero = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 1),
+                Febrero = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 2),
+                Marzo = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 3),
+                Abril = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 4),
+                Mayo = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 5),
+                Junio = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 6),
+                Julio = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 7),
+                Agosto = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 8),
+                Septiembre = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 9),
+                Octubre = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 10),
+                Noviembre = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 11),
+                Diciembre = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 12),
+            });
+
+            //Indice de Disponibilidad
+            detalle.Add(new DetalleRazonYearVM
+            {
+                Razon = "Indice de Disponibilidad",
+                Enero = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 1),
+                Febrero = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 2),
+                Marzo = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 3),
+                Abril = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 4),
+                Mayo = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 5),
+                Junio = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 6),
+                Julio = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 7),
+                Agosto = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 8),
+                Septiembre = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 9),
+                Octubre = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 10),
+                Noviembre = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 11),
+                Diciembre = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 12),
+            });
+
+            //Indice de Liquidez General
+            detalle.Add(new DetalleRazonYearVM
+            {
+                Razon = "Indice de Liquidez General",
+                Enero = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 1),
+                Febrero = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 2),
+                Marzo = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 3),
+                Abril = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 4),
+                Mayo = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 5),
+                Junio = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 6),
+                Julio = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 7),
+                Agosto = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 8),
+                Septiembre = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 9),
+                Octubre = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 10),
+                Noviembre = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 11),
+                Diciembre = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 12),
+            });
+
+            //Liquidez de Tesorería
+            detalle.Add(new DetalleRazonYearVM
+            {
+                Razon = "Liquidez de Tesorería",
+                Enero = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 1),
+                Febrero = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 2),
+                Marzo = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 3),
+                Abril = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 4),
+                Mayo = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 5),
+                Junio = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 6),
+                Julio = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 7),
+                Agosto = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 8),
+                Septiembre = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 9),
+                Octubre = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 10),
+                Noviembre = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 11),
+                Diciembre = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 12),
+            });
+
+            //Indice de Deuda o Razon de Endeudamiento
+            detalle.Add(new DetalleRazonYearVM
+            {
+                Razon = "Indice de Deuda o Razon de Endeudamiento",
+                Enero = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 1),
+                Febrero = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 2),
+                Marzo = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 3),
+                Abril = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 4),
+                Mayo = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 5),
+                Junio = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 6),
+                Julio = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 7),
+                Agosto = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 8),
+                Septiembre = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 9),
+                Octubre = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 10),
+                Noviembre = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 11),
+                Diciembre = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 12),
+            });
+
+            //Margen de Utilidad
+            detalle.Add(new DetalleRazonYearVM
+            {
+                Razon = "Margen de Utilidad",
+                Enero = _obtenerVariables.ObtenerMargenDeUtilidad(año, 1),
+                Febrero = _obtenerVariables.ObtenerMargenDeUtilidad(año, 2),
+                Marzo = _obtenerVariables.ObtenerMargenDeUtilidad(año, 3),
+                Abril = _obtenerVariables.ObtenerMargenDeUtilidad(año, 4),
+                Mayo = _obtenerVariables.ObtenerMargenDeUtilidad(año, 5),
+                Junio = _obtenerVariables.ObtenerMargenDeUtilidad(año, 6),
+                Julio = _obtenerVariables.ObtenerMargenDeUtilidad(año, 7),
+                Agosto = _obtenerVariables.ObtenerMargenDeUtilidad(año, 8),
+                Septiembre = _obtenerVariables.ObtenerMargenDeUtilidad(año, 9),
+                Octubre = _obtenerVariables.ObtenerMargenDeUtilidad(año, 10),
+                Noviembre = _obtenerVariables.ObtenerMargenDeUtilidad(año, 11),
+                Diciembre = _obtenerVariables.ObtenerMargenDeUtilidad(año, 12),
+            });
+
+            //Rentabilidad económica 
+            detalle.Add(new DetalleRazonYearVM
+            {
+                Razon = "Rentabilidad Económica",
+                Enero = _obtenerVariables.ObtenerRentabilidadEconomica(año, 1),
+                Febrero = _obtenerVariables.ObtenerRentabilidadEconomica(año, 2),
+                Marzo = _obtenerVariables.ObtenerRentabilidadEconomica(año, 3),
+                Abril = _obtenerVariables.ObtenerRentabilidadEconomica(año, 4),
+                Mayo = _obtenerVariables.ObtenerRentabilidadEconomica(año, 5),
+                Junio = _obtenerVariables.ObtenerRentabilidadEconomica(año, 6),
+                Julio = _obtenerVariables.ObtenerRentabilidadEconomica(año, 7),
+                Agosto = _obtenerVariables.ObtenerRentabilidadEconomica(año, 8),
+                Septiembre = _obtenerVariables.ObtenerMargenDeUtilidad(año, 9),
+                Octubre = _obtenerVariables.ObtenerRentabilidadEconomica(año, 10),
+                Noviembre = _obtenerVariables.ObtenerRentabilidadEconomica(año, 11),
+                Diciembre = _obtenerVariables.ObtenerRentabilidadEconomica(año, 12),
+            });
+            //Rentabilidad Financiera
+            detalle.Add(new DetalleRazonYearVM
+            {
+                Razon = "Rentabilidad Financiera",
+                Enero = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 1),
+                Febrero = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 2),
+                Marzo = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 3),
+                Abril = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 4),
+                Mayo = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 5),
+                Junio = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 6),
+                Julio = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 7),
+                Agosto = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 8),
+                Septiembre = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 9),
+                Octubre = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 10),
+                Noviembre = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 11),
+                Diciembre = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 12),
+            });
+            return detalle;
+        }
 
 
     }

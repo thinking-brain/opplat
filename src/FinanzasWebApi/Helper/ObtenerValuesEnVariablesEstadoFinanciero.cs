@@ -15,11 +15,13 @@ namespace FinanzasWebApi.Helper
     {
         IConfiguration _config { get; set; }
         FinanzasDbContext _context;
+        ObtenerPlanGI _obtenetPlan { get; set; }
 
-        public ObtenerValuesEnVariablesEstadoFinanciero(FinanzasDbContext context, IConfiguration config)
+        public ObtenerValuesEnVariablesEstadoFinanciero(FinanzasDbContext context, ObtenerPlanGI obtenerPlan, IConfiguration config)
         {
             _config = config;
             _context = context;
+            _obtenetPlan = obtenerPlan;
         }
         public static string Dato(string dato)
         {
@@ -55,6 +57,17 @@ namespace FinanzasWebApi.Helper
             decimal efectosPorCobrarACortoPlazo = Valor("Efectos por Cobrar a Corto Plazo", year, meses);
             decimal pagosPorCuentasDeTerceros = Valor("Pagos por Cuentas de Terceros", year, meses);
             decimal creditosDocumentarios = Valor("Créditos Documentarios", year, meses);
+            decimal participacionDeReaseguradorasPorSiniestrosPendientes = Valor("Participación de Reaseguradoras por Siniestros Pendientes", year, meses);
+            decimal prestamosYOtrasOperacionesCrediticiasACobrarACortoPlazo = Valor("Préstamos y Otras Operaciones Crediticias a Cobrar a Corto Plazo", year, meses);
+            decimal suscriptoresDeBonos = Valor("Suscriptores de Bonos", year, meses);
+            decimal pagosAnticipadosASuministradores = Valor("Pagos Anticipados a Suministradores", year, meses);
+            decimal pagosAnticipadosDelProcesoInversionista = Valor("Pagos Anticipados del Proceso + Inversionista", year, meses);
+            decimal anticiposAJustificar = Valor("Anticipos a Justificar", year, meses);
+            decimal adeudosDelPresupuestoDelEstado = Valor("Adeudos del Presupuesto del Estado", year, meses);
+            decimal adeudosDelOrganoUOrganismo = Valor("Adeudos del Organo u Organismo", year, meses);
+            decimal ingresosAcumuladosPorCobrar = Valor("Ingresos acumulados por Cobrar", year, meses);
+            decimal dividendosYParticipacionesOPorCobrar = Valor("Dividendos y Participaciones o por Cobrar", year, meses);
+            decimal ingresosAcumuladosPorCobrarReasegurosAceptados = Valor("Ingresos Acumulados por Cobrar - Reaseguros Aceptados", year, meses);
             decimal totalInventario = InventarioTotal(year, meses);
 
             decimal efectosPorCobrarDescontados = Valor("Efectos por Cobrar Descontados", year, meses);
@@ -68,6 +81,17 @@ namespace FinanzasWebApi.Helper
             + inversionesACortoPlazoOTemporales
             + efectosPorCobrarACortoPlazo
             + pagosPorCuentasDeTerceros
+            + participacionDeReaseguradorasPorSiniestrosPendientes
+            + prestamosYOtrasOperacionesCrediticiasACobrarACortoPlazo
+            + suscriptoresDeBonos
+            + pagosAnticipadosASuministradores
+            + pagosAnticipadosDelProcesoInversionista
+            + anticiposAJustificar
+            + adeudosDelPresupuestoDelEstado
+            + adeudosDelOrganoUOrganismo
+            + ingresosAcumuladosPorCobrar
+            + dividendosYParticipacionesOPorCobrar
+            + ingresosAcumuladosPorCobrarReasegurosAceptados
             + creditosDocumentarios
             + totalInventario) - (efectosPorCobrarDescontados + provisionParaCuentasIncobrables)
             ;
@@ -409,6 +433,113 @@ namespace FinanzasWebApi.Helper
 
             decimal resultado = importeMN + importeCUC;
             return resultado;
+        }
+
+
+        public decimal ObtenerSolvenciaFinanciera(int años, int meses)
+        {
+            decimal ingresos = _obtenetPlan.ObtenerTotalIngresos(años, meses);
+            decimal egresos = _obtenetPlan.ObtenerTotalEgresos(años, meses);
+            decimal solvenciaFinanciera = egresos != 0 ? ingresos / egresos : 0;
+            return solvenciaFinanciera;
+        }
+
+        //Capital de Trabajo
+        public decimal ObtenerCapitalDeTrabajo(int años, int meses)
+        {
+            decimal ac = activoCirculante(años, meses);
+            decimal pc = pasivoCirculante(años, meses);
+            decimal capitalDeTrabajo = ac - pc;
+            return capitalDeTrabajo;
+        }
+
+        //Indice de Disponibilidad
+        public decimal ObtenerIndiceDeDisponibilidad(int años, int meses)
+        {
+            decimal ac = activoCirculante(años, meses);
+            decimal pc = pasivoCirculante(años, meses);
+            decimal ec = efectivoEnCaja(años, meses);
+            decimal eb = efectivoEnBanco(años, meses);
+            decimal indiceDeDisponibilidad = ac != 0 ? (ec + eb) / ac : 0;
+            return indiceDeDisponibilidad;
+        }
+
+        //Indice de Liquidez General
+        public decimal ObtenerIndiceDeLiquidez(int años, int meses)
+        {
+            decimal ac = activoCirculante(años, meses);
+            decimal pc = pasivoCirculante(años, meses);
+            decimal indiceDeLiquidezGneral = pc != 0 ? ac / pc : 0;
+            return indiceDeLiquidezGneral;
+        }
+
+        //Liquidez de Tesorería
+        public decimal ObtenerLiquidezDeTesoreria(int años, int meses)
+        {
+            decimal ec = efectivoEnCaja(años, meses);
+            decimal eb = efectivoEnBanco(años, meses);
+            decimal ac = activoCirculante(años, meses);
+            decimal pc = pasivoCirculante(años, meses);
+            decimal al = ec + eb;
+            decimal liquidezDeTesoreria = pc != 0 ? al / pc : 0;
+            return liquidezDeTesoreria;
+        }
+
+        //Indice de Deuda o Razon de Endeudamiento
+        public decimal ObtenerIndiceDeDeudaRazonDeEndeudamiento(int años, int meses)
+        {
+            decimal ac = activoCirculante(años, meses);
+            decimal pc = pasivoCirculante(años, meses);
+            decimal plp = pasivosALargoPlazo(años, meses);
+            decimal pd = pasivosDiferidos(años, meses);
+            decimal op = otrosPasivos(años, meses);
+            decimal tp = pc + plp + pd + op;
+
+            decimal ad = activosDiferidos(años, meses);
+            decimal af = activosFijos(años, meses);
+            decimal alp = activosLargoPlazo(años, meses);
+            decimal oa = otrosActivos(años, meses);
+            decimal ta = ac + ad + af + alp + oa;
+
+            decimal indiceDeDeudaORazonDeEndeudamiento = ta != 0 ? tp / ta : 0;
+            return indiceDeDeudaORazonDeEndeudamiento;
+        }
+
+        //Margen de utilidad 
+        public decimal ObtenerMargenDeUtilidad(int años, int meses)
+        {
+            decimal ingresos = _obtenetPlan.ObtenerTotalIngresos(años, meses);
+            decimal egresos = _obtenetPlan.ObtenerTotalEgresos(años, meses);
+            decimal utilidadAntesDeImpuesto = ingresos - egresos;
+            decimal ventas = ObtenerVentas(años, meses);
+            decimal margenDeUtilidad = ventas != 0 ? utilidadAntesDeImpuesto / ventas : 0;
+            return margenDeUtilidad;
+        }
+        //Rentabilidad Económica"
+        public decimal ObtenerRentabilidadEconomica(int años, int meses)
+        {
+            decimal ad = activosDiferidos(años, meses);
+            decimal af = activosFijos(años, meses);
+            decimal alp = activosLargoPlazo(años, meses);
+            decimal oa = otrosActivos(años, meses);
+            decimal ac = activoCirculante(años, meses);
+            decimal ingresos = _obtenetPlan.ObtenerTotalIngresos(años, meses);
+            decimal egresos = _obtenetPlan.ObtenerTotalEgresos(años, meses);
+            decimal utilidadAntesDeImpuesto = ingresos - egresos;
+            decimal totalDeActivosPromedio = ((af + ac + ad + alp + oa) / 1);
+            decimal rentabilidadEconomica = totalDeActivosPromedio != 0 ? utilidadAntesDeImpuesto / totalDeActivosPromedio : 0;
+            return rentabilidadEconomica;
+        }
+
+        //Rentabilidad Financiera
+        public decimal ObtenerRentabilidadFinanciera(int años, int meses)
+        {
+            decimal patrimonioNeto = totalDePatrimonioNeto(años, meses);
+            decimal ingresos = _obtenetPlan.ObtenerTotalIngresos(años, meses);
+            decimal egresos = _obtenetPlan.ObtenerTotalEgresos(años, meses);
+            decimal utilidadAntesDeImpuesto = ingresos - egresos;
+            decimal rentabilidadFinanciera = patrimonioNeto != 0 ? utilidadAntesDeImpuesto / patrimonioNeto : 0;
+            return rentabilidadFinanciera;
         }
     }
 }
