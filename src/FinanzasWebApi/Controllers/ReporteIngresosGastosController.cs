@@ -105,8 +105,8 @@ namespace FinanzasWebApi.Controllers
 
             for (int i = 1; i < 13; i++)
             {
-                var real = _obtenetPlan.ObtenerTotalEgresos(year, i);
-                var plan = _obtenetPlan.ObtenerTotalPlanEgresos(year, i);
+                var real = Math.Round(_obtenetPlan.ObtenerTotalEgresos(year, i), 2);
+                var plan = Math.Round(_obtenetPlan.ObtenerTotalPlanEgresos(year, i), 2);
                 resultado.Reales.Add(real);
                 resultado.Planes.Add(plan);
             }
