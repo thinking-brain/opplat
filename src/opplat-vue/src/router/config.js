@@ -235,6 +235,15 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/IngresosGastos.vue'),
     },
     {
+      path: '/finanzas/RazonesFinancieras',
+      name: 'RazonesFinancieras',
+      meta: {
+        title: 'Razones Financieras',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/RazonesFinancieras.vue'),
+    },
+    {
       path: '/finanzas/configuraciones',
       name: 'Configuraciones',
       meta: {
