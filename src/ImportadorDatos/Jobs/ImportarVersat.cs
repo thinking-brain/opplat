@@ -11,6 +11,7 @@ using ContabilidadWebApi.Models;
 using ImportadorDatos.Models.EnlaceVersat;
 using ImportadorDatos.Models.Versat;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ImportadorDatos.Jobs
@@ -23,14 +24,17 @@ namespace ImportadorDatos.Jobs
 
         EnlaceVersatDbContext _enlaceContext;
 
+        IConfiguration _config;
+
         ILogger _logger;
 
-        public ImportarVersat(VersatDbContext vContext, ContabilidadDbContext cContext, EnlaceVersatDbContext enlaceContext, ILogger<ImportarVersat> logger)
+        public ImportarVersat(VersatDbContext vContext, ContabilidadDbContext cContext, EnlaceVersatDbContext enlaceContext, ILogger<ImportarVersat> logger, IConfiguration config)
         {
             _vContext = vContext;
             _cContext = cContext;
             _enlaceContext = enlaceContext;
             _logger = logger;
+            _config = config;
         }
 
         public void ImportarCuentasAsync()
@@ -42,7 +46,7 @@ namespace ImportadorDatos.Jobs
                 .Where(c => !cuentasImportadas.Contains(c.Idcuenta))
                 .OrderBy(c => c.Clave.Length);
 
-            string baseUrl = "https://localhost:5001/contabilidad/cuentas";
+            string baseUrl = _config.GetValue<string>("ContabilidadApi") + "/cuentas";
             var handler = new HttpClientHandler();
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
             using (HttpClient client = new HttpClient(handler))

@@ -198,7 +198,7 @@ export default {
 
 deleteItem(item) {
       const index = this.planes.indexOf(item);
-      const url = api.getUrl("contabilidad", "DeletePlanGI");
+      const url = api.getUrl("contabilidad", "PlanGI");
 
       confirm("¿Está seguro de eliminar este plan?") &&
         this.axios.delete(url + "/" + item.id).then(
