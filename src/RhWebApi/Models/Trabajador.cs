@@ -22,6 +22,7 @@ namespace RhWebApi.Models {
         public int? PuestoDeTrabajoId { get; set; }
         public virtual PuestoDeTrabajo PuestoDeTrabajo { get; set; }
         public virtual NivelDeEscolaridad NivelDeEscolaridad { get; set; }
-        public string EstadoTrabajador { get; set; }     
+        public string EstadoTrabajador { get; set; }
+        public virtual CaracteristicasTrab CaracteristicasTrab { get; set; }
     }
 }
