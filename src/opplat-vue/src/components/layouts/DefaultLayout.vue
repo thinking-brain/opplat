@@ -4,7 +4,7 @@
     <AppBar />
     <v-content flat wraper>
       <!-- <div class="page-wrapper"> -->
-      <router-view />
+      <router-view class="content" />
       <!-- </div> -->
       <vue-snotify></vue-snotify>
       <!-- App Footer -->
@@ -75,6 +75,10 @@ export default {
 .page-wrapper {
   min-height: calc(100vh - 64px - 50px - 1px);
 }
+.content {
+  padding-bottom: 50px;
+}
+
 @media print {
   .v-content {
     padding: 0 !important;
