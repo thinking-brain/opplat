@@ -13,6 +13,7 @@ using ImportadorDatos.Models.Versat;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RhWebApi.Data;
 
 namespace ImportadorDatos.Jobs
 {
@@ -22,16 +23,19 @@ namespace ImportadorDatos.Jobs
 
         ContabilidadDbContext _cContext;
 
+        RhWebApiDbContext _rhContext;
+
         EnlaceVersatDbContext _enlaceContext;
 
         IConfiguration _config;
 
         ILogger _logger;
 
-        public ImportarVersat(VersatDbContext vContext, ContabilidadDbContext cContext, EnlaceVersatDbContext enlaceContext, ILogger<ImportarVersat> logger, IConfiguration config)
+        public ImportarVersat(VersatDbContext vContext, ContabilidadDbContext cContext, RhWebApiDbContext rhContext, EnlaceVersatDbContext enlaceContext, ILogger<ImportarVersat> logger, IConfiguration config)
         {
             _vContext = vContext;
             _cContext = cContext;
+            _rhContext = rhContext;
             _enlaceContext = enlaceContext;
             _logger = logger;
             _config = config;
@@ -183,6 +187,42 @@ namespace ImportadorDatos.Jobs
                         _enlaceContext.Add(new Asientos { AsientoId = nuevoAsiento.Id, ComprobanteId = asi.Comprobante.Idcomprobante, Fecha = DateTime.Now });
                         _enlaceContext.SaveChanges();
                     }
+                }
+            }
+        }
+
+        public void ImportarTrabajadores()
+        {
+            //todo: revisar los periodos cuando ya existe uno en la BD
+            var trabajadoresVersat = _vContext.Set<GenTrabajador>();
+            var trabajadoresImportados = _enlaceContext.Set<ImportadorDatos.Models.EnlaceVersat.Trabajador>().Select(c => c.TrabajadorVersatId).ToList();
+            foreach (var trabajador in trabajadoresVersat)
+            {
+                if (!trabajadoresImportados.Contains(trabajador.Idtrabajador))
+                {
+                    var estado = "Activo";
+                    if (trabajador.Activo == null || !trabajador.Activo.Value)
+                    {
+                        estado = "No Activo";
+                    }
+                    //todo: agregar y modificar campos
+                    var nuevoTrabajador = new RhWebApi.Models.Trabajador
+                    {
+                        CI = trabajador.Numident,
+                        Nombre = trabajador.Nombres,
+                        Apellidos = trabajador.Apellido1 + " " + trabajador.Apellido2,
+                        Direccion = trabajador.Direccion,
+                        EstadoTrabajador = estado,
+                    };
+                    _rhContext.Add(nuevoTrabajador);
+                    _rhContext.SaveChanges();
+                    _enlaceContext.Add(new ImportadorDatos.Models.EnlaceVersat.Trabajador
+                    {
+                        TrabajadorId = nuevoTrabajador.Id,
+                        TrabajadorVersatId = trabajador.Idtrabajador,
+                        Ci = trabajador.Numident,
+                    });
+                    _enlaceContext.SaveChanges();
                 }
             }
         }
