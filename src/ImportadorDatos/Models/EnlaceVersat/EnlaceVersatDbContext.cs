@@ -17,5 +17,6 @@ namespace ImportadorDatos.Models.EnlaceVersat
         public DbSet<Asientos> Asientos { get; set; }
         public DbSet<Cuentas> Cuentas { get; set; }
         public DbSet<PeriodosContables> PeriodosContables { get; set; }
+        public DbSet<Trabajador> Trabajadores { get; set; }
     }
 }

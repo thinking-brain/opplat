@@ -15,7 +15,16 @@ export default {
   },
   data() {
     return {
-      egresos_series: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      egresos_series: [
+        {
+          name: "Real",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          name: "Plan",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      ],
       egresosOptions: {
         title: {
           text: "Egresos",

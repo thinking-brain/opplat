@@ -16,6 +16,7 @@ using ImportadorDatos.Models.Versat;
 using ContabilidadWebApi.Data;
 using ImportadorDatos.Models.EnlaceVersat;
 using ImportadorDatos.HostedServices;
+using RhWebApi.Data;
 
 namespace ImportadorDatos
 {
@@ -40,9 +41,13 @@ namespace ImportadorDatos
             services.AddDbContext<EnlaceVersatDbContext>(options =>
                  options.UseNpgsql(Configuration.GetConnectionString("EnlaceVersatDbContext")));
 
+            services.AddDbContext<RhWebApiDbContext>(options =>
+             options.UseNpgsql(Configuration.GetConnectionString("RhWebApiDbContext")));
+
             services.AddScoped<VersatDbContext>();
             services.AddScoped<ContabilidadDbContext>();
             services.AddScoped<EnlaceVersatDbContext>();
+            services.AddScoped<RhWebApiDbContext>();
             services.AddTransient<ImportarVersat>();
 
             services.AddHostedService<UpdateCuentasHostedService>();

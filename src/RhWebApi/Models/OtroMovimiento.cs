@@ -10,6 +10,7 @@ namespace RhWebApi.Models {
     [Table ("OtrosMovimientos")]
     public class OtroMovimiento : Movimiento {
         public string Nombre { get; set; }
+        public Estados Estado { get; set; }
         public DateTime Desde { get; set; }
         public DateTime Hasta { get; set; }
     }

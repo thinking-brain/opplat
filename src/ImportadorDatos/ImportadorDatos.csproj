@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ContabilidadWebApi\ContabilidadWebApi.csproj" />
+    <ProjectReference Include="..\RhWebApi\RhWebApi.csproj" />
   </ItemGroup>
 
 </Project>
