@@ -10,8 +10,8 @@ using RhWebApi.Data;
 namespace RhWebApi.Migrations
 {
     [DbContext(typeof(RhWebApiDbContext))]
-    [Migration("20191112195830_plantillaModels")]
-    partial class plantillaModels
+    [Migration("20191204140935_estadosEnum")]
+    partial class estadosEnum
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -78,7 +78,11 @@ namespace RhWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("ColorDeOjos");
+                    b.Property<int>("ColorDeOjos");
+
+                    b.Property<int>("ColorDePiel");
+
+                    b.Property<byte[]>("Foto");
 
                     b.Property<string>("OtrasCaracteristicas");
 
@@ -92,7 +96,8 @@ namespace RhWebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TrabajadorId");
+                    b.HasIndex("TrabajadorId")
+                        .IsUnique();
 
                     b.ToTable("caracteristicas_del_trabjador");
                 });
@@ -249,6 +254,8 @@ namespace RhWebApi.Migrations
 
                     b.Property<DateTime>("Desde");
 
+                    b.Property<int>("Estado");
+
                     b.Property<DateTime>("Fecha");
 
                     b.Property<DateTime>("Hasta");
@@ -262,6 +269,26 @@ namespace RhWebApi.Migrations
                     b.HasIndex("TrabajadorId");
 
                     b.ToTable("OtrosMovimientos");
+                });
+
+            modelBuilder.Entity("RhWebApi.Models.Plantilla", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CargoId");
+
+                    b.Property<int>("PlantillaAprobada");
+
+                    b.Property<int>("UnidadOrganizativaId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CargoId");
+
+                    b.HasIndex("UnidadOrganizativaId");
+
+                    b.ToTable("Plantilla");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.Provincia", b =>
@@ -281,13 +308,13 @@ namespace RhWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("CantidadPorPlantilla");
-
                     b.Property<int>("CargoId");
 
                     b.Property<string>("Descripcion");
 
                     b.Property<int?>("JefeId");
+
+                    b.Property<int>("PlantillaOcupada");
 
                     b.Property<int>("UnidadOrganizativaId");
 
@@ -326,9 +353,13 @@ namespace RhWebApi.Migrations
 
                     b.Property<string>("CI");
 
+                    b.Property<string>("Codigo");
+
+                    b.Property<string>("Correo");
+
                     b.Property<string>("Direccion");
 
-                    b.Property<string>("EstadoTrabajador");
+                    b.Property<int>("EstadoTrabajador");
 
                     b.Property<int?>("MunicipioId");
 
@@ -431,8 +462,8 @@ namespace RhWebApi.Migrations
             modelBuilder.Entity("RhWebApi.Models.CaracteristicasTrab", b =>
                 {
                     b.HasOne("RhWebApi.Models.Trabajador", "Trabajador")
-                        .WithMany()
-                        .HasForeignKey("TrabajadorId");
+                        .WithOne("CaracteristicasTrab")
+                        .HasForeignKey("RhWebApi.Models.CaracteristicasTrab", "TrabajadorId");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.Cargo", b =>
@@ -496,6 +527,19 @@ namespace RhWebApi.Migrations
                     b.HasOne("RhWebApi.Models.Trabajador", "Trabajador")
                         .WithMany()
                         .HasForeignKey("TrabajadorId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("RhWebApi.Models.Plantilla", b =>
+                {
+                    b.HasOne("RhWebApi.Models.Cargo", "Cargo")
+                        .WithMany()
+                        .HasForeignKey("CargoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("RhWebApi.Models.UnidadOrganizativa", "UnidadOrganizativa")
+                        .WithMany()
+                        .HasForeignKey("UnidadOrganizativaId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

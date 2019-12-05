@@ -63,7 +63,7 @@ namespace RhWebApi.Controllers {
 
                 context.OtroMovimiento.Add (otroMovimiento);
 
-                trabajador.EstadoTrabajador = otroMovimientoDto.Nombre;
+                trabajador.EstadoTrabajador = otroMovimientoDto.Estado;
                 context.SaveChanges ();
 
                 return new CreatedAtRouteResult ("GetOtrosMov", new { id = otroMovimiento.Id });

@@ -56,7 +56,7 @@ namespace RhWebApi.Controllers {
                 if (trabajador == null) {
                     return NotFound ();
                 } else {
-                    trabajador.EstadoTrabajador = "Baja";
+                    trabajador.EstadoTrabajador = Estados.Baja;
                     trabajador.PuestoDeTrabajo.PlantillaOcupada--;
                     trabajador.PuestoDeTrabajoId = null;
                     context.SaveChanges ();

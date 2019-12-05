@@ -59,7 +59,6 @@ namespace RhWebApi.Controllers {
             if (ModelState.IsValid) {
                 var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == entradaDto.TrabajadorId);
                 var puesto = context.PuestoDeTrabajo.SingleOrDefault (p => p.CargoId == entradaDto.CargoId && p.UnidadOrganizativaId == entradaDto.UnidadOrganizativaId);
-
                 var entrada = new Entrada () {
                     TrabajadorId = entradaDto.TrabajadorId,
                     CargoId = entradaDto.CargoId,
@@ -69,7 +68,7 @@ namespace RhWebApi.Controllers {
                 context.Entrada.Add (entrada);
                 trabajador.PuestoDeTrabajoId = puesto.Id;
                 puesto.PlantillaOcupada++;
-                trabajador.EstadoTrabajador = "Activo";
+                trabajador.EstadoTrabajador = Estados.Activo;
                 context.Entry (trabajador).State = EntityState.Modified;
 
                 var historico = new HistoricoPuestoDeTrabajo () {
