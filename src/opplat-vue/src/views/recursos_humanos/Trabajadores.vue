@@ -5,7 +5,7 @@
         <v-row>
           <v-col cols="6" sm="2" md="2">
             <v-layout>
-              <v-dialog v-model="dialog" persistent max-width="600px">
+              <v-dialog v-model="dialog" persistent max-width="800px">
                 <template v-slot:activator="{ on }">
                   <div class="mx-2 pl-2">
                     <v-btn color="primary" dark v-on="on">Filtrar por</v-btn>
@@ -22,20 +22,20 @@
                           <v-autocomplete
                             v-model="unidadOrganizativa"
                             item-text="nombre"
-                            return-object
-                            :items="unidadOrganizativa"
+                            :items="unidadesOrganizativas"
                             :filter="activeFilter"
                             cache-items
                             clearable
                             placeholder="Unidad Organizativa"
                             prepend-icon="mdi-database-search"
+                            chips
+                            allow-overflow
                           ></v-autocomplete>
                         </v-flex>
                         <v-flex xs12 sm6 md6>
                           <v-autocomplete
                             v-model="cargo"
                             item-text="nombre"
-                            return-object
                             :items="cargos"
                             :filter="activeFilter"
                             cache-items
@@ -48,8 +48,7 @@
                           <v-autocomplete
                             v-model="sexo"
                             item-text="nombre"
-                            return-object
-                            :items="sexo"
+                            :items="sexos"
                             :filter="activeFilter"
                             cache-items
                             clearable
@@ -61,8 +60,7 @@
                           <v-autocomplete
                             v-model="colordePiel"
                             item-text="nombre"
-                            return-object
-                            :items="colordePiel"
+                            :items="coloresdePiel"
                             :filter="activeFilter"
                             cache-items
                             clearable
@@ -74,8 +72,7 @@
                           <v-autocomplete
                             v-model="nivelEscolaridad"
                             item-text="nombre"
-                            return-object
-                            :items="nivelEscolaridad"
+                            :items="nivelesEscolaridad"
                             :filter="activeFilter"
                             cache-items
                             clearable
@@ -85,10 +82,9 @@
                         </v-flex>
                         <v-flex xs12 sm6 md6>
                           <v-autocomplete
-                            v-model="nivelEscolaridad"
+                            v-model="estado"
                             item-text="nombre"
-                            return-object
-                            :items="nivelEscolaridad"
+                            :items="estados"
                             :filter="activeFilter"
                             cache-items
                             clearable
@@ -100,10 +96,10 @@
                           <v-text-field
                             v-model="edad"
                             item-text="Edad"
-                            return-object
                             cache-items
                             clearable
                             placeholder="Edad"
+                            prepend-icon="mdi-database-search"
                           ></v-text-field>
                         </v-flex>
                       </v-layout>
@@ -111,7 +107,7 @@
                   </v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" text @click="save(method)">Aceptar</v-btn>
+                    <v-btn color="green darken-1" text @click="getFiltrosFromApi">Aceptar</v-btn>
                     <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
                   </v-card-actions>
                 </v-card>
@@ -202,16 +198,24 @@ export default {
       id: "",
       nombre: ""
     },
+    unidadOrganizativa: "",
+    edad: "",
+    cargo: "",
+    colordePiel: "",
+    sexo: "",
+    nivelEscolaridad: "",
+    estado: "",
     defaultItem: {
       id: "",
       nombre: ""
     },
     trabajadores: [],
-    unidadOrganizativa: [],
+    unidadesOrganizativas: [],
     cargos: [],
-    sexo: [],
-    colordePiel: [],
-    nivelEscolaridad: [],
+    sexos: [],
+    coloresdePiel: [],
+    nivelesEscolaridad: [],
+    estados: [],
     errors: [],
     headers: [
       {
@@ -248,16 +252,17 @@ export default {
   },
 
   created() {
-    this.initialize();
-    this.initialize1();
-    this.initialize2();
-    this.initialize3();
-    this.initialize4();
-    this.initialize5();
+    this.getTrabajadoresFromApi();
+    this.getUnidadOrganizativaFromApi();
+    this.getCargosFromApi();
+    this.getSexoTrabFromApi();
+    this.getColordePielTrabFromApi();
+    this.getnivelEscolaridadTrabFromApi();
+    this.getEstadosTrabFromApi();
   },
 
   methods: {
-    initialize() {
+    getTrabajadoresFromApi() {
       const url = api.getUrl("recursos_humanos", "Trabajadores");
       this.axios.get(url).then(
         response => {
@@ -268,18 +273,18 @@ export default {
         }
       );
     },
-    initialize1() {
+    getUnidadOrganizativaFromApi() {
       const url = api.getUrl("recursos_humanos", "UnidadOrganizativa");
       this.axios.get(url).then(
         response => {
-          this.unidadOrganizativa = response.data;
+          this.unidadesOrganizativas = response.data;
         },
         error => {
           console.log(error);
         }
       );
     },
-    initialize2() {
+    getCargosFromApi() {
       const url = api.getUrl("recursos_humanos", "Cargos");
       this.axios.get(url).then(
         response => {
@@ -290,39 +295,53 @@ export default {
         }
       );
     },
-    initialize3() {
+    getSexoTrabFromApi() {
       const url = api.getUrl("recursos_humanos", "CaracteristicasTrab/Sexo");
       this.axios.get(url).then(
         response => {
-          this.sexo = response.data;
+          this.sexos = response.data;
         },
         error => {
           console.log(error);
         }
       );
     },
-    initialize4() {
+    getColordePielTrabFromApi() {
       const url = api.getUrl(
         "recursos_humanos",
         "CaracteristicasTrab/ColordePiel"
       );
       this.axios.get(url).then(
         response => {
-          this.colordePiel = response.data;
+          this.coloresdePiel = response.data;
         },
         error => {
           console.log(error);
         }
       );
     },
-    initialize5() {
+    getnivelEscolaridadTrabFromApi() {
       const url = api.getUrl(
         "recursos_humanos",
         "CaracteristicasTrab/nivelEscolaridad"
       );
       this.axios.get(url).then(
         response => {
-          this.nivelEscolaridad = response.data;
+          this.nivelesEscolaridad = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    getEstadosTrabFromApi() {
+      const url = api.getUrl(
+        "recursos_humanos",
+        "CaracteristicasTrab/Estados"
+      );
+      this.axios.get(url).then(
+        response => {
+          this.estados = response.data;
         },
         error => {
           console.log(error);
@@ -391,6 +410,34 @@ export default {
         vm.$snotify.success("Exito al realizar la operación");
         this.initialize();
       }
+    },
+
+    closeFiltro() {
+      this.dialog = false;
+    },
+    getFiltrosFromApi() {
+      const url = api.getUrl("recursos_humanos", "Trabajadores/Filtro");
+      this.axios
+        .get(url, {
+          params: {
+            unidadOrganizativa: this.unidadOrganizativa,
+            cargo: this.cargo,
+            sexo: this.sexo,
+            estado: this.estado,
+            nivelEscolaridad: this.nivelEscolaridad,
+            edad: this.edad,
+            colordePiel: this.colordePiel
+          }
+        })
+        .then(
+          response => {
+            this.trabajadores = response.data;
+            this.closeFiltro();
+          },
+          error => {
+            console.log(error);
+          }
+        );
     }
   }
 };

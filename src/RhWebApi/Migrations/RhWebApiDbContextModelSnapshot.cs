@@ -76,9 +76,11 @@ namespace RhWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("ColorDeOjos");
+                    b.Property<int>("ColorDeOjos");
 
                     b.Property<int>("ColorDePiel");
+
+                    b.Property<byte[]>("Foto");
 
                     b.Property<string>("OtrasCaracteristicas");
 
@@ -92,7 +94,8 @@ namespace RhWebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TrabajadorId");
+                    b.HasIndex("TrabajadorId")
+                        .IsUnique();
 
                     b.ToTable("caracteristicas_del_trabjador");
                 });
@@ -249,6 +252,8 @@ namespace RhWebApi.Migrations
 
                     b.Property<DateTime>("Desde");
 
+                    b.Property<int>("Estado");
+
                     b.Property<DateTime>("Fecha");
 
                     b.Property<DateTime>("Hasta");
@@ -346,9 +351,13 @@ namespace RhWebApi.Migrations
 
                     b.Property<string>("CI");
 
+                    b.Property<string>("Codigo");
+
+                    b.Property<string>("Correo");
+
                     b.Property<string>("Direccion");
 
-                    b.Property<string>("EstadoTrabajador");
+                    b.Property<int>("EstadoTrabajador");
 
                     b.Property<int?>("MunicipioId");
 
@@ -451,8 +460,8 @@ namespace RhWebApi.Migrations
             modelBuilder.Entity("RhWebApi.Models.CaracteristicasTrab", b =>
                 {
                     b.HasOne("RhWebApi.Models.Trabajador", "Trabajador")
-                        .WithMany()
-                        .HasForeignKey("TrabajadorId");
+                        .WithOne("CaracteristicasTrab")
+                        .HasForeignKey("RhWebApi.Models.CaracteristicasTrab", "TrabajadorId");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.Cargo", b =>

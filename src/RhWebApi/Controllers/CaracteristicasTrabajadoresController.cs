@@ -17,33 +17,6 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // // GET recursos_humanos/CaracteristicasTrab
-        // [HttpGet]
-        // public IEnumerable<CaracteristicasTrab> GetAll()
-        // {                            
-        //     return context.CaracteristicasTrab.ToList();            
-        // }       
-
-        // GET: recursos_humanos/CaracteristicasTrab/Id
-
-        // GET recursos_humanos/CaracteristicasTrab/ColorOjos
-        [HttpGet ("/recursos_humanos/CaracteristicasTrab/ColorOjos")]
-        public string GetAllColorOjos () {
-            // for (int i = 0; i < 5; i++) {
-            //     ColorDeOjos colorDeOjos = (ColorDeOjos) i;
-            //     return Ok (colorDeOjos.ToString ());
-            // }
-            // foreach (int i in Enum.GetValues (typeof (ColorDeOjos))) {
-            //     return Ok (i.ToString());
-            // }
-
-            var stringBuilder = new StringBuilder ();
-            foreach (string colorDeOjos in Enum.GetNames (typeof (ColorDeOjos))) {
-                stringBuilder.Append (colorDeOjos + ",");
-            }
-            return stringBuilder.ToString ();
-        }
-
         // GET: recursos_humanos/CaracteristicasTrab/Sexo
         [HttpGet ("/recursos_humanos/CaracteristicasTrab/Sexo")]
         public IActionResult GetAllSexo () {
@@ -63,7 +36,20 @@ namespace RhWebApi.Controllers {
             };
             return Ok (colorDePiel);
         }
-        // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
+        // GET: recursos_humanos/CaracteristicasTrab/Estados
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/Estados")]
+        public IActionResult GetAllEstadosPiel () {
+            var colorDePiel = new List<dynamic> () {
+                new { Id = Estados.Activo, Nombre = Estados.Activo.ToString () },
+                new { Id = Estados.Baja, Nombre = Estados.Baja.ToString () },
+                new { Id = Estados.Interrupto, Nombre = Estados.Interrupto.ToString () },
+                new { Id = Estados.Disponible, Nombre = Estados.Disponible.ToString () },
+                new { Id = Estados.Licencia_Maternidad, Nombre = Estados.Licencia_Maternidad.ToString () },
+                new { Id = Estados.Certificado, Nombre = Estados.Certificado.ToString () },
+            };
+            return Ok (colorDePiel);
+        }
+        // GET: recursos_humanos/CaracteristicasTrab/NivelEscolaridad
         [HttpGet ("/recursos_humanos/CaracteristicasTrab/NivelEscolaridad")]
         public IActionResult GetAllEscolaridad () {
             var nivelEscolaridad = new List<dynamic> () {
