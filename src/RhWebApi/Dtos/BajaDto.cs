@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using RhWebApi.Data;
 
-namespace RhWebApi.Models {
+namespace RhWebApi.Dtos {
 
     public class BajaDto {
 

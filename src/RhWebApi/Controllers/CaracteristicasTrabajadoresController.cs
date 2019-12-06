@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RhWebApi.Data;
 using RhWebApi.Models;
+using RhWebApi.Dtos;
 
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
