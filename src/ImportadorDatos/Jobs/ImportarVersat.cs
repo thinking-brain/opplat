@@ -200,10 +200,10 @@ namespace ImportadorDatos.Jobs
             {
                 if (!trabajadoresImportados.Contains(trabajador.Idtrabajador))
                 {
-                    var estado = "Activo";
+                    var estado = Estados.Activo;
                     if (trabajador.Activo == null || !trabajador.Activo.Value)
                     {
-                        estado = "No Activo";
+                        estado = Estados.Baja;
                     }
                     //todo: agregar y modificar campos
                     var nuevoTrabajador = new RhWebApi.Models.Trabajador

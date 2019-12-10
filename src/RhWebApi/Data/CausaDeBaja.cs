@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace RhWebApi.Models
+namespace RhWebApi.Data
 {
     public enum CausaDeBaja
     {

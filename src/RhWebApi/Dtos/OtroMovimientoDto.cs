@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RhWebApi.Models;
+using RhWebApi.Data;
 
 namespace RhWebApi.Dtos {
     public class OtroMovimientoDto {

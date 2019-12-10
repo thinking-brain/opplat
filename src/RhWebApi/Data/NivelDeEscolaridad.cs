@@ -6,7 +6,7 @@ using System.Linq;
 using System.Web;
 using RhWebApi.Models;
 
-namespace RhWebApi.Models {
+namespace RhWebApi.Data {
     public enum NivelDeEscolaridad {
         [Description ("Sin Definir")]
         SinDefinir,
