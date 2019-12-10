@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container v-if="visible">
     <v-divider class="d-print-none"></v-divider>
     <v-row class="my-4 mb-4 d-print-none">
       <v-tooltip top>
@@ -30,14 +30,14 @@
         <table id="table1">
           <thead>
             <tr>
-              <th colspan="11" class="text-center encabezado1">
+              <th colspan="13" class="text-center encabezado1">
                 <img src="img/logo.png" class="float-left" />
                 <h2>CNA La Concordia</h2>
                 <h2>Razones Finacieras del Año {{year}}</h2>
               </th>
             </tr>
             <tr>
-              <th class="text-center"></th>
+              <th class="text-center">Razón</th>
               <th class="text-center negrita">Enero</th>
               <th class="text-center negrita">Febrero</th>
               <th class="text-center negrita">Marzo</th>
@@ -52,15 +52,16 @@
               <th class="text-center negrita">Diciembre</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody v-if="!hasdata">
             <tr>
-              <td colspan="11">
+              <td colspan="13">
                 <v-skeleton-loader type="table-row@6"></v-skeleton-loader>
               </td>
             </tr>
           </tbody>
-          <tbody>
+          <tbody v-if="hasdata">
             <tr v-for="item in razones" :key="item.razon">
+              <td class="text-right">{{ item.razon}}</td>
               <td class="text-right">{{ item.enero}}</td>
               <td class="text-right">{{ item.febrero}}</td>
               <td class="text-right">{{ item.marzo}}</td>
@@ -73,7 +74,6 @@
               <td class="text-right">{{item.octubre}}</td>
               <td class="text-right">{{item.noviembre}}</td>
               <td class="text-right">{{item.diciembre}}</td>
-              <td class="deshabilitado"></td>
             </tr>
           </tbody>
         </table>
@@ -190,7 +190,9 @@ export default {
     return {
       year: 0,
       razones: null,
-      errors: []
+      errors: [],
+      visible: false,
+      hasdata: false
     };
   },
   methods: {
@@ -200,10 +202,13 @@ export default {
     },
     getRazonesFinancierasFromApi() {
       const url = api.getUrl("finanzas", `RazonesFinancieras/${this.year}`);
+      this.visible = true;
+      this.hasdata = false;
       this.axios
         .get(url)
         .then(response => {
           this.razones = response.data;
+          this.hasdata = true;
         })
         .catch(e => {
           this.errors.push(e);

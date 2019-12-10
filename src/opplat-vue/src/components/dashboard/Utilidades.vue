@@ -56,14 +56,17 @@ export default {
           forceNiceScale: true
         }
       },
-      utilidades_series:[],
+      utilidades_series: [],
       errors: []
     };
   },
   created() {
+    var d = new Date();
+    var year = d.getFullYear();
+
     const url = api.getUrl(
       "finanzas",
-      `ReporteIngresosGastos/utilidadesTotal/${2019}`
+      `ReporteIngresosGastos/utilidadesTotal/${year}`
     );
     this.axios
       .get(url)
