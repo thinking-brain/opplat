@@ -1337,6 +1337,81 @@ namespace ImportadorDatos.Models.Versat
                     .HasColumnName("numident")
                     .HasMaxLength(11);
             });
+
+            modelBuilder.Entity<GenArea>(entity =>
+            {
+                entity.HasKey(e => e.Idarea)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("gen_area");
+
+                entity.HasIndex(e => e.Clave)
+                    .HasName("IX_gen_area")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Idarea)
+                    .HasName("ix_gen_area_idarea")
+                    .IsUnique()
+                    .ForSqlServerIsClustered();
+
+                entity.Property(e => e.Idarea).HasColumnName("idarea");
+
+                entity.Property(e => e.Activa)
+                    .IsRequired()
+                    .HasColumnName("activa")
+                    .HasDefaultValueSql("(1)");
+
+                entity.Property(e => e.Clave)
+                    .IsRequired()
+                    .HasColumnName("clave")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Clavenivel)
+                    .IsRequired()
+                    .HasColumnName("clavenivel")
+                    .HasMaxLength(25)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Descripcion)
+                    .IsRequired()
+                    .HasColumnName("descripcion")
+                    .HasMaxLength(255)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Idapertura).HasColumnName("idapertura");
+
+                entity.Property(e => e.Idunidad).HasColumnName("idunidad");
+
+                entity.HasOne(d => d.IdaperturaNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idapertura)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_gen_area_gen_aperturaarea");
+            });
+
+            modelBuilder.Entity<GenAperturaarea>(entity =>
+            {
+                entity.HasKey(e => e.Idapertura)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("gen_aperturaarea");
+
+                entity.Property(e => e.Idapertura).HasColumnName("idapertura");
+
+                entity.Property(e => e.Empresa)
+                    .IsRequired()
+                    .HasColumnName("empresa")
+                    .HasDefaultValueSql("(1)");
+
+                entity.Property(e => e.Idmascara).HasColumnName("idmascara");
+
+                entity.HasOne(d => d.IdmascaraNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idmascara)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_gen_aperturaarea_gen_mascara");
+            });
         }
     }
 }
