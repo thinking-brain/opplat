@@ -178,7 +178,6 @@ namespace ImportadorDatos.Jobs
                             };
                             nuevoAsiento.Movimientos.Add(mov);
                         }
-
                     }
                     if (valid)
                     {
@@ -193,7 +192,6 @@ namespace ImportadorDatos.Jobs
 
         public void ImportarTrabajadores()
         {
-            //todo: revisar los periodos cuando ya existe uno en la BD
             var trabajadoresVersat = _vContext.Set<GenTrabajador>();
             var trabajadoresImportados = _enlaceContext.Set<ImportadorDatos.Models.EnlaceVersat.Trabajador>().Select(c => c.TrabajadorVersatId).ToList();
             foreach (var trabajador in trabajadoresVersat)
@@ -205,10 +203,11 @@ namespace ImportadorDatos.Jobs
                     {
                         estado = Estados.Baja;
                     }
-                    //todo: agregar y modificar campos
+                    //todo: Tener en cuenta agregar un municipio vacio (ninguno), y un cargo vacio(ninguno)
                     var nuevoTrabajador = new RhWebApi.Models.Trabajador
                     {
                         CI = trabajador.Numident,
+                        Codigo = trabajador.Codigo,
                         Nombre = trabajador.Nombres,
                         Apellidos = trabajador.Apellido1 + " " + trabajador.Apellido2,
                         Direccion = trabajador.Direccion,
@@ -224,6 +223,73 @@ namespace ImportadorDatos.Jobs
                     });
                     _enlaceContext.SaveChanges();
                 }
+            }
+        }
+
+        public void ImportarUnidadesOrganizativas()
+        {
+            var unidadesOrganizativasImportadas = _enlaceContext.Set<UnidadOrganizativa>().Select(c => c.AreaVersatId).ToList();
+            var unidadesOrganizativas = _vContext.Set<GenArea>()
+                .Include(c => c.IdaperturaNavigation.IdmascaraNavigation)
+                .Where(c => !unidadesOrganizativasImportadas.Contains(c.Idarea))
+                .OrderBy(c => c.Clave.Length);
+
+            if (!_rhContext.Set<RhWebApi.Models.TipoUnidadOrganizativa>().Any(t => t.Nombre == "Área"))
+            {
+                _rhContext.Add(new RhWebApi.Models.TipoUnidadOrganizativa { Nombre = "Área", Prioridad = 1, });
+                _rhContext.SaveChanges();
+            }
+            if (!_rhContext.Set<RhWebApi.Models.TipoUnidadOrganizativa>().Any(t => t.Nombre == "SubÁrea"))
+            {
+                _rhContext.Add(new RhWebApi.Models.TipoUnidadOrganizativa { Nombre = "SubÁrea", Prioridad = 2, });
+                _rhContext.SaveChanges();
+            }
+            if (!_rhContext.Set<RhWebApi.Models.TipoUnidadOrganizativa>().Any(t => t.Nombre == "Departamento"))
+            {
+                _rhContext.Add(new RhWebApi.Models.TipoUnidadOrganizativa { Nombre = "Departamento", Prioridad = 3 });
+                _rhContext.SaveChanges();
+            }
+            var idTipoArea = _rhContext.Set<RhWebApi.Models.TipoUnidadOrganizativa>().SingleOrDefault(t => t.Nombre == "Área").Id;
+            var idTipoSubArea = _rhContext.Set<RhWebApi.Models.TipoUnidadOrganizativa>().SingleOrDefault(t => t.Nombre == "SubÁrea").Id;
+            var idTipoDepartamento = _rhContext.Set<RhWebApi.Models.TipoUnidadOrganizativa>().SingleOrDefault(t => t.Nombre == "Departamento").Id;
+
+            foreach (var uo in unidadesOrganizativas)
+            {
+                var idTipo = 0;
+                if (uo.Clave.Length == 3)
+                {
+                    idTipo = idTipoArea;
+                }
+                if (uo.Clave.Length == 6)
+                {
+                    idTipo = idTipoSubArea;
+                }
+                if (uo.Clave.Length == 9)
+                {
+                    idTipo = idTipoDepartamento;
+                }
+                var nuevaUO = new RhWebApi.Models.UnidadOrganizativa()
+                {
+                    Codigo = uo.Clave,
+                    Nombre = uo.Descripcion,
+                    Activa = uo.Activa.Value,
+                    TipoUnidadOrganizativaId = idTipo,
+                };
+                var codigoPadre = uo.Clave.Substring(0, uo.Clave.Length - 3);
+                var padre = _rhContext.Set<RhWebApi.Models.UnidadOrganizativa>().SingleOrDefault(u => u.Codigo == codigoPadre);
+                if (padre != null)
+                {
+                    nuevaUO.PerteneceAId = padre.Id;
+                }
+                var nueva = _rhContext.Add(nuevaUO);
+                _rhContext.SaveChanges();
+                _enlaceContext.Add(new ImportadorDatos.Models.EnlaceVersat.UnidadOrganizativa
+                {
+                    Fecha = DateTime.Now,
+                    AreaVersatId = uo.Idarea,
+                    UnidadOrganizativaId = nuevaUO.Id,
+                });
+                _enlaceContext.SaveChanges();
             }
         }
 

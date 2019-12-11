@@ -30,20 +30,12 @@ namespace FinanzasWebApi.Helper
         }
         public decimal Valor(string dato, int year, int meses)
         {
+            //todo: hacer la consulta por todo el año y guardarla en memoria para mejora velocidad
             string variable = Dato(dato);
-            string[] variableCuentas = variable.Split(',');
-            decimal variableValue = 0;
-            for (int i = 0; i < variableCuentas.Length; i++)
-            {
-                string cta = variableCuentas[i].ToString();
-                var cache = _context.Set<CacheCuentaPeriodo>().SingleOrDefault(c => c.Cuenta == cta && c.Mes == meses && c.Year == year);
-                decimal Importe = 0;
-                if (cache != null)
-                {
-                    Importe = cache.Saldo;
-                }
-                variableValue = variableValue + Importe;
-            }
+            var variableCuentas = variable.Split(',');
+            decimal variableValue = _context.Set<CacheCuentaPeriodo>()
+                .Where(c => variableCuentas.Contains(c.Cuenta) && c.Mes == meses && c.Year == year)
+                .Sum(c => c.Saldo);
             return variableValue;
         }
 
