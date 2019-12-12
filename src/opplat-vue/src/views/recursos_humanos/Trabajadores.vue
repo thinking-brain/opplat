@@ -180,24 +180,202 @@
           </v-layout>-->
         </v-toolbar>
       </template>
-      <!-- <template v-slot:item.action="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-        <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
-      </template>-->
+      <template v-slot:item.action="{ item }">
+        <v-row justify="center">
+          <v-dialog v-model="dialog1" hide-overlay transition="dialog-bottom-transition" flat>
+            <template v-slot:activator="{ on }">
+              <v-icon small class="mr-2" @click="getDetallesTrabFromApi(item)" v-on="on">mdi-account-plus</v-icon>
+            </template>
+            <v-card>
+              <v-toolbar dark fadeOnScroll color="#1F7087">
+                <v-flex xs12 sm10 md6 lg4>Detalles del Trabajador</v-flex>
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                  <v-btn icon dark @click="dialog1 = false">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </v-toolbar-items>
+              </v-toolbar>
+
+              <v-container fluid>
+                <v-row dense>
+                  <v-col cols="8">
+                    <v-card flat v-for="item in trabajadorById" :key="item.ci">
+                      <v-layout justify-center>
+                        <v-layout class="pa-2">
+                          <v-list-item two-line>
+                            <v-list-item-content>
+                              <v-list-item-title>
+                                <strong>Unidad Organizativa:</strong>
+                              </v-list-item-title>
+                              <v-list-item-subtitle>{{item.unidadOrganizativa}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item two-line>
+                            <v-list-item-content>
+                              <v-list-item-title>
+                                <strong>Cargo:</strong>
+                              </v-list-item-title>
+                              <v-list-item-subtitle>{{item.cargo}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item two-line>
+                            <v-list-item-content>
+                              <v-list-item-title>
+                                <strong>Estado:</strong>
+                              </v-list-item-title>
+                              <v-list-item-subtitle>{{item.estadoTrabajador}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-layout>
+                      </v-layout>
+                      <v-layout class="pa-2">
+                        <v-list-item two-line>
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              <strong>Funciones o Tareas Principales del Cargo:</strong>
+                            </v-list-item-title>
+                            <v-list-item-subtitle
+                              v-for="item in funciones"
+                              :key="item.text"
+                            >- {{item.text}}</v-list-item-subtitle>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </v-layout>
+                      <v-layout class="pa-2">
+                        <v-list-item two-line>
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              <strong>Requisitos de Conocimiento para el Cargo:</strong>
+                            </v-list-item-title>
+                            <v-list-item-subtitle
+                              v-for="item in requisitos"
+                              :key="item.text"
+                            >- {{item.text}}</v-list-item-subtitle>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </v-layout>
+                    </v-card>
+                  </v-col>
+
+                  <v-col cols="4">
+                    <v-card color="#1F7087" dark>
+                      <v-list-item>
+                        <v-layout column align-center xs12 sm10 md6 lg4>
+                          <v-avatar size="120">
+                            <img src="img/default-avatar.png" class="float-center pa-5" />
+                          </v-avatar>
+                          <v-layout class="pa-2">
+                            <v-toolbar-title class="text-capitalize">{{item.nombre_Completo}}</v-toolbar-title>
+                          </v-layout>
+                        </v-layout>
+                      </v-list-item>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>Carnet de Identidad: {{item.ci}}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                      </v-layout>
+                      <v-layout class="pa-2">
+                        <v-toolbar-items class="text-capitalize">Direccion: {{item.direccion}}</v-toolbar-items>
+                      </v-layout>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-toolbar-items>Sexo: {{item.sexo}}</v-toolbar-items>
+                          </v-list-item-content>
+                        </v-layout>
+                        <v-list-item-content>
+                          <v-list-item-title>
+                            <v-list-item-title>Correo: {{item.correo}}</v-list-item-title>
+                          </v-list-item-title>
+                        </v-list-item-content>
+                      </v-layout>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>Teléfono Fijo: {{item.telefonoFijo}}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>Teléfono Movil: {{item.telefonoMovil}}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                      </v-layout>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-toolbar-items>Nivel de Escolaridad: {{item.nivelEscolaridad}}</v-toolbar-items>
+                          </v-list-item-content>
+                        </v-layout>
+                      </v-layout>
+                      <v-layout class="pa-2">
+                        <v-list-item-content>
+                          <v-list-item-title>
+                            <v-list-item-title>Talla de Pantalón: {{item.tallaPantalon}}</v-list-item-title>
+                          </v-list-item-title>
+                        </v-list-item-content>
+                      </v-layout>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>Color de Ojos: {{item.colorDeOjos}}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              <v-toolbar-items>Color de Piel: {{item.colorDePiel}}</v-toolbar-items>
+                            </v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                      </v-layout>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>Talla de Calzado: {{item.tallaCalzado}}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              <v-toolbar-items>Talla de Camisa: {{item.tallaDeCamisa}}</v-toolbar-items>
+                            </v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                      </v-layout>
+                      <v-layout class="pa-2">
+                        <v-toolbar-items>Otras Caracteristicas: {{item.otrasCaracteristicas}}</v-toolbar-items>
+                      </v-layout>
+                      <v-layout class="pa-2">
+                        <v-toolbar-items>Resumen: {{item.resumen}}</v-toolbar-items>
+                      </v-layout>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card>
+          </v-dialog>
+        </v-row>
+      </template>
     </v-data-table>
   </v-container>
 </template>
-
+        
 <script>
 import api from "@/api";
 export default {
   data: () => ({
     dialog: false,
+    dialog1: false,
     search: "",
-    trabajador: {
-      id: "",
-      nombre: ""
-    },
+    trabajador: "",
     unidadOrganizativa: "",
     edad: "",
     cargo: "",
@@ -210,6 +388,7 @@ export default {
       nombre: ""
     },
     trabajadores: [],
+    trabajadorById: [],
     unidadesOrganizativas: [],
     cargos: [],
     sexos: [],
@@ -226,12 +405,31 @@ export default {
       },
       { text: "Carnet de Identidad", value: "ci" },
       { text: "Dirección", value: "direccion" },
-      { text: "Municipio y Provincia", value: "municipioProv" },
-      { text: "Teléfono Fijo", value: "telefonoFijo" },
-      { text: "Teléfono Móvil", value: "telefonoMovil" },
-      { text: "Unidad Organizativa", value: "unidadOrganizativa" },
-      { text: "Cargo", value: "cargo", sortable: false }
-      // { text: "Actions", value: "action", sortable: false }
+      // { text: "Municipio y Provincia", value: "municipioProv" },
+      // { text: "Teléfono Fijo", value: "telefonoFijo" },
+      // { text: "Teléfono Móvil", value: "telefonoMovil" },
+      { text: "Sexo", value: "sexo" },
+      { text: "NivelDeEscolaridad", value: "nivelDeEscolaridad" },
+      // { text: "Unidad Organizativa", value: "unidadOrganizativa" },
+      // { text: "Cargo", value: "cargo", sortable: false }
+      { text: "Acciones", value: "action", sortable: false }
+    ],
+    funciones: [
+      {
+        text:
+          "Participa en el establecimiento de las distintas fuentes de información"
+      },
+      {
+        text: "Participa en la elaboración de los conceptos"
+      },
+      {
+        text: "Participa en las acciones de capacitación"
+      }
+    ],
+    requisitos: [
+      {
+        text: "Graduado de Nivel Medio Superior con entrenamiento en el puesto"
+      }
     ],
     editedIndex: -1
   }),
@@ -247,6 +445,9 @@ export default {
 
   watch: {
     dialog(val) {
+      val || this.close();
+    },
+    dialog1(val) {
       val || this.close();
     }
   },
@@ -272,6 +473,21 @@ export default {
           console.log(error);
         }
       );
+    },
+    getDetallesTrabFromApi(item) {
+      this.dialog1 = true;
+      const url = api.getUrl("recursos_humanos", "Trabajadores");
+      this.axios.get(url + "/" + item.id).then(
+        response => {
+          this.trabajadorById = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    closeDetalles() {
+      this.dialog1 = false;
     },
     getUnidadOrganizativaFromApi() {
       const url = api.getUrl("recursos_humanos", "UnidadOrganizativa");
@@ -335,10 +551,7 @@ export default {
       );
     },
     getEstadosTrabFromApi() {
-      const url = api.getUrl(
-        "recursos_humanos",
-        "CaracteristicasTrab/Estados"
-      );
+      const url = api.getUrl("recursos_humanos", "CaracteristicasTrab/Estados");
       this.axios.get(url).then(
         response => {
           this.estados = response.data;
@@ -415,6 +628,7 @@ export default {
     closeFiltro() {
       this.dialog = false;
     },
+
     getFiltrosFromApi() {
       const url = api.getUrl("recursos_humanos", "Trabajadores/Filtro");
       this.axios
