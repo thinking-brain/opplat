@@ -16,14 +16,16 @@ export default {
   },
   data: function() {
     return {
-      ingresos_series: [{
-            name: "Real",
-            data: [0,0,0,0,0,0,0,0,0,0,0,0]
-          },
-          {
-            name: "Plan",
-            data: [0,0,0,0,0,0,0,0,0,0,0,0]
-          }],
+      ingresos_series: [
+        {
+          name: "Real",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          name: "Plan",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      ],
       ingresos_reales: [],
       ingresos_planes: [],
       ingresosOptions: {
@@ -81,9 +83,12 @@ export default {
     };
   },
   created() {
+    var d = new Date();
+    var year = d.getFullYear();
+
     const url = api.getUrl(
       "finanzas",
-      `ReporteIngresosGastos/ingresosTotal/${2019}`
+      `ReporteIngresosGastos/ingresosTotal/${year}`
     );
     this.axios
       .get(url)
