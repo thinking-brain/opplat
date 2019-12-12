@@ -64,10 +64,18 @@ namespace RhWebApi.Controllers {
                         //  MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         // CargoId = t.PuestoDeTrabajo.CargoId,
-                        UnidadOrganizativa=t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
+                        UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                         EstadoTrabajador = t.EstadoTrabajador.ToString (),
                         Nombre_Completo = t.Nombre + " " + t.Apellidos,
+                        ColorDePiel = t.CaracteristicasTrab.ColorDePiel.ToString (),
+                        ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos.ToString (),
+                        TallaPantalon = t.CaracteristicasTrab.TallaPantalon,
+                        TallaCalzado = t.CaracteristicasTrab.TallaCalzado.ToString(),
+                        TallaDeCamisa = t.CaracteristicasTrab.TallaDeCamisa.ToString (),
+                        OtrasCaracteristicas = t.CaracteristicasTrab.OtrasCaracteristicas,
+                        Resumen = t.CaracteristicasTrab.Resumen,
+                        Foto = t.CaracteristicasTrab.Foto,
                 });
 
             if (trabajador == null) {

@@ -184,12 +184,7 @@
         <v-row justify="center">
           <v-dialog v-model="dialog1" hide-overlay transition="dialog-bottom-transition" flat>
             <template v-slot:activator="{ on }">
-              <v-icon
-                small
-                class="mr-2"
-                v-on="on"
-                @click="getDetallesTrabFromApi(item)"
-              >mdi-account-plus</v-icon>
+              <v-icon small class="mr-2" @click="getDetallesTrabFromApi(item)" v-on="on">mdi-account-plus</v-icon>
             </template>
             <v-card>
               <v-toolbar dark fadeOnScroll color="#1F7087">
@@ -225,7 +220,7 @@
                               </v-list-item-title>
                               <v-list-item-subtitle>{{item.cargo}}</v-list-item-subtitle>
                             </v-list-item-content>
-                          </v-list-item> 
+                          </v-list-item>
                         </v-layout>
                         <v-layout class="pa-2">
                           <v-list-item two-line>
@@ -235,7 +230,7 @@
                               </v-list-item-title>
                               <v-list-item-subtitle>{{item.estadoTrabajador}}</v-list-item-subtitle>
                             </v-list-item-content>
-                          </v-list-item>                         
+                          </v-list-item>
                         </v-layout>
                       </v-layout>
                       <v-layout class="pa-2">
@@ -279,30 +274,87 @@
                           </v-layout>
                         </v-layout>
                       </v-list-item>
-                      <v-layout class="pa-2">
-                        <v-toolbar-items>Carnet de Identidad: {{item.ci}}</v-toolbar-items>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>Carnet de Identidad: {{item.ci}}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
                       </v-layout>
                       <v-layout class="pa-2">
                         <v-toolbar-items class="text-capitalize">Direccion: {{item.direccion}}</v-toolbar-items>
                       </v-layout>
-                      <v-layout class="pa-2">
-                        <v-toolbar-items class="text-capitalize">Sexo: {{item.sexo}}</v-toolbar-items>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-toolbar-items>Sexo: {{item.sexo}}</v-toolbar-items>
+                          </v-list-item-content>
+                        </v-layout>
+                        <v-list-item-content>
+                          <v-list-item-title>
+                            <v-list-item-title>Correo: {{item.correo}}</v-list-item-title>
+                          </v-list-item-title>
+                        </v-list-item-content>
+                      </v-layout>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>Teléfono Fijo: {{item.telefonoFijo}}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>Teléfono Movil: {{item.telefonoMovil}}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                      </v-layout>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-toolbar-items>Nivel de Escolaridad: {{item.nivelEscolaridad}}</v-toolbar-items>
+                          </v-list-item-content>
+                        </v-layout>
                       </v-layout>
                       <v-layout class="pa-2">
-                        <v-toolbar-items
-                          class="text-capitalize"
-                        >Teléfono Fijo: {{item.telefonoFijo}}</v-toolbar-items>
+                        <v-list-item-content>
+                          <v-list-item-title>
+                            <v-list-item-title>Talla de Pantalón: {{item.tallaPantalon}}</v-list-item-title>
+                          </v-list-item-title>
+                        </v-list-item-content>
+                      </v-layout>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>Color de Ojos: {{item.colorDeOjos}}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              <v-toolbar-items>Color de Piel: {{item.colorDePiel}}</v-toolbar-items>
+                            </v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                      </v-layout>
+                      <v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>Talla de Calzado: {{item.tallaCalzado}}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              <v-toolbar-items>Talla de Camisa: {{item.tallaDeCamisa}}</v-toolbar-items>
+                            </v-list-item-title>
+                          </v-list-item-content>
+                        </v-layout>
                       </v-layout>
                       <v-layout class="pa-2">
-                        <v-toolbar-items
-                          class="text-capitalize"
-                        >Teléfono Movil: {{item.telefonoMovil}}</v-toolbar-items>
+                        <v-toolbar-items>Otras Caracteristicas: {{item.otrasCaracteristicas}}</v-toolbar-items>
                       </v-layout>
                       <v-layout class="pa-2">
-                        <v-toolbar-items class="text-capitalize">Correo: {{item.correo}}</v-toolbar-items>
-                      </v-layout>
-                      <v-layout class="pa-2">
-                        <v-toolbar-items>Nivel de Escolaridad: {{item.nivelEscolaridad}}</v-toolbar-items>
+                        <v-toolbar-items>Resumen: {{item.resumen}}</v-toolbar-items>
                       </v-layout>
                     </v-card>
                   </v-col>
@@ -371,8 +423,7 @@ export default {
         text: "Participa en la elaboración de los conceptos"
       },
       {
-        text:
-          "Participa en las acciones de capacitación"
+        text: "Participa en las acciones de capacitación"
       }
     ],
     requisitos: [
@@ -424,11 +475,11 @@ export default {
       );
     },
     getDetallesTrabFromApi(item) {
+      this.dialog1 = true;
       const url = api.getUrl("recursos_humanos", "Trabajadores");
       this.axios.get(url + "/" + item.id).then(
         response => {
           this.trabajadorById = response.data;
-          this.dialog1 = true;
         },
         error => {
           console.log(error);

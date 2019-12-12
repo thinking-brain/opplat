@@ -8,11 +8,9 @@ using RhWebApi.Models;
 
 namespace RhWebApi.Models {
     public class Funciones {
-
         public int Id { get; set; }
         public string Descripcion { get; set; }
-        public int? Cargo { get; set; }
+        public int? CargoId { get; set; }
         public virtual Cargo Cargo { get; set; }
-
     }
 }
