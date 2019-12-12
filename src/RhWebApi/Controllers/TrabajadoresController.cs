@@ -19,7 +19,7 @@ namespace RhWebApi.Controllers {
         // GET recursos_humanos/trabajadores
         [HttpGet]
         public IActionResult GetAll () {
-            var trabajadores = context.Trabajador.Where (t => t.EstadoTrabajador == Estados.Activo)
+            var trabajadores = context.Trabajador.Where (s => s.EstadoTrabajador == Estados.Activo)
                 .Select (t => new {
                     Id = t.Id,
                         Nombre = t.Nombre,
@@ -30,12 +30,13 @@ namespace RhWebApi.Controllers {
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
                         NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
-                        MunicipioId = t.MunicipioId,
+                        //MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
-                        CargoId = t.PuestoDeTrabajo.CargoId,
+                        //CargoId = t.PuestoDeTrabajo.CargoId,
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                         UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
                         EstadoTrabajador = t.EstadoTrabajador,
+                        Correo = t.Correo,
                         Nombre_Completo = t.Nombre + " " + t.Apellidos,
                 });
 
@@ -60,11 +61,13 @@ namespace RhWebApi.Controllers {
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
                         NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
-                        MunicipioId = t.MunicipioId,
+                        //  MunicipioId = t.MunicipioId,
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
-                        CargoId = t.PuestoDeTrabajo.CargoId,
+                        // CargoId = t.PuestoDeTrabajo.CargoId,
+                        UnidadOrganizativa=t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
-                        EstadoTrabajador = t.EstadoTrabajador,
+                        EstadoTrabajador = t.EstadoTrabajador.ToString (),
+                        Nombre_Completo = t.Nombre + " " + t.Apellidos,
                 });
 
             if (trabajador == null) {
@@ -101,7 +104,7 @@ namespace RhWebApi.Controllers {
 
         // PUT recursos_humanos/trabajadores/id
         [HttpPut ("{id}")]
-        public async Task<IActionResult> PUT (TrabajadorDto trabajadorDto, int id) {
+        public async Task<IActionResult> PUT ([FromBody] TrabajadorDto trabajadorDto, int id) {
 
             if (!ModelState.IsValid) {
                 return BadRequest (ModelState);
@@ -141,7 +144,7 @@ namespace RhWebApi.Controllers {
         public IActionResult Delete (int id) {
             var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == id);
 
-            if (trabajador.Id != id) {
+            if (!TrabajadorExists (id)) {
                 return NotFound ();
             }
             context.Trabajador.Remove (trabajador);
@@ -149,45 +152,45 @@ namespace RhWebApi.Controllers {
             return Ok (trabajador);
         }
 
-         // GET: recursos_humanos/trabajadores/Filtro
+        // GET: recursos_humanos/trabajadores/Filtro
         [HttpGet ("/recursos_humanos/Trabajadores/Filtro")]
-        public IActionResult GetByFiltro (string UnidadOrganizativa = "", string Cargo = "", string Sexo = "", string Estado = "", string ColorDePiel = "",string NivelDeEscolaridad="") {
+        public IActionResult GetByFiltro (string UnidadOrganizativa = "", string Cargo = "", string Sexo = "", string Estado = "", string ColorDePiel = "", string NivelDeEscolaridad = "") {
             var trabajadores = context.Trabajador.Select (t => new {
                 Id = t.Id,
                     Nombre = t.Nombre,
                     Apellidos = t.Apellidos,
                     CI = t.CI,
-                    Sexo = t.Sexo.ToString(),
+                    Sexo = t.Sexo.ToString (),
                     TelefonoFijo = t.TelefonoFijo,
                     TelefonoMovil = t.TelefonoMovil,
                     Direccion = t.Direccion,
-                    NivelDeEscolaridad = t.NivelDeEscolaridad.ToString(),
-                    MunicipioId = t.MunicipioId,
+                    NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
+                    // MunicipioId = t.MunicipioId,
                     MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
-                    CargoId = t.PuestoDeTrabajo.CargoId,
+                    // CargoId = t.PuestoDeTrabajo.CargoId,
                     Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                     UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
                     EstadoTrabajador = t.EstadoTrabajador,
-                    ColorDePiel = t.CaracteristicasTrab.ColorDePiel,
+                    // ColorDePiel = t.CaracteristicasTrab.ColorDePiel,
                     Nombre_Completo = t.Nombre + " " + t.Apellidos,
             });
-            if (!string.IsNullOrEmpty(UnidadOrganizativa)) {
+            if (!string.IsNullOrEmpty (UnidadOrganizativa)) {
                 trabajadores = trabajadores.Where (t => t.UnidadOrganizativa.ToString ().Equals (UnidadOrganizativa));
             }
-            if (!string.IsNullOrEmpty(Cargo)) {
+            if (!string.IsNullOrEmpty (Cargo)) {
                 trabajadores = trabajadores.Where (t => t.Cargo.ToString ().Equals (Cargo));
             }
-            if (!string.IsNullOrEmpty(Sexo)) {
+            if (!string.IsNullOrEmpty (Sexo)) {
                 trabajadores = trabajadores.Where (t => t.Sexo.ToString ().Equals (Sexo));
             }
-            if (!string.IsNullOrEmpty(Estado)) {
+            if (!string.IsNullOrEmpty (Estado)) {
                 trabajadores = trabajadores.Where (t => t.EstadoTrabajador.ToString ().Equals (Estado));
             }
-            if (!string.IsNullOrEmpty(ColorDePiel)) {
-                trabajadores = trabajadores.Where (t => t.ColorDePiel.Equals (ColorDePiel.ToString ()));
-            }
-            if (!string.IsNullOrEmpty(NivelDeEscolaridad)) {
-                trabajadores = trabajadores.Where (t => t.ColorDePiel.Equals (NivelDeEscolaridad.ToString ()));
+            // if (!string.IsNullOrEmpty (ColorDePiel)) {
+            //     trabajadores = trabajadores.Where (t => t.ColorDePiel.Equals (ColorDePiel.ToString ()));
+            // }
+            if (!string.IsNullOrEmpty (NivelDeEscolaridad)) {
+                trabajadores = trabajadores.Where (t => t.NivelDeEscolaridad.Equals (NivelDeEscolaridad.ToString ()));
             }
             if (trabajadores == null) {
                 return NotFound ();

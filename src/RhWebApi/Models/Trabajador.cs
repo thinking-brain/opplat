@@ -17,7 +17,7 @@ namespace RhWebApi.Models {
         public string TelefonoFijo { get; set; }
         public string TelefonoMovil { get; set; }
         public string Correo { get; set; }
-        public virtual Sexo Sexo { get; set; }
+        public Sexo? Sexo { get; set; }
         public string Direccion { get; set; }
         public int? MunicipioId { get; set; }
         public virtual Municipio Municipio { get; set; }
