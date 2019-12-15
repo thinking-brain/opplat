@@ -79,6 +79,13 @@
         </table>
       </v-row>
     </v-row>
+    <v-row v-if="hasdata">
+      <v-flex xs12 pa-2>
+        <v-card :elevation="4">
+          <VueApexCharts type="line" :options="razonesOptions" :series="razones_series" />
+        </v-card>
+      </v-flex>
+    </v-row>
   </v-container>
 </template>
 <style scoped>
@@ -184,15 +191,71 @@ th {
 </style>
 <script>
 import api from "@/api";
+import VueApexCharts from "vue-apexcharts";
 
 export default {
+  components: {
+    VueApexCharts
+  },
   data() {
     return {
       year: 0,
       razones: null,
       errors: [],
       visible: false,
-      hasdata: false
+      hasdata: false,
+      razones_series: [
+        {
+          name: "Real",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          name: "Plan",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      ],
+      razonesOptions: {
+        title: {
+          text: "Comportamiento de las razones en el año",
+          align: "center",
+          margin: 10,
+          offsetX: 0,
+          offsetY: 0,
+          floating: false,
+          style: {
+            fontSize: "20px",
+            color: "rgba(96, 89, 89, 0.87)"
+          }
+        },
+        chart: {
+          id: "vuechart"
+        },
+        xaxis: {
+          tooltip: {
+            enabled: false
+          },
+          categories: [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+          ]
+        },
+        yaxis: {
+          min: 0,
+          forceNiceScale: true
+        }
+      },
+      razones_series: [],
+      errors: []
     };
   },
   methods: {
@@ -208,6 +271,9 @@ export default {
         .get(url)
         .then(response => {
           this.razones = response.data;
+          response.data.forEach(element => {
+            this.razones_series.push({"name": element.razon, data:[element.enero, element.febrero, element.marzo,element.abril,element.mayo,element.junio,element.julio,element.agosto,element.septiembre,element.octubre,element.noviembre,element.diciembre]});
+          });
           this.hasdata = true;
         })
         .catch(e => {

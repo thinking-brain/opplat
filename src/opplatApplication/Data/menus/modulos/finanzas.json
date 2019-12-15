@@ -30,6 +30,17 @@
                     "administrador",
                     "economico"
                 ]
+            },
+            {
+                "title": "Estado Financiero",
+                "group": "reportes",
+                "icon": "mdi-chart-areaspline",
+                "component": "EstadoFinanciero",
+                "name": "EstadoFinanciero",
+                "roles": [
+                    "administrador",
+                    "economico"
+                ]
             }
         ]
     },
