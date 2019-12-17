@@ -38,24 +38,7 @@
         <v-tab-item v-for="item in data" :key="item">
           <v-card flat color="basil">
             <v-card>
-              <v-simple-table>
-                <thead>
-                  <tr>
-                    <th>razon</th>
-                    <th>valor</th>
-                  </tr>
-                </thead>
-                <tbody v-for="estado in data" :key="estado.concepto">
-                  <tr>
-                    <td class="text-left">{{estado.concepto}}</td>
-                    <td class="text-left">{{estado.efe}}</td>
-                  </tr>
-                  <tr v-for="detalle in estado.detalles" :key="detalle.razon">
-                    <td>{{detalle.razon}}</td>
-                    <td>{{detalle.valor}}</td>
-                  </tr>
-                </tbody>
-              </v-simple-table>
+
             </v-card>
             <!-- <v-card-text>{{ item }}</v-card-text> -->
           </v-card>
@@ -74,8 +57,6 @@ export default {
       valid: true,
       tab: null,
       items: ["5920", "5921", "5922", "5923", "5924", "5925", "5926"],
-      text:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
       year: "",
       nameRules: [
         v => !!v || "Este campo es requerido",
