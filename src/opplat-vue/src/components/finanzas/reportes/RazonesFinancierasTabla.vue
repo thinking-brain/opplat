@@ -61,19 +61,19 @@
           </tbody>
           <tbody v-if="hasdata">
             <tr v-for="item in razones" :key="item.razon">
-              <td class="text-right">{{ item.razon}}</td>
-              <td class="text-right">{{ item.enero}}</td>
-              <td class="text-right">{{ item.febrero}}</td>
-              <td class="text-right">{{ item.marzo}}</td>
-              <td class="text-right">{{item.abril}}</td>
-              <td class="text-right">{{item.mayo}}</td>
-              <td class="text-right">{{item.junio}}</td>
-              <td class="text-right">{{item.julio}}</td>
-              <td class="text-right">{{item.agosto}}</td>
-              <td class="text-right">{{item.septiembre}}</td>
-              <td class="text-right">{{item.octubre}}</td>
-              <td class="text-right">{{item.noviembre}}</td>
-              <td class="text-right">{{item.diciembre}}</td>
+              <td class="text-left">{{ item.razon }}</td>
+              <td class="text-right">{{ item.enero| format_two_decimals}}</td>
+              <td class="text-right">{{ item.febrero| format_two_decimals}}</td>
+              <td class="text-right">{{ item.marzo| format_two_decimals}}</td>
+              <td class="text-right">{{item.abril| format_two_decimals}}</td>
+              <td class="text-right">{{item.mayo| format_two_decimals}}</td>
+              <td class="text-right">{{item.junio| format_two_decimals}}</td>
+              <td class="text-right">{{item.julio| format_two_decimals}}</td>
+              <td class="text-right">{{item.agosto| format_two_decimals}}</td>
+              <td class="text-right">{{item.septiembre| format_two_decimals}}</td>
+              <td class="text-right">{{item.octubre| format_two_decimals}}</td>
+              <td class="text-right">{{item.noviembre| format_two_decimals}}</td>
+              <td class="text-right">{{item.diciembre| format_two_decimals}}</td>
             </tr>
           </tbody>
         </table>
