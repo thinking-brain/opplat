@@ -110,18 +110,18 @@ namespace ContabilidadWebApi.Helpers
                     {
                         Concepto = elemento,
                         Plan = plan,
-                        Enero = Convert.ToDecimal(item.Columna3),
-                        Febrero = Convert.ToDecimal(item.Columna4),
-                        Marzo = Convert.ToDecimal(item.Columna5),
-                        Abril = Convert.ToDecimal(item.Columna6),
-                        Mayo = Convert.ToDecimal(item.Columna7),
-                        Junio = Convert.ToDecimal(item.Columna8),
-                        Julio = Convert.ToDecimal(item.Columna9),
-                        Agosto = Convert.ToDecimal(item.Columna10),
-                        Septiembre = Convert.ToDecimal(item.Columna11),
-                        Octubre = Convert.ToDecimal(item.Columna12),
-                        Noviembre = Convert.ToDecimal(item.Columna13),
-                        Diciembre = Convert.ToDecimal(item.Columna14),
+                        Enero = !item.Columna1.Equals("") ? Convert.ToDecimal(item.Columna1) : 0,
+                        Febrero = !item.Columna2.Equals("") ? Convert.ToDecimal(item.Columna2) : 0,
+                        Marzo = !item.Columna3.Equals("") ? Convert.ToDecimal(item.Columna3) : 0,
+                        Abril = !item.Columna4.Equals("") ? Convert.ToDecimal(item.Columna4) : 0,
+                        Mayo = !item.Columna5.Equals("") ? Convert.ToDecimal(item.Columna5) : 0,
+                        Junio = !item.Columna6.Equals("") ? Convert.ToDecimal(item.Columna6) : 0,
+                        Julio = !item.Columna7.Equals("") ? Convert.ToDecimal(item.Columna7) : 0,
+                        Agosto = !item.Columna8.Equals("") ? Convert.ToDecimal(item.Columna8) : 0,
+                        Septiembre = !item.Columna9.Equals("") ? Convert.ToDecimal(item.Columna9) : 0,
+                        Octubre = !item.Columna10.Equals("") ? Convert.ToDecimal(item.Columna10) : 0,
+                        Noviembre = !item.Columna11.Equals("") ? Convert.ToDecimal(item.Columna11) : 0,
+                        Diciembre = !item.Columna12.Equals("") ? Convert.ToDecimal(item.Columna12) : 0,
 
                     });
 
@@ -129,18 +129,18 @@ namespace ContabilidadWebApi.Helpers
                 else
                 {
                     var detalle = _context.Set<DetallePlanGI>().SingleOrDefault(s => s.Concepto == elemento && s.Plan == plan);
-                    detalle.Enero = Convert.ToDecimal(item.Columna3);
-                    detalle.Febrero = Convert.ToDecimal(item.Columna4);
-                    detalle.Marzo = Convert.ToDecimal(item.Columna5);
-                    detalle.Abril = Convert.ToDecimal(item.Columna6);
-                    detalle.Mayo = Convert.ToDecimal(item.Columna7);
-                    detalle.Junio = Convert.ToDecimal(item.Columna8);
-                    detalle.Julio = Convert.ToDecimal(item.Columna9);
-                    detalle.Agosto = Convert.ToDecimal(item.Columna10);
-                    detalle.Septiembre = Convert.ToDecimal(item.Columna11);
-                    detalle.Octubre = Convert.ToDecimal(item.Columna12);
-                    detalle.Noviembre = Convert.ToDecimal(item.Columna13);
-                    detalle.Diciembre = Convert.ToDecimal(item.Columna14);
+                    detalle.Enero = !item.Columna1.Equals("") ? Convert.ToDecimal(item.Columna1) : 0;
+                    detalle.Febrero = !item.Columna2.Equals("") ? Convert.ToDecimal(item.Columna2) : 0;
+                    detalle.Marzo = !item.Columna3.Equals("") ? Convert.ToDecimal(item.Columna3) : 0;
+                    detalle.Abril = !item.Columna4.Equals("") ? Convert.ToDecimal(item.Columna4) : 0;
+                    detalle.Mayo = !item.Columna5.Equals("") ? Convert.ToDecimal(item.Columna5) : 0;
+                    detalle.Junio = !item.Columna6.Equals("") ? Convert.ToDecimal(item.Columna6) : 0;
+                    detalle.Julio = !item.Columna7.Equals("") ? Convert.ToDecimal(item.Columna7) : 0;
+                    detalle.Agosto = !item.Columna8.Equals("") ? Convert.ToDecimal(item.Columna8) : 0;
+                    detalle.Septiembre = !item.Columna9.Equals("") ? Convert.ToDecimal(item.Columna9) : 0;
+                    detalle.Octubre = !item.Columna10.Equals("") ? Convert.ToDecimal(item.Columna10) : 0;
+                    detalle.Noviembre = !item.Columna11.Equals("") ? Convert.ToDecimal(item.Columna11) : 0;
+                    detalle.Diciembre = !item.Columna12.Equals("") ? Convert.ToDecimal(item.Columna12) : 0;
                     _context.Update(detalle);
                 }
 

@@ -3,15 +3,17 @@ using System;
 using FinanzasWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FinanzasWebApi.Migrations
 {
     [DbContext(typeof(FinanzasDbContext))]
-    partial class FinanzasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191211143350_CacheEstadoFinanciero")]
+    partial class CacheEstadoFinanciero
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,34 +41,6 @@ namespace FinanzasWebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CachesCuentasEnPeriodos");
-                });
-
-            modelBuilder.Entity("FinanzasWebApi.Models.CacheEstadoFinanciero", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<decimal>("Apertura");
-
-                    b.Property<string>("Concepto");
-
-                    b.Property<string>("EFE");
-
-                    b.Property<DateTime>("FechaActualizado");
-
-                    b.Property<string>("Grupo");
-
-                    b.Property<int>("Mes");
-
-                    b.Property<decimal>("PlanAnual");
-
-                    b.Property<decimal>("Saldo");
-
-                    b.Property<int>("Year");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CachesEstadosFinancieros");
                 });
 
             modelBuilder.Entity("FinanzasWebApi.Models.ConfiguracionFirmas", b =>
