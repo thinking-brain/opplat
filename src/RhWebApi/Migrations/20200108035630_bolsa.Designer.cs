@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RhWebApi.Data;
@@ -9,9 +10,10 @@ using RhWebApi.Data;
 namespace RhWebApi.Migrations
 {
     [DbContext(typeof(RhWebApiDbContext))]
-    partial class RhWebApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200108035630_bolsa")]
+    partial class bolsa
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,9 +80,11 @@ namespace RhWebApi.Migrations
 
                     b.Property<DateTime>("Fecha");
 
-                    b.Property<string>("Nombre_Referencia");
+                    b.Property<string>("Nombre_Recomendador");
 
-                    b.Property<int>("TrabajadorId");
+                    b.Property<bool>("Recomendado");
+
+                    b.Property<int?>("TrabajadorId");
 
                     b.HasKey("Id");
 
@@ -417,8 +421,6 @@ namespace RhWebApi.Migrations
 
                     b.Property<string>("Nombre");
 
-                    b.Property<string>("Perfil_Ocupacional");
-
                     b.Property<int?>("PuestoDeTrabajoId");
 
                     b.Property<int?>("Sexo");
@@ -515,8 +517,7 @@ namespace RhWebApi.Migrations
                 {
                     b.HasOne("RhWebApi.Models.Trabajador", "Trabajador")
                         .WithMany()
-                        .HasForeignKey("TrabajadorId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("TrabajadorId");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.CaracteristicasTrab", b =>

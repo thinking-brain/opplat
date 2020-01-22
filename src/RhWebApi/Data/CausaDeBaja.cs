@@ -4,41 +4,41 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace RhWebApi.Data
-{
-    public enum CausaDeBaja
-    {
-        [Display(Name = "Sin Definir")]
-        SinDefinir = 0,
+namespace RhWebApi.Data {
+    public enum CausaDeBaja {
 
-        Salarial = 1,
+        SinDefinir,
 
-        Jubilación = 2,
+        Salarial,
 
-        Fallecimiento = 3,
+        Solicitud_Propia,
 
-        [Display(Name = "Invalidez Total")]
-        InvalidezTotal = 4,
+        Jubilación,
 
-        [Display(Name = "Invalidez Parcial")]
-        InvalidezParcial = 5,
+        Fallecimiento,
 
-        [Display(Name = "Privación de libertad")]
-        PrivacionDeLibertad = 6,
+        [Display (Name = "Invalidez Total")]
+        InvalidezTotal,
 
-        [Display(Name = "Paso a formas no estatales")]
-        PasoAFormasNoEstatales = 7,
+        [Display (Name = "Invalidez Parcial")]
+        InvalidezParcial,
 
-        [Display(Name = "Proceso de disponibilidad")]
-        ProcesoDeDisponibilidad = 8,
+        [Display (Name = "Privación de libertad")]
+        PrivacionDeLibertad,
 
-        [Display(Name = "Sanción administrativa")]
-        SancionAdministrativa = 9,
+        [Display (Name = "Paso a formas no estatales")]
+        PasoAFormasNoEstatales,
 
-        [Display(Name = "Salida del país")]
-        SalidaDelPais = 10,
+        [Display (Name = "Proceso de disponibilidad")]
+        ProcesoDeDisponibilidad,
 
-        [Display(Name = "Otras causas")]
-        OtrasCausas = 11,
+        [Display (Name = "Sanción administrativa")]
+        SancionAdministrativa,
+
+        [Display (Name = "Salida del país")]
+        SalidaDelPais,
+
+        [Display (Name = "Otras causas")]
+        OtrasCausas,
     }
 }

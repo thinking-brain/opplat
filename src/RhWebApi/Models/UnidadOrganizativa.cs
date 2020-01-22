@@ -17,7 +17,7 @@ namespace RhWebApi.Models {
         [Required]
         public string Nombre { get; set; }
 
-        public int TipoUnidadOrganizativaId { get; set; }
+        public int? TipoUnidadOrganizativaId { get; set; }
 
         public virtual TipoUnidadOrganizativa TipoUnidadOrganizativa { get; set; }
 

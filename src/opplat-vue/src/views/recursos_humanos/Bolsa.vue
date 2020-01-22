@@ -1,133 +1,13 @@
 <template>
-  <v-data-table :headers="headers" :items="trabajadores" :search="search" class="elevation-1 pa-5">
+  <v-data-table
+    :headers="headers"
+    :items="trabajadoresBolsa"
+    :search="search"
+    class="elevation-1 pa-5"
+  >
     <template v-slot:top>
-      <!-- Filtro Trabajador -->
-      <v-row>
-        <v-col cols="12" sm="6" md="2">
-          <div class="text-center">
-            <div class="my-2">
-              <v-btn color="primary" @click="dialog1=true">Filtrar por</v-btn>
-            </div>
-          </div>
-        </v-col>
-        <v-col cols="12" sm="6" md="2" v-if="volver===true">
-          <div class="text-center">
-            <div class="my-2">
-              <v-btn color="primary" @click="getTrabajadoresFromApi">
-                <v-icon>mdi-reply-all</v-icon>
-              </v-btn>
-            </div>
-          </div>
-        </v-col>
-        <v-layout>
-          <v-dialog v-model="dialog1" persistent max-width="800px">
-            <v-card>
-              <v-card-title>
-                <span class="headline">Mostrar Trabajadores por:</span>
-              </v-card-title>
-              <v-card-text>
-                <v-container grid-list-md>
-                  <v-layout wrap>
-                    <v-flex xs12 sm6 md6>
-                      <v-autocomplete
-                        v-model="unidadOrganizativa"
-                        item-text="nombre"
-                        :items="unidadesOrganizativas"
-                        :filter="activeFilter"
-                        cache-items
-                        clearable
-                        label="Unidad Organizativa"
-                        prepend-icon="mdi-database-search"
-                        chips
-                        allow-overflow
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                      <v-autocomplete
-                        v-model="cargo"
-                        item-text="nombre"
-                        :items="cargos"
-                        :filter="activeFilter"
-                        cache-items
-                        clearable
-                        label="Cargo"
-                        prepend-icon="mdi-database-search"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                      <v-autocomplete
-                        v-model="sexo"
-                        item-text="nombre"
-                        :items="sexos"
-                        :filter="activeFilter"
-                        cache-items
-                        clearable
-                        label="Sexo"
-                        prepend-icon="mdi-database-search"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                      <v-autocomplete
-                        v-model="colordePiel"
-                        item-text="nombre"
-                        :items="coloresdePiel"
-                        :filter="activeFilter"
-                        cache-items
-                        clearable
-                        label="Color de Piel"
-                        prepend-icon="mdi-database-search"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                      <v-autocomplete
-                        v-model="nivelEscolaridad"
-                        item-text="nombre"
-                        :items="nivelesEscolaridad"
-                        :filter="activeFilter"
-                        cache-items
-                        clearable
-                        label="Nivel de Escolaridad"
-                        prepend-icon="mdi-database-search"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                      <v-autocomplete
-                        v-model="estado"
-                        item-text="nombre"
-                        :items="estados"
-                        :filter="activeFilter"
-                        cache-items
-                        clearable
-                        label="Estado"
-                        prepend-icon="mdi-database-search"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                      <v-text-field
-                        v-model="edad"
-                        item-text="Edad"
-                        cache-items
-                        clearable
-                        label="Edad"
-                        prepend-icon="mdi-database-search"
-                      ></v-text-field>
-                    </v-flex>
-                  </v-layout>
-                </v-container>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="green darken-1" text @click="getFiltrosFromApi">Aceptar</v-btn>
-                <v-btn color="blue darken-1" text @click="dialog1=false">Cancelar</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-layout>
-      </v-row>
-      <!-- /Filtro Trabajador -->
-
       <v-toolbar flat color="white">
-        <v-toolbar-title>Listado de Trabajadores</v-toolbar-title>
+        <v-toolbar-title>Bolsa de Trabajadores</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field
@@ -141,9 +21,9 @@
         <v-spacer></v-spacer>
         <!-- Agregar Trabajador -->
         <v-dialog v-model="dialog" persistent max-width="900px">
-          <!-- <template v-slot:activator="{ on }">
+          <template v-slot:activator="{ on }">
             <v-btn color="primary" dark v-on="on">Agregar Trabajador</v-btn>
-          </template>-->
+          </template>
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
               <v-flex xs12 sm10 md6 lg4>{{ formTitle }}</v-flex>
@@ -155,7 +35,7 @@
               </v-toolbar-items>
             </v-toolbar>
             <v-container grid-list-md text-xs-center>
-              <v-layout row wrap v-if="editedIndex === -1">
+              <v-layout row wrap>
                 <v-flex xs6 class="px-5">
                   <v-text-field label="Nombre" required v-model="trabajador.nombre"></v-text-field>
                 </v-flex>
@@ -169,6 +49,7 @@
                   <v-autocomplete
                     v-model="trabajador.sexo"
                     item-text="nombre"
+                    item-value="id"
                     :items="sexos"
                     :filter="activeFilter"
                     cache-items
@@ -180,33 +61,12 @@
                   <v-text-field label="Dirección" v-model="trabajador.direccion"></v-text-field>
                 </v-flex>
               </v-layout>
-              <v-layout row wrap v-else>
-                <v-flex xs6 class="px-5">
-                  <v-text-field label="Nombre" required v-model="trabajador.nombre" disabled></v-text-field>
-                </v-flex>
-                <v-flex xs6 class="px-5">
-                  <v-text-field label="Apellidos" required v-model="trabajador.apellidos" disabled></v-text-field>
-                </v-flex>
-                <v-flex xs6 class="px-5">
-                  <v-text-field
-                    label="Carnet de Identidad"
-                    required
-                    v-model="trabajador.ci"
-                    disabled
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs6 class="px-5">
-                  <v-text-field label="Sexo" required v-model="trabajador.sexo" disabled></v-text-field>
-                </v-flex>
-                <v-flex xs12 class="px-5">
-                  <v-text-field label="Dirección" v-model="trabajador.direccion" disabled></v-text-field>
-                </v-flex>
-              </v-layout>
               <v-layout row wrap>
                 <v-flex xs4 class="px-5">
                   <v-autocomplete
                     v-model="trabajador.nivelDeEscolaridad"
                     item-text="nombre"
+                    item-value="id"
                     :items="nivelesEscolaridad"
                     :filter="activeFilter"
                     cache-items
@@ -215,13 +75,16 @@
                   ></v-autocomplete>
                 </v-flex>
                 <v-flex xs4 class="px-5">
-                  <v-text-field label="Teléfono Móvil" v-model="trabajador.telefonoMovil"></v-text-field>
+                  <v-text-field label="Perfil Ocupacional" v-model="trabajador.perfil_Ocupacional"></v-text-field>
                 </v-flex>
                 <v-flex xs4 class="px-5">
-                  <v-text-field label="Teléfono Fijo" v-model="trabajador.telefonoFijo"></v-text-field>
+                  <v-text-field label="Teléfono Móvil" v-model="trabajador.telefonoMovil"></v-text-field>
                 </v-flex>
               </v-layout>
               <v-layout row wrap>
+                <v-flex xs4 class="px-5">
+                  <v-text-field label="Teléfono Fijo" v-model="trabajador.telefonoFijo"></v-text-field>
+                </v-flex>
                 <v-flex xs4 class="px-5">
                   <v-text-field label="Correo" v-model="trabajador.correo"></v-text-field>
                 </v-flex>
@@ -237,6 +100,8 @@
                     label="Color de Ojos"
                   ></v-autocomplete>
                 </v-flex>
+              </v-layout>
+              <v-layout row wrap>
                 <v-flex xs4 class="px-5">
                   <v-autocomplete
                     v-model="trabajador.colorDePiel"
@@ -249,8 +114,6 @@
                     label="Color de Piel"
                   ></v-autocomplete>
                 </v-flex>
-              </v-layout>
-              <v-layout row wrap>
                 <v-flex xs4 class="px-5">
                   <v-text-field v-model="trabajador.tallaCalzado" label="Talla de Calzado"></v-text-field>
                 </v-flex>
@@ -258,6 +121,7 @@
                   <v-autocomplete
                     v-model="trabajador.tallaDeCamisa"
                     item-text="nombre"
+                    item-value="id"
                     :items="tallasDeCamisas"
                     :filter="activeFilter"
                     cache-items
@@ -267,6 +131,30 @@
                 </v-flex>
                 <v-flex xs4 class="px-5">
                   <v-text-field label="Talla de Pantalon" v-model="trabajador.tallaPantalon"></v-text-field>
+                </v-flex>
+              </v-layout>
+              <v-layout row wrap>
+                <v-flex xs4 class="px-5">
+                  <v-switch v-model="Referencia" :label="`Tiene Referencia`"></v-switch>
+                </v-flex>
+                <v-flex xs4 class="px-5" v-if="Referencia">
+                  <v-switch v-model="EsTrabEmpresa" :label="`Es Trabajador Suyo`"></v-switch>
+                </v-flex>
+                <v-flex xs4 class="px-5" v-if="Referencia && EsTrabEmpresa">
+                  <v-autocomplete
+                    v-model="trabajador"
+                    item-text="nombre_Completo"
+                    :items="trabajadores"
+                    :filter="activeFilter"
+                    clearable
+                    label="Nombre de la Refencia"
+                  ></v-autocomplete>
+                </v-flex>
+                <v-flex xs4 class="px-5" v-if="Referencia && !EsTrabEmpresa">
+                  <v-text-field
+                    label="Nombre de la Refencia"
+                    v-model="trabajador.nombre_Referencia"
+                  ></v-text-field>
                 </v-flex>
               </v-layout>
               <v-flex x12 class="px-5">
@@ -304,48 +192,13 @@
               <v-row dense>
                 <v-col cols="8">
                   <v-card flat>
-                    <v-layout justify-center>
-                      <v-layout class="pa-2">
-                        <v-list-item two-line>
-                          <v-list-item-content>
-                            <v-list-item-title>
-                              <strong>Unidad Organizativa:</strong>
-                            </v-list-item-title>
-                            <v-list-item-subtitle>{{trabajador.unidadOrganizativa}}</v-list-item-subtitle>
-                          </v-list-item-content>
-                        </v-list-item>
-                      </v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item two-line>
-                          <v-list-item-content>
-                            <v-list-item-title>
-                              <strong>Cargo:</strong>
-                            </v-list-item-title>
-                            <v-list-item-subtitle>{{trabajador.cargo}}</v-list-item-subtitle>
-                          </v-list-item-content>
-                        </v-list-item>
-                      </v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item two-line>
-                          <v-list-item-content>
-                            <v-list-item-title>
-                              <strong>Estado:</strong>
-                            </v-list-item-title>
-                            <v-list-item-subtitle>{{trabajador.estadoTrabajador}}</v-list-item-subtitle>
-                          </v-list-item-content>
-                        </v-list-item>
-                      </v-layout>
-                    </v-layout>
                     <v-layout class="pa-2">
                       <v-list-item two-line>
                         <v-list-item-content>
                           <v-list-item-title>
-                            <strong>Funciones o Tareas Principales del Cargo:</strong>
+                            <strong>El Trabajador es recomendado por</strong>
                           </v-list-item-title>
-                          <v-list-item-subtitle
-                            v-for="item in funciones"
-                            :key="item.text"
-                          >- {{item.text}}</v-list-item-subtitle>
+                          <v-list-item-subtitle>- {{trabajador.nombre}}</v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
                     </v-layout>
@@ -353,12 +206,9 @@
                       <v-list-item two-line>
                         <v-list-item-content>
                           <v-list-item-title>
-                            <strong>Requisitos de Conocimiento para el Cargo:</strong>
+                            <strong>Su perfil Ocupacional es :</strong>
                           </v-list-item-title>
-                          <v-list-item-subtitle
-                            v-for="item in requisitos"
-                            :key="item.text"
-                          >- {{item.text}}</v-list-item-subtitle>
+                          <v-list-item-subtitle>- {{trabajador.perfil_Ocupacional}}</v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
                     </v-layout>
@@ -468,15 +318,14 @@
                   <v-card flat>
                     <v-toolbar flat>
                       <v-tabs slot="extension" v-model="tabs" centered>
-                        <v-tab>Traslado</v-tab>
-                        <v-tab>Baja</v-tab>
+                        <v-tab>Entrada</v-tab>
                       </v-tabs>
                     </v-toolbar>
 
                     <v-tabs-items v-model="tabs" py-6>
                       <v-tab-item>
                         <v-card flat>
-                          <v-card-title class="headline mx-6">Hacer Traslado</v-card-title>
+                          <v-card-title class="headline mx-6">Asígnele un Cargo al Trabajador</v-card-title>
                           <v-card-text>
                             <form>
                               <v-container>
@@ -490,7 +339,6 @@
                                       item-value="id"
                                       :items="trabajadores"
                                       :filter="activeFilter"
-                                      cache-items
                                       label="Nombre del Trabajador"
                                       disabled
                                     ></v-autocomplete>
@@ -499,11 +347,11 @@
                                     <v-select
                                       xs6
                                       class="pa-2"
-                                      v-model="traslado.cargoId"
+                                      v-model="entrada.cargoId"
                                       item-text="nombre"
                                       item-value="id"
                                       :items="cargos"
-                                      label="Cargo de Destino"
+                                      label="Cargo"
                                       min-width="290px"
                                       required
                                     ></v-select>
@@ -514,7 +362,7 @@
                                     <v-select
                                       xs6
                                       class="pa-2"
-                                      v-model="traslado.unidadOrganizativaId"
+                                      v-model="entrada.unidadOrganizativaId"
                                       item-text="nombre"
                                       item-value="id"
                                       :items="unidadesOrganizativas"
@@ -525,17 +373,16 @@
                                   </v-col>
                                   <v-col cols="6" md="4">
                                     <v-menu
-                                      v-model="menu1"
+                                      v-model="menu"
                                       :close-on-content-click="false"
                                       :nudge-right="40"
                                       transition="scale-transition"
                                       offset-y
                                       full-width
-                                      min-width="290px"
                                     >
                                       <template v-slot:activator="{ on }">
                                         <v-text-field
-                                          v-model="traslado.fechaTraslado"
+                                          v-model="entrada.fechaEntrada"
                                           label="Fecha"
                                           readonly
                                           v-on="on"
@@ -543,110 +390,18 @@
                                         ></v-text-field>
                                       </template>
                                       <v-date-picker
-                                        v-model="traslado.fechaTraslado"
-                                        @input="menu1 = false"
+                                        v-model="entrada.fechaEntrada"
+                                        @input="menu = false"
                                       ></v-date-picker>
                                     </v-menu>
                                   </v-col>
                                 </v-row>
-                                <v-btn color="green darken-1" text @click="traslado()">Aceptar</v-btn>
-                                <v-btn color="blue darken-1" text @click="clearTraslado()">Cancelar</v-btn>
+                                <v-btn color="green darken-1" text @click="Entrada">Aceptar</v-btn>
+                                <v-btn color="blue darken-1" text @click="clear">Cancelar</v-btn>
                               </v-container>
                             </form>
                           </v-card-text>
                         </v-card>
-                      </v-tab-item>
-                      <v-tab-item>
-                        <v-card flat>
-                          <v-card-title class="headline mx-6">Dar Baja</v-card-title>
-                          <v-card-text>
-                            <form>
-                              <v-container>
-                                <v-row>
-                                  <v-col cols="12" md="8">
-                                    <v-autocomplete
-                                      xs6
-                                      class="pa-2"
-                                      v-model="trabajador"
-                                      item-text="nombre_Completo"
-                                      item-value="id"
-                                      :items="trabajadores"
-                                      :filter="activeFilter"
-                                      cache-items
-                                      label="Nombre del Trabajador"
-                                      disabled
-                                    ></v-autocomplete>
-                                  </v-col>
-                                  <v-col cols="6" md="4">
-                                    <v-autocomplete
-                                      xs6
-                                      class="pa-2"
-                                      v-model="baja.causaDeBaja"
-                                      item-text="nombre"
-                                      item-value="id"
-                                      :items="CausasDeBajas"
-                                      :filter="activeFilter"
-                                      cache-items
-                                      clearable
-                                      label="Causa de Baja"
-                                    ></v-autocomplete>
-                                  </v-col>
-                                </v-row>
-                                <v-row>
-                                  <v-col cols="12" md="4">
-                                    <v-menu
-                                      v-model="menu2"
-                                      :close-on-content-click="false"
-                                      :nudge-right="40"
-                                      transition="scale-transition"
-                                      offset-y
-                                      full-width
-                                      min-width="290px"
-                                    >
-                                      <template v-slot:activator="{ on }">
-                                        <v-text-field
-                                          v-model="baja.fechaBaja"
-                                          label="Fecha"
-                                          readonly
-                                          v-on="on"
-                                          class="pa-2"
-                                        ></v-text-field>
-                                      </template>
-                                      <v-date-picker
-                                        v-model="baja.fechaBaja"
-                                        @input="menu2 = false"
-                                      ></v-date-picker>
-                                    </v-menu>
-                                  </v-col>
-                                </v-row>
-                              </v-container>
-                              <v-spacer></v-spacer>
-                              <v-btn color="green darken-1" text @click="confirmBaja()">Aceptar</v-btn>
-                              <v-btn color="blue darken-1" text @click="clearBaja">Cancelar</v-btn>
-                            </form>
-                          </v-card-text>
-                        </v-card>
-                        <v-dialog v-model="dialog6" persistent max-width="350px">
-                          <v-toolbar dark fadeOnScroll color="red">
-                            <v-spacer></v-spacer>
-                            <v-toolbar-items>
-                              <v-btn icon dark @click="close()">
-                                <v-icon>mdi-close</v-icon>
-                              </v-btn>
-                            </v-toolbar-items>
-                          </v-toolbar>
-                          <v-card>
-                            <v-card-title
-                              class="headline text-center"
-                            >Seguro que deseas darle de Baja al Trabajador</v-card-title>
-                            <v-card-text class="text-center">{{trabajador.nombre_Completo}}</v-card-text>
-                            <v-card-actions>
-                              <v-spacer></v-spacer>
-                              <v-btn color="red" dark @click="saveBaja()">Aceptar</v-btn>
-                              <v-btn color="primary" @click="dialog6=false">Cancelar</v-btn>
-                            </v-card-actions>
-                          </v-card>
-                        </v-dialog>
                       </v-tab-item>
                     </v-tabs-items>
                   </v-card>
@@ -741,10 +496,12 @@ export default {
     search: "",
     editedIndex: -1,
     trabajadores: [],
+    trabajadoresBolsa: [],
     trabajador: {
       colordeOjos: 0,
       colordePiel: 0,
-      tallaDeCamisa: 0
+      tallaDeCamisa: 0,
+      nombre_Referencia: ""
     },
     unidadesOrganizativas: [],
     cargos: [],
@@ -766,17 +523,13 @@ export default {
     menu2: false,
     modal: false,
     tabs: null,
-    CausasDeBajas: [],
-    traslado: {
+    Referencia: false,
+    EsTrabEmpresa: false,
+    entrada: {
       trabajadorId: "",
-      fechaTraslado: "",
-      cargoId: "",
-      unidadOrganizativaId: ""
-    },
-    baja: {
-      trabajadorId: "",
-      fechaBaja: "",
-      causaDeBaja: ""
+      fechaEntrada: "",
+      unidadOrganizativaId: "",
+      cargoId: ""
     },
     errors: [],
     headers: [
@@ -788,9 +541,9 @@ export default {
       },
       { text: "Carnet de Identidad", value: "ci" },
       { text: "Dirección", value: "direccion" },
-      { text: "Sexo", value: "sexo" },
-      { text: "Cargo", value: "cargo" },
-      { text: "Estado", value: "estadoTrabajador" },
+      { text: "Perfil Ocupacional", value: "perfil_Ocupacional" },
+      { text: "Referencia", value: "referencia" },
+      { text: "Tiempo en la Bolsa", value: "tiempo_bolsa" },
       { text: "Acciones", value: "action", sortable: false }
     ],
     funciones: [
@@ -829,6 +582,7 @@ export default {
   },
 
   created() {
+    this.getTrabajadoresBolsa();
     this.getTrabajadoresFromApi();
     this.getUnidadOrganizativaFromApi();
     this.getCargosFromApi();
@@ -838,10 +592,21 @@ export default {
     this.getEstadosTrabFromApi();
     this.getColordeOjosTrabFromApi();
     this.gettallasDeCamisasFromApi();
-    this.getCausaDeBajaFromApi();
   },
 
   methods: {
+    getTrabajadoresBolsa() {
+      const url = api.getUrl("recursos_humanos", "Trabajadores/Bolsa");
+      this.axios.get(url).then(
+        response => {
+          this.trabajadoresBolsa = response.data;
+          this.volver = false;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     getTrabajadoresFromApi() {
       const url = api.getUrl("recursos_humanos", "Trabajadores");
       this.axios.get(url).then(
@@ -987,17 +752,7 @@ export default {
         }
       );
     },
-    getCausaDeBajaFromApi() {
-      const url = api.getUrl("recursos_humanos", "Baja/CausaDeBaja");
-      this.axios.get(url).then(
-        response => {
-          this.CausasDeBajas = response.data;
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    },
+
     Entrada() {
       const url = api.getUrl("recursos_humanos", "Entradas");
       this.axios.post(url, this.entrada).then(
@@ -1016,58 +771,6 @@ export default {
           console.log(error);
         }
       );
-    },
-    traslado() {
-      const url = api.getUrl("recursos_humanos", "Traslados");
-      this.axios.post(url, this.traslado).then(
-        response => {
-          this.getResponse(response);
-          this.traslado = {
-            trabajadorId: "",
-            fechaTraslado: "",
-            cargoDestinoId: ""
-          };
-          this.dialog5 = false;
-          this.getTrabajadoresFromApi();
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    },
-    confirmBaja() {
-      this.dialog6 = true;
-      this.baja = {
-        trabajadorId: this.trabajador.id,
-        causaDeBaja: this.causaDeBaja,
-        fechaBaja: this.fechaBaja
-      };
-    },
-    saveBaja() {
-      const url = api.getUrl("recursos_humanos", "Bajas");
-      this.axios.post(url, this.baja).then(
-        response => {
-          this.getResponse(response);
-          this.dialog6 = false;
-          this.dialog5 = false;
-          this.getTrabajadoresFromApi();
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    },
-    clearBaja() {
-      this.baja = {
-        causaDeBaja: "",
-        fechaBaja: ""
-      };
-    },
-    clearTraslado() {
-      this.traslado = {
-        fechaTraslado: "",
-        cargoDestinoId: ""
-      };
     },
     editItem(item) {
       this.editedIndex = this.trabajadores.indexOf(item);
@@ -1129,7 +832,12 @@ export default {
       this.dialog4 = false;
       this.dialog5 = false;
       this.dialog6 = false;
-      this.trabajador = {};
+      this.trabajador = {
+        colordeOjos: 0,
+        colordePiel: 0,
+        tallaDeCamisa: 0,
+        Nombre_Referencia: ""
+      };
       this.getTrabajadoresFromApi();
       setTimeout(() => {
         this.editedIndex = -1;
@@ -1139,8 +847,6 @@ export default {
     movimiento(item) {
       this.editedIndex = this.trabajadores.indexOf(item);
       this.trabajador = Object.assign({}, item);
-      this.traslado.trabajadorId = this.trabajador.id;
-      this.baja.trabajadorId = this.trabajador.id;
       this.dialog5 = true;
     }
   }

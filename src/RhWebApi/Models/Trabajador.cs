@@ -21,6 +21,7 @@ namespace RhWebApi.Models {
         public string Direccion { get; set; }
         public int? MunicipioId { get; set; }
         public virtual Municipio Municipio { get; set; }
+        public string Perfil_Ocupacional { get; set; }
         public int? PuestoDeTrabajoId { get; set; }
         public virtual PuestoDeTrabajo PuestoDeTrabajo { get; set; }
         public virtual NivelDeEscolaridad NivelDeEscolaridad { get; set; }

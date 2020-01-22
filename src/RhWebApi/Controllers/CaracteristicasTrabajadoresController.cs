@@ -37,9 +37,35 @@ namespace RhWebApi.Controllers {
             };
             return Ok (colorDePiel);
         }
+        // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/ColordeOjos")]
+        public IActionResult GetAllColorDeOjos () {
+            var colorDeOjos = new List<dynamic> () {
+                new { Id = ColorDeOjos.Azules, Nombre = ColorDeOjos.Azules.ToString () },
+                new { Id = ColorDeOjos.Verdes, Nombre = ColorDeOjos.Verdes.ToString () },
+                new { Id = ColorDeOjos.Negros, Nombre = ColorDeOjos.Negros.ToString () },
+                new { Id = ColorDeOjos.Marron, Nombre = ColorDeOjos.Marron.ToString () },
+                new { Id = ColorDeOjos.Pardos, Nombre = ColorDeOjos.Pardos.ToString () },
+            };
+            return Ok (colorDeOjos);
+        }
+         // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/TallaDeCamisa")]
+        public IActionResult GetAllTallaDeCamisa () {
+            var tallaDeCamisa = new List<dynamic> () {
+                new { Id = TallaDeCamisa.S, Nombre = TallaDeCamisa.S.ToString () },
+                new { Id = TallaDeCamisa.M, Nombre = TallaDeCamisa.M.ToString () },
+                new { Id = TallaDeCamisa.L, Nombre = TallaDeCamisa.L.ToString () },
+                new { Id = TallaDeCamisa.X, Nombre = TallaDeCamisa.X.ToString () },
+                new { Id = TallaDeCamisa.XL, Nombre = TallaDeCamisa.XL.ToString () },
+                new { Id = TallaDeCamisa.XXL, Nombre = TallaDeCamisa.XXL.ToString () },
+                new { Id = TallaDeCamisa.XXXL, Nombre = TallaDeCamisa.XXXL.ToString () },
+            };
+            return Ok (tallaDeCamisa);
+        }
         // GET: recursos_humanos/CaracteristicasTrab/Estados
         [HttpGet ("/recursos_humanos/CaracteristicasTrab/Estados")]
-        public IActionResult GetAllEstadosPiel () {
+        public IActionResult GetAllEstados () {
             var colorDePiel = new List<dynamic> () {
                 new { Id = Estados.Activo, Nombre = Estados.Activo.ToString () },
                 new { Id = Estados.Baja, Nombre = Estados.Baja.ToString () },
@@ -55,6 +81,7 @@ namespace RhWebApi.Controllers {
         public IActionResult GetAllEscolaridad () {
             var nivelEscolaridad = new List<dynamic> () {
                 new { Id = NivelDeEscolaridad.SinDefinir, Nombre = NivelDeEscolaridad.SinDefinir.ToString () },
+                new { Id = NivelDeEscolaridad.TecnicoMedio, Nombre = NivelDeEscolaridad.TecnicoMedio.ToString () },
                 new { Id = NivelDeEscolaridad.NivelSuperior, Nombre = NivelDeEscolaridad.NivelSuperior.ToString () },
                 new { Id = NivelDeEscolaridad.DoceGrado, Nombre = NivelDeEscolaridad.DoceGrado.ToString () },
                 new { Id = NivelDeEscolaridad.NovenoGrado, Nombre = NivelDeEscolaridad.NovenoGrado.ToString () },

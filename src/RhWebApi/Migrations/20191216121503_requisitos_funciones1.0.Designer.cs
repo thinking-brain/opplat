@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RhWebApi.Data;
@@ -9,9 +10,10 @@ using RhWebApi.Data;
 namespace RhWebApi.Migrations
 {
     [DbContext(typeof(RhWebApiDbContext))]
-    partial class RhWebApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191216121503_requisitos_funciones1.0")]
+    partial class requisitos_funciones10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,24 +71,6 @@ namespace RhWebApi.Migrations
                     b.HasIndex("TrabajadorId");
 
                     b.ToTable("bajas");
-                });
-
-            modelBuilder.Entity("RhWebApi.Models.Bolsa", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("Fecha");
-
-                    b.Property<string>("Nombre_Referencia");
-
-                    b.Property<int>("TrabajadorId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TrabajadorId");
-
-                    b.ToTable("Bolsa");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.CaracteristicasTrab", b =>
@@ -399,8 +383,6 @@ namespace RhWebApi.Migrations
 
                     b.Property<string>("Apellidos");
 
-                    b.Property<bool>("Bolsa");
-
                     b.Property<string>("CI");
 
                     b.Property<string>("Codigo");
@@ -416,8 +398,6 @@ namespace RhWebApi.Migrations
                     b.Property<int>("NivelDeEscolaridad");
 
                     b.Property<string>("Nombre");
-
-                    b.Property<string>("Perfil_Ocupacional");
 
                     b.Property<int?>("PuestoDeTrabajoId");
 
@@ -504,14 +484,6 @@ namespace RhWebApi.Migrations
                 });
 
             modelBuilder.Entity("RhWebApi.Models.Baja", b =>
-                {
-                    b.HasOne("RhWebApi.Models.Trabajador", "Trabajador")
-                        .WithMany()
-                        .HasForeignKey("TrabajadorId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("RhWebApi.Models.Bolsa", b =>
                 {
                     b.HasOne("RhWebApi.Models.Trabajador", "Trabajador")
                         .WithMany()
