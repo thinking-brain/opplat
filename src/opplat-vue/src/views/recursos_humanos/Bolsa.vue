@@ -37,13 +37,20 @@
             <v-container grid-list-md text-xs-center>
               <v-layout row wrap>
                 <v-flex xs6 class="px-5">
-                  <v-text-field label="Nombre" required v-model="trabajador.nombre"></v-text-field>
+                  <v-text-field label="Nombre" v-model="trabajador.nombre" required></v-text-field>
                 </v-flex>
                 <v-flex xs6 class="px-5">
-                  <v-text-field label="Apellidos" required v-model="trabajador.apellidos"></v-text-field>
+                  <v-text-field label="Apellidos" v-model="trabajador.apellidos" required></v-text-field>
                 </v-flex>
                 <v-flex xs6 class="px-5">
-                  <v-text-field label="Carnet de Identidad" required v-model="trabajador.ci"></v-text-field>
+                  <v-text-field
+                    label="Carnet de Identidad"
+                    v-model="trabajador.ci"
+                    :counter="11"
+                    :rules="ciRules"
+                    required
+                  ></v-text-field>
+                  <span asp-validation-for="CI" class="text-danger"></span>
                 </v-flex>
                 <v-flex xs6 class="px-5">
                   <v-autocomplete
@@ -86,7 +93,11 @@
                   <v-text-field label="Teléfono Fijo" v-model="trabajador.telefonoFijo"></v-text-field>
                 </v-flex>
                 <v-flex xs4 class="px-5">
-                  <v-text-field label="Correo" v-model="trabajador.correo"></v-text-field>
+                  <v-text-field
+                    label="Correo"
+                    v-model="trabajador.correo"
+                    :rules="emailRules"
+                  ></v-text-field>
                 </v-flex>
                 <v-flex xs4 class="px-5">
                   <v-autocomplete
@@ -142,7 +153,7 @@
                 </v-flex>
                 <v-flex xs4 class="px-5" v-if="Referencia && EsTrabEmpresa">
                   <v-autocomplete
-                    v-model="trabajador"
+                    v-model="trabajador.nombre_Referencia"
                     item-text="nombre_Completo"
                     :items="trabajadores"
                     :filter="activeFilter"
@@ -289,7 +300,7 @@
                       </v-layout>
                     </v-layout>
                     <v-layout class="pa-2">
-                      <v-toolbar-items>Otros Datos de Interes: {{trabajador.resumen}}</v-toolbar-items>
+                      <v-toolbar-items>Otros Datos de Interes: {{trabajador.otrasCaracteristicas}}</v-toolbar-items>
                     </v-layout>
                   </v-card>
                 </v-col>
@@ -498,8 +509,8 @@ export default {
     trabajadores: [],
     trabajadoresBolsa: [],
     trabajador: {
-      colordeOjos: 0,
-      colordePiel: 0,
+      colorDeOjos: 0,
+      colorDePiel: 0,
       tallaDeCamisa: 0,
       nombre_Referencia: ""
     },
@@ -531,6 +542,13 @@ export default {
       unidadOrganizativaId: "",
       cargoId: ""
     },
+    ciRules: [
+        v => !!v || 'El CI es Requerido',
+        v => (v && v.length <= 10) || 'El CI tiene 11 Caracteres',
+      ],
+      emailRules: [
+        v => /.+@.+\..+/.test(v) || 'El correo debe ser válido',
+      ],
     errors: [],
     headers: [
       {
@@ -543,7 +561,7 @@ export default {
       { text: "Dirección", value: "direccion" },
       { text: "Perfil Ocupacional", value: "perfil_Ocupacional" },
       { text: "Referencia", value: "referencia" },
-      { text: "Tiempo en la Bolsa", value: "tiempo_bolsa" },
+      { text: "Tiempo en la Bolsa", value: "tiempo_Bolsa" },
       { text: "Acciones", value: "action", sortable: false }
     ],
     funciones: [
@@ -765,6 +783,7 @@ export default {
             cargoId: ""
           };
           this.dialog5 = false;
+          this.getTrabajadoresBolsa();
           this.getTrabajadoresFromApi();
         },
         error => {
@@ -783,6 +802,7 @@ export default {
         this.axios.post(url, this.trabajador).then(
           response => {
             this.getResponse(response);
+            this.getTrabajadoresBolsa();
             this.dialog = false;
           },
           error => {
@@ -822,6 +842,7 @@ export default {
       if (response.status === 200 || response.status === 201) {
         vm.$snotify.success("Exito al realizar la operación");
         this.getTrabajadoresFromApi();
+        this.getTrabajadoresBolsa();
         this.trabajador = [];
       }
     },
@@ -839,6 +860,7 @@ export default {
         Nombre_Referencia: ""
       };
       this.getTrabajadoresFromApi();
+      this.getTrabajadoresBolsa();
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);

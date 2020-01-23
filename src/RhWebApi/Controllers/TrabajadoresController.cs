@@ -19,7 +19,7 @@ namespace RhWebApi.Controllers {
         // GET recursos_humanos/trabajadores
         [HttpGet]
         public IActionResult GetAll () {
-            var trabajadores = context.Trabajador.Where (s => s.EstadoTrabajador != Estados.Baja s.Bolsa == false)
+            var trabajadores = context.Trabajador.Where (s => s.EstadoTrabajador != Estados.Baja || s.EstadoTrabajador !=Estados.Bolsa)
                 .Select (t => new {
                     Id = t.Id,
                         Nombre = t.Nombre,
@@ -99,7 +99,7 @@ namespace RhWebApi.Controllers {
         [HttpPost]
         public IActionResult POST ([FromBody] TrabajadorDto trabajadorDto) {
             if (ModelState.IsValid) {
-                if (context.Trabajador.Any (e => e.CI == trabajadorDto.CI)) {
+                if (context.Trabajador.Any (e => e.CI == trabajadorDto.CI )) {
                     return BadRequest ($"El trabajador ya está en el sistema");
                 } else {
                     var trabajador = new Trabajador () {
@@ -112,8 +112,7 @@ namespace RhWebApi.Controllers {
                         TelefonoMovil = trabajadorDto.TelefonoMovil,
                         TelefonoFijo = trabajadorDto.TelefonoFijo,
                         EstadoTrabajador = Estados.Bolsa,
-                        Perfil_Ocupacional = trabajadorDto.Perfil_Ocupacional,
-
+                        Perfil_Ocupacional = trabajadorDto.Perfil_Ocupacional
                     };
                     context.Trabajador.Add (trabajador);
                     context.SaveChanges ();
@@ -124,7 +123,7 @@ namespace RhWebApi.Controllers {
                         TallaDeCamisa = trabajadorDto.TallaDeCamisa,
                         TallaPantalon = trabajadorDto.TallaPantalon,
                         TallaCalzado = trabajadorDto.TallaCalzado,
-                        OtrasCaracteristicas = trabajadorDto.OtrasCaracteristicas,
+                        OtrasCaracteristicas = trabajadorDto.OtrasCaracteristicas
                     };
 
                     context.CaracteristicasTrab.Add (caracteristicas);
@@ -264,48 +263,25 @@ namespace RhWebApi.Controllers {
                         Apellidos = t.Trabajador.Apellidos,
                         Nombre_Completo = t.Trabajador.Nombre + " " + t.Trabajador.Apellidos,
                         CI = t.Trabajador.CI,
-                        // Sexo = t.Sexo.ToString (),
-                        // TelefonoFijo = t.TelefonoFijo,
-                        // TelefonoMovil = t.TelefonoMovil,
-                        // Direccion = t.Direccion,
-                        // NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
-                        // Perfil_Ocupacional = t.Perfil_Ocupacional,
-                        // MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
-                        // Correo = t.Correo,
-                        // ColorDePiel = t.CaracteristicasTrab.ColorDePiel.ToString (),
-                        // ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos.ToString (),
-                        // TallaPantalon = t.CaracteristicasTrab.TallaPantalon,
-                        // TallaCalzado = t.CaracteristicasTrab.TallaCalzado.ToString (),
-                        // TallaDeCamisa = t.CaracteristicasTrab.TallaDeCamisa.ToString (),
-                        // OtrasCaracteristicas = t.CaracteristicasTrab.OtrasCaracteristicas,
-                        // Resumen = t.CaracteristicasTrab.Resumen,
-                        // Foto = t.CaracteristicasTrab.Foto,
-                        recomendado = t.Nombre_Referencia
+                        Sexo = t.Trabajador.Sexo.ToString (),
+                        TelefonoFijo = t.Trabajador.TelefonoFijo,
+                        TelefonoMovil = t.Trabajador.TelefonoMovil,
+                        Direccion = t.Trabajador.Direccion,
+                        NivelDeEscolaridad = t.Trabajador.NivelDeEscolaridad.ToString (),
+                        Perfil_Ocupacional = t.Trabajador.Perfil_Ocupacional,
+                        MunicipioProv = t.Trabajador.Municipio.Nombre + " " + t.Trabajador.Municipio.Provincia.Nombre,
+                        Correo = t.Trabajador.Correo,
+                        ColorDePiel = t.Trabajador.CaracteristicasTrab.ColorDePiel.ToString (),
+                        ColorDeOjos = t.Trabajador.CaracteristicasTrab.ColorDeOjos.ToString (),
+                        TallaPantalon = t.Trabajador.CaracteristicasTrab.TallaPantalon,
+                        TallaCalzado = t.Trabajador.CaracteristicasTrab.TallaCalzado.ToString (),
+                        TallaDeCamisa = t.Trabajador.CaracteristicasTrab.TallaDeCamisa.ToString (),
+                        OtrasCaracteristicas = t.Trabajador.CaracteristicasTrab.OtrasCaracteristicas,
+                        Resumen = t.Trabajador.CaracteristicasTrab.Resumen,
+                        Foto = t.Trabajador.CaracteristicasTrab.Foto,
+                        Referencia = t.Nombre_Referencia,
+                        Tiempo_Bolsa= DateTime.Now - t.Fecha
                 });
-            // var trabajadores = context.Trabajador.Where (s => s.Bolsa)
-            //     .Select (t => new {
-            //         Id = t.Id,
-            //             Nombre = t.Nombre,
-            //             Apellidos = t.Apellidos,
-            //             Nombre_Completo = t.Nombre + " " + t.Apellidos,
-            //             CI = t.CI,
-            //             Sexo = t.Sexo.ToString (),
-            //             TelefonoFijo = t.TelefonoFijo,
-            //             TelefonoMovil = t.TelefonoMovil,
-            //             Direccion = t.Direccion,
-            //             NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
-            //             Perfil_Ocupacional = t.Perfil_Ocupacional,
-            //             MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
-            //             Correo = t.Correo,
-            //             ColorDePiel = t.CaracteristicasTrab.ColorDePiel.ToString (),
-            //             ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos.ToString (),
-            //             TallaPantalon = t.CaracteristicasTrab.TallaPantalon,
-            //             TallaCalzado = t.CaracteristicasTrab.TallaCalzado.ToString (),
-            //             TallaDeCamisa = t.CaracteristicasTrab.TallaDeCamisa.ToString (),
-            //             OtrasCaracteristicas = t.CaracteristicasTrab.OtrasCaracteristicas,
-            //             Resumen = t.CaracteristicasTrab.Resumen,
-            //             Foto = t.CaracteristicasTrab.Foto,
-            //     });
 
             if (trab == null) {
                 return NotFound ();

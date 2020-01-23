@@ -81,7 +81,6 @@ namespace RhWebApi.Controllers {
                     puesto.PlantillaOcupada++;
                     trabajador.PuestoDeTrabajoId = puesto.Id;
                     trabajador.EstadoTrabajador = Estados.Activo;
-                    trabajador.Bolsa = false;
                     context.Entry (trabajador).State = EntityState.Modified;
 
                     var historico = new HistoricoPuestoDeTrabajo () {
