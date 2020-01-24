@@ -207,12 +207,20 @@
                       <v-list-item two-line>
                         <v-list-item-content>
                           <v-list-item-title>
-                            <strong>El Trabajador es recomendado por</strong>
+                            <strong>El Trabajador es recomendado por :</strong>
                           </v-list-item-title>
                           <v-list-item-subtitle>- {{trabajador.nombre}}</v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
                     </v-layout>
+                      <v-list-item two-line>
+                        <v-list-item-content>
+                          <v-list-item-title>
+                            <strong>El Trabajador es ingresó a la Bolsa : </strong>
+                          </v-list-item-title>
+                          <v-list-item-subtitle>- {{trabajador.fecha_Entrada}}</v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
                     <v-layout class="pa-2">
                       <v-list-item two-line>
                         <v-list-item-content>
@@ -561,7 +569,7 @@ export default {
       { text: "Dirección", value: "direccion" },
       { text: "Perfil Ocupacional", value: "perfil_Ocupacional" },
       { text: "Referencia", value: "referencia" },
-      { text: "Tiempo en la Bolsa", value: "tiempo_Bolsa" },
+      { text: "Días en la Bolsa", value: "tiempo_Bolsa" },
       { text: "Acciones", value: "action", sortable: false }
     ],
     funciones: [

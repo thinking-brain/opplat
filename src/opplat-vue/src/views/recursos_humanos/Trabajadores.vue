@@ -139,154 +139,6 @@
           clearable
         ></v-text-field>
         <v-spacer></v-spacer>
-        <!-- Agregar Trabajador -->
-        <v-dialog v-model="dialog" persistent max-width="900px">
-          <!-- <template v-slot:activator="{ on }">
-            <v-btn color="primary" dark v-on="on">Agregar Trabajador</v-btn>
-          </template>-->
-          <v-card>
-            <v-toolbar dark fadeOnScroll color="blue darken-3">
-              <v-flex xs12 sm10 md6 lg4>{{ formTitle }}</v-flex>
-              <v-spacer></v-spacer>
-              <v-toolbar-items>
-                <v-btn icon dark @click=" close()">
-                  <v-icon>mdi-close</v-icon>
-                </v-btn>
-              </v-toolbar-items>
-            </v-toolbar>
-            <v-container grid-list-md text-xs-center>
-              <v-layout row wrap v-if="editedIndex === -1">
-                <v-flex xs6 class="px-5">
-                  <v-text-field label="Nombre" required v-model="trabajador.nombre"></v-text-field>
-                </v-flex>
-                <v-flex xs6 class="px-5">
-                  <v-text-field label="Apellidos" required v-model="trabajador.apellidos"></v-text-field>
-                </v-flex>
-                <v-flex xs6 class="px-5">
-                  <v-text-field label="Carnet de Identidad" required v-model="trabajador.ci"></v-text-field>
-                </v-flex>
-                <v-flex xs6 class="px-5">
-                  <v-autocomplete
-                    v-model="trabajador.sexo"
-                    item-text="nombre"
-                    :items="sexos"
-                    :filter="activeFilter"
-                    cache-items
-                    clearable
-                    label="Sexo"
-                  ></v-autocomplete>
-                </v-flex>
-                <v-flex xs12 class="pa-5">
-                  <v-text-field label="Dirección" v-model="trabajador.direccion"></v-text-field>
-                </v-flex>
-              </v-layout>
-              <v-layout row wrap v-else>
-                <v-flex xs6 class="px-5">
-                  <v-text-field label="Nombre" required v-model="trabajador.nombre" disabled></v-text-field>
-                </v-flex>
-                <v-flex xs6 class="px-5">
-                  <v-text-field label="Apellidos" required v-model="trabajador.apellidos" disabled></v-text-field>
-                </v-flex>
-                <v-flex xs6 class="px-5">
-                  <v-text-field
-                    label="Carnet de Identidad"
-                    required
-                    v-model="trabajador.ci"
-                    disabled
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs6 class="px-5">
-                  <v-text-field label="Sexo" required v-model="trabajador.sexo" disabled></v-text-field>
-                </v-flex>
-                <v-flex xs12 class="px-5">
-                  <v-text-field label="Dirección" v-model="trabajador.direccion" disabled></v-text-field>
-                </v-flex>
-              </v-layout>
-              <v-layout row wrap>
-                <v-flex xs4 class="px-5">
-                  <v-autocomplete
-                    v-model="trabajador.nivelDeEscolaridad"
-                    item-text="nombre"
-                    :items="nivelesEscolaridad"
-                    :filter="activeFilter"
-                    cache-items
-                    clearable
-                    label="Nivel de Escolaridad"
-                  ></v-autocomplete>
-                </v-flex>
-                <v-flex xs4 class="px-5">
-                  <v-text-field label="Teléfono Móvil" v-model="trabajador.telefonoMovil"></v-text-field>
-                </v-flex>
-                <v-flex xs4 class="px-5">
-                  <v-text-field label="Teléfono Fijo" v-model="trabajador.telefonoFijo"></v-text-field>
-                </v-flex>
-              </v-layout>
-              <v-layout row wrap>
-                <v-flex xs4 class="px-5">
-                  <v-text-field label="Correo" v-model="trabajador.correo"></v-text-field>
-                </v-flex>
-                <v-flex xs4 class="px-5">
-                  <v-autocomplete
-                    v-model="trabajador.colorDeOjos"
-                    item-text="nombre"
-                    item-value="id"
-                    :items="coloresdeOjos"
-                    :filter="activeFilter"
-                    cache-items
-                    clearable
-                    label="Color de Ojos"
-                  ></v-autocomplete>
-                </v-flex>
-                <v-flex xs4 class="px-5">
-                  <v-autocomplete
-                    v-model="trabajador.colorDePiel"
-                    item-text="nombre"
-                    item-value="id"
-                    :items="coloresdePiel"
-                    :filter="activeFilter"
-                    cache-items
-                    clearable
-                    label="Color de Piel"
-                  ></v-autocomplete>
-                </v-flex>
-              </v-layout>
-              <v-layout row wrap>
-                <v-flex xs4 class="px-5">
-                  <v-text-field v-model="trabajador.tallaCalzado" label="Talla de Calzado"></v-text-field>
-                </v-flex>
-                <v-flex xs4 class="px-5">
-                  <v-autocomplete
-                    v-model="trabajador.tallaDeCamisa"
-                    item-text="nombre"
-                    :items="tallasDeCamisas"
-                    :filter="activeFilter"
-                    cache-items
-                    clearable
-                    label="Talla de Camisa"
-                  ></v-autocomplete>
-                </v-flex>
-                <v-flex xs4 class="px-5">
-                  <v-text-field label="Talla de Pantalon" v-model="trabajador.tallaPantalon"></v-text-field>
-                </v-flex>
-              </v-layout>
-              <v-flex x12 class="px-5">
-                <v-textarea
-                  solo
-                  name="input-7-4"
-                  label="Otras Características"
-                  v-model="trabajador.otrasCaracteristicas"
-                ></v-textarea>
-              </v-flex>
-            </v-container>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="green darken-1" text @click="save(method)">Aceptar</v-btn>
-              <v-btn color="blue darken-1" text @click=" close()">Cancelar</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-        <!-- /Agregar Trabajador -->
-
         <!-- Detalles del Trabajador -->
         <v-dialog v-model="dialog3" persistent transition="dialog-bottom-transition" flat>
           <v-card>
@@ -302,7 +154,7 @@
 
             <v-container fluid>
               <v-row dense>
-                <v-col cols="8">
+                <v-col cols="6">
                   <v-card flat>
                     <v-layout justify-center>
                       <v-layout class="pa-2">
@@ -365,7 +217,7 @@
                   </v-card>
                 </v-col>
 
-                <v-col cols="4">
+                <v-col cols="6">
                   <v-card color="blue darken-3" dark>
                     <v-list-item>
                       <v-layout column align-center xs12 sm10 md6 lg4>
@@ -421,6 +273,13 @@
                       <v-layout class="pa-2">
                         <v-list-item-content>
                           <v-toolbar-items>Nivel de Escolaridad: {{trabajador.nivelDeEscolaridad}}</v-toolbar-items>
+                        </v-list-item-content>
+                      </v-layout>
+                    </v-layout>
+                    <v-layout>
+                      <v-layout class="pa-2">
+                        <v-list-item-content>
+                          <v-toolbar-items>Perfil Ocupacional: {{trabajador.perfil_Ocupacional}}</v-toolbar-items>
                         </v-list-item-content>
                       </v-layout>
                     </v-layout>

@@ -19,7 +19,7 @@ namespace RhWebApi.Controllers {
         // GET recursos_humanos/trabajadores
         [HttpGet]
         public IActionResult GetAll () {
-            var trabajadores = context.Trabajador.Where (s => s.EstadoTrabajador != Estados.Baja || s.EstadoTrabajador !=Estados.Bolsa)
+            var trabajadores = context.Trabajador.Where (s => s.EstadoTrabajador != Estados.Baja || s.EstadoTrabajador != Estados.Bolsa)
                 .Select (t => new {
                     Id = t.Id,
                         Nombre = t.Nombre,
@@ -99,7 +99,7 @@ namespace RhWebApi.Controllers {
         [HttpPost]
         public IActionResult POST ([FromBody] TrabajadorDto trabajadorDto) {
             if (ModelState.IsValid) {
-                if (context.Trabajador.Any (e => e.CI == trabajadorDto.CI )) {
+                if (context.Trabajador.Any (e => e.CI == trabajadorDto.CI)) {
                     return BadRequest ($"El trabajador ya está en el sistema");
                 } else {
                     var trabajador = new Trabajador () {
@@ -280,7 +280,8 @@ namespace RhWebApi.Controllers {
                         Resumen = t.Trabajador.CaracteristicasTrab.Resumen,
                         Foto = t.Trabajador.CaracteristicasTrab.Foto,
                         Referencia = t.Nombre_Referencia,
-                        Tiempo_Bolsa= DateTime.Now - t.Fecha
+                        Fecha_Entrada = t.Fecha,
+                        Tiempo_Bolsa = (DateTime.Now - t.Fecha).Days,
                 });
 
             if (trab == null) {
