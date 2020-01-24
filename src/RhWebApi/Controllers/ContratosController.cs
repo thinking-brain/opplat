@@ -46,7 +46,7 @@ namespace RhWebApi.Controllers {
             return BadRequest (ModelState);
         }
 
-        // PUT recursos_humanos/areas/id
+        // PUT recursos_humanos/contrato/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] Contrato contrato, int id) {
             if (contrato.Id != id) {
@@ -58,7 +58,7 @@ namespace RhWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE recursos_humanos/areas/id
+        // DELETE recursos_humanos/contrato/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var contrato = context.Contrato.FirstOrDefault (s => s.Id == id);

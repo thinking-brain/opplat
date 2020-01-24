@@ -23,7 +23,7 @@ namespace RhWebApi.Models {
 
         public TallaDeCamisa TallaDeCamisa { get; set; }
 
-        public double TallaCalzado { get; set; }
+        public double? TallaCalzado { get; set; }
 
         public string OtrasCaracteristicas { get; set; }
 
@@ -32,7 +32,7 @@ namespace RhWebApi.Models {
 
         [NotMapped]
         public string Resumen {
-            get { return String.Format ("TallaPantalon {0} , TallaCalzado {1} , OtrasCaracteristicas{2}", TallaPantalon, TallaCalzado, OtrasCaracteristicas); }
+            get { return String.Format ("Talla Pantalon: {0} , Talla Camisa: {1}, Talla Calzado: {2} , Otras Caracteristicas: {3}", TallaPantalon, TallaDeCamisa, TallaCalzado, OtrasCaracteristicas); }
             set { resumen = value; }
         }
     }

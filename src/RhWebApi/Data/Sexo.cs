@@ -9,6 +9,7 @@ namespace RhWebApi.Data
 {
     public enum Sexo
     {
+        Sin_Definir,
         M,
         F,
     }
