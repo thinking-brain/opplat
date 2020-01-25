@@ -31,6 +31,7 @@ using ImportadorDatos.Jobs;
 using ImportadorDatos.HostedServices;
 using Microsoft.Extensions.Logging;
 using RhWebApi.Data;
+using Microsoft.OpenApi.Models;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -76,8 +77,8 @@ namespace opplatApplication
             services.AddDbContext<EnlaceVersatDbContext>(options =>
                  options.UseNpgsql(context.Configuration.GetConnectionString("EnlaceVersatDbContext")));
 
-                 services.AddDbContext<RhWebApiDbContext>(options =>
-                options.UseNpgsql(context.Configuration.GetConnectionString("RhWebApiDbContext"), b => b.MigrationsAssembly("RhWebApi")));
+            services.AddDbContext<RhWebApiDbContext>(options =>
+           options.UseNpgsql(context.Configuration.GetConnectionString("RhWebApiDbContext"), b => b.MigrationsAssembly("RhWebApi")));
 
             services.AddSignalR();
 
@@ -107,17 +108,17 @@ namespace opplatApplication
 
             services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v1", new Info
+                    c.SwaggerDoc("v1", new OpenApiInfo
                     {
                         Version = "v1",
                         Title = "Account API",
                         Description = "Gestiona la autenticacion y autorizacion, asi como la gestion de usuarios.",
-                        TermsOfService = "APACHE 2.0",
-                        Contact = new Contact
+                        TermsOfService = new Uri("APACHE 2.0"),
+                        Contact = new OpenApiContact
                         {
                             Name = "EFAVAI Tech",
                             Email = "efavai.tech@gmail.com",
-                            Url = "https://efavai.com/"
+                            Url = new Uri("https://efavai.com/")
                         }
                     });
 
@@ -177,7 +178,7 @@ namespace opplatApplication
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<IConfiguration>();
             var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
-            
+
             loggerFactory.AddFile("Logs/Log-{Date}.txt");
 
             app.UseAuthentication();
