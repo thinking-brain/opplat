@@ -108,6 +108,7 @@ namespace RhWebApi.Controllers {
                         CI = trabajadorDto.CI,
                         Sexo = trabajadorDto.Sexo,
                         Direccion = trabajadorDto.Direccion,
+                        Correo = trabajadorDto.Correo,
                         NivelDeEscolaridad = trabajadorDto.NivelDeEscolaridad,
                         TelefonoMovil = trabajadorDto.TelefonoMovil,
                         TelefonoFijo = trabajadorDto.TelefonoFijo,
@@ -144,46 +145,66 @@ namespace RhWebApi.Controllers {
 
         // PUT recursos_humanos/trabajadores/id
         [HttpPut ("{id}")]
-        public async Task<IActionResult> PUT ([FromBody] TrabajadorDto trabajadorDto, int id) {
+        public IActionResult PUT ([FromBody] TrabajadorDto trabajadorDto, int id) {
 
-            if (!ModelState.IsValid) {
-                return BadRequest (ModelState);
-            }
+            if (ModelState.IsValid) {
+                var t = context.Trabajador.Find (id);
+                if (t != null) {
+                    t.Nombre = trabajadorDto.Nombre;
+                    t.Apellidos = trabajadorDto.Apellidos;
+                    t.CI = trabajadorDto.CI;
+                    t.Sexo = trabajadorDto.Sexo;
+                    t.Direccion = trabajadorDto.Direccion;
+                    t.Correo = trabajadorDto.Correo;
+                    t.MunicipioId = trabajadorDto.MunicipioId;
+                    t.Perfil_Ocupacional = trabajadorDto.Perfil_Ocupacional;
+                    t.NivelDeEscolaridad = trabajadorDto.NivelDeEscolaridad;
+                    t.TelefonoMovil = trabajadorDto.TelefonoMovil;
+                    t.TelefonoFijo = trabajadorDto.TelefonoFijo;
+                    context.Update (t);
+                    context.SaveChanges ();
 
-            if (id != trabajadorDto.Id) {
-                return BadRequest ();
-            } else if (TrabajadorExists (id)) {
-                var trab = await context.Trabajador.FindAsync (id);
-                trab.Nombre = trabajadorDto.Nombre;
-                trab.Apellidos = trabajadorDto.Apellidos;
-                trab.CI = trabajadorDto.CI;
-                trab.Sexo = trabajadorDto.Sexo;
-                trab.Direccion = trabajadorDto.Direccion;
-                trab.MunicipioId = trabajadorDto.MunicipioId;
-                trab.Perfil_Ocupacional = trabajadorDto.Perfil_Ocupacional;
-                trab.NivelDeEscolaridad = trabajadorDto.NivelDeEscolaridad;
-                trab.TelefonoMovil = trabajadorDto.TelefonoMovil;
-                trab.TelefonoFijo = trabajadorDto.TelefonoFijo;
-                trab.CaracteristicasTrab.ColorDeOjos = trabajadorDto.ColorDeOjos;
-                trab.CaracteristicasTrab.ColorDePiel = trabajadorDto.ColorDePiel;
-                trab.CaracteristicasTrab.TallaDeCamisa = trabajadorDto.TallaDeCamisa;
-                trab.CaracteristicasTrab.TallaPantalon = trabajadorDto.TallaPantalon;
-                trab.CaracteristicasTrab.TallaCalzado = trabajadorDto.TallaCalzado;
-                trab.CaracteristicasTrab.OtrasCaracteristicas = trabajadorDto.OtrasCaracteristicas;
-                context.Entry (trab).State = EntityState.Modified;
-                context.SaveChanges ();
-                return Ok ();
-            }
-            try {
-                await context.SaveChangesAsync ();
-            } catch (DbUpdateConcurrencyException) {
-                if (!TrabajadorExists (id)) {
-                    return NotFound ();
-                } else {
-                    throw;
+                    var caractTrab = context.CaracteristicasTrab.SingleOrDefault (c => c.TrabajadorId == id);
+                    if (caractTrab != null) {
+                        caractTrab.Foto = trabajadorDto.Foto;
+                        caractTrab.ColorDeOjos = trabajadorDto.ColorDeOjos;
+                        caractTrab.ColorDePiel = trabajadorDto.ColorDePiel;
+                        caractTrab.TallaDeCamisa = trabajadorDto.TallaDeCamisa;
+                        caractTrab.TallaPantalon = trabajadorDto.TallaPantalon;
+                        caractTrab.TallaCalzado = trabajadorDto.TallaCalzado;
+                        caractTrab.OtrasCaracteristicas = trabajadorDto.OtrasCaracteristicas;
+                        context.Update (caractTrab);
+
+                        var trabBolsa = context.Bolsa.SingleOrDefault (c => c.TrabajadorId == id);
+                        trabBolsa.Nombre_Referencia = trabajadorDto.Nombre_Referencia;
+                        context.Update (trabBolsa);
+                        context.SaveChanges ();
+                        return Ok ();
+                    } else {
+                        var caracteristicas = new CaracteristicasTrab () {
+                            TrabajadorId = trabajadorDto.Id,
+                            ColorDeOjos = trabajadorDto.ColorDeOjos,
+                            ColorDePiel = trabajadorDto.ColorDePiel,
+                            TallaDeCamisa = trabajadorDto.TallaDeCamisa,
+                            TallaPantalon = trabajadorDto.TallaPantalon,
+                            TallaCalzado = trabajadorDto.TallaCalzado,
+                            OtrasCaracteristicas = trabajadorDto.OtrasCaracteristicas
+                        };
+                        context.CaracteristicasTrab.Add (caracteristicas);
+
+                        var trabBolsa = new Bolsa () {
+                            TrabajadorId = trabajadorDto.Id,
+                            Fecha = DateTime.Now,
+                            Nombre_Referencia = trabajadorDto.Nombre_Referencia,
+                        };
+                        context.Bolsa.Add (trabBolsa);
+                        context.SaveChanges ();
+                        return Ok ();
+                    }
                 }
+                return NotFound ();
             }
-            return NoContent ();
+            return BadRequest (ModelState);
         }
 
         // DELETE recursos_humanos/trabajadores/id
@@ -241,9 +262,9 @@ namespace RhWebApi.Controllers {
             if (!string.IsNullOrEmpty (Estado)) {
                 trabajadores = trabajadores.Where (t => t.EstadoTrabajador.ToString ().Equals (Estado));
             }
-            // if (!string.IsNullOrEmpty (ColorDePiel)) {
-            //     trabajadores = trabajadores.Where (t => t.ColorDePiel.Equals (ColorDePiel.ToString ()));
-            // }
+            if (!string.IsNullOrEmpty (ColorDePiel)) {
+                trabajadores = trabajadores.Where (t => t.ColorDePiel.Equals (ColorDePiel.ToString ()));
+            }
             if (!string.IsNullOrEmpty (NivelDeEscolaridad)) {
                 trabajadores = trabajadores.Where (t => t.NivelDeEscolaridad.Equals (NivelDeEscolaridad.ToString ()));
             }
@@ -280,7 +301,7 @@ namespace RhWebApi.Controllers {
                         Resumen = t.Trabajador.CaracteristicasTrab.Resumen,
                         Foto = t.Trabajador.CaracteristicasTrab.Foto,
                         Referencia = t.Nombre_Referencia,
-                        Fecha_Entrada = t.Fecha,
+                        Fecha_Entrada = t.Fecha.ToString ("dd MMMM yyyy"),
                         Tiempo_Bolsa = (DateTime.Now - t.Fecha).Days,
                 });
 

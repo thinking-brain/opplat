@@ -135,7 +135,6 @@ namespace RhWebApi.Controllers {
         public IActionResult PUT ([FromBody] CaracteristicasTrab caractTrab, int id) {
             if (caractTrab.TrabajadorId != id) {
                 return BadRequest (ModelState);
-
             }
             context.Entry (caractTrab).State = EntityState.Modified;
             context.SaveChanges ();

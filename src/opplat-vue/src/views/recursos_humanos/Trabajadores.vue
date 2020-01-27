@@ -55,7 +55,7 @@
                       ></v-autocomplete>
                     </v-flex>
                     <v-flex xs12 sm6 md6>
-                      <v-autocomplete
+                      <v-select
                         v-model="sexo"
                         item-text="nombre"
                         :items="sexos"
@@ -64,10 +64,10 @@
                         clearable
                         label="Sexo"
                         prepend-icon="mdi-database-search"
-                      ></v-autocomplete>
+                      ></v-select>
                     </v-flex>
                     <v-flex xs12 sm6 md6>
-                      <v-autocomplete
+                      <v-select
                         v-model="colordePiel"
                         item-text="nombre"
                         :items="coloresdePiel"
@@ -76,10 +76,10 @@
                         clearable
                         label="Color de Piel"
                         prepend-icon="mdi-database-search"
-                      ></v-autocomplete>
+                      ></v-select>
                     </v-flex>
                     <v-flex xs12 sm6 md6>
-                      <v-autocomplete
+                      <v-select
                         v-model="nivelEscolaridad"
                         item-text="nombre"
                         :items="nivelesEscolaridad"
@@ -88,10 +88,10 @@
                         clearable
                         label="Nivel de Escolaridad"
                         prepend-icon="mdi-database-search"
-                      ></v-autocomplete>
+                      ></v-select>
                     </v-flex>
                     <v-flex xs12 sm6 md6>
-                      <v-autocomplete
+                      <v-select
                         v-model="estado"
                         item-text="nombre"
                         :items="estados"
@@ -100,7 +100,7 @@
                         clearable
                         label="Estado"
                         prepend-icon="mdi-database-search"
-                      ></v-autocomplete>
+                      ></v-select>
                     </v-flex>
                     <v-flex xs12 sm6 md6>
                       <v-text-field
@@ -139,6 +139,169 @@
           clearable
         ></v-text-field>
         <v-spacer></v-spacer>
+         <!-- Agregar y Editar Trabajador -->
+        <v-dialog v-model="dialog" persistent max-width="900px">
+          <template v-slot:activator="{ on }">
+            <v-btn color="primary" dark v-on="on">Agregar Trabajador</v-btn>
+          </template>
+          <v-card>
+            <v-toolbar dark fadeOnScroll color="blue darken-3">
+              <v-flex xs12 sm10 md6 lg4>{{ formTitle }}</v-flex>
+              <v-spacer></v-spacer>
+              <v-toolbar-items>
+                <v-btn icon dark @click=" close()">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+              </v-toolbar-items>
+            </v-toolbar>
+            <v-form ref="form" v-model="valid" lazy-validation>
+              <v-container grid-list-md text-xs-center>
+                <v-layout row wrap>
+                  <v-flex xs6 class="px-5">
+                    <v-text-field
+                      label="Nombre"
+                      v-model="trabajador.nombre"
+                      :rules="NombreRules"
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs6 class="px-5">
+                    <v-text-field
+                      label="Apellidos"
+                      v-model="trabajador.apellidos"
+                      :rules="ApellidosRules"
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs6 class="px-5">
+                    <v-text-field
+                      label="Carnet de Identidad"
+                      v-model="trabajador.ci"
+                      :counter="11"
+                      :rules="ciRules"
+                      required
+                    ></v-text-field>
+                    <span asp-validation-for="CI" class="text-danger"></span>
+                  </v-flex>
+                  <v-flex xs6 class="px-5">
+                    <v-select
+                      v-model="trabajador.sexo"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="sexos"
+                      label="Sexo"
+                    ></v-select>
+                  </v-flex>
+                  <v-flex xs12 class="pa-5">
+                    <v-text-field label="Dirección" v-model="trabajador.direccion"></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex xs4 class="px-5">
+                    <v-select
+                      v-model="trabajador.nivelDeEscolaridad"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nivelesEscolaridad"
+                      label="Nivel de Escolaridad"
+                    ></v-select>
+                  </v-flex>
+                  <v-flex xs4 class="px-5">
+                    <v-text-field
+                      label="Perfil Ocupacional"
+                      v-model="trabajador.perfil_Ocupacional"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 class="px-5">
+                    <v-text-field label="Teléfono Móvil" v-model="trabajador.telefonoMovil"></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex xs4 class="px-5">
+                    <v-text-field label="Teléfono Fijo" v-model="trabajador.telefonoFijo"></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 class="px-5">
+                    <v-text-field label="Correo" v-model="trabajador.correo" :rules="emailRules"></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 class="px-5">
+                    <v-select
+                      v-model="trabajador.colorDeOjos"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="coloresdeOjos"
+                      label="Color de Ojos"
+                    ></v-select>
+                  </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex xs4 class="px-5">
+                    <v-select
+                      v-model="trabajador.colorDePiel"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="coloresdePiel"
+                      label="Color de Piel"
+                    ></v-select>
+                  </v-flex>
+                  <v-flex xs4 class="px-5">
+                    <v-text-field v-model="trabajador.tallaCalzado" label="Talla de Calzado"></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 class="px-5">
+                    <v-select
+                      v-model="trabajador.tallaDeCamisa"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="tallasDeCamisas"
+                      label="Talla de Camisa"
+                    ></v-select>
+                  </v-flex>
+                  <v-flex xs4 class="px-5">
+                    <v-text-field label="Talla de Pantalon" v-model="trabajador.tallaPantalon"></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex xs4 class="px-5">
+                    <v-switch v-model="Referencia" :label="`Tiene Referencia`"></v-switch>
+                  </v-flex>
+                  <v-flex xs4 class="px-5" v-if="Referencia">
+                    <v-switch v-model="EsTrabEmpresa" :label="`Es Trabajador Suyo`"></v-switch>
+                  </v-flex>
+                  <v-flex xs4 class="px-5" v-if="Referencia && EsTrabEmpresa">
+                    <v-autocomplete
+                      v-model="trabajador.nombre_Referencia"
+                      item-text="nombre_Completo"
+                      :items="trabajadores"
+                      :filter="activeFilter"
+                      clearable
+                      label="Nombre de la Refencia"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs4 class="px-5" v-if="Referencia && !EsTrabEmpresa">
+                    <v-text-field
+                      label="Nombre de la Refencia"
+                      v-model="trabajador.nombre_Referencia"
+                    ></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-flex x12 class="px-5">
+                  <v-textarea
+                    solo
+                    name="input-7-4"
+                    label="Otras Características"
+                    v-model="trabajador.otrasCaracteristicas"
+                  ></v-textarea>
+                </v-flex>
+              </v-container>
+            </v-form>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="green darken-1" text @click="save(method)">Aceptar</v-btn>
+              <v-btn color="blue darken-1" text @click=" close()">Cancelar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <!-- /Agregar y Editar Trabajador -->
+
         <!-- Detalles del Trabajador -->
         <v-dialog v-model="dialog3" persistent transition="dialog-bottom-transition" flat>
           <v-card>
@@ -154,7 +317,7 @@
 
             <v-container fluid>
               <v-row dense>
-                <v-col cols="6">
+                <v-col cols="7">
                   <v-card flat>
                     <v-layout justify-center>
                       <v-layout class="pa-2">
@@ -217,7 +380,7 @@
                   </v-card>
                 </v-col>
 
-                <v-col cols="6">
+                <v-col cols="5">
                   <v-card color="blue darken-3" dark>
                     <v-list-item>
                       <v-layout column align-center xs12 sm10 md6 lg4>
@@ -235,70 +398,44 @@
                         </v-layout>
                       </v-layout>
                     </v-list-item>
-                    <v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item-content>
-                          <v-list-item-title>Carnet de Identidad: {{trabajador.ci}}</v-list-item-title>
-                        </v-list-item-content>
-                      </v-layout>
+                    <v-row dense>
+                      <v-col cols="7">
+                          <v-layout class="pa-2">
+                            <v-text>Carnet de Identidad: {{trabajador.ci}}</v-text>
+                          </v-layout>
+                        <v-layout class="pa-2">
+                          <v-text>Nivel de Escolaridad: {{trabajador.nivelDeEscolaridad}}</v-text>
+                        </v-layout>
+                         <v-layout class="pa-2">
+                          <v-text>Perfil Ocupacional: {{trabajador.perfil_Ocupacional}}</v-text>
+                        </v-layout>
+                         <v-layout class="pa-2">
+                          <v-text>Color de Ojos: {{trabajador.colorDeOjos}}</v-text>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-text>Correo: {{trabajador.correo}}</v-text>
+                        </v-layout>
+                      </v-col>
+                      <v-col cols="5">
+                        <v-layout class="pa-2">
+                          <v-text>Sexo: {{trabajador.sexo}}</v-text>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-text>Teléfono Fijo: {{trabajador.telefonoFijo}}</v-text>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-text>Teléfono Movil: {{trabajador.telefonoMovil}}</v-text>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-text>Color de Piel: {{trabajador.colorDePiel}}</v-text>
+                        </v-layout>
+                      </v-col>
+                    </v-row>
+                    <v-layout class="pa-2">
+                      <v-text>Direccion: {{trabajador.direccion}}</v-text>
                     </v-layout>
                     <v-layout class="pa-2">
-                      <v-toolbar-items class="text-capitalize">Direccion: {{trabajador.direccion}}</v-toolbar-items>
-                    </v-layout>
-                    <v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item-content>
-                          <v-list-item-title>Correo: {{trabajador.correo}}</v-list-item-title>
-                        </v-list-item-content>
-                      </v-layout>
-                      <v-list-item-content>
-                        <v-list-item-title>
-                          <v-toolbar-items>Sexo: {{trabajador.sexo}}</v-toolbar-items>
-                        </v-list-item-title>
-                      </v-list-item-content>
-                    </v-layout>
-                    <v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item-content>
-                          <v-list-item-title>Teléfono Fijo: {{trabajador.telefonoFijo}}</v-list-item-title>
-                        </v-list-item-content>
-                      </v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item-content>
-                          <v-list-item-title>Teléfono Movil: {{trabajador.telefonoMovil}}</v-list-item-title>
-                        </v-list-item-content>
-                      </v-layout>
-                    </v-layout>
-                    <v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item-content>
-                          <v-toolbar-items>Nivel de Escolaridad: {{trabajador.nivelDeEscolaridad}}</v-toolbar-items>
-                        </v-list-item-content>
-                      </v-layout>
-                    </v-layout>
-                    <v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item-content>
-                          <v-toolbar-items>Perfil Ocupacional: {{trabajador.perfil_Ocupacional}}</v-toolbar-items>
-                        </v-list-item-content>
-                      </v-layout>
-                    </v-layout>
-                    <v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item-content>
-                          <v-list-item-title>Color de Ojos: {{trabajador.colorDeOjos}}</v-list-item-title>
-                        </v-list-item-content>
-                      </v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            <v-toolbar-items>Color de Piel: {{trabajador.colorDePiel}}</v-toolbar-items>
-                          </v-list-item-title>
-                        </v-list-item-content>
-                      </v-layout>
-                    </v-layout>
-                    <v-layout class="pa-2">
-                      <v-toolbar-items>Otros Datos de Interes: {{trabajador.resumen}}</v-toolbar-items>
+                      <v-text>Otros Datos de Interes: {{trabajador.otrasCaracteristicas}}</v-text>
                     </v-layout>
                   </v-card>
                 </v-col>
@@ -600,10 +737,11 @@ export default {
     search: "",
     editedIndex: -1,
     trabajadores: [],
-    trabajador: {
-      colordeOjos: 0,
-      colordePiel: 0,
-      tallaDeCamisa: 0
+     trabajador: {
+      colorDeOjos: 0,
+      colorDePiel: 0,
+      tallaDeCamisa: 0,
+      nombre_Referencia: ""
     },
     unidadesOrganizativas: [],
     cargos: [],
@@ -669,7 +807,6 @@ export default {
         text: "Graduado de Nivel Medio Superior con entrenamiento en el puesto"
       }
     ],
-    editedIndex: -1
   }),
 
   computed: {
