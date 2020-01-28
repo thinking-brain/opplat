@@ -25,27 +25,31 @@ namespace RhWebApi.Controllers {
                         Nombre = t.Nombre,
                         Apellidos = t.Apellidos,
                         CI = t.CI,
-                        Sexo = t.Sexo.ToString (),
+                        Sexo = t.Sexo,
+                        SexoName = t.Sexo.ToString (),
                         TelefonoFijo = t.TelefonoFijo,
                         TelefonoMovil = t.TelefonoMovil,
                         Direccion = t.Direccion,
-                        NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
-                        //MunicipioId = t.MunicipioId,
+                        NivelDeEscolaridad = t.NivelDeEscolaridad,
+                        NivelDeEscolaridadName = t.NivelDeEscolaridad.ToString (),
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
-                        //CargoId = t.PuestoDeTrabajo.CargoId,
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                         UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
-                        EstadoTrabajador = t.EstadoTrabajador.ToString (),
+                        EstadoTrabajador = t.EstadoTrabajador,
+                        EstadoTrabajadorName = t.EstadoTrabajador.ToString (),
                         Correo = t.Correo,
                         Perfil_Ocupacional = t.Perfil_Ocupacional,
                         Nombre_Completo = t.Nombre + " " + t.Apellidos,
-                        ColorDePiel = t.CaracteristicasTrab.ColorDePiel.ToString (),
-                        ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos.ToString (),
+                        ColorDePiel = t.CaracteristicasTrab.ColorDePiel,
+                        ColorDePielName = t.CaracteristicasTrab.ColorDePiel.ToString (),
+                        ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos,
+                        ColorDeOjosName = t.CaracteristicasTrab.ColorDeOjos.ToString (),
                         TallaPantalon = t.CaracteristicasTrab.TallaPantalon,
-                        TallaCalzado = t.CaracteristicasTrab.TallaCalzado.ToString (),
-                        TallaDeCamisa = t.CaracteristicasTrab.TallaDeCamisa.ToString (),
+                        TallaCalzado = t.CaracteristicasTrab.TallaCalzado,
+                        TallaCalzadoName = t.CaracteristicasTrab.TallaCalzado.ToString (),
+                        TallaDeCamisa = t.CaracteristicasTrab.TallaDeCamisa,
+                        TallaDeCamisaName = t.CaracteristicasTrab.TallaDeCamisa.ToString (),
                         OtrasCaracteristicas = t.CaracteristicasTrab.OtrasCaracteristicas,
-                        Resumen = t.CaracteristicasTrab.Resumen,
                         Foto = t.CaracteristicasTrab.Foto,
                 });
 
@@ -95,6 +99,7 @@ namespace RhWebApi.Controllers {
             return Ok (trabajador);
         }
 
+        // POST recursos_humanos/trabajadores
         // POST recursos_humanos/trabajadores
         [HttpPost]
         public IActionResult POST ([FromBody] TrabajadorDto trabajadorDto) {
@@ -174,31 +179,34 @@ namespace RhWebApi.Controllers {
                         caractTrab.TallaCalzado = trabajadorDto.TallaCalzado;
                         caractTrab.OtrasCaracteristicas = trabajadorDto.OtrasCaracteristicas;
                         context.Update (caractTrab);
-
-                        var trabBolsa = context.Bolsa.SingleOrDefault (c => c.TrabajadorId == id);
-                        trabBolsa.Nombre_Referencia = trabajadorDto.Nombre_Referencia;
-                        context.Update (trabBolsa);
+                        if (t.EstadoTrabajador == Estados.Bolsa) {
+                            var trabBolsa = context.Bolsa.SingleOrDefault (c => c.TrabajadorId == id);
+                            trabBolsa.Nombre_Referencia = trabajadorDto.Nombre_Referencia;
+                            context.Update (trabBolsa);
+                            context.SaveChanges ();
+                        }
                         context.SaveChanges ();
-                        return Ok ();
                     } else {
                         var caracteristicas = new CaracteristicasTrab () {
                             TrabajadorId = trabajadorDto.Id,
+                            TallaPantalon = trabajadorDto.TallaPantalon,
+                            TallaCalzado = trabajadorDto.TallaCalzado,
                             ColorDeOjos = trabajadorDto.ColorDeOjos,
                             ColorDePiel = trabajadorDto.ColorDePiel,
                             TallaDeCamisa = trabajadorDto.TallaDeCamisa,
-                            TallaPantalon = trabajadorDto.TallaPantalon,
-                            TallaCalzado = trabajadorDto.TallaCalzado,
                             OtrasCaracteristicas = trabajadorDto.OtrasCaracteristicas
                         };
                         context.CaracteristicasTrab.Add (caracteristicas);
-
-                        var trabBolsa = new Bolsa () {
+                        context.SaveChanges ();
+                        if (t.EstadoTrabajador == Estados.Bolsa) {
+                            var trabBolsa = new Bolsa () {
                             TrabajadorId = trabajadorDto.Id,
                             Fecha = DateTime.Now,
                             Nombre_Referencia = trabajadorDto.Nombre_Referencia,
-                        };
-                        context.Bolsa.Add (trabBolsa);
-                        context.SaveChanges ();
+                            };
+                            context.Bolsa.Add (trabBolsa);
+                            context.SaveChanges ();
+                        }
                         return Ok ();
                     }
                 }
@@ -284,25 +292,30 @@ namespace RhWebApi.Controllers {
                         Apellidos = t.Trabajador.Apellidos,
                         Nombre_Completo = t.Trabajador.Nombre + " " + t.Trabajador.Apellidos,
                         CI = t.Trabajador.CI,
-                        Sexo = t.Trabajador.Sexo.ToString (),
+                        Sexo = t.Trabajador.Sexo,
+                        SexoName = t.Trabajador.Sexo.ToString (),
                         TelefonoFijo = t.Trabajador.TelefonoFijo,
                         TelefonoMovil = t.Trabajador.TelefonoMovil,
                         Direccion = t.Trabajador.Direccion,
-                        NivelDeEscolaridad = t.Trabajador.NivelDeEscolaridad.ToString (),
+                        NivelDeEscolaridad = t.Trabajador.NivelDeEscolaridad,
+                        NivelDeEscolaridadName = t.Trabajador.NivelDeEscolaridad.ToString (),
                         Perfil_Ocupacional = t.Trabajador.Perfil_Ocupacional,
                         MunicipioProv = t.Trabajador.Municipio.Nombre + " " + t.Trabajador.Municipio.Provincia.Nombre,
                         Correo = t.Trabajador.Correo,
-                        ColorDePiel = t.Trabajador.CaracteristicasTrab.ColorDePiel.ToString (),
-                        ColorDeOjos = t.Trabajador.CaracteristicasTrab.ColorDeOjos.ToString (),
+                        ColorDePiel = t.Trabajador.CaracteristicasTrab.ColorDePiel,
+                        ColorDePielName = t.Trabajador.CaracteristicasTrab.ColorDePiel.ToString (),
+                        ColorDeOjos = t.Trabajador.CaracteristicasTrab.ColorDeOjos,
+                        ColorDeOjosName = t.Trabajador.CaracteristicasTrab.ColorDeOjos.ToString (),
                         TallaPantalon = t.Trabajador.CaracteristicasTrab.TallaPantalon,
-                        TallaCalzado = t.Trabajador.CaracteristicasTrab.TallaCalzado.ToString (),
-                        TallaDeCamisa = t.Trabajador.CaracteristicasTrab.TallaDeCamisa.ToString (),
+                        TallaCalzado = t.Trabajador.CaracteristicasTrab.TallaCalzado,
+                        TallaCalzadoName = t.Trabajador.CaracteristicasTrab.TallaCalzado.ToString (),
+                        TallaDeCamisa = t.Trabajador.CaracteristicasTrab.TallaDeCamisa,
+                        TallaDeCamisaName = t.Trabajador.CaracteristicasTrab.TallaDeCamisa.ToString (),
                         OtrasCaracteristicas = t.Trabajador.CaracteristicasTrab.OtrasCaracteristicas,
-                        Resumen = t.Trabajador.CaracteristicasTrab.Resumen,
                         Foto = t.Trabajador.CaracteristicasTrab.Foto,
                         Referencia = t.Nombre_Referencia,
                         Fecha_Entrada = t.Fecha.ToString ("dd MMMM yyyy"),
-                        Tiempo_Bolsa = (DateTime.Now - t.Fecha).Days,
+                        Tiempo_Bolsa = (DateTime.Now - t.Fecha).Days + " Días",
                 });
 
             if (trab == null) {

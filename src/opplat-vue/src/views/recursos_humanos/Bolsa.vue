@@ -16,7 +16,7 @@
         <v-spacer></v-spacer>
 
         <!-- Agregar y Editar Trabajador -->
-        <v-dialog v-model="dialog" persistent max-width="900px">
+        <v-dialog v-model="dialog" persistent max-width="1000px">
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark v-on="on">Agregar Trabajador</v-btn>
           </template>
@@ -60,14 +60,6 @@
                     <span asp-validation-for="CI" class="text-danger"></span>
                   </v-flex>
                   <v-flex xs6 class="px-5">
-                    <v-select
-                      v-model="trabajador.sexo"
-                      :items="sexos"
-                      item-text="nombre"
-                      item-value="id"
-                      label="Sexo de Prueba"
-                      :hint="`${trabajador.sexo}`"
-                    ></v-select>
                     <v-select
                       v-model="trabajador.sexo"
                       :items="sexos"
@@ -153,7 +145,7 @@
                   </v-flex>
                   <v-flex xs4 class="px-5" v-if="Referencia && EsTrabEmpresa">
                     <v-autocomplete
-                      v-model="trabajador.nombre_Referencia"
+                      v-model="trabajador.referencia"
                       item-text="nombre_Completo"
                       :items="trabajadoresReferencia"
                       :filter="activeFilter"
@@ -164,7 +156,7 @@
                   <v-flex xs4 class="px-5" v-if="Referencia && !EsTrabEmpresa">
                     <v-text-field
                       label="Nombre de la Refencia"
-                      v-model="trabajador.nombre_Referencia"
+                      v-model="trabajador.referencia"
                     ></v-text-field>
                   </v-flex>
                 </v-layout>
@@ -203,35 +195,23 @@
               <v-row dense>
                 <v-col cols="7">
                   <v-card flat>
-                    <v-layout class="pa-2">
-                      <v-list-item two-line>
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            <strong>Su perfil Ocupacional es :</strong>
-                            {{trabajador.perfil_Ocupacional}}
-                          </v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
+                    <v-layout>
+                      <v-text>
+                        <strong>Su perfil Ocupacional es :</strong>
+                        {{trabajador.perfil_Ocupacional}}
+                      </v-text>
                     </v-layout>
-                    <v-layout class="pa-2">
-                      <v-list-item two-line>
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            <strong>Ingresó a la Bolsa el :</strong>
-                            {{trabajador.fecha_Entrada}}
-                          </v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
+                    <v-layout>
+                      <v-text>
+                        <strong>Ingresó a la Bolsa el :</strong>
+                        {{trabajador.fecha_Entrada}}
+                      </v-text>
                     </v-layout>
-                    <v-layout class="pa-2" v-if="trabajador.referencia!=''">
-                      <v-list-item two-line>
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            <strong>Es recomendado por :</strong>
-                            {{trabajador.referencia}}
-                          </v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
+                    <v-layout v-if="trabajador.referencia!=null">
+                      <v-text >
+                        <strong>Es recomendado por :</strong>
+                        {{trabajador.referencia}}
+                      </v-text>
                     </v-layout>
                   </v-card>
                 </v-col>
@@ -239,10 +219,10 @@
                   <v-card color="blue darken-3" dark>
                     <v-list-item>
                       <v-layout column align-center xs12 sm10 md6 lg4>
-                        <v-avatar size="120" v-if="trabajador.sexo==='M'">
+                        <v-avatar size="120" v-if="trabajador.sexoName==='M'">
                           <img src="img/default-avatar-man.jpg" class="float-center pa-5" />
                         </v-avatar>
-                        <v-avatar size="120" v-else-if="trabajador.sexo==='F'">
+                        <v-avatar size="120" v-else-if="trabajador.sexoName==='F'">
                           <img src="img/default-avatar-woman.jpg" class="float-center pa-5" />
                         </v-avatar>
                         <v-avatar size="110" v-else>
@@ -259,18 +239,18 @@
                           <v-text>Carnet de Identidad: {{trabajador.ci}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Nivel de Escolaridad: {{trabajador.nivelDeEscolaridad}}</v-text>
+                          <v-text>Nivel de Escolaridad: {{trabajador.nivelDeEscolaridadName}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
                           <v-text>Correo: {{trabajador.correo}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Color de Ojos: {{trabajador.colorDeOjos}}</v-text>
+                          <v-text>Color de Ojos: {{trabajador.colorDeOjosName}}</v-text>
                         </v-layout>
                       </v-col>
                       <v-col cols="5">
                         <v-layout class="pa-2">
-                          <v-text>Sexo: {{trabajador.sexo}}</v-text>
+                          <v-text>Sexo: {{trabajador.sexoName}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
                           <v-text>Teléfono Fijo: {{trabajador.telefonoFijo}}</v-text>
@@ -279,7 +259,7 @@
                           <v-text>Teléfono Movil: {{trabajador.telefonoMovil}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Color de Piel: {{trabajador.colorDePiel}}</v-text>
+                          <v-text>Color de Piel: {{trabajador.colorDePielName}}</v-text>
                         </v-layout>
                       </v-col>
                     </v-row>
@@ -319,7 +299,6 @@
                         <v-tab>Entrada</v-tab>
                       </v-tabs>
                     </v-toolbar>
-
                     <v-tabs-items v-model="tabs" py-6>
                       <v-tab-item>
                         <v-card flat>
@@ -409,10 +388,10 @@
                   <v-card color="blue darken-3" dark>
                     <v-list-item>
                       <v-layout column align-center xs12 sm10 md6 lg4>
-                        <v-avatar size="120" v-if="trabajador.sexo==='M'">
+                        <v-avatar size="120" v-if="trabajador.sexoName==='M'">
                           <img src="img/default-avatar-man.jpg" class="float-center pa-5" />
                         </v-avatar>
-                        <v-avatar size="120" v-else-if="trabajador.sexo==='F'">
+                        <v-avatar size="120" v-else-if="trabajador.sexoName==='F'">
                           <img src="img/default-avatar-woman.jpg" class="float-center pa-5" />
                         </v-avatar>
                         <v-avatar size="110" v-else>
@@ -497,10 +476,11 @@ export default {
     trabajadores: [],
     trabajadoresReferencia: [],
     trabajador: {
+      sexo: 0,
       colorDeOjos: 0,
       colorDePiel: 0,
       tallaDeCamisa: 0,
-      nombre_Referencia: ""
+      referencia: ""
     },
     unidadesOrganizativas: [],
     cargos: [],
@@ -549,7 +529,7 @@ export default {
       { text: "Dirección", value: "direccion" },
       { text: "Perfil Ocupacional", value: "perfil_Ocupacional" },
       { text: "Referencia", value: "referencia" },
-      { text: "Días en la Bolsa", value: "tiempo_Bolsa" },
+      { text: "Tiempo en Bolsa", value: "tiempo_Bolsa" },
       { text: "Acciones", value: "action", sortable: false }
     ],
     funciones: [

@@ -139,11 +139,11 @@
           clearable
         ></v-text-field>
         <v-spacer></v-spacer>
-         <!-- Agregar y Editar Trabajador -->
-        <v-dialog v-model="dialog" persistent max-width="900px">
-          <template v-slot:activator="{ on }">
+        <!-- Agregar y Editar Trabajador -->
+        <v-dialog v-model="dialog" persistent max-width="1000px">
+          <!-- <template v-slot:activator="{ on }">
             <v-btn color="primary" dark v-on="on">Agregar Trabajador</v-btn>
-          </template>
+          </template> -->
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
               <v-flex xs12 sm10 md6 lg4>{{ formTitle }}</v-flex>
@@ -258,31 +258,7 @@
                   <v-flex xs4 class="px-5">
                     <v-text-field label="Talla de Pantalon" v-model="trabajador.tallaPantalon"></v-text-field>
                   </v-flex>
-                </v-layout>
-                <v-layout row wrap>
-                  <v-flex xs4 class="px-5">
-                    <v-switch v-model="Referencia" :label="`Tiene Referencia`"></v-switch>
-                  </v-flex>
-                  <v-flex xs4 class="px-5" v-if="Referencia">
-                    <v-switch v-model="EsTrabEmpresa" :label="`Es Trabajador Suyo`"></v-switch>
-                  </v-flex>
-                  <v-flex xs4 class="px-5" v-if="Referencia && EsTrabEmpresa">
-                    <v-autocomplete
-                      v-model="trabajador.nombre_Referencia"
-                      item-text="nombre_Completo"
-                      :items="trabajadores"
-                      :filter="activeFilter"
-                      clearable
-                      label="Nombre de la Refencia"
-                    ></v-autocomplete>
-                  </v-flex>
-                  <v-flex xs4 class="px-5" v-if="Referencia && !EsTrabEmpresa">
-                    <v-text-field
-                      label="Nombre de la Refencia"
-                      v-model="trabajador.nombre_Referencia"
-                    ></v-text-field>
-                  </v-flex>
-                </v-layout>
+                </v-layout>                  
                 <v-flex x12 class="px-5">
                   <v-textarea
                     solo
@@ -346,7 +322,7 @@
                             <v-list-item-title>
                               <strong>Estado:</strong>
                             </v-list-item-title>
-                            <v-list-item-subtitle>{{trabajador.estadoTrabajador}}</v-list-item-subtitle>
+                            <v-list-item-subtitle>{{trabajador.estadoTrabajadorName}}</v-list-item-subtitle>
                           </v-list-item-content>
                         </v-list-item>
                       </v-layout>
@@ -384,10 +360,10 @@
                   <v-card color="blue darken-3" dark>
                     <v-list-item>
                       <v-layout column align-center xs12 sm10 md6 lg4>
-                        <v-avatar size="120" v-if="trabajador.sexo==='M'">
+                        <v-avatar size="120" v-if="trabajador.sexoName==='M'">
                           <img src="img/default-avatar-man.jpg" class="float-center pa-5" />
                         </v-avatar>
-                        <v-avatar size="120" v-else-if="trabajador.sexo==='F'">
+                        <v-avatar size="120" v-else-if="trabajador.sexoName==='F'">
                           <img src="img/default-avatar-woman.jpg" class="float-center pa-5" />
                         </v-avatar>
                         <v-avatar size="110" v-else>
@@ -400,17 +376,17 @@
                     </v-list-item>
                     <v-row dense>
                       <v-col cols="7">
-                          <v-layout class="pa-2">
-                            <v-text>Carnet de Identidad: {{trabajador.ci}}</v-text>
-                          </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Nivel de Escolaridad: {{trabajador.nivelDeEscolaridad}}</v-text>
+                          <v-text>Carnet de Identidad: {{trabajador.ci}}</v-text>
                         </v-layout>
-                         <v-layout class="pa-2">
+                        <v-layout class="pa-2">
+                          <v-text>Nivel de Escolaridad: {{trabajador.nivelDeEscolaridadName}}</v-text>
+                        </v-layout>
+                        <v-layout class="pa-2">
                           <v-text>Perfil Ocupacional: {{trabajador.perfil_Ocupacional}}</v-text>
                         </v-layout>
-                         <v-layout class="pa-2">
-                          <v-text>Color de Ojos: {{trabajador.colorDeOjos}}</v-text>
+                        <v-layout class="pa-2">
+                          <v-text>Color de Ojos: {{trabajador.colorDeOjosName}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
                           <v-text>Correo: {{trabajador.correo}}</v-text>
@@ -418,7 +394,7 @@
                       </v-col>
                       <v-col cols="5">
                         <v-layout class="pa-2">
-                          <v-text>Sexo: {{trabajador.sexo}}</v-text>
+                          <v-text>Sexo: {{trabajador.sexoName}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
                           <v-text>Teléfono Fijo: {{trabajador.telefonoFijo}}</v-text>
@@ -427,7 +403,7 @@
                           <v-text>Teléfono Movil: {{trabajador.telefonoMovil}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Color de Piel: {{trabajador.colorDePiel}}</v-text>
+                          <v-text>Color de Piel: {{trabajador.colorDePielName}}</v-text>
                         </v-layout>
                       </v-col>
                     </v-row>
@@ -737,12 +713,7 @@ export default {
     search: "",
     editedIndex: -1,
     trabajadores: [],
-     trabajador: {
-      colorDeOjos: 0,
-      colorDePiel: 0,
-      tallaDeCamisa: 0,
-      nombre_Referencia: ""
-    },
+     trabajador: {},
     unidadesOrganizativas: [],
     cargos: [],
     sexos: [],
@@ -785,9 +756,9 @@ export default {
       },
       { text: "Carnet de Identidad", value: "ci" },
       { text: "Dirección", value: "direccion" },
-      { text: "Sexo", value: "sexo" },
+      { text: "Sexo", value: "sexoName" },
       { text: "Cargo", value: "cargo" },
-      { text: "Estado", value: "estadoTrabajador" },
+      { text: "Estado", value: "estadoTrabajadorName" },
       { text: "Acciones", value: "action", sortable: false }
     ],
     funciones: [
@@ -806,7 +777,7 @@ export default {
       {
         text: "Graduado de Nivel Medio Superior con entrenamiento en el puesto"
       }
-    ],
+    ]
   }),
 
   computed: {

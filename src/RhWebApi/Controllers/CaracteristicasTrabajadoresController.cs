@@ -80,7 +80,6 @@ namespace RhWebApi.Controllers {
         [HttpGet ("/recursos_humanos/CaracteristicasTrab/NivelEscolaridad")]
         public IActionResult GetAllEscolaridad () {
             var nivelEscolaridad = new List<dynamic> () {
-                new { Id = NivelDeEscolaridad.SinDefinir, Nombre = NivelDeEscolaridad.SinDefinir.ToString () },
                 new { Id = NivelDeEscolaridad.TecnicoMedio, Nombre = NivelDeEscolaridad.TecnicoMedio.ToString () },
                 new { Id = NivelDeEscolaridad.NivelSuperior, Nombre = NivelDeEscolaridad.NivelSuperior.ToString () },
                 new { Id = NivelDeEscolaridad.DoceGrado, Nombre = NivelDeEscolaridad.DoceGrado.ToString () },
