@@ -16,7 +16,9 @@ namespace RhWebApi.Dtos {
     public string TelefonoFijo { get; set; }
     public string TelefonoMovil { get; set; }
     public virtual Sexo Sexo { get; set; }
+    public byte[] Foto { get; set; }
     public string Direccion { get; set; }
+    public string Correo { get; set; }
     public ColorDeOjos ColorDeOjos { get; set; }
     public ColorDePiel ColorDePiel { get; set; }
     public TallaDeCamisa TallaDeCamisa { get; set; }

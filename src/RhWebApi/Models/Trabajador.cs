@@ -13,7 +13,6 @@ namespace RhWebApi.Models {
         public string Codigo { get; set; }
         public string Nombre { get; set; }
         public string Apellidos { get; set; }
-        [Required (ErrorMessage = "El Campo {0} es Obligatorio")]
         public string CI { get; set; }
         public string TelefonoFijo { get; set; }
         public string TelefonoMovil { get; set; }
