@@ -31,6 +31,7 @@ using ImportadorDatos.Jobs;
 using ImportadorDatos.HostedServices;
 using Microsoft.Extensions.Logging;
 using RhWebApi.Data;
+using Microsoft.OpenApi.Models;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -104,20 +105,20 @@ namespace opplatApplication
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Admin123*1234567890"))
                     };
                 });
-
+           
             services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v1", new Info
+                    c.SwaggerDoc("v1", new OpenApiInfo 
                     {
                         Version = "v1",
                         Title = "Account API",
                         Description = "Gestiona la autenticacion y autorizacion, asi como la gestion de usuarios.",
-                        TermsOfService = "APACHE 2.0",
-                        Contact = new Contact
+                        TermsOfService = new Uri("https://example.com/terms"),
+                        Contact = new OpenApiContact
                         {
                             Name = "EFAVAI Tech",
                             Email = "efavai.tech@gmail.com",
-                            Url = "https://efavai.com/"
+                            Url = new Uri("https://efavai.com/")
                         }
                     });
 
