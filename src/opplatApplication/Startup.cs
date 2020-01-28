@@ -139,6 +139,7 @@ namespace opplatApplication
             services.AddScoped<ObtenerPlanGI>();
             services.AddScoped<ObtenerValuesEnVariablesEstadoFinanciero>();
             services.AddScoped<GetEstadoFinanciero>();
+            services.AddScoped<GetEF>();
             //fin
 
             //importador
