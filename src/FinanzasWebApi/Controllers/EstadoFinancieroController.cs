@@ -21,14 +21,16 @@ namespace FinanzasWebApi.Controllers
     public class EstadoFinancieroController : ControllerBase
     {
         GetEstadoFinanciero _obtenerEstadoFinanciero { get; set; }
+        GetEF _obtenerEF { get; set; }
         IConfiguration _config { get; set; }
         FinanzasDbContext _context { get; set; }
 
-        public EstadoFinancieroController(FinanzasDbContext context, GetEstadoFinanciero obtenerEstadoFinaciero, IConfiguration config)
+        public EstadoFinancieroController(FinanzasDbContext context, GetEstadoFinanciero obtenerEstadoFinaciero, GetEF obtenerEF, IConfiguration config)
         {
             _context = context;
             _config = config;
             _obtenerEstadoFinanciero = obtenerEstadoFinaciero;
+            _obtenerEF = obtenerEF;
         }
 
         /// <summary>
@@ -44,10 +46,18 @@ namespace FinanzasWebApi.Controllers
             var resultado = _obtenerEstadoFinanciero.EstadoFinanciero5920(años, meses, efe);
             return resultado;
         }
+
+        [HttpGet("estadoFinanciero5020/{años}/{meses}")]
+        public List<EstadoFinancieroJsVM> EstadoFinancieros5020(int años, int meses)
+        {
+            string efe = "5920";
+            var resultado = _obtenerEF.activoCirculantes(años, meses);
+            return resultado;
+        }
+
         /// <summary>
         /// Devuelve el valor de la Razon (Solvencia Financiera)
         /// </summary>
-
         /// <returns></returns>
         [HttpGet("estado/")]
         public List<string> Estado()
