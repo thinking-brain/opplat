@@ -31,6 +31,7 @@ using ImportadorDatos.Jobs;
 using ImportadorDatos.HostedServices;
 using Microsoft.Extensions.Logging;
 using RhWebApi.Data;
+using FinanzasWebApi.Helper.EstadoFinanciero;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -76,8 +77,8 @@ namespace opplatApplication
             services.AddDbContext<EnlaceVersatDbContext>(options =>
                  options.UseNpgsql(context.Configuration.GetConnectionString("EnlaceVersatDbContext")));
 
-                 services.AddDbContext<RhWebApiDbContext>(options =>
-                options.UseNpgsql(context.Configuration.GetConnectionString("RhWebApiDbContext"), b => b.MigrationsAssembly("RhWebApi")));
+            services.AddDbContext<RhWebApiDbContext>(options =>
+           options.UseNpgsql(context.Configuration.GetConnectionString("RhWebApiDbContext"), b => b.MigrationsAssembly("RhWebApi")));
 
             services.AddSignalR();
 
@@ -137,9 +138,8 @@ namespace opplatApplication
             services.AddScoped<FinanzasDbContext>();
             services.AddScoped<ObtenerPlanGI>();
             services.AddScoped<ObtenerValuesEnVariablesEstadoFinanciero>();
-            // services.AddSingleton<ObtenerPlanGI_Context>();
-            // services.AddSingleton<GetTotalIngresosEnMes>();
-            // services.AddSingleton<GetTotalEgresosEnMes>();
+            services.AddScoped<GetEstadoFinanciero>();
+            services.AddScoped<GetEF>();
             //fin
 
             //importador
@@ -177,7 +177,7 @@ namespace opplatApplication
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<IConfiguration>();
             var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
-            
+
             loggerFactory.AddFile("Logs/Log-{Date}.txt");
 
             app.UseAuthentication();

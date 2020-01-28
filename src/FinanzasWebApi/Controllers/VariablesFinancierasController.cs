@@ -27,9 +27,6 @@ namespace FinanzasWebApi.Controllers
             _obtenerVariables = obtenerVariables;
         }
 
-
-
-
         /// <summary>
         /// Devuelve el valor Total del Inventario
         /// </summary>
@@ -42,7 +39,6 @@ namespace FinanzasWebApi.Controllers
             decimal valor = _obtenerVariables.InventarioTotal(años, meses);
             return valor;
         }
-
 
         /// <summary>
         /// Devuelve el Valor de los Activos Circulantes
