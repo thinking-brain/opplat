@@ -31,7 +31,7 @@ using ImportadorDatos.Jobs;
 using ImportadorDatos.HostedServices;
 using Microsoft.Extensions.Logging;
 using RhWebApi.Data;
-using FinanzasWebApi.Helper.EstadoFinanciero;
+using Microsoft.OpenApi.Models;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -77,8 +77,8 @@ namespace opplatApplication
             services.AddDbContext<EnlaceVersatDbContext>(options =>
                  options.UseNpgsql(context.Configuration.GetConnectionString("EnlaceVersatDbContext")));
 
-            services.AddDbContext<RhWebApiDbContext>(options =>
-           options.UseNpgsql(context.Configuration.GetConnectionString("RhWebApiDbContext"), b => b.MigrationsAssembly("RhWebApi")));
+                 services.AddDbContext<RhWebApiDbContext>(options =>
+                options.UseNpgsql(context.Configuration.GetConnectionString("RhWebApiDbContext"), b => b.MigrationsAssembly("RhWebApi")));
 
             services.AddSignalR();
 
@@ -105,20 +105,20 @@ namespace opplatApplication
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Admin123*1234567890"))
                     };
                 });
-
+           
             services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v1", new Info
+                    c.SwaggerDoc("v1", new OpenApiInfo 
                     {
                         Version = "v1",
                         Title = "Account API",
                         Description = "Gestiona la autenticacion y autorizacion, asi como la gestion de usuarios.",
-                        TermsOfService = "APACHE 2.0",
-                        Contact = new Contact
+                        TermsOfService = new Uri("https://example.com/terms"),
+                        Contact = new OpenApiContact
                         {
                             Name = "EFAVAI Tech",
                             Email = "efavai.tech@gmail.com",
-                            Url = "https://efavai.com/"
+                            Url = new Uri("https://efavai.com/")
                         }
                     });
 
@@ -138,8 +138,9 @@ namespace opplatApplication
             services.AddScoped<FinanzasDbContext>();
             services.AddScoped<ObtenerPlanGI>();
             services.AddScoped<ObtenerValuesEnVariablesEstadoFinanciero>();
-            services.AddScoped<GetEstadoFinanciero>();
-            services.AddScoped<GetEF>();
+            // services.AddSingleton<ObtenerPlanGI_Context>();
+            // services.AddSingleton<GetTotalIngresosEnMes>();
+            // services.AddSingleton<GetTotalEgresosEnMes>();
             //fin
 
             //importador
@@ -177,7 +178,7 @@ namespace opplatApplication
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<IConfiguration>();
             var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
-
+            
             loggerFactory.AddFile("Logs/Log-{Date}.txt");
 
             app.UseAuthentication();
