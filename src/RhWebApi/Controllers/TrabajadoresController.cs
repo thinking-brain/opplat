@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -107,11 +108,20 @@ namespace RhWebApi.Controllers {
                 if (context.Trabajador.Any (e => e.CI == trabajadorDto.CI)) {
                     return BadRequest ($"El trabajador ya está en el sistema");
                 } else {
+                    var sexo = new RhWebApi.Data.Sexo ();
+                    if (trabajadorDto.CI != null) {
+                        var sexoCI = int.Parse (trabajadorDto.CI.Substring (9, 1));
+                        if (sexoCI % 2 == 0) {
+                            sexo = Sexo.M;
+                        } else {
+                            sexo = Sexo.F;
+                        }
+                    }
                     var trabajador = new Trabajador () {
                         Nombre = trabajadorDto.Nombre,
                         Apellidos = trabajadorDto.Apellidos,
                         CI = trabajadorDto.CI,
-                        Sexo = trabajadorDto.Sexo,
+                        Sexo = sexo,
                         Direccion = trabajadorDto.Direccion,
                         Correo = trabajadorDto.Correo,
                         NivelDeEscolaridad = trabajadorDto.NivelDeEscolaridad,
@@ -237,23 +247,26 @@ namespace RhWebApi.Controllers {
                     Apellidos = t.Apellidos,
                     Nombre_Completo = t.Nombre + " " + t.Apellidos,
                     CI = t.CI,
-                    Sexo = t.Sexo.ToString (),
+                    Sexo = t.Sexo,
+                    SexoName = t.Sexo.ToString (),
                     TelefonoFijo = t.TelefonoFijo,
                     TelefonoMovil = t.TelefonoMovil,
                     Direccion = t.Direccion,
-                    NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
-                    //MunicipioId = t.MunicipioId,
-                    MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
-                    //CargoId = t.PuestoDeTrabajo.CargoId,
+                    NivelDeEscolaridad = t.NivelDeEscolaridad,
+                    NivelDeEscolaridadName = t.NivelDeEscolaridad.ToString (), MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                     Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                     UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
-                    EstadoTrabajador = t.EstadoTrabajador.ToString (),
-                    Correo = t.Correo,
-                    ColorDePiel = t.CaracteristicasTrab.ColorDePiel.ToString (),
-                    ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos.ToString (),
+                    EstadoTrabajador = t.EstadoTrabajador,
+                    EstadoTrabajadorName = t.EstadoTrabajador.ToString (), Correo = t.Correo,
+                    ColorDePiel = t.CaracteristicasTrab.ColorDePiel,
+                    ColorDePielName = t.CaracteristicasTrab.ColorDePiel.ToString (),
+                    ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos,
+                    ColorDeOjosName = t.CaracteristicasTrab.ColorDeOjos.ToString (),
                     TallaPantalon = t.CaracteristicasTrab.TallaPantalon,
-                    TallaCalzado = t.CaracteristicasTrab.TallaCalzado.ToString (),
-                    TallaDeCamisa = t.CaracteristicasTrab.TallaDeCamisa.ToString (),
+                    TallaCalzado = t.CaracteristicasTrab.TallaCalzado,
+                    TallaCalzadoName = t.CaracteristicasTrab.TallaCalzado.ToString (),
+                    TallaDeCamisa = t.CaracteristicasTrab.TallaDeCamisa,
+                    TallaDeCamisaName = t.CaracteristicasTrab.TallaDeCamisa.ToString (),
                     OtrasCaracteristicas = t.CaracteristicasTrab.OtrasCaracteristicas,
                     Resumen = t.CaracteristicasTrab.Resumen,
                     Foto = t.CaracteristicasTrab.Foto,

@@ -168,6 +168,17 @@ namespace ImportadorDatos.Jobs {
                     if (trabajador.Activo == null || !trabajador.Activo.Value) {
                         estado = Estados.Baja;
                     }
+
+                    var sexo = new RhWebApi.Data.Sexo ();
+                    if (trabajador.Numident != null) {
+                        var sexoCI = int.Parse (trabajador.Numident.Substring (9, 1));
+                        if (sexoCI % 2 == 0) {
+                            sexo = Sexo.M;
+                        } else {
+                            sexo = Sexo.F;
+                        }
+                    } 
+
                     //todo: Tener en cuenta agregar un municipio vacio (ninguno), y un cargo vacio(ninguno)
                     var nuevoTrabajador = new RhWebApi.Models.Trabajador {
                         CI = trabajador.Numident,
@@ -176,16 +187,18 @@ namespace ImportadorDatos.Jobs {
                         Apellidos = trabajador.Apellido1 + " " + trabajador.Apellido2,
                         Direccion = trabajador.Direccion,
                         EstadoTrabajador = estado,
+                        Sexo = sexo,
                     };
+
                     _rhContext.Add (nuevoTrabajador);
                     _rhContext.SaveChanges ();
 
                     var caractTrab = new RhWebApi.Models.CaracteristicasTrab {
                         TrabajadorId = nuevoTrabajador.Id,
-                            ColorDePiel = 0,
-                            ColorDeOjos = 0,
-                            TallaCalzado = 0,
-                            TallaDeCamisa = 0
+                        ColorDePiel = 0,
+                        ColorDeOjos = 0,
+                        TallaCalzado = 0,
+                        TallaDeCamisa = 0
                     };
                     _rhContext.Add (caractTrab);
                     _rhContext.SaveChanges ();
@@ -199,7 +212,6 @@ namespace ImportadorDatos.Jobs {
                 }
             }
         }
-
         public void ImportarUnidadesOrganizativas () {
             var unidadesOrganizativasImportadas = _enlaceContext.Set<UnidadOrganizativa> ().Select (c => c.AreaVersatId).ToList ();
             var unidadesOrganizativas = _vContext.Set<GenArea> ()

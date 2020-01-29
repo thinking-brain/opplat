@@ -59,7 +59,7 @@
                     ></v-text-field>
                     <span asp-validation-for="CI" class="text-danger"></span>
                   </v-flex>
-                  <v-flex xs6 class="px-5">
+                  <!-- <v-flex xs6 class="px-5">
                     <v-select
                       v-model="trabajador.sexo"
                       :items="sexos"
@@ -67,7 +67,7 @@
                       item-value="id"
                       label="Sexo"
                     ></v-select>
-                  </v-flex>
+                  </v-flex> -->
                   <v-flex xs12 class="pa-5">
                     <v-text-field label="Dirección" v-model="trabajador.direccion"></v-text-field>
                   </v-flex>
