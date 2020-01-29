@@ -36,7 +36,10 @@
                         <v-flex xs12 sm4 md2>
                           <v-text-field label="AÑO" required v-model="plan.year"></v-text-field>
                         </v-flex>
-                        <v-flex xs12 sm6 md6>
+                        <v-flex xs12 sm4 md4>
+                          <v-select :items="tipos_plan" label="TIPO"></v-select>
+                        </v-flex>
+                        <v-flex xs12 sm4 md6>
                           <v-file-input show-size label="SELECCIONAR FICHERO" v-model="plan.file"></v-file-input>
                         </v-flex>
                       </v-layout>
@@ -96,6 +99,7 @@ export default {
       year: "",
       file: null
     },
+    tipos_plan:["5920","5921","5924"],
     planes: [],
     errors: [],
     data: [
@@ -196,7 +200,7 @@ export default {
       this.dialog2 = true;
     },
 
-deleteItem(item) {
+    deleteItem(item) {
       const index = this.planes.indexOf(item);
       const url = api.getUrl("contabilidad", "PlanGI");
 

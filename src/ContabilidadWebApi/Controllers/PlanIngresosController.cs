@@ -58,7 +58,7 @@ namespace ContabilidadWebApi.Controllers
             var detalles = _context.Set<DetallePlanGI>().Include(s => s.Concepto).Include(s => s.Plan).Where(s => s.Plan.Year == year);
             foreach (var item in detalles)
             {
-                var concepto = DatosPlanGI.Datos().SingleOrDefault(s => s.Dato.Equals(item.Concepto.Concepto)).Tipo;
+                var concepto = DatosPlanGI.Datos().SingleOrDefault(s => s.Dato.Equals(item.Concepto.Concepto)) != null ? DatosPlanGI.Datos().SingleOrDefault(s => s.Dato.Equals(item.Concepto.Concepto)).Tipo : "Otros";
                 if (concepto.Equals("Ingresos"))
                 {
 

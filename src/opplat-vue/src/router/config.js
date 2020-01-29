@@ -244,6 +244,24 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/RazonesFinancieras.vue'),
     },
     {
+      path: '/finanzas/EstadoFinanciero',
+      name: 'EstadoFinanciero',
+      meta: {
+        title: 'Estado Financiero',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/EstadoFinanciero.vue'),
+    },
+    {
+      path: '/finanzas/EstadoFinancieroReport',
+      name: 'EstadoFinancieroReport',
+      meta: {
+        title: 'EF Report',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/EFReport.vue'),
+    },
+    {
       path: '/finanzas/configuraciones',
       name: 'Configuraciones',
       meta: {
