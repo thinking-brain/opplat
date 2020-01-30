@@ -33,27 +33,32 @@ namespace FinanzasWebApi.Controllers
             _obtenerEF = obtenerEF;
         }
 
-        /// <summary>
-        /// Devuelve el valor de la Razon (Solvencia Financiera)
-        /// </summary>
-        /// <param name="años"></param>
-        /// <param name="meses"></param>
-        /// <returns></returns>
+
+
         [HttpGet("estadoFinanciero5920/{años}/{meses}")]
-        public List<EstadoFinancieroVM> EstadoFinancieros5920(int años, int meses)
+        public List<EstadoFinancieroJsVM> EstadoFinancieros5920(int años, int meses)
         {
             string efe = "5920";
-            var resultado = _obtenerEstadoFinanciero.EstadoFinanciero5920(años, meses, efe);
+            var resultado = _obtenerEF.estadoFinanciero5920(años, meses);
             return resultado;
         }
 
-        [HttpGet("estadoFinanciero5020/{años}/{meses}")]
-        public List<EstadoFinancieroJsVM> EstadoFinancieros5020(int años, int meses)
+        [HttpGet("estadoFinanciero5920Report/{años}/{meses}")]
+        public List<EstadoFinancieroJsVM> EstadoFinancieros5920Report(int años, int meses)
         {
             string efe = "5920";
-            var resultado = _obtenerEF.activoCirculantes(años, meses);
+            var resultado = _obtenerEF.estadoFinanciero5920Report(años, meses);
             return resultado;
         }
+
+        [HttpGet("estadoFinanciero5921/{años}/{meses}")]
+        public List<EstadoFinancieroJsVM> EstadoFinancieros5921(int años, int meses)
+        {
+            string efe = "5921";
+            var resultado = _obtenerEF.estadoFinanciero5921(años, meses);
+            return resultado;
+        }
+
 
         /// <summary>
         /// Devuelve el valor de la Razon (Solvencia Financiera)
