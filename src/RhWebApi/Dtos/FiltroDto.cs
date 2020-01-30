@@ -9,7 +9,6 @@ using RhWebApi.Models;
 namespace RhWebApi.Dtos {
 
     public class FiltroDto {
-
         public string UnidadOrganizativa { get; set; }
         public string Cargo { get; set; }
         public string Sexo { get; set; }

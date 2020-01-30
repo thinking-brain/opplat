@@ -2,7 +2,7 @@
 
 namespace RhWebApi.Migrations
 {
-    public partial class plantillaModels : Migration
+    public partial class CI : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

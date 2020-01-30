@@ -70,9 +70,12 @@ export default {
     };
   },
   created() {
+    var d = new Date();
+    var year = d.getFullYear();
+
     const url = api.getUrl(
       "finanzas",
-      `ReporteIngresosGastos/egresosTotal/${2019}`
+      `ReporteIngresosGastos/egresosTotal/${year}`
     );
     this.axios
       .get(url)

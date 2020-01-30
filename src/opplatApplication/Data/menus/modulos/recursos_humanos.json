@@ -8,6 +8,30 @@
         "roles": [
             "administrador",
             "recursos_humanos"
-        ]        
-    }
+        ],
+        "items": [
+            {
+                "title": "Listado",
+                "group": "recursos_humanos",
+                "icon": "mdi-chart-areaspline",
+                "component": "Trabajadores",
+                "name": "Trabajadores",
+                "roles": [
+                    "administrador",
+                    "recursos_humanos"
+                ]
+            },
+            {
+                "title": "Bolsa",
+                "group": "recursos_humanos",
+                "icon": "mdi-chart-areaspline",
+                "component": "Bolsa",
+                "name": "Bolsa",
+                "roles": [
+                    "administrador",
+                    "recursos_humanos"
+                ]
+            }
+        ]
+    }   
 ]

@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace RhWebApi.Migrations
 {
-    public partial class plantilla : Migration
+    public partial class estadosEnum : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -210,6 +210,33 @@ namespace RhWebApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Plantilla",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    CargoId = table.Column<int>(nullable: false),
+                    UnidadOrganizativaId = table.Column<int>(nullable: false),
+                    PlantillaAprobada = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Plantilla", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Plantilla_cargo_CargoId",
+                        column: x => x.CargoId,
+                        principalTable: "cargo",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Plantilla_unidades_organizativas_UnidadOrganizativaId",
+                        column: x => x.UnidadOrganizativaId,
+                        principalTable: "unidades_organizativas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "puestos_de_trabajos",
                 columns: table => new
                 {
@@ -218,7 +245,7 @@ namespace RhWebApi.Migrations
                     CargoId = table.Column<int>(nullable: false),
                     UnidadOrganizativaId = table.Column<int>(nullable: false),
                     Descripcion = table.Column<string>(nullable: true),
-                    CantidadPorPlantilla = table.Column<int>(nullable: false),
+                    PlantillaOcupada = table.Column<int>(nullable: false),
                     JefeId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -250,17 +277,19 @@ namespace RhWebApi.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Codigo = table.Column<string>(nullable: true),
                     Nombre = table.Column<string>(nullable: true),
                     Apellidos = table.Column<string>(nullable: true),
                     CI = table.Column<string>(nullable: true),
                     TelefonoFijo = table.Column<string>(nullable: true),
                     TelefonoMovil = table.Column<string>(nullable: true),
+                    Correo = table.Column<string>(nullable: true),
                     Sexo = table.Column<int>(nullable: false),
                     Direccion = table.Column<string>(nullable: true),
                     MunicipioId = table.Column<int>(nullable: true),
                     PuestoDeTrabajoId = table.Column<int>(nullable: true),
                     NivelDeEscolaridad = table.Column<int>(nullable: false),
-                    EstadoTrabajador = table.Column<string>(nullable: true)
+                    EstadoTrabajador = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -307,7 +336,9 @@ namespace RhWebApi.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     TrabajadorId = table.Column<int>(nullable: true),
-                    ColorDeOjos = table.Column<string>(nullable: true),
+                    Foto = table.Column<byte[]>(nullable: true),
+                    ColorDePiel = table.Column<int>(nullable: false),
+                    ColorDeOjos = table.Column<int>(nullable: false),
                     TallaPantalon = table.Column<string>(nullable: true),
                     TallaDeCamisa = table.Column<int>(nullable: false),
                     TallaCalzado = table.Column<double>(nullable: false),
@@ -395,6 +426,7 @@ namespace RhWebApi.Migrations
                     Fecha = table.Column<DateTime>(nullable: false),
                     TrabajadorId = table.Column<int>(nullable: false),
                     Nombre = table.Column<string>(nullable: true),
+                    Estado = table.Column<int>(nullable: false),
                     Desde = table.Column<DateTime>(nullable: false),
                     Hasta = table.Column<DateTime>(nullable: false)
                 },
@@ -468,7 +500,8 @@ namespace RhWebApi.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_caracteristicas_del_trabjador_TrabajadorId",
                 table: "caracteristicas_del_trabjador",
-                column: "TrabajadorId");
+                column: "TrabajadorId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_cargo_GrupoEscalaId",
@@ -519,6 +552,16 @@ namespace RhWebApi.Migrations
                 name: "IX_OtrosMovimientos_TrabajadorId",
                 table: "OtrosMovimientos",
                 column: "TrabajadorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Plantilla_CargoId",
+                table: "Plantilla",
+                column: "CargoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Plantilla_UnidadOrganizativaId",
+                table: "Plantilla",
+                column: "UnidadOrganizativaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_puestos_de_trabajos_CargoId",
@@ -595,6 +638,9 @@ namespace RhWebApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "OtrosMovimientos");
+
+            migrationBuilder.DropTable(
+                name: "Plantilla");
 
             migrationBuilder.DropTable(
                 name: "Traslados");

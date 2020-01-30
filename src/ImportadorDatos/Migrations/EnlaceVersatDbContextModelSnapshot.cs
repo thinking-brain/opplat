@@ -66,6 +66,38 @@ namespace ImportadorDatos.Migrations
 
                     b.ToTable("PeriodosContables");
                 });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Trabajador", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Ci");
+
+                    b.Property<int>("TrabajadorId");
+
+                    b.Property<int>("TrabajadorVersatId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Trabajadores");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.UnidadOrganizativa", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AreaVersatId");
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.Property<int>("UnidadOrganizativaId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UnidadesOrganizativas");
+                });
 #pragma warning restore 612, 618
         }
     }

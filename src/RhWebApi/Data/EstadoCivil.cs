@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace RhWebApi.Models
-{
-    public enum EstadoCivil
-    {
+namespace RhWebApi.Data {
+    public enum EstadoCivil {
+        Sin_Definir,
         Soltero,
         Casado,
         Divorciado,

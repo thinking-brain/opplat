@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RhWebApi.Data;
 using RhWebApi.Models;
+using RhWebApi.Dtos;
 
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
@@ -15,33 +16,6 @@ namespace RhWebApi.Controllers {
         private readonly RhWebApiDbContext context;
         public CaracteristicasTrabController (RhWebApiDbContext context) {
             this.context = context;
-        }
-
-        // // GET recursos_humanos/CaracteristicasTrab
-        // [HttpGet]
-        // public IEnumerable<CaracteristicasTrab> GetAll()
-        // {                            
-        //     return context.CaracteristicasTrab.ToList();            
-        // }       
-
-        // GET: recursos_humanos/CaracteristicasTrab/Id
-
-        // GET recursos_humanos/CaracteristicasTrab/ColorOjos
-        [HttpGet ("/recursos_humanos/CaracteristicasTrab/ColorOjos")]
-        public string GetAllColorOjos () {
-            // for (int i = 0; i < 5; i++) {
-            //     ColorDeOjos colorDeOjos = (ColorDeOjos) i;
-            //     return Ok (colorDeOjos.ToString ());
-            // }
-            // foreach (int i in Enum.GetValues (typeof (ColorDeOjos))) {
-            //     return Ok (i.ToString());
-            // }
-
-            var stringBuilder = new StringBuilder ();
-            foreach (string colorDeOjos in Enum.GetNames (typeof (ColorDeOjos))) {
-                stringBuilder.Append (colorDeOjos + ",");
-            }
-            return stringBuilder.ToString ();
         }
 
         // GET: recursos_humanos/CaracteristicasTrab/Sexo
@@ -64,10 +38,49 @@ namespace RhWebApi.Controllers {
             return Ok (colorDePiel);
         }
         // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/ColordeOjos")]
+        public IActionResult GetAllColorDeOjos () {
+            var colorDeOjos = new List<dynamic> () {
+                new { Id = ColorDeOjos.Azules, Nombre = ColorDeOjos.Azules.ToString () },
+                new { Id = ColorDeOjos.Verdes, Nombre = ColorDeOjos.Verdes.ToString () },
+                new { Id = ColorDeOjos.Negros, Nombre = ColorDeOjos.Negros.ToString () },
+                new { Id = ColorDeOjos.Marron, Nombre = ColorDeOjos.Marron.ToString () },
+                new { Id = ColorDeOjos.Pardos, Nombre = ColorDeOjos.Pardos.ToString () },
+            };
+            return Ok (colorDeOjos);
+        }
+         // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/TallaDeCamisa")]
+        public IActionResult GetAllTallaDeCamisa () {
+            var tallaDeCamisa = new List<dynamic> () {
+                new { Id = TallaDeCamisa.S, Nombre = TallaDeCamisa.S.ToString () },
+                new { Id = TallaDeCamisa.M, Nombre = TallaDeCamisa.M.ToString () },
+                new { Id = TallaDeCamisa.L, Nombre = TallaDeCamisa.L.ToString () },
+                new { Id = TallaDeCamisa.X, Nombre = TallaDeCamisa.X.ToString () },
+                new { Id = TallaDeCamisa.XL, Nombre = TallaDeCamisa.XL.ToString () },
+                new { Id = TallaDeCamisa.XXL, Nombre = TallaDeCamisa.XXL.ToString () },
+                new { Id = TallaDeCamisa.XXXL, Nombre = TallaDeCamisa.XXXL.ToString () },
+            };
+            return Ok (tallaDeCamisa);
+        }
+        // GET: recursos_humanos/CaracteristicasTrab/Estados
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/Estados")]
+        public IActionResult GetAllEstados () {
+            var colorDePiel = new List<dynamic> () {
+                new { Id = Estados.Activo, Nombre = Estados.Activo.ToString () },
+                new { Id = Estados.Baja, Nombre = Estados.Baja.ToString () },
+                new { Id = Estados.Interrupto, Nombre = Estados.Interrupto.ToString () },
+                new { Id = Estados.Disponible, Nombre = Estados.Disponible.ToString () },
+                new { Id = Estados.Licencia_Maternidad, Nombre = Estados.Licencia_Maternidad.ToString () },
+                new { Id = Estados.Certificado, Nombre = Estados.Certificado.ToString () },
+            };
+            return Ok (colorDePiel);
+        }
+        // GET: recursos_humanos/CaracteristicasTrab/NivelEscolaridad
         [HttpGet ("/recursos_humanos/CaracteristicasTrab/NivelEscolaridad")]
         public IActionResult GetAllEscolaridad () {
             var nivelEscolaridad = new List<dynamic> () {
-                new { Id = NivelDeEscolaridad.SinDefinir, Nombre = NivelDeEscolaridad.SinDefinir.ToString () },
+                new { Id = NivelDeEscolaridad.TecnicoMedio, Nombre = NivelDeEscolaridad.TecnicoMedio.ToString () },
                 new { Id = NivelDeEscolaridad.NivelSuperior, Nombre = NivelDeEscolaridad.NivelSuperior.ToString () },
                 new { Id = NivelDeEscolaridad.DoceGrado, Nombre = NivelDeEscolaridad.DoceGrado.ToString () },
                 new { Id = NivelDeEscolaridad.NovenoGrado, Nombre = NivelDeEscolaridad.NovenoGrado.ToString () },
@@ -121,7 +134,6 @@ namespace RhWebApi.Controllers {
         public IActionResult PUT ([FromBody] CaracteristicasTrab caractTrab, int id) {
             if (caractTrab.TrabajadorId != id) {
                 return BadRequest (ModelState);
-
             }
             context.Entry (caractTrab).State = EntityState.Modified;
             context.SaveChanges ();

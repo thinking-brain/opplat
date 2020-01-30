@@ -35,5 +35,19 @@ namespace ImportadorDatos.Controllers
             importador.ImportarAsientos();
             return Ok("Asientos importados.");
         }
+
+        [HttpGet("trabajadores")]
+        public async Task<IActionResult> GetTrabajadores()
+        {
+            importador.ImportarTrabajadores();
+            return Ok("Trabajadores importados.");
+        }
+
+        [HttpGet("unidades-organizativas")]
+        public async Task<IActionResult> GetUnidadesOrganizativas()
+        {
+            importador.ImportarUnidadesOrganizativas();
+            return Ok("Unidades Organizativas importadas.");
+        }
     }
 }

@@ -40,6 +40,7 @@ namespace ImportadorDatos.Models.Versat
         public virtual DbSet<ConPase> ConPase { get; set; }
         public virtual DbSet<ConComprobante> ConComprobante { get; set; }
         public virtual DbSet<ConComprobanteoperacion> ConComprobanteoperacion { get; set; }
+        public virtual DbSet<GenTrabajador> GenTrabajador { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -1287,6 +1288,129 @@ namespace ImportadorDatos.Models.Versat
                     .HasForeignKey(d => d.Idcuenta)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_con_pase_con_cuenta");
+            });
+
+            modelBuilder.Entity<GenTrabajador>(entity =>
+            {
+                entity.HasKey(e => e.Idtrabajador)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("gen_trabajador");
+
+                entity.HasIndex(e => e.Codigo)
+                    .HasName("IX_gen_trabajador")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Idtrabajador)
+                    .ForSqlServerIsClustered();
+
+                entity.Property(e => e.Idtrabajador).HasColumnName("idtrabajador");
+
+                entity.Property(e => e.Activo)
+                    .IsRequired()
+                    .HasColumnName("activo")
+                    .HasDefaultValueSql("(1)");
+
+                entity.Property(e => e.Apellido1).HasMaxLength(50);
+
+                entity.Property(e => e.Apellido2).HasMaxLength(50);
+
+                entity.Property(e => e.Codigo)
+                    .IsRequired()
+                    .HasColumnName("codigo")
+                    .HasMaxLength(6);
+
+                entity.Property(e => e.Direccion)
+                    .HasColumnName("direccion")
+                    .HasMaxLength(150);
+
+                entity.Property(e => e.Nombre)
+                    .HasColumnName("nombre")
+                    .HasMaxLength(252)
+                    .HasComputedColumnSql("(rtrim(isnull([nombres],'')) + ' ' + rtrim(isnull([Apellido1],'')) + ' ' + rtrim(isnull([Apellido2],'')))");
+
+                entity.Property(e => e.Nombres)
+                    .HasColumnName("nombres")
+                    .HasMaxLength(150);
+
+                entity.Property(e => e.Numident)
+                    .HasColumnName("numident")
+                    .HasMaxLength(11);
+            });
+
+            modelBuilder.Entity<GenArea>(entity =>
+            {
+                entity.HasKey(e => e.Idarea)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("gen_area");
+
+                entity.HasIndex(e => e.Clave)
+                    .HasName("IX_gen_area")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Idarea)
+                    .HasName("ix_gen_area_idarea")
+                    .IsUnique()
+                    .ForSqlServerIsClustered();
+
+                entity.Property(e => e.Idarea).HasColumnName("idarea");
+
+                entity.Property(e => e.Activa)
+                    .IsRequired()
+                    .HasColumnName("activa")
+                    .HasDefaultValueSql("(1)");
+
+                entity.Property(e => e.Clave)
+                    .IsRequired()
+                    .HasColumnName("clave")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Clavenivel)
+                    .IsRequired()
+                    .HasColumnName("clavenivel")
+                    .HasMaxLength(25)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Descripcion)
+                    .IsRequired()
+                    .HasColumnName("descripcion")
+                    .HasMaxLength(255)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Idapertura).HasColumnName("idapertura");
+
+                entity.Property(e => e.Idunidad).HasColumnName("idunidad");
+
+                entity.HasOne(d => d.IdaperturaNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idapertura)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_gen_area_gen_aperturaarea");
+            });
+
+            modelBuilder.Entity<GenAperturaarea>(entity =>
+            {
+                entity.HasKey(e => e.Idapertura)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("gen_aperturaarea");
+
+                entity.Property(e => e.Idapertura).HasColumnName("idapertura");
+
+                entity.Property(e => e.Empresa)
+                    .IsRequired()
+                    .HasColumnName("empresa")
+                    .HasDefaultValueSql("(1)");
+
+                entity.Property(e => e.Idmascara).HasColumnName("idmascara");
+
+                entity.HasOne(d => d.IdmascaraNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idmascara)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_gen_aperturaarea_gen_mascara");
             });
         }
     }

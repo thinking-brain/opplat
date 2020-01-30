@@ -30,6 +30,28 @@
                     "administrador",
                     "economico"
                 ]
+            },
+            {
+                "title": "Estado Financiero",
+                "group": "reportes",
+                "icon": "mdi-chart-areaspline",
+                "component": "EstadoFinanciero",
+                "name": "EstadoFinanciero",
+                "roles": [
+                    "administrador",
+                    "economico"
+                ]
+            },
+            {
+                "title": "EF Report",
+                "group": "reportes",
+                "icon": "mdi-chart-areaspline",
+                "component": "EFReport",
+                "name": "EstadoFinancieroReport",
+                "roles": [
+                    "administrador",
+                    "economico"
+                ]
             }
         ]
     },

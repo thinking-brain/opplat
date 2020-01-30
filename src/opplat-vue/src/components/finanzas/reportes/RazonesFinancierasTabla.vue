@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container v-if="visible">
     <v-divider class="d-print-none"></v-divider>
     <v-row class="my-4 mb-4 d-print-none">
       <v-tooltip top>
@@ -30,14 +30,14 @@
         <table id="table1">
           <thead>
             <tr>
-              <th colspan="11" class="text-center encabezado1">
+              <th colspan="13" class="text-center encabezado1">
                 <img src="img/logo.png" class="float-left" />
                 <h2>CNA La Concordia</h2>
                 <h2>Razones Finacieras del Año {{year}}</h2>
               </th>
             </tr>
             <tr>
-              <th class="text-center"></th>
+              <th class="text-center">Razón</th>
               <th class="text-center negrita">Enero</th>
               <th class="text-center negrita">Febrero</th>
               <th class="text-center negrita">Marzo</th>
@@ -52,32 +52,39 @@
               <th class="text-center negrita">Diciembre</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody v-if="!hasdata">
             <tr>
-              <td colspan="11">
+              <td colspan="13">
                 <v-skeleton-loader type="table-row@6"></v-skeleton-loader>
               </td>
             </tr>
           </tbody>
-          <tbody>
+          <tbody v-if="hasdata">
             <tr v-for="item in razones" :key="item.razon">
-              <td class="text-right">{{ item.enero}}</td>
-              <td class="text-right">{{ item.febrero}}</td>
-              <td class="text-right">{{ item.marzo}}</td>
-              <td class="text-right">{{item.abril}}</td>
-              <td class="text-right">{{item.mayo}}</td>
-              <td class="text-right">{{item.junio}}</td>
-              <td class="text-right">{{item.julio}}</td>
-              <td class="text-right">{{item.agosto}}</td>
-              <td class="text-right">{{item.septiembre}}</td>
-              <td class="text-right">{{item.octubre}}</td>
-              <td class="text-right">{{item.noviembre}}</td>
-              <td class="text-right">{{item.diciembre}}</td>
-              <td class="deshabilitado"></td>
+              <td class="text-left">{{ item.razon }}</td>
+              <td class="text-right">{{ item.enero| format_two_decimals}}</td>
+              <td class="text-right">{{ item.febrero| format_two_decimals}}</td>
+              <td class="text-right">{{ item.marzo| format_two_decimals}}</td>
+              <td class="text-right">{{item.abril| format_two_decimals}}</td>
+              <td class="text-right">{{item.mayo| format_two_decimals}}</td>
+              <td class="text-right">{{item.junio| format_two_decimals}}</td>
+              <td class="text-right">{{item.julio| format_two_decimals}}</td>
+              <td class="text-right">{{item.agosto| format_two_decimals}}</td>
+              <td class="text-right">{{item.septiembre| format_two_decimals}}</td>
+              <td class="text-right">{{item.octubre| format_two_decimals}}</td>
+              <td class="text-right">{{item.noviembre| format_two_decimals}}</td>
+              <td class="text-right">{{item.diciembre| format_two_decimals}}</td>
             </tr>
           </tbody>
         </table>
       </v-row>
+    </v-row>
+    <v-row v-if="hasdata">
+      <v-flex xs12 pa-2>
+        <v-card :elevation="4">
+          <VueApexCharts type="line" :options="razonesOptions" :series="razones_series" />
+        </v-card>
+      </v-flex>
     </v-row>
   </v-container>
 </template>
@@ -184,12 +191,70 @@ th {
 </style>
 <script>
 import api from "@/api";
+import VueApexCharts from "vue-apexcharts";
 
 export default {
+  components: {
+    VueApexCharts
+  },
   data() {
     return {
       year: 0,
       razones: null,
+      errors: [],
+      visible: false,
+      hasdata: false,
+      razones_series: [
+        {
+          name: "Real",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          name: "Plan",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      ],
+      razonesOptions: {
+        title: {
+          text: "Comportamiento de las razones en el año",
+          align: "center",
+          margin: 10,
+          offsetX: 0,
+          offsetY: 0,
+          floating: false,
+          style: {
+            fontSize: "20px",
+            color: "rgba(96, 89, 89, 0.87)"
+          }
+        },
+        chart: {
+          id: "vuechart"
+        },
+        xaxis: {
+          tooltip: {
+            enabled: false
+          },
+          categories: [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+          ]
+        },
+        yaxis: {
+          min: 0,
+          forceNiceScale: true
+        }
+      },
+      razones_series: [],
       errors: []
     };
   },
@@ -200,10 +265,16 @@ export default {
     },
     getRazonesFinancierasFromApi() {
       const url = api.getUrl("finanzas", `RazonesFinancieras/${this.year}`);
+      this.visible = true;
+      this.hasdata = false;
       this.axios
         .get(url)
         .then(response => {
           this.razones = response.data;
+          response.data.forEach(element => {
+            this.razones_series.push({"name": element.razon, data:[element.enero, element.febrero, element.marzo,element.abril,element.mayo,element.junio,element.julio,element.agosto,element.septiembre,element.octubre,element.noviembre,element.diciembre]});
+          });
+          this.hasdata = true;
         })
         .catch(e => {
           this.errors.push(e);
