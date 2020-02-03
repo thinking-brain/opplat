@@ -20,11 +20,12 @@ namespace RhWebApi.Controllers {
         // GET recursos_humanos/trabajadores
         [HttpGet]
         public IActionResult GetAll () {
-            var trabajadores = context.Trabajador.Where (s => s.EstadoTrabajador != Estados.Baja || s.EstadoTrabajador != Estados.Bolsa)
+            var trabajadores = context.Trabajador.Where (s => s.EstadoTrabajador != Estados.Baja && s.EstadoTrabajador != Estados.Bolsa)
                 .Select (t => new {
                     Id = t.Id,
                         Nombre = t.Nombre,
                         Apellidos = t.Apellidos,
+                        Nombre_Completo = t.Nombre + " " + t.Apellidos,
                         CI = t.CI,
                         Sexo = t.Sexo,
                         SexoName = t.Sexo.ToString (),
@@ -33,14 +34,12 @@ namespace RhWebApi.Controllers {
                         Direccion = t.Direccion,
                         NivelDeEscolaridad = t.NivelDeEscolaridad,
                         NivelDeEscolaridadName = t.NivelDeEscolaridad.ToString (),
-                        MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                         UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
                         EstadoTrabajador = t.EstadoTrabajador,
                         EstadoTrabajadorName = t.EstadoTrabajador.ToString (),
                         Correo = t.Correo,
                         Perfil_Ocupacional = t.Perfil_Ocupacional,
-                        Nombre_Completo = t.Nombre + " " + t.Apellidos,
                         ColorDePiel = t.CaracteristicasTrab.ColorDePiel,
                         ColorDePielName = t.CaracteristicasTrab.ColorDePiel.ToString (),
                         ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos,
@@ -52,6 +51,8 @@ namespace RhWebApi.Controllers {
                         TallaDeCamisaName = t.CaracteristicasTrab.TallaDeCamisa.ToString (),
                         OtrasCaracteristicas = t.CaracteristicasTrab.OtrasCaracteristicas,
                         Foto = t.CaracteristicasTrab.Foto,
+                        Fecha_Nac = t.Fecha_Nac.ToString ("dd MMMM yyyy"),
+                        Edad = (DateTime.Now - t.Fecha_Nac).Days / 365,
                 });
 
             if (trabajadores == null) {
@@ -108,7 +109,10 @@ namespace RhWebApi.Controllers {
                 if (context.Trabajador.Any (e => e.CI == trabajadorDto.CI)) {
                     return BadRequest ($"El trabajador ya está en el sistema");
                 } else {
-                    var sexo = new RhWebApi.Data.Sexo ();
+                    var sexo = new Sexo ();
+                    string fecha = "";
+                    DateTime fechaNac = new DateTime ();
+                    IFormatProvider culture = new System.Globalization.CultureInfo ("en-US", true);
                     if (trabajadorDto.CI != null) {
                         var sexoCI = int.Parse (trabajadorDto.CI.Substring (9, 1));
                         if (sexoCI % 2 == 0) {
@@ -116,6 +120,14 @@ namespace RhWebApi.Controllers {
                         } else {
                             sexo = Sexo.F;
                         }
+                        var siglo = int.Parse (trabajadorDto.CI.Substring (6, 1));
+                        if (siglo >= 0 && siglo <= 5) {
+                            fecha = "19" + trabajadorDto.CI.Substring (0, 6);
+                        }
+                        if (siglo >= 6 && siglo <= 8) {
+                            fecha = "20" + trabajadorDto.CI.Substring (0, 6);
+                        }
+                        fechaNac = DateTime.ParseExact (fecha, "yyyyMMdd", culture);
                     }
                     var trabajador = new Trabajador () {
                         Nombre = trabajadorDto.Nombre,
@@ -128,12 +140,14 @@ namespace RhWebApi.Controllers {
                         TelefonoMovil = trabajadorDto.TelefonoMovil,
                         TelefonoFijo = trabajadorDto.TelefonoFijo,
                         EstadoTrabajador = Estados.Bolsa,
-                        Perfil_Ocupacional = trabajadorDto.Perfil_Ocupacional
+                        Perfil_Ocupacional = trabajadorDto.Perfil_Ocupacional,
+                        Fecha_Nac = fechaNac,
                     };
                     context.Trabajador.Add (trabajador);
                     context.SaveChanges ();
                     var caracteristicas = new CaracteristicasTrab () {
                         TrabajadorId = trabajador.Id,
+                        Foto = trabajadorDto.Foto,
                         ColorDeOjos = trabajadorDto.ColorDeOjos,
                         ColorDePiel = trabajadorDto.ColorDePiel,
                         TallaDeCamisa = trabajadorDto.TallaDeCamisa,
@@ -161,14 +175,15 @@ namespace RhWebApi.Controllers {
         // PUT recursos_humanos/trabajadores/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] TrabajadorDto trabajadorDto, int id) {
-
+            var sexo = new Sexo ();
+            string fecha = "";
+            DateTime fechaNac = new DateTime ();
+            IFormatProvider culture = new System.Globalization.CultureInfo ("en-US", true);
             if (ModelState.IsValid) {
                 var t = context.Trabajador.Find (id);
                 if (t != null) {
                     t.Nombre = trabajadorDto.Nombre;
                     t.Apellidos = trabajadorDto.Apellidos;
-                    t.CI = trabajadorDto.CI;
-                    t.Sexo = trabajadorDto.Sexo;
                     t.Direccion = trabajadorDto.Direccion;
                     t.Correo = trabajadorDto.Correo;
                     t.MunicipioId = trabajadorDto.MunicipioId;
@@ -176,6 +191,26 @@ namespace RhWebApi.Controllers {
                     t.NivelDeEscolaridad = trabajadorDto.NivelDeEscolaridad;
                     t.TelefonoMovil = trabajadorDto.TelefonoMovil;
                     t.TelefonoFijo = trabajadorDto.TelefonoFijo;
+                    if (t.CI != trabajadorDto.CI) {
+                        if (trabajadorDto.CI != null) {
+                            var sexoCI = int.Parse (trabajadorDto.CI.Substring (9, 1));
+                            if (sexoCI % 2 == 0) {
+                                sexo = Sexo.M;
+                            } else {
+                                sexo = Sexo.F;
+                            }
+                            var siglo = int.Parse (trabajadorDto.CI.Substring (6, 1));
+                            if (siglo >= 0 && siglo <= 5) {
+                                fecha = "19" + trabajadorDto.CI.Substring (0, 6);
+                            }
+                            if (siglo >= 6 && siglo <= 8) {
+                                fecha = "20" + trabajadorDto.CI.Substring (0, 6);
+                            }
+                            t.Sexo = sexo;
+                            fechaNac = DateTime.ParseExact (fecha, "yyyyMMdd", culture);
+                        }
+                    }
+                    t.CI = trabajadorDto.CI;
                     context.Update (t);
                     context.SaveChanges ();
 
@@ -326,6 +361,8 @@ namespace RhWebApi.Controllers {
                         TallaDeCamisaName = t.Trabajador.CaracteristicasTrab.TallaDeCamisa.ToString (),
                         OtrasCaracteristicas = t.Trabajador.CaracteristicasTrab.OtrasCaracteristicas,
                         Foto = t.Trabajador.CaracteristicasTrab.Foto,
+                        Fecha_Nac = t.Trabajador.Fecha_Nac.ToString ("dd MMMM yyyy"),
+                        Edad = (DateTime.Now - t.Trabajador.Fecha_Nac).Days / 365,
                         Referencia = t.Nombre_Referencia,
                         Fecha_Entrada = t.Fecha.ToString ("dd MMMM yyyy"),
                         Tiempo_Bolsa = (DateTime.Now - t.Fecha).Days + " Días",

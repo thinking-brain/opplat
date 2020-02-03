@@ -1,6 +1,6 @@
 [
     {
-        "title": "Trabajadores",
+        "title": "Listado de Trabajadores",
         "group": "recursos_humanos",
         "icon": "mdi-worker",
         "name": "Trabajadores",
@@ -8,30 +8,17 @@
         "roles": [
             "administrador",
             "recursos_humanos"
-        ],
-        "items": [
-            {
-                "title": "Listado",
-                "group": "recursos_humanos",
-                "icon": "mdi-chart-areaspline",
-                "component": "Trabajadores",
-                "name": "Trabajadores",
-                "roles": [
-                    "administrador",
-                    "recursos_humanos"
-                ]
-            },
-            {
-                "title": "Bolsa",
-                "group": "recursos_humanos",
-                "icon": "mdi-chart-areaspline",
-                "component": "Bolsa",
-                "name": "Bolsa",
-                "roles": [
-                    "administrador",
-                    "recursos_humanos"
-                ]
-            }
         ]
-    }   
+    },
+    {
+        "title": "Trabajadores en la Bolsa",
+        "group": "recursos_humanos",
+        "icon": "mdi-clipboard-account",
+        "component": "Bolsa",
+        "name": "Bolsa",
+        "roles": [
+            "administrador",
+            "recursos_humanos"
+        ]
+    }
 ]

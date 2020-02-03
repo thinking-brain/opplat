@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RhWebApi.Data;
@@ -9,9 +10,10 @@ using RhWebApi.Data;
 namespace RhWebApi.Migrations
 {
     [DbContext(typeof(RhWebApiDbContext))]
-    partial class RhWebApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200202154136_fechaNacimiento")]
+    partial class fechaNacimiento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -397,18 +399,15 @@ namespace RhWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Apellidos")
-                        .IsRequired();
+                    b.Property<string>("Apellidos");
 
-                    b.Property<string>("CI")
-                        .IsRequired();
+                    b.Property<string>("CI");
 
                     b.Property<string>("Codigo");
 
                     b.Property<string>("Correo");
 
-                    b.Property<string>("Direccion")
-                        .IsRequired();
+                    b.Property<string>("Direccion");
 
                     b.Property<int>("EstadoTrabajador");
 
@@ -418,11 +417,9 @@ namespace RhWebApi.Migrations
 
                     b.Property<int>("NivelDeEscolaridad");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired();
+                    b.Property<string>("Nombre");
 
-                    b.Property<string>("Perfil_Ocupacional")
-                        .IsRequired();
+                    b.Property<string>("Perfil_Ocupacional");
 
                     b.Property<int?>("PuestoDeTrabajoId");
 

@@ -389,6 +389,9 @@
                           <v-text>Color de Ojos: {{trabajador.colorDeOjosName}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
+                          <v-text>Fecha Nacimiento: {{trabajador.fecha_Nac}}</v-text>
+                        </v-layout>
+                        <v-layout class="pa-2">
                           <v-text>Correo: {{trabajador.correo}}</v-text>
                         </v-layout>
                       </v-col>
@@ -404,6 +407,9 @@
                         </v-layout>
                         <v-layout class="pa-2">
                           <v-text>Color de Piel: {{trabajador.colorDePielName}}</v-text>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-text>Edad: {{trabajador.edad}} Años</v-text>
                         </v-layout>
                       </v-col>
                     </v-row>
