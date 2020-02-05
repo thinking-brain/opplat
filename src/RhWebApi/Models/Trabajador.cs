@@ -19,8 +19,9 @@ namespace RhWebApi.Models {
         public string Apellidos { get; set; }
 
         [Required]
+        [RegularExpression (@"^[0-9]*$", ErrorMessage = "Inserte un número de identidad válido")]
+        [StringLength (11, MinimumLength = 11, ErrorMessage = "Inserte un número de identidad válido")]
         public string CI { get; set; }
-
         public string TelefonoFijo { get; set; }
         public string TelefonoMovil { get; set; }
         public string Correo { get; set; }
@@ -36,6 +37,8 @@ namespace RhWebApi.Models {
         public virtual NivelDeEscolaridad NivelDeEscolaridad { get; set; }
         public virtual Estados EstadoTrabajador { get; set; }
         public virtual CaracteristicasTrab CaracteristicasTrab { get; set; }
+        public int? AperturaSocioId { get; set; }
+        public virtual AperturaSocio AperturaSocio { get; set; }
         public DateTime Fecha_Nac { get; set; }
     }
 }

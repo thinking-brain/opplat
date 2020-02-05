@@ -34,5 +34,6 @@ namespace RhWebApi.Data {
         public DbSet<RhWebApi.Models.Requisitos> Requisitos { get; set; }
         public DbSet<RhWebApi.Models.Funciones> Funciones { get; set; }
         public DbSet<RhWebApi.Models.Bolsa> Bolsa { get; set; }
+        public DbSet<RhWebApi.Models.AperturaSocio> AperturaSocio { get; set; }
     }
 }

@@ -14,6 +14,7 @@ namespace RhWebApi.Data {
         Licencia_Maternidad,
         Licencia_Sin_Sueldo,
         Certificado,
-        Bolsa
+        Bolsa,
+        Descartado
     }
 }

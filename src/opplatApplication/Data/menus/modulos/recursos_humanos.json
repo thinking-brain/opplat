@@ -20,5 +20,16 @@
             "administrador",
             "recursos_humanos"
         ]
+    },
+    {
+        "title": "Apertura de Socios",
+        "group": "recursos_humanos",
+        "icon": "mdi-account-tie",
+        "component": "Apertura",
+        "name": "Apertura",
+        "roles": [
+            "administrador",
+            "recursos_humanos"
+        ]
     }
 ]

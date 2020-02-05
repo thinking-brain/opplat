@@ -1,6 +1,140 @@
 <template>
-  <v-data-table :headers="headers" :items="trabajadores" :search="search" class="elevation-1 pa-5">
+  <v-data-table
+    v-model="selected"
+    :headers="headers"
+    :items="trabajadores"
+    :search="search"
+    item-key="id"
+    show-select
+    class="elevation-1 pa-5"
+    dense
+  >
     <template v-slot:top>
+       <!-- Filtro Trabajador -->
+      <v-row>
+        <v-col cols="12" sm="6" md="2">
+          <div class="text-center">
+            <div class="my-2">
+              <v-btn color="primary" @click="dialog1=true">Filtrar por</v-btn>
+            </div>
+          </div>
+        </v-col>
+        <v-col cols="12" sm="6" md="2" v-if="volver===true">
+          <div class="text-center">
+            <div class="my-2">
+              <v-btn color="primary" @click="getTrabajadoresFromApi">
+                <v-icon>mdi-reply-all</v-icon>
+              </v-btn>
+            </div>
+          </div>
+        </v-col>
+        <v-layout>
+          <v-dialog v-model="dialog1" persistent max-width="800px">
+            <v-card>
+              <v-card-title>
+                <span class="headline">Mostrar Trabajadores por:</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container grid-list-md>
+                  <v-layout wrap>
+                    <v-flex xs12 sm6 md6>
+                      <v-autocomplete
+                        v-model="unidadOrganizativa"
+                        item-text="nombre"
+                        :items="unidadesOrganizativas"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Unidad Organizativa"
+                        prepend-icon="mdi-database-search"
+                        chips
+                        allow-overflow
+                      ></v-autocomplete>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-autocomplete
+                        v-model="cargo"
+                        item-text="nombre"
+                        :items="cargos"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Cargo"
+                        prepend-icon="mdi-database-search"
+                      ></v-autocomplete>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-select
+                        v-model="sexo"
+                        item-text="nombre"
+                        :items="sexos"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Sexo"
+                        prepend-icon="mdi-database-search"
+                      ></v-select>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-select
+                        v-model="colordePiel"
+                        item-text="nombre"
+                        :items="coloresdePiel"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Color de Piel"
+                        prepend-icon="mdi-database-search"
+                      ></v-select>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-select
+                        v-model="nivelEscolaridad"
+                        item-text="nombre"
+                        :items="nivelesEscolaridad"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Nivel de Escolaridad"
+                        prepend-icon="mdi-database-search"
+                      ></v-select>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-select
+                        v-model="estado"
+                        item-text="nombre"
+                        :items="estados"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Estado"
+                        prepend-icon="mdi-database-search"
+                      ></v-select>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-text-field
+                        v-model="edad"
+                        item-text="Edad"
+                        cache-items
+                        clearable
+                        label="Edad"
+                        prepend-icon="mdi-database-search"
+                      ></v-text-field>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="green darken-1" text @click="getFiltrosFromApi">Aceptar</v-btn>
+                <v-btn color="blue darken-1" text @click="dialog1=false">Cancelar</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-layout>
+      </v-row>
+      <!-- /Filtro Trabajador -->
+
       <v-toolbar flat color="white">
         <v-toolbar-title>Bolsa de Trabajadores</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
@@ -452,6 +586,27 @@
           </v-card>
         </v-dialog>
         <!-- /Movimientos -->
+        <!-- Descartar Trabajador de la Bolsa -->
+        <v-dialog v-model="dialog7" persistent max-width="350px">
+          <v-toolbar dark fadeOnScroll color="red">
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn icon dark @click="dialog7 = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+          <v-card>
+            <v-card-title class="headline text-center">Estas seguro de descartar a</v-card-title>
+            <v-card-text class="text-center">{{trabajador.nombre_Completo}}</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="red" dark @click="Descartado()">Aceptar</v-btn>
+              <v-btn color="primary" @click="close()">Cancelar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <!-- /Descartar Trabajador de la Bolsa -->
 
         <!-- Delete Trajador -->
         <v-dialog v-model="dialog4" persistent max-width="350px">
@@ -477,10 +632,35 @@
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-      <v-icon small class="mr-2" @click="getDetallesTrabFromApi(item)">mdi-account-plus</v-icon>
-      <v-icon small class="mr-2" @click="movimiento(item)">mdi-walk</v-icon>
-      <!-- <v-icon small @click="confirmDelete(item)">mdi-delete</v-icon> -->
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
+        </template>
+        <span>Editar</span>
+      </v-tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-icon
+            small
+            class="mr-2"
+            v-on="on"
+            @click="getDetallesTrabFromApi(item)"
+          >mdi-account-plus</v-icon>
+        </template>
+        <span>Detalles</span>
+      </v-tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-icon small class="mr-2" v-on="on" @click="movimiento(item)">mdi-walk</v-icon>
+        </template>
+        <span>Movimiento</span>
+      </v-tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-icon small class="mr-2" v-on="on" @click="confirmDescartado(item)">mdi-eye-off</v-icon>
+        </template>
+        <span>Descartar</span>
+      </v-tooltip>
     </template>
   </v-data-table>
 </template>
@@ -494,6 +674,7 @@ export default {
     dialog4: false,
     dialog5: false,
     dialog6: false,
+    dialog7: false,
     volver: false,
     valid: true,
     search: "",
@@ -543,6 +724,7 @@ export default {
       v => (v && v.length <= 11) || "El CI tiene 11 Caracteres"
     ],
     emailRules: [v => /.+@.+\..+/.test(v) || "No tiene la estructura correcta"],
+    selected: [],
     errors: [],
     headers: [
       {
@@ -882,6 +1064,7 @@ export default {
       this.dialog4 = false;
       this.dialog5 = false;
       this.dialog6 = false;
+      this.dialog7 = false;
       this.trabajador = {
         colordeOjos: 0,
         colordePiel: 0,
@@ -899,6 +1082,22 @@ export default {
       this.editedIndex = this.trabajadores.indexOf(item);
       this.trabajador = Object.assign({}, item);
       this.dialog5 = true;
+    },
+    confirmDescartado(item) {
+      this.trabajador = Object.assign({}, item);
+      this.dialog7 = true;
+    },
+    Descartado() {
+      const url = api.getUrl("recursos_humanos", "Bolsas");
+      this.axios.post(url + "/" + this.trabajador.id).then(
+        response => {
+          this.getResponse(response);
+          this.dialog7 = false;
+        },
+        error => {
+          console.log(error);
+        }
+      );
     }
   }
 };
