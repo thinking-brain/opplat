@@ -29,6 +29,13 @@ namespace ContabilidadWebApi.Data
 
         public DbSet<Cuenta> Cuentas { get; set; }
         public DbSet<PlanGI> PlanesIngresosGastos { get; set; }
+        //gastos
+        public DbSet<ElementoDeGasto> ElementoDeGastos { get; set; }
+        public DbSet<SubElementoDeGasto> SubElementoDeGastos { get; set; }
+        public DbSet<CuentaElementoDeGasto> CuentaElementoDeGastos { get; set; }
+        public DbSet<RegistroDeGasto> RegistroDeGastos { get; set; }
+        public DbSet<PartidaDeGasto> PartidaDeGastos { get; set; }
+        //fin gastos
 
         // public DbSet<ContabilidadWebApi.Models.Area> Area { get; set; }
 
