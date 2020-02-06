@@ -293,6 +293,74 @@ namespace ImportadorDatos.Jobs
             }
         }
 
+        public void ImportarElementosDeGastos()
+        {
+            var importados = _enlaceContext.ElementoDeGastos.Select(e => e.ElementoVersatId).ToList();
+            foreach (var elem in _vContext.CosElementogasto.Where(e => !importados.Contains(e.Idelementogasto)))
+            {
+                var newElemento = new ContabilidadWebApi.Models.ElementoDeGasto
+                {
+                    Activo = elem.Activo.HasValue ? elem.Activo.Value : false,
+                    Descripcion = elem.Descripcion,
+                    Codigo = elem.Codigo,
+                };
+                _cContext.Add(newElemento);
+                _cContext.SaveChanges();
+                _enlaceContext.Add(new Models.EnlaceVersat.ElementoDeGasto
+                {
+                    ElementoId = newElemento.Id,
+                    ElementoVersatId = elem.Idelementogasto,
+                    Fecha = DateTime.Now,
+                });
+                _enlaceContext.SaveChanges();
+            }
+        }
+        public void ImportarPartidasDeGastos()
+        {
+            var importados = _enlaceContext.PartidaDeGastos.Select(e => e.PartidaVersatId).ToList();
+            foreach (var elem in _vContext.CosPartida.Where(e => !importados.Contains(e.Idpartida)))
+            {
+                var newElemento = new ContabilidadWebApi.Models.PartidaDeGasto
+                {
+                    Activo = elem.Activo.HasValue ? elem.Activo.Value : false,
+                    Desripcion = elem.Descripcion,
+                    Codigo = elem.Codigo,
+                };
+                _cContext.Add(newElemento);
+                _cContext.SaveChanges();
+                _enlaceContext.Add(new Models.EnlaceVersat.PartidaDeGasto
+                {
+                    PartidaId = newElemento.Id,
+                    PartidaVersatId = elem.Idpartida,
+                    Fecha = DateTime.Now,
+                });
+                _enlaceContext.SaveChanges();
+            }
+        }
+        public void ImportarSubElementosDeGastos()
+        {
+            var importados = _enlaceContext.SubElementoDeGastos.Select(e => e.SubElementoVersatId).ToList();
+            foreach (var elem in _vContext.CosSubelementogasto.Where(e => !importados.Contains(e.Idsubelemento)))
+            {
+                var newElemento = new ContabilidadWebApi.Models.SubElementoDeGasto
+                {
+                    Activo = elem.Activo.HasValue ? elem.Activo.Value : false,
+                    Descripcion = elem.Descripcion,
+                    ElementoId = _enlaceContext.ElementoDeGastos.SingleOrDefault(e => e.ElementoVersatId == elem.Idelementogasto).ElementoId,
+                    PartidaId = _enlaceContext.PartidaDeGastos.SingleOrDefault(e => e.PartidaVersatId == elem.Idpartida).PartidaId,
+                    Codigo = elem.Codigo,
+                };
+                _cContext.Add(newElemento);
+                _cContext.SaveChanges();
+                _enlaceContext.Add(new Models.EnlaceVersat.SubElementoDeGasto
+                {
+                    SubElementoId = newElemento.Id,
+                    SubElementoVersatId = elem.Idsubelemento,
+                    Fecha = DateTime.Now,
+                });
+                _enlaceContext.SaveChanges();
+            }
+        }
         private string GetNumeroCuenta(string clave, int posicion)
         {
             var formatos = new int[6] { 0, 3, 4, 6, 6, 6 };
