@@ -11,5 +11,7 @@ namespace ContabilidadWebApi.Models
         public int SubElementoId { get; set; }
 
         public virtual SubElementoDeGasto SubElemento { get; set; }
+
+        public decimal Importe { get; set; }
     }
 }
