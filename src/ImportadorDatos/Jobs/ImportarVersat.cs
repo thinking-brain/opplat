@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -162,14 +163,17 @@ namespace ImportadorDatos.Jobs {
         public void ImportarTrabajadores () {
             var trabajadoresVersat = _vContext.Set<GenTrabajador> ();
             var trabajadoresImportados = _enlaceContext.Set<ImportadorDatos.Models.EnlaceVersat.Trabajador> ().Select (c => c.TrabajadorVersatId).ToList ();
+            var sexo = new RhWebApi.Data.Sexo ();
+            string fecha = "";
+            DateTime fechaNac = new DateTime ();
+            IFormatProvider culture = new System.Globalization.CultureInfo ("en-US", true);
+
             foreach (var trabajador in trabajadoresVersat) {
-                if (!trabajadoresImportados.Contains (trabajador.Idtrabajador)) {
+                if (!trabajadoresImportados.Contains (trabajador.Idtrabajador) && trabajador.Numident != null) {
                     var estado = Estados.Activo;
                     if (trabajador.Activo == null || !trabajador.Activo.Value) {
                         estado = Estados.Baja;
                     }
-
-                    var sexo = new RhWebApi.Data.Sexo ();
                     if (trabajador.Numident != null) {
                         var sexoCI = int.Parse (trabajador.Numident.Substring (9, 1));
                         if (sexoCI % 2 == 0) {
@@ -177,7 +181,17 @@ namespace ImportadorDatos.Jobs {
                         } else {
                             sexo = Sexo.F;
                         }
-                    } 
+                        var siglo = int.Parse (trabajador.Numident.Substring (6, 1));
+                        if (siglo >= 0 && siglo <= 5) {
+                            fecha = "19" + trabajador.Numident.Substring (0, 6);
+                        }
+                        if (siglo >= 6 && siglo <= 8) {
+                            fecha = "20" + trabajador.Numident.Substring (0, 6);
+                        }
+                        if (fecha != "19000000" && fecha != "20000000") {
+                            fechaNac = DateTime.ParseExact (fecha, "yyyyMMdd", culture);
+                        }
+                    }
 
                     //todo: Tener en cuenta agregar un municipio vacio (ninguno), y un cargo vacio(ninguno)
                     var nuevoTrabajador = new RhWebApi.Models.Trabajador {
@@ -188,6 +202,8 @@ namespace ImportadorDatos.Jobs {
                         Direccion = trabajador.Direccion,
                         EstadoTrabajador = estado,
                         Sexo = sexo,
+                        Fecha_Nac = fechaNac,
+                        Perfil_Ocupacional = "Sin Definir"
                     };
 
                     _rhContext.Add (nuevoTrabajador);

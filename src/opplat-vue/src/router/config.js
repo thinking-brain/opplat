@@ -358,6 +358,15 @@ export const protectedRoute = [
       },
       component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Bolsa.vue'),
     },
+    {
+      path: '/recursos_humanos/Apertura',
+      name: 'Apertura',
+      meta: {
+        title: 'Apertura',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Apertura.vue'),
+    },
   ],
   },
 ];
