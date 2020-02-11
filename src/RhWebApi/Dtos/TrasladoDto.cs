@@ -8,8 +8,10 @@ namespace RhWebApi.Dtos {
     public class TrasladoDto {
         public int Id { get; set; }
         public int TrabajadorId { get; set; }
+        public int CargoOrigenId { get; set; }
         public int CargoDestinoId { get; set; }
-        public int UnidadOrganizativaId { get; set; }
+        public int UnidOrgOrigenId { get; set; }
+        public int UnidOrgDestinoId { get; set; }
         public DateTime Fecha { get; set; }
     }
 }

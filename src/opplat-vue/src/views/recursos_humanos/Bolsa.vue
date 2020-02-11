@@ -10,7 +10,7 @@
     dense
   >
     <template v-slot:top>
-       <!-- Filtro Trabajador -->
+      <!-- Filtro Trabajador -->
       <v-row>
         <v-col cols="12" sm="6" md="2">
           <div class="text-center">
@@ -111,22 +111,32 @@
                         prepend-icon="mdi-database-search"
                       ></v-select>
                     </v-flex>
-                    <v-flex xs12 sm6 md6>
-                      <v-text-field
-                        v-model="edad"
-                        item-text="Edad"
-                        cache-items
-                        clearable
-                        label="Edad"
-                        prepend-icon="mdi-database-search"
-                      ></v-text-field>
-                    </v-flex>
+                    <v-layout>
+                      <v-flex xs12 sm6 md6>
+                        <v-text-field
+                          v-model="edadHasta"
+                          clearable
+                          label="Rango de Edad"
+                          placeholder="Menores de"
+                          prepend-icon="mdi-database-search"
+                        ></v-text-field>
+                      </v-flex>
+                      <v-flex xs12 sm6 md6>
+                        <v-text-field
+                          v-model="edadDesde"
+                          clearable
+                          label="Rango de Edad"
+                          placeholder="Mayores de"
+                          prepend-icon="mdi-database-search"
+                        ></v-text-field>
+                      </v-flex>
+                    </v-layout>
                   </v-layout>
                 </v-container>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="green darken-1" text @click="getFiltrosFromApi">Aceptar</v-btn>
+                  <v-btn color="green darken-1" text @click="getFiltrosFromApi">Aceptar</v-btn>
                 <v-btn color="blue darken-1" text @click="dialog1=false">Cancelar</v-btn>
               </v-card-actions>
             </v-card>
@@ -196,9 +206,9 @@
                     ></v-text-field>
                     <span asp-validation-for="CI" class="text-danger"></span>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <!-- <v-flex xs3 class="px-5">
                     <v-file-input show-size label="Seleccionar Foto" v-model="trabajador.foto"></v-file-input>
-                  </v-flex>
+                  </v-flex> -->
                   <v-flex xs4 class="px-5">
                     <v-text-field
                       label="Dirección"
@@ -298,7 +308,7 @@
                   </v-flex>
                   <v-flex xs3 class="px-2" v-if="Referencia && EsTrabEmpresa">
                     <v-autocomplete
-                      v-model="trabajador.referencia"
+                      v-model="trabajador.nombre_Referencia"
                       item-text="nombre_Completo"
                       :items="trabajadoresReferencia"
                       :filter="activeFilter"
@@ -306,10 +316,10 @@
                       label="Nombre de la Refencia"
                     ></v-autocomplete>
                   </v-flex>
-                  <v-flex xs3 class="px-2" v-if="Referencia && !EsTrabEmpresa">
+                  <v-flex xs3 class="px-2" v-if="Referencia &&! EsTrabEmpresa">
                     <v-text-field
                       label="Nombre de la Refencia"
-                      v-model="trabajador.referencia"
+                      v-model="trabajador.nombre_Referencia"
                       clearable
                     ></v-text-field>
                   </v-flex>
@@ -489,6 +499,7 @@
                                       :items="cargos"
                                       label="Cargo"
                                       min-width="290px"
+                                      :rules="CargoRules"
                                       required
                                     ></v-select>
                                   </v-col>
@@ -504,6 +515,7 @@
                                       :items="unidadesOrganizativas"
                                       label="Unidad Organizativa"
                                       min-width="290px"
+                                      :rules="UniOrgalRules"
                                       required
                                     ></v-select>
                                   </v-col>
@@ -523,6 +535,8 @@
                                           readonly
                                           v-on="on"
                                           class="pa-2"
+                                          :rules="FechaEntRules"
+                                          required
                                         ></v-text-field>
                                       </template>
                                       <v-date-picker
@@ -533,7 +547,7 @@
                                   </v-col>
                                 </v-row>
                                 <v-btn color="green darken-1" text @click="Entrada">Aceptar</v-btn>
-                                <v-btn color="blue darken-1" text @click="clear">Cancelar</v-btn>
+                                <v-btn color="blue darken-1" text @click="closeEntrada">Cancelar</v-btn>
                               </v-container>
                             </form>
                           </v-card-text>
@@ -574,10 +588,12 @@
                     <v-layout class="pa-2">
                       <v-toolbar-items
                         class="text-capitalize"
-                      >Unidad Organizativa: {{trabajador.unidadOrganizativa}}</v-toolbar-items>
+                      >Perfil Ocupacional: {{trabajador.perfil_Ocupacional}}</v-toolbar-items>
                     </v-layout>
                     <v-layout class="pa-2">
-                      <v-toolbar-items class="text-capitalize">Cargo: {{trabajador.cargo}}</v-toolbar-items>
+                      <v-toolbar-items
+                        class="text-capitalize"
+                      >Nivel de Escolaridad: {{trabajador.nivelDeEscolaridadName}}</v-toolbar-items>
                     </v-layout>
                   </v-card>
                 </v-col>
@@ -686,7 +702,7 @@ export default {
       colorDeOjos: 0,
       colorDePiel: 0,
       tallaDeCamisa: 0,
-      referencia: ""
+      nombre_Referencia: ""
     },
     unidadesOrganizativas: [],
     cargos: [],
@@ -719,9 +735,12 @@ export default {
     NombreRules: [v => !!v || "El Nombre es Requerido"],
     ApellidosRules: [v => !!v || "Los Apellidos son Requeridos"],
     PerfilRules: [v => !!v || "El Perfil Ocupacional es Requerido"],
+    CargoRules: [v => !!v || "El Cargo es Requerido"],
+    UniOrgalRules: [v => !!v || "La Unidad Organizativa es Requerida"],
+    FechaEntRules: [v => !!v || "La Fecha es Requerida"],
     ciRules: [
       v => !!v || "El Carnet de Identidad es Requerido",
-      v => (v && v.length <= 11) || "El CI tiene 11 Caracteres"
+      v => (v && v.length == 11) || "El CI tiene 11 Caracteres"
     ],
     emailRules: [v => /.+@.+\..+/.test(v) || "No tiene la estructura correcta"],
     selected: [],
@@ -736,7 +755,7 @@ export default {
       { text: "Carnet de Identidad", value: "ci" },
       { text: "Dirección", value: "direccion" },
       { text: "Perfil Ocupacional", value: "perfil_Ocupacional" },
-      { text: "Referencia", value: "referencia" },
+      { text: "Referencia", value: "nombre_Referencia" },
       { text: "Tiempo en Bolsa", value: "tiempo_Bolsa" },
       { text: "Acciones", value: "action", sortable: false }
     ],
@@ -816,7 +835,6 @@ export default {
       this.trabajador = Object.assign({}, item);
       this.dialog3 = true;
     },
-
     closeDetalles() {
       this.dialog3 = false;
     },
@@ -945,32 +963,6 @@ export default {
         }
       );
     },
-
-    Entrada() {
-      const url = api.getUrl("recursos_humanos", "Entradas");
-      this.axios.post(url, this.entrada).then(
-        response => {
-          this.getResponse(response);
-          this.entrada = {
-            trabajadorId: "",
-            fechaEntrada: "",
-            unidadOrganizativaId: "",
-            cargoId: ""
-          };
-          this.dialog5 = false;
-          this.getTrabajadoresBolsa();
-          this.getTrabajadoresFromApi();
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    },
-    editItem(item) {
-      this.editedIndex = this.trabajadores.indexOf(item);
-      this.trabajador = Object.assign({}, item);
-      this.dialog = true;
-    },
     save(method) {
       const url = api.getUrl("recursos_humanos", "Trabajadores");
       if (method === "POST") {
@@ -995,7 +987,7 @@ export default {
           );
         } else if (
           this.Referencia == true &&
-          this.trabajador.referencia == ""
+          this.trabajador.nombre_Referencia == ""
         ) {
           vm.$snotify.error(
             "Seleccionó que el trabajador tenía referencia pero no llenó el campo"
@@ -1006,7 +998,13 @@ export default {
               this.getResponse(response);
               this.getTrabajadoresBolsa();
               this.dialog = false;
-              this.trabajador = {};
+              this.trabajador = {
+                sexo: 0,
+                colorDeOjos: 0,
+                colorDePiel: 0,
+                tallaDeCamisa: 0,
+                nombre_Referencia: ""
+              };
             },
             error => {
               console.log(error);
@@ -1015,18 +1013,48 @@ export default {
         }
       }
       if (method === "PUT") {
-        this.axios.put(url + "/" + this.trabajador.id, this.trabajador).then(
-          response => {
-            this.getResponse(response);
-            this.dialog = false;
-          },
-          error => {
-            console.log(error);
-          }
-        );
+        if (
+          this.trabajador.ci == null ||
+          this.trabajador.nombre == null ||
+          this.trabajador.apellidos == null ||
+          this.trabajador.perfil_Ocupacional == null
+        ) {
+          vm.$snotify.error("Faltan campos por llenar que son obligatorios");
+        } else if (
+          this.trabajador.telefonoFijo == null &&
+          this.trabajador.telefonoMovil == null &&
+          this.trabajador.direccion == null &&
+          this.trabajador.correo == null
+        ) {
+          vm.$snotify.error(
+            "Debe llenar al menos el Campo Dirección, Correo, Teléfono Fijo o Teléfono Móvil"
+          );
+        } else if (
+          (this.Referencia == true &&
+            this.trabajador.nombre_Referencia == "") ||
+          this.trabajador.nombre_Referencia == null
+        ) {
+          vm.$snotify.error(
+            "Seleccionó que el trabajador tenía referencia pero no llenó el campo"
+          );
+        } else {
+          this.axios.put(url + "/" + this.trabajador.id, this.trabajador).then(
+            response => {
+              this.getResponse(response);
+              this.dialog = false;
+            },
+            error => {
+              console.log(error);
+            }
+          );
+        }
       }
     },
-
+    editItem(item) {
+      this.editedIndex = this.trabajadores.indexOf(item);
+      this.trabajador = Object.assign({}, item);
+      this.dialog = true;
+    },
     confirmDelete(item) {
       this.trabajador = Object.assign({}, item);
       this.dialog4 = true;
@@ -1077,11 +1105,49 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
-
     movimiento(item) {
       this.editedIndex = this.trabajadores.indexOf(item);
       this.trabajador = Object.assign({}, item);
+      this.entrada.trabajadorId = this.trabajador.id;
       this.dialog5 = true;
+    },
+    Entrada() {
+      const url = api.getUrl("recursos_humanos", "Entradas");
+      if (this.entrada.cargoId == "") {
+        vm.$snotify.error("El campo Cargo es obligatorio");
+      }
+      if (this.entrada.unidadOrganizativaId == "") {
+        vm.$snotify.error("El campo Unidad Organizativa es obligatorio");
+      }
+      if (this.entrada.fechaEntrada == "") {
+        vm.$snotify.error("El campo Fecha es obligatorio");
+      } else {
+        this.axios.post(url, this.entrada).then(
+          response => {
+            this.getResponse(response);
+            this.entrada = {
+              trabajadorId: "",
+              fechaEntrada: "",
+              unidadOrganizativaId: "",
+              cargoId: ""
+            };
+            this.dialog5 = false;
+            this.getTrabajadoresBolsa();
+            this.getTrabajadoresFromApi();
+          },
+          error => {
+            console.log(error);
+          }
+        );
+      }
+    },
+    closeEntrada() {
+      this.entrada = {
+        fechaEntrada: "",
+        unidadOrganizativaId: "",
+        cargoId: ""
+      };
+      this.dialog5 = false;
     },
     confirmDescartado(item) {
       this.trabajador = Object.assign({}, item);
@@ -1089,10 +1155,11 @@ export default {
     },
     Descartado() {
       const url = api.getUrl("recursos_humanos", "Bolsas");
-      this.axios.post(url + "/" + this.trabajador.id).then(
+      this.axios.put(url + "/" + this.trabajador.id).then(
         response => {
           this.getResponse(response);
           this.dialog7 = false;
+          this.getTrabajadoresFromApi();
         },
         error => {
           console.log(error);

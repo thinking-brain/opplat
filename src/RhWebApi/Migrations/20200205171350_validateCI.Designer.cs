@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RhWebApi.Data;
@@ -9,9 +10,10 @@ using RhWebApi.Data;
 namespace RhWebApi.Migrations
 {
     [DbContext(typeof(RhWebApiDbContext))]
-    partial class RhWebApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200205171350_validateCI")]
+    partial class validateCI
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -504,9 +506,7 @@ namespace RhWebApi.Migrations
 
                     b.Property<int>("TrabajadorId");
 
-                    b.Property<int>("UnidOrgDestinoId");
-
-                    b.Property<int>("UnidOrgOrigenId");
+                    b.Property<int>("UnidadOrganizativaId");
 
                     b.HasKey("Id");
 
@@ -516,9 +516,7 @@ namespace RhWebApi.Migrations
 
                     b.HasIndex("TrabajadorId");
 
-                    b.HasIndex("UnidOrgDestinoId");
-
-                    b.HasIndex("UnidOrgOrigenId");
+                    b.HasIndex("UnidadOrganizativaId");
 
                     b.ToTable("Traslados");
                 });
@@ -738,14 +736,9 @@ namespace RhWebApi.Migrations
                         .HasForeignKey("TrabajadorId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("RhWebApi.Models.UnidadOrganizativa", "UnidOrgDestino")
+                    b.HasOne("RhWebApi.Models.UnidadOrganizativa", "UnidadOrganizativa")
                         .WithMany()
-                        .HasForeignKey("UnidOrgDestinoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("RhWebApi.Models.UnidadOrganizativa", "UnidOrgOrigen")
-                        .WithMany()
-                        .HasForeignKey("UnidOrgOrigenId")
+                        .HasForeignKey("UnidadOrganizativaId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

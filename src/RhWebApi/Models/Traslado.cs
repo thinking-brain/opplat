@@ -15,7 +15,10 @@ namespace RhWebApi.Models {
         public int CargoDestinoId { get; set; }
         public Cargo CargoDestino { get; set; }
 
-        public int UnidadOrganizativaId { get; set; }
-        public UnidadOrganizativa UnidadOrganizativa { get; set; }
+        public int UnidOrgOrigenId { get; set; }
+        public UnidadOrganizativa UnidOrgOrigen { get; set; }
+
+        public int UnidOrgDestinoId { get; set; }
+        public UnidadOrganizativa UnidOrgDestino { get; set; }
     }
 }

@@ -16,49 +16,47 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // GET recursos_humanos/bolsa
+        // GET recursos_humanos/bolsas
         [HttpGet]
         public IEnumerable<Bolsa> GetAll () {
             return context.Bolsa.ToList ();
         }
 
-        // // GET: recursos_humanos/bolsa/Id
-        // [HttpGet ("{id}", Name = "GetBolsa")]
-        // public IActionResult GetbyId (int id) {
+        // GET: recursos_humanos/bolsas/Id
+        [HttpGet ("{id}", Name = "GetBolsa")]
+        public IEnumerable<Bolsa> GetbyId (int id) {
+            return context.Bolsa.Where (s => s.Id == id).ToList ();
+        }
 
-        //     return Ok ();
-        // }
-
-        // POST recursos_humanos/bolsa
+        // POST recursos_humanos/bolsas
         [HttpPost]
-        public IActionResult POST (int id) {
-             var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == id);
+        public IActionResult POST (Bolsa bolsa) {
+            return Ok ();
+        }
+
+        // PUT recursos_humanos/bolsas/id
+        [HttpPut ("{id}")]
+        public IActionResult PUT (int id) {
+            var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == id);
             if (trabajador == null) {
                 return NotFound ();
             }
-            trabajador.EstadoTrabajador=Estados.Descartado;
+            trabajador.EstadoTrabajador = Estados.Descartado;
             context.Entry (trabajador).State = EntityState.Modified;
             context.SaveChanges ();
             return Ok ();
         }
 
-        // // PUT recursos_humanos/bolsa/id
-        // [HttpPut ("{id}")]
-        // public IActionResult PUT (int id) {
-        //     return Ok ();
-        // }
-
-        // // DELETE recursos_humanos/bolsa/id
-        // [HttpDelete ("{id}")]
-        // public IActionResult Delete (int id) {
-        //     var bolsa = context.Bolsa.FirstOrDefault (s => s.Id == id);
-
-        //     if (bolsa.Id != id) {
-        //         return NotFound ();
-        //     }
-        //     context.Bolsa.Remove (bolsa);
-        //     context.SaveChanges ();
-        //     return Ok (bolsa);
-        // }
+        // DELETE recursos_humanos/bolsas/id
+        [HttpDelete ("{id}")]
+        public IActionResult Delete (int id) {
+            var bolsa = context.Bolsa.FirstOrDefault (s => s.Id == id);
+            if (bolsa.Id != id) {
+                return NotFound ();
+            }
+            context.Bolsa.Remove (bolsa);
+            context.SaveChanges ();
+            return Ok (bolsa);
+        }
     }
 }

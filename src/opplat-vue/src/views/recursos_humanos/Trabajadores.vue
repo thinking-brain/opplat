@@ -80,7 +80,7 @@
                     </v-flex>
                     <v-flex xs12 sm6 md6>
                       <v-select
-                        v-model="nivelEscolaridad"
+                        v-model="nivelDeEscolaridad"
                         item-text="nombre"
                         :items="nivelesEscolaridad"
                         :filter="activeFilter"
@@ -102,27 +102,26 @@
                         prepend-icon="mdi-database-search"
                       ></v-select>
                     </v-flex>
-                    <v-text>Rango de Edad</v-text>
-                    <v-flex xs12 sm6 md6>
-                      <v-text-field
-                        v-model="edadDesde"
-                        item-text="Edad"
-                        cache-items
-                        clearable
-                        label="Mayores que"
-                        prepend-icon="mdi-database-search"
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                      <v-text-field
-                        v-model="edadHasta"
-                        item-text="Edad"
-                        cache-items
-                        clearable
-                        label="Menores que"
-                        prepend-icon="mdi-database-search"
-                      ></v-text-field>
-                    </v-flex>
+                    <v-layout>
+                      <v-flex xs12 sm6 md6>
+                        <v-text-field
+                          v-model="edadHasta"
+                          clearable
+                          label="Rango de Edad"
+                          placeholder="Menores de"
+                          prepend-icon="mdi-database-search"
+                        ></v-text-field>
+                      </v-flex>
+                      <v-flex xs12 sm6 md6>
+                        <v-text-field
+                          v-model="edadDesde"
+                          clearable
+                          label="Rango de Edad"
+                          placeholder="Mayores de"
+                          prepend-icon="mdi-database-search"
+                        ></v-text-field>
+                      </v-flex>
+                    </v-layout>
                   </v-layout>
                 </v-container>
               </v-card-text>
@@ -473,7 +472,7 @@
 
             <v-container fluid>
               <v-row dense>
-                <v-col cols="8">
+                <v-col cols="7">
                   <v-card flat>
                     <v-toolbar flat>
                       <v-tabs slot="extension" v-model="tabs" centered>
@@ -490,7 +489,7 @@
                             <form>
                               <v-container>
                                 <v-row>
-                                  <v-col cols="12" md="8">
+                                  <v-col cols="12" md="7">
                                     <v-autocomplete
                                       xs6
                                       class="pa-2"
@@ -504,35 +503,34 @@
                                       disabled
                                     ></v-autocomplete>
                                   </v-col>
-                                  <v-col cols="6" md="4">
-                                    <v-select
+                                  <v-col cols="6" md="5">
+                                    <v-autocomplete
                                       xs6
                                       class="pa-2"
-                                      v-model="traslado.cargoId"
+                                      v-model="traslado.cargoDestinoId"
                                       item-text="nombre"
                                       item-value="id"
                                       :items="cargos"
-                                      label="Cargo de Destino"
-                                      min-width="290px"
+                                      label="Cargo a Ocupar"
+                                      clearable
                                       required
-                                    ></v-select>
+                                    ></v-autocomplete>
                                   </v-col>
                                 </v-row>
                                 <v-row>
-                                  <v-col cols="6" md="4">
-                                    <v-select
-                                      xs6
+                                  <v-col cols="6" md="6">
+                                    <v-autocomplete
                                       class="pa-2"
-                                      v-model="traslado.unidadOrganizativaId"
+                                      v-model="traslado.unidOrgDestinoId"
                                       item-text="nombre"
                                       item-value="id"
                                       :items="unidadesOrganizativas"
                                       label="Unidad Organizativa"
-                                      min-width="290px"
+                                      clearable
                                       required
-                                    ></v-select>
+                                    ></v-autocomplete>
                                   </v-col>
-                                  <v-col cols="6" md="4">
+                                  <v-col cols="6" md="6">
                                     <v-menu
                                       v-model="menu1"
                                       :close-on-content-click="false"
@@ -558,8 +556,8 @@
                                     </v-menu>
                                   </v-col>
                                 </v-row>
-                                <v-btn color="green darken-1" text @click="traslado()">Aceptar</v-btn>
-                                <v-btn color="blue darken-1" text @click="clearTraslado()">Cancelar</v-btn>
+                                <v-btn color="green darken-1" text @click="Traslado">Aceptar</v-btn>
+                                <v-btn color="blue darken-1" text @click="clearTraslado">Cancelar</v-btn>
                               </v-container>
                             </form>
                           </v-card-text>
@@ -661,7 +659,7 @@
                   </v-card>
                 </v-col>
 
-                <v-col cols="4">
+                <v-col cols="5">
                   <v-card color="blue darken-3" dark>
                     <v-list-item>
                       <v-layout column align-center xs12 sm10 md6 lg4>
@@ -692,10 +690,15 @@
                     <v-layout class="pa-2">
                       <v-toolbar-items
                         class="text-capitalize"
-                      >Unidad Organizativa: {{trabajador.unidadOrganizativa}}</v-toolbar-items>
+                      >Perfil Ocupacional: {{trabajador.perfil_Ocupacional}}</v-toolbar-items>
                     </v-layout>
                     <v-layout class="pa-2">
-                      <v-toolbar-items class="text-capitalize">Cargo: {{trabajador.cargo}}</v-toolbar-items>
+                      <v-toolbar-items
+                        class="text-capitalize"
+                      >Unidad Organizativa Actual: {{trabajador.unidadOrganizativa}}</v-toolbar-items>
+                    </v-layout>
+                    <v-layout class="pa-2">
+                      <v-toolbar-items class="text-capitalize">Cargo Actual: {{trabajador.cargo}}</v-toolbar-items>
                     </v-layout>
                   </v-card>
                 </v-col>
@@ -781,7 +784,7 @@ export default {
     unidadOrganizativa: "",
     edad: "",
     cargo: "",
-    nivelEscolaridad: "",
+    nivelDeEscolaridad: "",
     edadDesde: "",
     edadHasta: "",
     otrasCaracteristicas: "",
@@ -796,8 +799,10 @@ export default {
     traslado: {
       trabajadorId: "",
       fechaTraslado: "",
-      cargoId: "",
-      unidadOrganizativaId: ""
+      cargoOrigenId: "",
+      cargoDestinoId: "",
+      unidOrgOrigenId: "",
+      unidOrgDestinoId: ""
     },
     baja: {
       trabajadorId: "",
@@ -884,7 +889,6 @@ export default {
       this.trabajador = Object.assign({}, item);
       this.dialog3 = true;
     },
-
     closeDetalles() {
       this.dialog3 = false;
     },
@@ -897,7 +901,7 @@ export default {
             cargo: this.cargo,
             sexo: this.sexo,
             estado: this.estado,
-            nivelEscolaridad: this.nivelEscolaridad,
+            nivelDeEscolaridad: this.nivelDeEscolaridad,
             edad: this.edad,
             colordePiel: this.colordePiel,
             edadDesde: this.edadDesde,
@@ -1026,6 +1030,31 @@ export default {
         }
       );
     },
+    save(method) {
+      const url = api.getUrl("recursos_humanos", "Trabajadores");
+      if (method === "POST") {
+        this.axios.post(url, this.trabajador).then(
+          response => {
+            this.getResponse(response);
+            this.dialog = false;
+          },
+          error => {
+            console.log(error);
+          }
+        );
+      }
+      if (method === "PUT") {
+        this.axios.put(url + "/" + this.trabajador.id, this.trabajador).then(
+          response => {
+            this.getResponse(response);
+            this.dialog = false;
+          },
+          error => {
+            console.log(error);
+          }
+        );
+      }
+    },
     Entrada() {
       const url = api.getUrl("recursos_humanos", "Entradas");
       this.axios.post(url, this.entrada).then(
@@ -1045,23 +1074,48 @@ export default {
         }
       );
     },
-    traslado() {
+    movimiento(item) {
+      this.editedIndex = this.trabajadores.indexOf(item);
+      this.trabajador = Object.assign({}, item);
+      this.traslado.trabajadorId = this.trabajador.id;
+      this.baja.trabajadorId = this.trabajador.id;
+      this.dialog5 = true;
+    },
+    Traslado() {
+      this.traslado.cargoOrigenId = this.trabajador.cargoId;
+      this.traslado.unidOrgOrigenId = this.trabajador.unidadOrganizativaId;
       const url = api.getUrl("recursos_humanos", "Traslados");
-      this.axios.post(url, this.traslado).then(
-        response => {
-          this.getResponse(response);
-          this.traslado = {
-            trabajadorId: "",
-            fechaTraslado: "",
-            cargoDestinoId: ""
-          };
-          this.dialog5 = false;
-          this.getTrabajadoresFromApi();
-        },
-        error => {
-          console.log(error);
-        }
-      );
+      if (this.traslado.cargoDestinoId == "") {
+        vm.$snotify.error("El campo Cargo a Ocupar es obligatorio");
+      }
+      if (this.traslado.unidOrgDestinoId == "") {
+        vm.$snotify.error("El campo Unidad Organizativa es obligatorio");
+      }
+      if (this.traslado.fechaEntrada == "") {
+        vm.$snotify.error("El campo Fecha es obligatorio");
+      } else {
+        this.axios.post(url, this.traslado).then(
+          response => {
+            this.getResponse(response);
+            this.traslado = {
+              trabajadorId: "",
+              fechaTraslado: "",
+              cargoDestinoId: ""
+            };
+            this.dialog5 = false;
+            this.getTrabajadoresFromApi();
+          },
+          error => {
+            console.log(error);
+          }
+        );
+      }
+    },
+    clearTraslado() {
+      this.traslado = {
+        fechaTraslado: "",
+        cargoDestinoId: ""
+      };
     },
     confirmBaja() {
       this.dialog6 = true;
@@ -1091,43 +1145,11 @@ export default {
         fechaBaja: ""
       };
     },
-    clearTraslado() {
-      this.traslado = {
-        fechaTraslado: "",
-        cargoDestinoId: ""
-      };
-    },
     editItem(item) {
       this.editedIndex = this.trabajadores.indexOf(item);
       this.trabajador = Object.assign({}, item);
       this.dialog = true;
     },
-    save(method) {
-      const url = api.getUrl("recursos_humanos", "Trabajadores");
-      if (method === "POST") {
-        this.axios.post(url, this.trabajador).then(
-          response => {
-            this.getResponse(response);
-            this.dialog = false;
-          },
-          error => {
-            console.log(error);
-          }
-        );
-      }
-      if (method === "PUT") {
-        this.axios.put(url + "/" + this.trabajador.id, this.trabajador).then(
-          response => {
-            this.getResponse(response);
-            this.dialog = false;
-          },
-          error => {
-            console.log(error);
-          }
-        );
-      }
-    },
-
     confirmDelete(item) {
       this.trabajador = Object.assign({}, item);
       this.dialog4 = true;
@@ -1162,14 +1184,6 @@ export default {
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);
-    },
-
-    movimiento(item) {
-      this.editedIndex = this.trabajadores.indexOf(item);
-      this.trabajador = Object.assign({}, item);
-      this.traslado.trabajadorId = this.trabajador.id;
-      this.baja.trabajadorId = this.trabajador.id;
-      this.dialog5 = true;
     }
   }
 };

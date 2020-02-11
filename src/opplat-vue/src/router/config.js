@@ -359,6 +359,15 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Bolsa.vue'),
     },
     {
+      path: '/recursos_humanos/ListadoAperturas',
+      name: 'ListadoAperturas',
+      meta: {
+        title: 'Listado de Aperturas',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/ListadoAperturas.vue'),
+    },
+    {
       path: '/recursos_humanos/Apertura',
       name: 'Apertura',
       meta: {

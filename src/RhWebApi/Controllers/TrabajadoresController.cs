@@ -39,7 +39,9 @@ namespace RhWebApi.Controllers {
                         NivelDeEscolaridad = t.NivelDeEscolaridad,
                         NivelDeEscolaridadName = t.NivelDeEscolaridad.ToString (),
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
+                        CargoId = t.PuestoDeTrabajo.Cargo.Id,
                         UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
+                        UnidadOrganizativaId = t.PuestoDeTrabajo.UnidadOrganizativa.Id,
                         EstadoTrabajador = t.EstadoTrabajador,
                         EstadoTrabajadorName = t.EstadoTrabajador.ToString (),
                         Correo = t.Correo,
@@ -108,10 +110,14 @@ namespace RhWebApi.Controllers {
         [HttpPost]
         public IActionResult POST ([FromBody] TrabajadorDto trabajadorDto) {
             if (ModelState.IsValid) {
-                if (context.Trabajador.Any (e => e.CI == trabajadorDto.CI)) {
+                var trab = context.Trabajador.FirstOrDefault (s => s.CI == trabajadorDto.CI);
+                if (trab != null) {
+                    if (trab.EstadoTrabajador == Estados.Descartado) {
+                        return BadRequest ($"El trabajador ya está en el sistema y fue descartado de la bolsa");
+                    }
                     return BadRequest ($"El trabajador ya está en el sistema");
                 } else {
-                    // Saber sexo y fecha cumple del CI
+                    // Saber sexo y fecha de cumpleaños por el CI
                     var sexo = new Sexo ();
                     string fecha = "";
                     DateTime fechaNac = new DateTime ();
@@ -339,7 +345,7 @@ namespace RhWebApi.Controllers {
         // GET: recursos_humanos/trabajadores/Bolsa
         [HttpGet ("/recursos_humanos/Trabajadores/Bolsa")]
         public IActionResult GetAllBolsa () {
-            var trab = context.Bolsa.Include (b => b.Trabajador)
+            var trab = context.Bolsa.Include (b => b.Trabajador).Where (s => s.Trabajador.EstadoTrabajador == Estados.Bolsa)
                 .Select (t => new {
                     Id = t.Trabajador.Id,
                         Nombre = t.Trabajador.Nombre,
@@ -369,7 +375,7 @@ namespace RhWebApi.Controllers {
                         Foto = t.Trabajador.CaracteristicasTrab.Foto,
                         Fecha_Nac = t.Trabajador.Fecha_Nac.ToString ("dd MMMM yyyy"),
                         Edad = (DateTime.Now - t.Trabajador.Fecha_Nac).Days / 365,
-                        Referencia = t.Nombre_Referencia,
+                        nombre_Referencia = t.Nombre_Referencia,
                         Fecha_Entrada = t.Fecha.ToString ("dd MMMM yyyy"),
                         Tiempo_Bolsa = (DateTime.Now - t.Fecha).Days + " Días",
                 });

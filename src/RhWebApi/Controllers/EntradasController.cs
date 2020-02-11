@@ -64,9 +64,16 @@ namespace RhWebApi.Controllers {
                         var puestoNew = new PuestoDeTrabajo () {
                         CargoId = entradaDto.CargoId,
                         UnidadOrganizativaId = entradaDto.UnidadOrganizativaId,
+                        Descripcion = entradaDto.Descripcion,
+                        PlantillaOcupada = +1
                         };
                         context.PuestoDeTrabajo.Add (puestoNew);
-                        context.SaveChanges ();
+                        trabajador.PuestoDeTrabajoId = puestoNew.Id;
+                        context.Entry (trabajador).State = EntityState.Modified;
+                    } else {
+                        puesto.PlantillaOcupada++;
+                        trabajador.PuestoDeTrabajoId = puesto.Id;
+                        context.Entry (trabajador).State = EntityState.Modified;
                     }
                     var entrada = new Entrada () {
                         TrabajadorId = entradaDto.TrabajadorId,
@@ -75,20 +82,14 @@ namespace RhWebApi.Controllers {
                         UnidadOrganizativaId = entradaDto.UnidadOrganizativaId,
                     };
                     context.Entrada.Add (entrada);
-                    context.SaveChanges ();
-
-                    puesto = context.PuestoDeTrabajo.FirstOrDefault (p => p.CargoId == entradaDto.CargoId && p.UnidadOrganizativaId == entradaDto.UnidadOrganizativaId);
-                    puesto.PlantillaOcupada++;
-                    trabajador.PuestoDeTrabajoId = puesto.Id;
                     trabajador.EstadoTrabajador = Estados.Activo;
-                    context.Entry (trabajador).State = EntityState.Modified;
+                    context.SaveChanges ();
 
                     var historico = new HistoricoPuestoDeTrabajo () {
                         TrabajadorId = trabajador.Id,
                         PuestoDeTrabajoId = trabajador.PuestoDeTrabajoId,
                         FechaInicio = DateTime.Now,
                     };
-
                     context.HistoricoPuestoDeTrabajo.Add (historico);
                     context.SaveChanges ();
                     return new CreatedAtRouteResult ("GetEntrada", new { id = entradaDto.Id });
