@@ -23,5 +23,7 @@ namespace ImportadorDatos.Models.EnlaceVersat
         public DbSet<ElementoDeGasto> ElementoDeGastos { get; set; }
         public DbSet<SubElementoDeGasto> SubElementoDeGastos { get; set; }
         public DbSet<PartidaDeGasto> PartidaDeGastos { get; set; }
+        public DbSet<CentroDeCosto> CentrosDeCostos { get; set; }
+        public DbSet<RegistroDeGasto> RegistroDeGastos { get; set; }
     }
 }

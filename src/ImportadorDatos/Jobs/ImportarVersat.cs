@@ -361,6 +361,65 @@ namespace ImportadorDatos.Jobs
                 _enlaceContext.SaveChanges();
             }
         }
+
+        public void ImportarCentrosDeCostos()
+        {
+            var importados = _enlaceContext.CentrosDeCostos.Select(e => e.CentroVersatId).ToList();
+            foreach (var elem in _vContext.CosCentro.Where(e => !importados.Contains(e.Idcentro)))
+            {
+                var newElemento = new ContabilidadWebApi.Models.CentroDeCosto
+                {
+                    Activo = elem.Activo.HasValue ? elem.Activo.Value : false,
+                    Nombre = elem.Descripcion,
+                    Codigo = elem.Clave,
+                };
+                _cContext.Add(newElemento);
+                _cContext.SaveChanges();
+                _enlaceContext.Add(new Models.EnlaceVersat.CentroDeCosto
+                {
+                    CentroId = newElemento.Id,
+                    CentroVersatId = elem.Idcentro,
+                    Fecha = DateTime.Now,
+                });
+                _enlaceContext.SaveChanges();
+            }
+        }
+
+        public void ImportarRegistrosDeGastos()
+        {
+            var importados = _enlaceContext.RegistroDeGastos.Select(e => e.RegistroVersatId).ToList();
+            var registros = _vContext.CosPasesubelemento
+                .Include(e => e.IdpaseNavigation.IdregistroNavigation.IdregistroNavigation.IdpaseNavigation)
+                .Where(e => !importados.Contains(e.Idpase))
+                .Select(e => new
+                {
+                    Id = e.Idpase,
+                    ComprobanteId = e.IdpaseNavigation.IdregistroNavigation.IdregistroNavigation.IdpaseNavigation.Idcomprobante,                    
+                    SubElementoId = e.Idsubelemento,
+                    Importe = e.IdpaseNavigation.IdregistroNavigation.Importe.HasValue ? e.IdpaseNavigation.IdregistroNavigation.Importe.Value : 0
+                }).ToList();
+            foreach (var elem in registros)
+            {
+                var newElemento = new ContabilidadWebApi.Models.RegistroDeGasto
+                {
+                    AsientoId = _enlaceContext.Asientos
+                        .SingleOrDefault(a => a.ComprobanteId ==
+                            elem.ComprobanteId).AsientoId,
+                    SubElementoId = _enlaceContext.SubElementoDeGastos.SingleOrDefault(se => se.SubElementoVersatId == elem.SubElementoId).SubElementoId,
+                    Importe = elem.Importe,
+                };
+                _cContext.Add(newElemento);
+                _cContext.SaveChanges();
+                _enlaceContext.Add(new Models.EnlaceVersat.RegistroDeGasto
+                {
+                    RegistroId = newElemento.Id,
+                    RegistroVersatId = elem.Id,
+                    Fecha = DateTime.Now,
+                });
+                _enlaceContext.SaveChanges();
+            }
+        }
+
         private string GetNumeroCuenta(string clave, int posicion)
         {
             var formatos = new int[6] { 0, 3, 4, 6, 6, 6 };

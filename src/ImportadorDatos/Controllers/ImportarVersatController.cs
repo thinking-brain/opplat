@@ -71,5 +71,18 @@ namespace ImportadorDatos.Controllers
             return Ok("SubElementos de gastos importados correctamente.");
         }
 
+        [HttpGet("centros-de-costos")]
+        public async Task<IActionResult> GetCentrosDeCostos()
+        {
+            importador.ImportarCentrosDeCostos();
+            return Ok("Centros de costos importados correctamente.");
+        }
+
+        [HttpGet("registros-de-gastos")]
+        public async Task<IActionResult> GetRegistrosDeGastos()
+        {
+            importador.ImportarRegistrosDeGastos();
+            return Ok("Registros de gastos importados correctamente.");
+        }
     }
 }
