@@ -44,25 +44,27 @@ namespace RhWebApi.Controllers {
         [HttpPost]
         public IActionResult POST ([FromBody] BajaDto bajaDto) {
             if (ModelState.IsValid) {
-                var baja = new Baja () {
-                    TrabajadorId = bajaDto.TrabajadorId,
-                    Fecha = bajaDto.Fecha,
-                    CausaDeBaja = bajaDto.CausaDeBaja,
-                };
-                context.Baja.Add (baja);
-                context.SaveChanges ();
-
                 var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == bajaDto.TrabajadorId);
                 if (trabajador == null) {
                     return NotFound ();
+                } else if (trabajador.EstadoTrabajador == Estados.Baja) {
+                    return BadRequest ($"El trabajador ya esta de baja");
                 } else {
+                    var baja = new Baja () {
+                        TrabajadorId = bajaDto.TrabajadorId,
+                        Fecha = bajaDto.Fecha,
+                        CausaDeBaja = bajaDto.CausaDeBaja,
+                    };
+                    context.Baja.Add (baja);
+                    context.SaveChanges ();
                     trabajador.EstadoTrabajador = Estados.Baja;
-                    trabajador.PuestoDeTrabajo.PlantillaOcupada--;
+                    // trabajador.PuestoDeTrabajo.PlantillaOcupada--;
                     trabajador.PuestoDeTrabajoId = null;
                     context.SaveChanges ();
 
                     return new CreatedAtRouteResult ("GetBaja", new { id = baja.Id });
                 }
+
             }
             return BadRequest (ModelState);
         }
@@ -90,6 +92,25 @@ namespace RhWebApi.Controllers {
             context.Baja.Remove (baja);
             context.SaveChanges ();
             return Ok (baja);
+        }
+        // GET: recursos_humanos/baja/CausaDeBaja
+        [HttpGet ("/recursos_humanos/Baja/CausaDeBaja")]
+        public IActionResult GetAllCausaDeBaja () {
+            var causaDeBaja = new List<dynamic> () {
+                new { Id = CausaDeBaja.SinDefinir, Nombre = CausaDeBaja.SinDefinir.ToString () },
+                new { Id = CausaDeBaja.Salarial, Nombre = CausaDeBaja.Salarial.ToString () },
+                new { Id = CausaDeBaja.Jubilación, Nombre = CausaDeBaja.Jubilación.ToString () },
+                new { Id = CausaDeBaja.Fallecimiento, Nombre = CausaDeBaja.Fallecimiento.ToString () },
+                new { Id = CausaDeBaja.InvalidezTotal, Nombre = CausaDeBaja.InvalidezTotal.ToString () },
+                new { Id = CausaDeBaja.InvalidezParcial, Nombre = CausaDeBaja.InvalidezParcial.ToString () },
+                new { Id = CausaDeBaja.PrivacionDeLibertad, Nombre = CausaDeBaja.PrivacionDeLibertad.ToString () },
+                new { Id = CausaDeBaja.PasoAFormasNoEstatales, Nombre = CausaDeBaja.PasoAFormasNoEstatales.ToString () },
+                new { Id = CausaDeBaja.ProcesoDeDisponibilidad, Nombre = CausaDeBaja.ProcesoDeDisponibilidad.ToString () },
+                new { Id = CausaDeBaja.SancionAdministrativa, Nombre = CausaDeBaja.SancionAdministrativa.ToString () },
+                new { Id = CausaDeBaja.SalidaDelPais, Nombre = CausaDeBaja.SalidaDelPais.ToString () },
+                new { Id = CausaDeBaja.OtrasCausas, Nombre = CausaDeBaja.OtrasCausas.ToString () },
+            };
+            return Ok (causaDeBaja);
         }
     }
 }

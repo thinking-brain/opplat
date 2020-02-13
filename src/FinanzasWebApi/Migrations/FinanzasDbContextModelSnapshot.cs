@@ -16,7 +16,7 @@ namespace FinanzasWebApi.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("FinanzasWebApi.Models.CacheCuentaPeriodo", b =>
@@ -39,6 +39,34 @@ namespace FinanzasWebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CachesCuentasEnPeriodos");
+                });
+
+            modelBuilder.Entity("FinanzasWebApi.Models.CacheEstadoFinanciero", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<decimal>("Apertura");
+
+                    b.Property<string>("Concepto");
+
+                    b.Property<string>("EFE");
+
+                    b.Property<DateTime>("FechaActualizado");
+
+                    b.Property<string>("Grupo");
+
+                    b.Property<int>("Mes");
+
+                    b.Property<decimal>("PlanAnual");
+
+                    b.Property<decimal>("Saldo");
+
+                    b.Property<int>("Year");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CachesEstadosFinancieros");
                 });
 
             modelBuilder.Entity("FinanzasWebApi.Models.ConfiguracionFirmas", b =>

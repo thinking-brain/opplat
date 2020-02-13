@@ -32,6 +32,7 @@ using ImportadorDatos.HostedServices;
 using Microsoft.Extensions.Logging;
 using RhWebApi.Data;
 using Microsoft.OpenApi.Models;
+using FinanzasWebApi.Helper.EstadoFinanciero;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -113,7 +114,7 @@ namespace opplatApplication
                         Version = "v1",
                         Title = "Account API",
                         Description = "Gestiona la autenticacion y autorizacion, asi como la gestion de usuarios.",
-                        TermsOfService = new Uri("APACHE 2.0"),
+                        TermsOfService = new Uri("https://example.com/terms"),
                         Contact = new OpenApiContact
                         {
                             Name = "EFAVAI Tech",
@@ -138,6 +139,8 @@ namespace opplatApplication
             services.AddScoped<FinanzasDbContext>();
             services.AddScoped<ObtenerPlanGI>();
             services.AddScoped<ObtenerValuesEnVariablesEstadoFinanciero>();
+            services.AddScoped<GetEstadoFinanciero>();
+            services.AddScoped<GetEF>();
             // services.AddSingleton<ObtenerPlanGI_Context>();
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();

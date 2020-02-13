@@ -53,6 +53,28 @@ namespace RhWebApi.Migrations
                     b.ToTable("actividades_laborales");
                 });
 
+            modelBuilder.Entity("RhWebApi.Models.AperturaSocio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CantTrabajadores");
+
+                    b.Property<int?>("CaracteristicasSocioId");
+
+                    b.Property<bool>("Cerrada");
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.Property<int>("NumeroAcuerdo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaracteristicasSocioId");
+
+                    b.ToTable("AperturaSocio");
+                });
+
             modelBuilder.Entity("RhWebApi.Models.Baja", b =>
                 {
                     b.Property<int>("Id")
@@ -71,6 +93,48 @@ namespace RhWebApi.Migrations
                     b.ToTable("bajas");
                 });
 
+            modelBuilder.Entity("RhWebApi.Models.Bolsa", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.Property<string>("Nombre_Referencia");
+
+                    b.Property<int>("TrabajadorId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrabajadorId");
+
+                    b.ToTable("Bolsa");
+                });
+
+            modelBuilder.Entity("RhWebApi.Models.CaracteristicasSocio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("ColorDePiel");
+
+                    b.Property<string>("Direccion");
+
+                    b.Property<int?>("MunicipioId");
+
+                    b.Property<int>("NivelDeEscolaridad");
+
+                    b.Property<string>("Perfil_Ocupacional");
+
+                    b.Property<int?>("Sexo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MunicipioId");
+
+                    b.ToTable("caracteristicas_de_los_socios");
+                });
+
             modelBuilder.Entity("RhWebApi.Models.CaracteristicasTrab", b =>
                 {
                     b.Property<int>("Id")
@@ -84,7 +148,7 @@ namespace RhWebApi.Migrations
 
                     b.Property<string>("OtrasCaracteristicas");
 
-                    b.Property<double>("TallaCalzado");
+                    b.Property<double?>("TallaCalzado");
 
                     b.Property<int>("TallaDeCamisa");
 
@@ -185,6 +249,22 @@ namespace RhWebApi.Migrations
                     b.HasIndex("UnidadOrganizativaId");
 
                     b.ToTable("Entradas");
+                });
+
+            modelBuilder.Entity("RhWebApi.Models.Funciones", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("CargoId");
+
+                    b.Property<string>("Descripcion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CargoId");
+
+                    b.ToTable("Funciones");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.GrupoEscala", b =>
@@ -327,6 +407,22 @@ namespace RhWebApi.Migrations
                     b.ToTable("puestos_de_trabajos");
                 });
 
+            modelBuilder.Entity("RhWebApi.Models.Requisitos", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("CargoId");
+
+                    b.Property<string>("Descripcion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CargoId");
+
+                    b.ToTable("Requisitos");
+                });
+
             modelBuilder.Entity("RhWebApi.Models.TipoUnidadOrganizativa", b =>
                 {
                     b.Property<int>("Id")
@@ -347,9 +443,13 @@ namespace RhWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Apellidos");
+                    b.Property<string>("Apellidos")
+                        .IsRequired();
 
-                    b.Property<string>("CI");
+                    b.Property<int?>("AperturaSocioId");
+
+                    b.Property<string>("CI")
+                        .IsRequired();
 
                     b.Property<string>("Codigo");
 
@@ -359,11 +459,17 @@ namespace RhWebApi.Migrations
 
                     b.Property<int>("EstadoTrabajador");
 
+                    b.Property<DateTime>("Fecha_Nac");
+
                     b.Property<int?>("MunicipioId");
 
                     b.Property<int>("NivelDeEscolaridad");
 
-                    b.Property<string>("Nombre");
+                    b.Property<string>("Nombre")
+                        .IsRequired();
+
+                    b.Property<string>("Perfil_Ocupacional")
+                        .IsRequired();
 
                     b.Property<int?>("PuestoDeTrabajoId");
 
@@ -374,6 +480,8 @@ namespace RhWebApi.Migrations
                     b.Property<string>("TelefonoMovil");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AperturaSocioId");
 
                     b.HasIndex("MunicipioId");
 
@@ -425,7 +533,7 @@ namespace RhWebApi.Migrations
 
                     b.Property<int?>("PerteneceAId");
 
-                    b.Property<int>("TipoUnidadOrganizativaId");
+                    b.Property<int?>("TipoUnidadOrganizativaId");
 
                     b.HasKey("Id");
 
@@ -449,12 +557,34 @@ namespace RhWebApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("RhWebApi.Models.AperturaSocio", b =>
+                {
+                    b.HasOne("RhWebApi.Models.CaracteristicasSocio", "CaracteristicasSocio")
+                        .WithMany()
+                        .HasForeignKey("CaracteristicasSocioId");
+                });
+
             modelBuilder.Entity("RhWebApi.Models.Baja", b =>
                 {
                     b.HasOne("RhWebApi.Models.Trabajador", "Trabajador")
                         .WithMany()
                         .HasForeignKey("TrabajadorId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("RhWebApi.Models.Bolsa", b =>
+                {
+                    b.HasOne("RhWebApi.Models.Trabajador", "Trabajador")
+                        .WithMany()
+                        .HasForeignKey("TrabajadorId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("RhWebApi.Models.CaracteristicasSocio", b =>
+                {
+                    b.HasOne("RhWebApi.Models.Municipio", "Municipio")
+                        .WithMany()
+                        .HasForeignKey("MunicipioId");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.CaracteristicasTrab", b =>
@@ -490,6 +620,13 @@ namespace RhWebApi.Migrations
                     b.HasOne("RhWebApi.Models.UnidadOrganizativa", "UnidadOrganizativa")
                         .WithMany()
                         .HasForeignKey("UnidadOrganizativaId");
+                });
+
+            modelBuilder.Entity("RhWebApi.Models.Funciones", b =>
+                {
+                    b.HasOne("RhWebApi.Models.Cargo", "Cargo")
+                        .WithMany()
+                        .HasForeignKey("CargoId");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.GrupoEscala", b =>
@@ -558,8 +695,19 @@ namespace RhWebApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("RhWebApi.Models.Requisitos", b =>
+                {
+                    b.HasOne("RhWebApi.Models.Cargo", "Cargo")
+                        .WithMany()
+                        .HasForeignKey("CargoId");
+                });
+
             modelBuilder.Entity("RhWebApi.Models.Trabajador", b =>
                 {
+                    b.HasOne("RhWebApi.Models.AperturaSocio", "AperturaSocio")
+                        .WithMany("ListaTrabajadores")
+                        .HasForeignKey("AperturaSocioId");
+
                     b.HasOne("RhWebApi.Models.Municipio", "Municipio")
                         .WithMany()
                         .HasForeignKey("MunicipioId");
@@ -599,8 +747,7 @@ namespace RhWebApi.Migrations
 
                     b.HasOne("RhWebApi.Models.TipoUnidadOrganizativa", "TipoUnidadOrganizativa")
                         .WithMany("UnidadesOrganizativas")
-                        .HasForeignKey("TipoUnidadOrganizativaId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("TipoUnidadOrganizativaId");
                 });
 #pragma warning restore 612, 618
         }

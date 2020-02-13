@@ -244,6 +244,24 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/RazonesFinancieras.vue'),
     },
     {
+      path: '/finanzas/EstadoFinanciero',
+      name: 'EstadoFinanciero',
+      meta: {
+        title: 'Estado Financiero',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/EstadoFinanciero.vue'),
+    },
+    {
+      path: '/finanzas/EstadoFinancieroReport',
+      name: 'EstadoFinancieroReport',
+      meta: {
+        title: 'EF Report',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/EFReport.vue'),
+    },
+    {
       path: '/finanzas/configuraciones',
       name: 'Configuraciones',
       meta: {
@@ -330,35 +348,25 @@ export const protectedRoute = [
         requiresAuth: true,
       },
       component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Trabajadores.vue'),
-    }],
+    },
+    {
+      path: '/recursos_humanos/Bolsa',
+      name: 'Bolsa',
+      meta: {
+        title: 'Bolsa',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Bolsa.vue'),
+    },
+    {
+      path: '/recursos_humanos/Apertura',
+      name: 'Apertura',
+      meta: {
+        title: 'Apertura',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Apertura.vue'),
+    },
+  ],
   },
-
-  // {
-  //   name: 'Recusos Humanos',
-  //   path: '/recursos_humanos',
-  //   component: DefaultLayout,
-  //   redirect: '/recursos_humanos/Traslados',
-  //   meta: {
-  //     title: 'Movimientos',
-  //     group: 'recursos_humanos',
-  //   },
-  //   children: [{
-  //     path: '/recursos_humanos/Traslados',
-  //     name: 'Movimientos',
-  //     meta: {
-  //       title: 'Movimientos',
-  //       requiresAuth: true,
-  //     },
-  //     component: () => import(/* webpackChunkName: "table" */ '@/components/recursos_humanos/movimientos/Movimientos.vue'),
-  //   },
-  //   {
-  //     path: '/recursos_humanos/UnidadOrganizativa',
-  //     name: 'UnidadOrganizativa',
-  //     meta: {
-  //       title: 'Unidad Organizativa',
-  //       requiresAuth: true,
-  //     },
-  //     component: () => import(/* webpackChunkName: "table" */ '@/components/recursos_humanos/reportes/UnidadOrganizativa.vue'),
-  //   }],
-  // },  
 ];

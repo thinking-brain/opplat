@@ -1,6 +1,6 @@
 [
     {
-        "title": "Trabajadores",
+        "title": "Listado de Trabajadores",
         "group": "recursos_humanos",
         "icon": "mdi-worker",
         "name": "Trabajadores",
@@ -8,6 +8,28 @@
         "roles": [
             "administrador",
             "recursos_humanos"
-        ]        
+        ]
+    },
+    {
+        "title": "Trabajadores en la Bolsa",
+        "group": "recursos_humanos",
+        "icon": "mdi-clipboard-account",
+        "component": "Bolsa",
+        "name": "Bolsa",
+        "roles": [
+            "administrador",
+            "recursos_humanos"
+        ]
+    },
+    {
+        "title": "Apertura de Socios",
+        "group": "recursos_humanos",
+        "icon": "mdi-account-tie",
+        "component": "Apertura",
+        "name": "Apertura",
+        "roles": [
+            "administrador",
+            "recursos_humanos"
+        ]
     }
 ]
