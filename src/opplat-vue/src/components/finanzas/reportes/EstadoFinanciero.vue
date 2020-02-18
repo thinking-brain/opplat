@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-form v-model="valid" class="d-print-none">
+    <v-form v-model="valid" ref="form" class="d-print-none">
       <v-row>
         <v-col cols="12" md="4">
           <v-select
@@ -15,7 +15,7 @@
         </v-col>
 
         <v-col cols="12" md="4">
-          <v-text-field v-model="year_form" :counter="4" :rules="nameRules" label="AÑO" required></v-text-field>
+          <v-text-field v-model="year_form" :counter="4" :rules="yearRules" label="AÑO" required></v-text-field>
         </v-col>
 
         <v-col cols="12" md="4">
@@ -25,9 +25,7 @@
     </v-form>
     <v-card v-if="visible" color="basil">
       <v-card-title class="text-center justify-center py-6">
-        <h6
-          class="font-weight-bold display-1 basil--text"
-        >Estado Financiero {{mes.nombre}} {{year}}</h6>
+        <h6 class="font-weight-bold display-1 basil--text">Estado Financiero {{mes.nombre}} {{year}}</h6>
       </v-card-title>
 
       <v-tabs v-model="tab" background-color="transparent" color="basil" grow>
@@ -72,8 +70,9 @@ export default {
       year_form: "",
       mes: "",
       year: "",
-      nameRules: [
+      yearRules: [
         v => !!v || "Este campo es requerido",
+        v => /^[0-9]+$/.test(v) || "Solo números",
         v => (v && v.length == 4) || "El año debe tener 4 caracteres."
       ],
       estado: [],
@@ -98,9 +97,11 @@ export default {
   },
   methods: {
     GenerarReporte() {
-      this.year = this.year_form;
-      this.mes = this.mes_form;
-      this.visible = true;
+      if (this.$refs.form.validate()) {
+        this.year = this.year_form;
+        this.mes = this.mes_form;
+        this.visible = true;
+      }
     }
   }
 };

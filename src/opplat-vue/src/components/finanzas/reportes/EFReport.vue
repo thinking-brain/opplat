@@ -117,6 +117,7 @@ export default {
       year: "",
       yearRules: [
         v => !!v || "Este campo es requerido",
+        v => /^[0-9]+$/.test(v) || "Solo números",
         v => (v && v.length == 4) || "El año debe tener 4 caracteres."
       ],
       estado: [],

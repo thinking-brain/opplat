@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-divider class="d-print-none"></v-divider>
-    <v-row class="my-4 mb-4 d-print-none">
+    <v-row v-if="visible" class="my-4 mb-4 d-print-none">
       <v-tooltip top>
         <template v-slot:activator="{ on }">
           <v-btn class="mx-2" fab small>
@@ -254,7 +254,8 @@ export default {
       ingresos: null,
       egresos: null,
       utilidades: null,
-      errors: []
+      errors: [],
+      visible: false
     };
   },
   computed: {
@@ -321,6 +322,7 @@ export default {
         .get(url)
         .then(response => {
           this.ingresos = response.data;
+          this.visible = true;
         })
         .catch(e => {
           this.errors.push(e);
@@ -400,7 +402,7 @@ export default {
       WinPrint.print();
       WinPrint.close();
     },
-    exportTableToExcel(tableID = "table1", filename = "Reportee") {
+    exportTableToExcel(tableID = "table1", filename = "Reporte ingresos y gastos "+ this.mes.nombre +" "+this.year) {
       var downloadLink;
       var dataType = "application/vnd.ms-excel";
       var tableSelect = document.getElementById("table1");
