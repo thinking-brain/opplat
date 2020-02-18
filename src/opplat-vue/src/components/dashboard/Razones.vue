@@ -5,7 +5,7 @@
         <h2>Razones Financieras</h2>
       </v-subheader>
       <v-card-text>
-        <v-simple-table fixed-header height="300px">
+        <v-simple-table fixed-header height="500px">
           <thead>
             <tr>
               <th class="text-left">Razon</th>

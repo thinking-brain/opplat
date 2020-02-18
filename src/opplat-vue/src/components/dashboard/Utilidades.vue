@@ -66,7 +66,7 @@ export default {
 
     const url = api.getUrl(
       "finanzas",
-      `ReporteIngresosGastos/utilidadesTotal/${year}`
+      `ReporteIngresosGastos/utilidadesTotal/${2019}`
     );
     this.axios
       .get(url)
