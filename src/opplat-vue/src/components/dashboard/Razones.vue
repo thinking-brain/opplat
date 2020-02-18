@@ -44,30 +44,31 @@
 </template>
 
 <script>
-import api from "@/api";
+import api from '@/api';
+
 export default {
   data() {
     return {
-      razones: []
+      razones: [],
     };
   },
   created() {
-    var d = new Date();
-    var year = d.getFullYear();
-    var month = d.getMonth() + 1;
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
     const url = api.getUrl(
-      "finanzas",
-      `RazonesFinancieras/MesActual/${year}/${month}`
+      'finanzas',
+      `RazonesFinancieras/MesActual/${year}/${month}`,
     );
     this.axios
       .get(url)
-      .then(response => {
+      .then((response) => {
         this.razones = response.data;
       })
-      .catch(e => {
+      .catch((e) => {
         this.errors.push(e);
-        vm.$snotify.error("Error al conectarse con la API Finanzas");
+        vm.$snotify.error('Error al conectarse con la API Finanzas');
       });
-  }
+  },
 };
 </script>

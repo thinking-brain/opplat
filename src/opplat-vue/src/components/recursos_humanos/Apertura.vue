@@ -4,15 +4,6 @@
       <v-container>
         <!-- Stack the columns on mobile by making one full-width and the other half-width -->
         <v-row>
-          <v-container>
-            <v-row justify="center pa-8">
-              <v-card-title>
-                <h2>
-                  <strong>Nueva Apertura de Socios</strong>
-                </h2>
-              </v-card-title>
-            </v-row>
-          </v-container>
           <v-col cols="12" sm="6" md="2" offset-md="1">
             <v-menu v-model="menu" :close-on-content-click="false" full-width max-width="290">
               <template v-slot:activator="{ on }">
@@ -34,10 +25,7 @@
             <v-text-field label="Cantidad de Socios a Aprobar"></v-text-field>
           </v-col>
           <v-col cols="12" sm="6" md="10" offset-md="1">
-            <v-text>Socios Escogidos Según las Características :</v-text>
-          </v-col>
-          <v-col cols="12" sm="6" md="10" offset-md="1">
-            <v-text v-for="item in selected" :key="item.nombre">{{item.nombre_Completo}}</v-text>
+            <v-text-field label="Socios Escogidos Según las Características"></v-text-field>
           </v-col>
         </v-row>
 
@@ -52,7 +40,7 @@
         <template>
           <v-row>
             <v-row justify="space-around">
-              <v-switch v-model="Sexo" cols="12" sm="6" md="2" label="Sexo"></v-switch>
+              <v-switch v-model="Sexo" class="ma-2" label="Sexo"></v-switch>
               <v-switch v-model="NivelEscolaridad" class="ma-2" label="Nivel de Escolaridad"></v-switch>
               <v-switch v-model="RangoEdad" class="ma-2" label="Rango de Edad"></v-switch>
               <v-switch v-model="PerfilOcupacional" class="ma-2" label="Perfil Ocupacional"></v-switch>
@@ -61,8 +49,8 @@
         </template>
         <template>
           <v-row>
-            <v-row>
-              <v-flex cols="12" sm="6" md="2" offset-md="1" v-if="Sexo">
+            <v-row justify="space-around">
+              <v-flex class="ma-2" v-if="Sexo">
                 <v-select
                   v-model="sexo"
                   item-text="nombre"
@@ -74,7 +62,7 @@
                   prepend-icon="mdi-database-search"
                 ></v-select>
               </v-flex>
-              <v-flex cols="12" sm="6" md="2" offset-md="1" v-if="NivelEscolaridad">
+              <v-flex class="ma-2" v-if="NivelEscolaridad">
                 <v-select
                   v-model="nivelEscolaridad"
                   item-text="nombre"
@@ -86,7 +74,7 @@
                   prepend-icon="mdi-database-search"
                 ></v-select>
               </v-flex>
-              <v-flex cols="12" sm="6" md="2" offset-md="1" v-if="RangoEdad">
+              <v-flex class="ma-2" v-if="RangoEdad">
                 <v-text-field
                   v-model="edadDesde"
                   clearable
@@ -95,7 +83,7 @@
                   prepend-icon="mdi-database-search"
                 ></v-text-field>
               </v-flex>
-              <v-flex cols="12" sm="6" md="2" offset-md="1" v-if="RangoEdad">
+              <v-flex class="ma-2" v-if="RangoEdad">
                 <v-text-field
                   v-model="edadHasta"
                   clearable
@@ -104,7 +92,7 @@
                   prepend-icon="mdi-database-search"
                 ></v-text-field>
               </v-flex>
-              <v-flex cols="12" sm="6" md="2" offset-md="1" v-if="PerfilOcupacional">
+              <v-flex class="ma-2" v-if="PerfilOcupacional">
                 <v-text-field
                   v-model="perfilOcupacional"
                   clearable
@@ -130,7 +118,7 @@
             >
               <template v-slot:top>
                 <v-toolbar flat color="white">
-                  <v-toolbar-title>Trabajadores Según las Caracteristicas Antes Seleccionadas</v-toolbar-title>
+                  <v-toolbar-title>Bolsa de Trabajadores</v-toolbar-title>
                   <v-divider class="mx-4" inset vertical></v-divider>
                   <v-spacer></v-spacer>
                   <v-text-field
@@ -145,6 +133,7 @@
                   <v-spacer></v-spacer>
                 </v-toolbar>
               </template>
+
             </v-data-table>
           </template>
         </template>
@@ -162,7 +151,7 @@ export default {
     search: "",
     buscar: false,
     editedIndex: -1,
-    aperturasSocios: [],
+    aperturaSoc: [],
     aperturaSocio: {
       fechaAsamblea: ""
     },
@@ -176,7 +165,7 @@ export default {
       perfilOcupacionalId: 0,
       municipioId: 0
     },
-    sexos: [],
+    sexos:[],
     selected: [],
     Sexo: false,
     ColordePiel: false,
@@ -184,7 +173,7 @@ export default {
     RangoEdad: false,
     PerfilOcupacional: false,
     errors: [],
-    headers: [
+     headers: [
       {
         text: "Nombre y Apellidos",
         align: "left",
@@ -197,7 +186,7 @@ export default {
       { text: "Referencia", value: "nombre_Referencia" },
       { text: "Tiempo en Bolsa", value: "tiempo_Bolsa" },
       { text: "Acciones", value: "action", sortable: false }
-    ]
+    ],
   }),
 
   computed: {
@@ -206,8 +195,8 @@ export default {
   },
 
   created() {
-    this.getAperturaSociosFromApi();
-    this.getSexoTrabFromApi();
+    this.getAperturaSociosFromApi(); 
+    this.getSexoTrabFromApi(); 
   },
 
   methods: {
@@ -215,7 +204,7 @@ export default {
       const url = api.getUrl("recursos_humanos", "AperturaSocios");
       this.axios.get(url).then(
         response => {
-          this.aperturasSocios = response.data;
+          this.aperturaSoc = response.data;
           this.volver = false;
         },
         error => {
@@ -258,7 +247,7 @@ export default {
           console.log(error);
         }
       );
-    }
+    },
   }
 };
 </script>

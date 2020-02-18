@@ -17,6 +17,7 @@
 </template>
 <script>
 import RazonesFinancierasTabla from '@/components/finanzas/reportes/RazonesFinancierasTabla';
+
 export default {
   components: { RazonesFinancierasTabla },
   data: () => ({
@@ -43,7 +44,7 @@ export default {
       this.$refs.form.resetValidation();
     },
     GenerarReporte() {
-      this.$refs.tabla.loadReporte(this.year)
+      this.$refs.tabla.loadReporte(this.year);
     },
   },
 };

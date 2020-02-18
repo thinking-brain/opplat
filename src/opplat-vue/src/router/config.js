@@ -280,7 +280,7 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/views/finanzas/ActualizarCache.vue'),
     }],
   },
-  //Plan
+  // Plan
   {
     name: 'Contabilidad',
     path: '/contabilidad',
@@ -301,7 +301,7 @@ export const protectedRoute = [
     }],
   },
 
-  //Inventario
+  // Inventario
   {
     name: 'Inventario',
     path: '/inventario',
@@ -330,7 +330,7 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/views/inventario/Productos.vue'),
     }],
   },
-  //Recursos Humanos
+  // Recursos Humanos
   {
     name: 'Recusos Humanos',
     path: '/recursos_humanos',
@@ -376,6 +376,6 @@ export const protectedRoute = [
       },
       component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Apertura.vue'),
     },
-  ],
+    ],
   },
 ];
