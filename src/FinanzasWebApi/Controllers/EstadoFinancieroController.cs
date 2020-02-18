@@ -51,7 +51,7 @@ namespace FinanzasWebApi.Controllers
             return resultado;
         }
 
-        [HttpGet("estadoFinanciero5921/{años}/{meses}")]
+        [HttpGet("estadoFinanciero5921Report/{años}/{meses}")]
         public List<EstadoFinancieroJsVM> EstadoFinancieros5921(int años, int meses)
         {
             string efe = "5921";

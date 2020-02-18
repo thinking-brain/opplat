@@ -55,7 +55,7 @@
               class="font-weight-bold display-1 basil--text"
             >Estado Financiero {{mes.nombre}} {{year}}</h6>
           </v-card-title>
-          <v-simple-table :fixed-header="true" height="500">
+          <v-simple-table :fixed-header="true" height="700">
             <template v-slot:default>
               <thead>
                 <tr>
@@ -161,7 +161,6 @@ export default {
         const url = api.getUrl(
           'finanzas',
           `EstadoFinanciero/estadoFinanciero5020/${this.year}/${this.mes.id}`,
-        );
         this.axios
           .get(url)
           .then((response) => {
