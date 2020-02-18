@@ -32,6 +32,7 @@ using ImportadorDatos.HostedServices;
 using Microsoft.Extensions.Logging;
 using RhWebApi.Data;
 using Microsoft.OpenApi.Models;
+using FinanzasWebApi.Helper.EstadoFinanciero;
 
 [assembly: HostingStartup(typeof(opplatApplication.Startup))]
 namespace opplatApplication
@@ -77,8 +78,8 @@ namespace opplatApplication
             services.AddDbContext<EnlaceVersatDbContext>(options =>
                  options.UseNpgsql(context.Configuration.GetConnectionString("EnlaceVersatDbContext")));
 
-                 services.AddDbContext<RhWebApiDbContext>(options =>
-                options.UseNpgsql(context.Configuration.GetConnectionString("RhWebApiDbContext"), b => b.MigrationsAssembly("RhWebApi")));
+            services.AddDbContext<RhWebApiDbContext>(options =>
+           options.UseNpgsql(context.Configuration.GetConnectionString("RhWebApiDbContext"), b => b.MigrationsAssembly("RhWebApi")));
 
             services.AddSignalR();
 
@@ -105,10 +106,10 @@ namespace opplatApplication
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Admin123*1234567890"))
                     };
                 });
-           
+
             services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v1", new OpenApiInfo 
+                    c.SwaggerDoc("v1", new OpenApiInfo
                     {
                         Version = "v1",
                         Title = "Account API",
@@ -138,6 +139,8 @@ namespace opplatApplication
             services.AddScoped<FinanzasDbContext>();
             services.AddScoped<ObtenerPlanGI>();
             services.AddScoped<ObtenerValuesEnVariablesEstadoFinanciero>();
+            services.AddScoped<GetEstadoFinanciero>();
+            services.AddScoped<GetEF>();
             // services.AddSingleton<ObtenerPlanGI_Context>();
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();
@@ -178,7 +181,7 @@ namespace opplatApplication
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<IConfiguration>();
             var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
-            
+
             loggerFactory.AddFile("Logs/Log-{Date}.txt");
 
             app.UseAuthentication();

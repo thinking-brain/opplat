@@ -6,6 +6,7 @@
         "name": "Materiales de oficina",
         "celda": "C6",
         "elemento": "100000",
+        "visible": true,
         "sub_elementos": [
           100001,
           101001
@@ -15,6 +16,7 @@
         "name": "Materiles para el pantri",
         "celda": "C7",
         "elemento": "100000",
+        "visible": true,
         "sub_elementos": [
           100035,
           101035
@@ -24,6 +26,7 @@
         "name": "Partes y piezas y pinturas",
         "celda": "C8",
         "elemento": "100000",
+        "visible": true,
         "sub_elementos": [
           100007,
           101007
@@ -33,6 +36,7 @@
         "name": "Neumatico, camaras y baterias",
         "celda": "C9",
         "elemento": "100000",
+        "visible": true,
         "sub_elementos": [
           100005,
           101005
@@ -42,6 +46,7 @@
         "name": "Medios de protección",
         "celda": "C10",
         "elemento": "100000",
+        "visible": true,
         "sub_elementos": [
           100002,
           101002
@@ -51,6 +56,7 @@
         "name": "Materiales para la construcción",
         "celda": "C11",
         "elemento": "100000",
+        "visible": true,
         "sub_elementos": [
           100003,
           101003
@@ -60,6 +66,7 @@
         "name": "Insumos",
         "celda": "C12",
         "elemento": "100000",
+        "visible": true,
         "sub_elementos": [
           100004,
           101004
@@ -74,6 +81,7 @@
         "name": "Gas licuado",
         "celda": "C14",
         "elemento": "300000",
+        "visible": true,
         "sub_elementos": [
           300005
         ]
@@ -82,6 +90,7 @@
         "name": "Combustible",
         "celda": "C15",
         "elemento": "300000",
+        "visible": true,
         "sub_elementos": [
           301001
         ]
@@ -90,6 +99,7 @@
         "name": "Lubricante",
         "celda": "C16",
         "elemento": "300000",
+        "visible": true,
         "sub_elementos": [
           301004
         ]
@@ -103,6 +113,7 @@
         "name": "Depresiación y amortización",
         "celda": "C25",
         "elemento": "700000",
+        "visible": true,
         "sub_elementos": [
           710000
         ]
@@ -116,6 +127,7 @@
         "name": "De ellos: Servicios Comprados entre entidades",
         "celda": "C27",
         "elemento": "810100",
+        "visible": true,
         "sub_elementos": [
           810102,
           810104,
@@ -132,6 +144,7 @@
         "name": "Servicios de transportación",
         "celda": "C28",
         "elemento": "810100, 810200",
+        "visible": true,
         "sub_elementos": [
           810102,
           810204,
@@ -144,6 +157,7 @@
         "name": "Alimentación",
         "celda": "C29",
         "elemento": "810100",
+        "visible": true,
         "sub_elementos": [
           810104,
           810118,
@@ -155,6 +169,7 @@
         "name": "Certificación de la calidad",
         "celda": "C30",
         "elemento": "810100",
+        "visible": true,
         "sub_elementos": [
           810113
         ]
@@ -163,6 +178,7 @@
         "name": "Alquiler de local",
         "celda": "C31",
         "elemento": "810100",
+        "visible": true,
         "sub_elementos": [
           810135
         ]
@@ -171,6 +187,7 @@
         "name": "Internet , correo y telefono",
         "celda": "C32",
         "elemento": "810100",
+        "visible": true,
         "sub_elementos": [
           811101,
           811107
@@ -180,6 +197,7 @@
         "name": "Atención al hombre",
         "celda": "C33",
         "elemento": "810100",
+        "visible": true,
         "sub_elementos": [
           810200,
           811200
@@ -189,6 +207,7 @@
         "name": "Otros servicios",
         "celda": "C34",
         "elemento": "810100",
+        "visible": true,
         "sub_elementos": []
       }
     ]
@@ -200,6 +219,7 @@
         "name": "Transportación",
         "celda": "C41",
         "elemento": "810200",
+        "visible": true,
         "sub_elementos": [
           810204,
           810205,
@@ -211,6 +231,7 @@
         "name": "Otros servicios",
         "celda": "C42",
         "elemento": "810200",
+        "visible": true,
         "sub_elementos": []
       }
     ]

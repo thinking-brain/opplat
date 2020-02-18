@@ -1,6 +1,140 @@
 <template>
-  <v-data-table :headers="headers" :items="trabajadores" :search="search" class="elevation-1 pa-5">
+  <v-data-table
+    v-model="selected"
+    :headers="headers"
+    :items="trabajadores"
+    :search="search"
+    item-key="id"
+    show-select
+    class="elevation-1 pa-5"
+    dense
+  >
     <template v-slot:top>
+       <!-- Filtro Trabajador -->
+      <v-row>
+        <v-col cols="12" sm="6" md="2">
+          <div class="text-center">
+            <div class="my-2">
+              <v-btn color="primary" @click="dialog1=true">Filtrar por</v-btn>
+            </div>
+          </div>
+        </v-col>
+        <v-col cols="12" sm="6" md="2" v-if="volver===true">
+          <div class="text-center">
+            <div class="my-2">
+              <v-btn color="primary" @click="getTrabajadoresFromApi">
+                <v-icon>mdi-reply-all</v-icon>
+              </v-btn>
+            </div>
+          </div>
+        </v-col>
+        <v-layout>
+          <v-dialog v-model="dialog1" persistent max-width="800px">
+            <v-card>
+              <v-card-title>
+                <span class="headline">Mostrar Trabajadores por:</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container grid-list-md>
+                  <v-layout wrap>
+                    <v-flex xs12 sm6 md6>
+                      <v-autocomplete
+                        v-model="unidadOrganizativa"
+                        item-text="nombre"
+                        :items="unidadesOrganizativas"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Unidad Organizativa"
+                        prepend-icon="mdi-database-search"
+                        chips
+                        allow-overflow
+                      ></v-autocomplete>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-autocomplete
+                        v-model="cargo"
+                        item-text="nombre"
+                        :items="cargos"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Cargo"
+                        prepend-icon="mdi-database-search"
+                      ></v-autocomplete>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-select
+                        v-model="sexo"
+                        item-text="nombre"
+                        :items="sexos"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Sexo"
+                        prepend-icon="mdi-database-search"
+                      ></v-select>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-select
+                        v-model="colordePiel"
+                        item-text="nombre"
+                        :items="coloresdePiel"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Color de Piel"
+                        prepend-icon="mdi-database-search"
+                      ></v-select>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-select
+                        v-model="nivelEscolaridad"
+                        item-text="nombre"
+                        :items="nivelesEscolaridad"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Nivel de Escolaridad"
+                        prepend-icon="mdi-database-search"
+                      ></v-select>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-select
+                        v-model="estado"
+                        item-text="nombre"
+                        :items="estados"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Estado"
+                        prepend-icon="mdi-database-search"
+                      ></v-select>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-text-field
+                        v-model="edad"
+                        item-text="Edad"
+                        cache-items
+                        clearable
+                        label="Edad"
+                        prepend-icon="mdi-database-search"
+                      ></v-text-field>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="green darken-1" text @click="getFiltrosFromApi">Aceptar</v-btn>
+                <v-btn color="blue darken-1" text @click="dialog1=false">Cancelar</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-layout>
+      </v-row>
+      <!-- /Filtro Trabajador -->
+
       <v-toolbar flat color="white">
         <v-toolbar-title>Bolsa de Trabajadores</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
@@ -16,7 +150,7 @@
         <v-spacer></v-spacer>
 
         <!-- Agregar y Editar Trabajador -->
-        <v-dialog v-model="dialog" persistent max-width="1000px">
+        <v-dialog v-model="dialog" persistent>
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark v-on="on">Agregar Trabajador</v-btn>
           </template>
@@ -33,46 +167,46 @@
             <v-form ref="form" v-model="valid" lazy-validation>
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
-                  <v-flex xs6 class="px-5">
+                  <v-flex xs3 class="px-5">
                     <v-text-field
                       label="Nombre"
                       v-model="trabajador.nombre"
                       :rules="NombreRules"
+                      clearable
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs6 class="px-5">
+                  <v-flex xs3 class="px-5">
                     <v-text-field
                       label="Apellidos"
                       v-model="trabajador.apellidos"
                       :rules="ApellidosRules"
+                      clearable
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs6 class="px-5">
+                  <v-flex xs3 class="px-5">
                     <v-text-field
                       label="Carnet de Identidad"
                       v-model="trabajador.ci"
                       :counter="11"
                       :rules="ciRules"
+                      clearable
                       required
                     ></v-text-field>
                     <span asp-validation-for="CI" class="text-danger"></span>
                   </v-flex>
-                  <!-- <v-flex xs6 class="px-5">
-                    <v-select
-                      v-model="trabajador.sexo"
-                      :items="sexos"
-                      item-text="nombre"
-                      item-value="id"
-                      label="Sexo"
-                    ></v-select>
-                  </v-flex> -->
-                  <v-flex xs12 class="pa-5">
-                    <v-text-field label="Dirección" v-model="trabajador.direccion"></v-text-field>
+                  <v-flex xs3 class="px-5">
+                    <v-file-input show-size label="Seleccionar Foto" v-model="trabajador.foto"></v-file-input>
                   </v-flex>
-                </v-layout>
-                <v-layout row wrap>
+                  <v-flex xs4 class="px-5">
+                    <v-text-field
+                      label="Dirección"
+                      v-model="trabajador.direccion"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
                   <v-flex xs4 class="px-5">
                     <v-select
                       v-model="trabajador.nivelDeEscolaridad"
@@ -80,70 +214,89 @@
                       item-value="id"
                       :items="nivelesEscolaridad"
                       label="Nivel de Escolaridad"
+                      clearable
                     ></v-select>
                   </v-flex>
                   <v-flex xs4 class="px-5">
                     <v-text-field
                       label="Perfil Ocupacional"
                       v-model="trabajador.perfil_Ocupacional"
+                      :rules="PerfilRules"
+                      required
+                      clearable
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-5">
-                    <v-text-field label="Teléfono Móvil" v-model="trabajador.telefonoMovil"></v-text-field>
+                  <v-flex xs3 class="px-3">
+                    <v-text-field
+                      label="Teléfono Móvil"
+                      v-model="trabajador.telefonoMovil"
+                      clearable
+                    ></v-text-field>
                   </v-flex>
-                </v-layout>
-                <v-layout row wrap>
-                  <v-flex xs4 class="px-5">
-                    <v-text-field label="Teléfono Fijo" v-model="trabajador.telefonoFijo"></v-text-field>
+                  <v-flex xs3 class="px-3">
+                    <v-text-field label="Teléfono Fijo" v-model="trabajador.telefonoFijo" clearable></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-5">
-                    <v-text-field label="Correo" v-model="trabajador.correo" :rules="emailRules"></v-text-field>
+                  <v-flex xs3 class="px-3">
+                    <v-text-field
+                      label="Correo"
+                      v-model="trabajador.correo"
+                      :rules="emailRules"
+                      clearable
+                    ></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-select
                       v-model="trabajador.colorDeOjos"
                       item-text="nombre"
                       item-value="id"
                       :items="coloresdeOjos"
                       label="Color de Ojos"
+                      clearable
                     ></v-select>
                   </v-flex>
-                </v-layout>
-                <v-layout row wrap>
-                  <v-flex xs4 class="px-5">
+                  <v-flex xs3 class="px-5">
                     <v-select
                       v-model="trabajador.colorDePiel"
                       item-text="nombre"
                       item-value="id"
                       :items="coloresdePiel"
                       label="Color de Piel"
+                      clearable
                     ></v-select>
                   </v-flex>
-                  <v-flex xs4 class="px-5">
-                    <v-text-field v-model="trabajador.tallaCalzado" label="Talla de Calzado"></v-text-field>
+                  <v-flex xs3 class="px-5">
+                    <v-text-field
+                      v-model="trabajador.tallaCalzado"
+                      label="Talla de Calzado"
+                      clearable
+                    ></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-5">
+                  <v-flex xs3 class="px-5">
                     <v-select
                       v-model="trabajador.tallaDeCamisa"
                       item-text="nombre"
                       item-value="id"
                       :items="tallasDeCamisas"
                       label="Talla de Camisa"
+                      clearable
                     ></v-select>
                   </v-flex>
-                  <v-flex xs4 class="px-5">
-                    <v-text-field label="Talla de Pantalon" v-model="trabajador.tallaPantalon"></v-text-field>
+                  <v-flex xs3 class="px-5">
+                    <v-text-field
+                      label="Talla de Pantalon"
+                      v-model="trabajador.tallaPantalon"
+                      clearable
+                    ></v-text-field>
                   </v-flex>
-                  <v-flex xs8 class="px-5" v-if="editedIndex!=-1"></v-flex>
                 </v-layout>
                 <v-layout row wrap>
-                  <v-flex xs4 class="px-5">
+                  <v-flex xs2 class="px-5">
                     <v-switch v-model="Referencia" :label="`Tiene Referencia`"></v-switch>
                   </v-flex>
-                  <v-flex xs4 class="px-5" v-if="Referencia">
+                  <v-flex xs2 class="px-2" v-if="Referencia">
                     <v-switch v-model="EsTrabEmpresa" :label="`Es Trabajador Suyo`"></v-switch>
                   </v-flex>
-                  <v-flex xs4 class="px-5" v-if="Referencia && EsTrabEmpresa">
+                  <v-flex xs3 class="px-2" v-if="Referencia && EsTrabEmpresa">
                     <v-autocomplete
                       v-model="trabajador.referencia"
                       item-text="nombre_Completo"
@@ -153,21 +306,21 @@
                       label="Nombre de la Refencia"
                     ></v-autocomplete>
                   </v-flex>
-                  <v-flex xs4 class="px-5" v-if="Referencia && !EsTrabEmpresa">
+                  <v-flex xs3 class="px-2" v-if="Referencia && !EsTrabEmpresa">
                     <v-text-field
                       label="Nombre de la Refencia"
                       v-model="trabajador.referencia"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs5 class="px-5">
+                    <v-text-field
+                      label="Otras Características: "
+                      v-model="trabajador.otrasCaracteristicas"
+                      clearable
                     ></v-text-field>
                   </v-flex>
                 </v-layout>
-                <v-flex x12 class="px-5">
-                  <v-textarea
-                    solo
-                    name="input-7-4"
-                    label="Otras Características"
-                    v-model="trabajador.otrasCaracteristicas"
-                  ></v-textarea>
-                </v-flex>
               </v-container>
             </v-form>
             <v-card-actions>
@@ -208,7 +361,7 @@
                       </v-text>
                     </v-layout>
                     <v-layout v-if="trabajador.referencia!=null">
-                      <v-text >
+                      <v-text>
                         <strong>Es recomendado por :</strong>
                         {{trabajador.referencia}}
                       </v-text>
@@ -247,6 +400,9 @@
                         <v-layout class="pa-2">
                           <v-text>Color de Ojos: {{trabajador.colorDeOjosName}}</v-text>
                         </v-layout>
+                        <v-layout class="pa-2">
+                          <v-text>Fecha Nacimiento: {{trabajador.fecha_Nac}}</v-text>
+                        </v-layout>
                       </v-col>
                       <v-col cols="5">
                         <v-layout class="pa-2">
@@ -260,6 +416,9 @@
                         </v-layout>
                         <v-layout class="pa-2">
                           <v-text>Color de Piel: {{trabajador.colorDePielName}}</v-text>
+                        </v-layout>
+                        <v-layout class="pa-2">
+                          <v-text>Edad: {{trabajador.edad}} Años</v-text>
                         </v-layout>
                       </v-col>
                     </v-row>
@@ -302,7 +461,7 @@
                     <v-tabs-items v-model="tabs" py-6>
                       <v-tab-item>
                         <v-card flat>
-                          <v-card-title class="headline mx-6">Asígnele un Cargo al Trabajador</v-card-title>
+                          <v-card-title class="headline mx-6">Asigne un Cargo al Trabajador</v-card-title>
                           <v-card-text>
                             <form>
                               <v-container>
@@ -427,6 +586,27 @@
           </v-card>
         </v-dialog>
         <!-- /Movimientos -->
+        <!-- Descartar Trabajador de la Bolsa -->
+        <v-dialog v-model="dialog7" persistent max-width="350px">
+          <v-toolbar dark fadeOnScroll color="red">
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn icon dark @click="dialog7 = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+          <v-card>
+            <v-card-title class="headline text-center">Estas seguro de descartar a</v-card-title>
+            <v-card-text class="text-center">{{trabajador.nombre_Completo}}</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="red" dark @click="Descartado()">Aceptar</v-btn>
+              <v-btn color="primary" @click="close()">Cancelar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <!-- /Descartar Trabajador de la Bolsa -->
 
         <!-- Delete Trajador -->
         <v-dialog v-model="dialog4" persistent max-width="350px">
@@ -452,10 +632,35 @@
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-      <v-icon small class="mr-2" @click="getDetallesTrabFromApi(item)">mdi-account-plus</v-icon>
-      <v-icon small class="mr-2" @click="movimiento(item)">mdi-walk</v-icon>
-      <!-- <v-icon small @click="confirmDelete(item)">mdi-delete</v-icon> -->
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
+        </template>
+        <span>Editar</span>
+      </v-tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-icon
+            small
+            class="mr-2"
+            v-on="on"
+            @click="getDetallesTrabFromApi(item)"
+          >mdi-account-plus</v-icon>
+        </template>
+        <span>Detalles</span>
+      </v-tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-icon small class="mr-2" v-on="on" @click="movimiento(item)">mdi-walk</v-icon>
+        </template>
+        <span>Movimiento</span>
+      </v-tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-icon small class="mr-2" v-on="on" @click="confirmDescartado(item)">mdi-eye-off</v-icon>
+        </template>
+        <span>Descartar</span>
+      </v-tooltip>
     </template>
   </v-data-table>
 </template>
@@ -469,6 +674,7 @@ export default {
     dialog4: false,
     dialog5: false,
     dialog6: false,
+    dialog7: false,
     volver: false,
     valid: true,
     search: "",
@@ -511,12 +717,14 @@ export default {
       cargoId: ""
     },
     NombreRules: [v => !!v || "El Nombre es Requerido"],
-    ApellidosRules: [v => !!v || "Los Apellidos son Requerido"],
+    ApellidosRules: [v => !!v || "Los Apellidos son Requeridos"],
+    PerfilRules: [v => !!v || "El Perfil Ocupacional es Requerido"],
     ciRules: [
-      v => !!v || "El CI es Requerido",
+      v => !!v || "El Carnet de Identidad es Requerido",
       v => (v && v.length <= 11) || "El CI tiene 11 Caracteres"
     ],
     emailRules: [v => /.+@.+\..+/.test(v) || "No tiene la estructura correcta"],
+    selected: [],
     errors: [],
     headers: [
       {
@@ -772,15 +980,33 @@ export default {
         if (
           this.trabajador.ci == null ||
           this.trabajador.nombre == null ||
-          this.trabajador.apellidos == null
+          this.trabajador.apellidos == null ||
+          this.trabajador.perfil_Ocupacional == null
         ) {
           vm.$snotify.error("Faltan campos por llenar que son obligatorios");
+        } else if (
+          this.trabajador.telefonoFijo == null &&
+          this.trabajador.telefonoMovil == null &&
+          this.trabajador.direccion == null &&
+          this.trabajador.correo == null
+        ) {
+          vm.$snotify.error(
+            "Debe llenar al menos el Campo Dirección, Correo, Teléfono Fijo o Teléfono Móvil"
+          );
+        } else if (
+          this.Referencia == true &&
+          this.trabajador.referencia == ""
+        ) {
+          vm.$snotify.error(
+            "Seleccionó que el trabajador tenía referencia pero no llenó el campo"
+          );
         } else {
           this.axios.post(url, this.trabajador).then(
             response => {
               this.getResponse(response);
               this.getTrabajadoresBolsa();
               this.dialog = false;
+              this.trabajador = {};
             },
             error => {
               console.log(error);
@@ -821,7 +1047,14 @@ export default {
         vm.$snotify.success("Exito al realizar la operación");
         this.getTrabajadoresFromApi();
         this.getTrabajadoresBolsa();
-        this.trabajador = [];
+        this.trabajador = {};
+        this.trabajador = {
+          sexo: 0,
+          colorDeOjos: 0,
+          colorDePiel: 0,
+          tallaDeCamisa: 0,
+          referencia: ""
+        };
       }
     },
     close() {
@@ -831,6 +1064,7 @@ export default {
       this.dialog4 = false;
       this.dialog5 = false;
       this.dialog6 = false;
+      this.dialog7 = false;
       this.trabajador = {
         colordeOjos: 0,
         colordePiel: 0,
@@ -848,6 +1082,22 @@ export default {
       this.editedIndex = this.trabajadores.indexOf(item);
       this.trabajador = Object.assign({}, item);
       this.dialog5 = true;
+    },
+    confirmDescartado(item) {
+      this.trabajador = Object.assign({}, item);
+      this.dialog7 = true;
+    },
+    Descartado() {
+      const url = api.getUrl("recursos_humanos", "Bolsas");
+      this.axios.post(url + "/" + this.trabajador.id).then(
+        response => {
+          this.getResponse(response);
+          this.dialog7 = false;
+        },
+        error => {
+          console.log(error);
+        }
+      );
     }
   }
 };
