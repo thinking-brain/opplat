@@ -390,33 +390,43 @@ namespace ImportadorDatos.Jobs
             var importados = _enlaceContext.RegistroDeGastos.Select(e => e.RegistroVersatId).ToList();
             var registros = _vContext.CosPasesubelemento
                 .Include(e => e.IdpaseNavigation.IdregistroNavigation.IdregistroNavigation.IdpaseNavigation)
-                .Where(e => !importados.Contains(e.Idpase))
                 .Select(e => new
                 {
                     Id = e.Idpase,
-                    ComprobanteId = e.IdpaseNavigation.IdregistroNavigation.IdregistroNavigation.IdpaseNavigation.Idcomprobante,                    
+                    ComprobanteId = e.IdpaseNavigation.IdregistroNavigation.IdregistroNavigation.IdpaseNavigation.Idcomprobante,
                     SubElementoId = e.Idsubelemento,
                     Importe = e.IdpaseNavigation.IdregistroNavigation.Importe.HasValue ? e.IdpaseNavigation.IdregistroNavigation.Importe.Value : 0
-                }).ToList();
+                })
+                .ToList()
+                .Where(e => !importados.Contains(e.Id));
             foreach (var elem in registros)
             {
-                var newElemento = new ContabilidadWebApi.Models.RegistroDeGasto
+                if (_enlaceContext.Asientos
+                        .Any(a => a.ComprobanteId ==
+                            elem.ComprobanteId))
                 {
-                    AsientoId = _enlaceContext.Asientos
-                        .SingleOrDefault(a => a.ComprobanteId ==
-                            elem.ComprobanteId).AsientoId,
-                    SubElementoId = _enlaceContext.SubElementoDeGastos.SingleOrDefault(se => se.SubElementoVersatId == elem.SubElementoId).SubElementoId,
-                    Importe = elem.Importe,
-                };
-                _cContext.Add(newElemento);
-                _cContext.SaveChanges();
-                _enlaceContext.Add(new Models.EnlaceVersat.RegistroDeGasto
+                    var newElemento = new ContabilidadWebApi.Models.RegistroDeGasto
+                    {
+                        AsientoId = _enlaceContext.Asientos
+                                            .SingleOrDefault(a => a.ComprobanteId ==
+                                                elem.ComprobanteId).AsientoId,
+                        SubElementoId = _enlaceContext.SubElementoDeGastos.SingleOrDefault(se => se.SubElementoVersatId == elem.SubElementoId).SubElementoId,
+                        Importe = elem.Importe,
+                    };
+                    _cContext.Add(newElemento);
+                    _cContext.SaveChanges();
+                    _enlaceContext.Add(new Models.EnlaceVersat.RegistroDeGasto
+                    {
+                        RegistroId = newElemento.Id,
+                        RegistroVersatId = elem.Id,
+                        Fecha = DateTime.Now,
+                    });
+                    _enlaceContext.SaveChanges();
+                }
+                else
                 {
-                    RegistroId = newElemento.Id,
-                    RegistroVersatId = elem.Id,
-                    Fecha = DateTime.Now,
-                });
-                _enlaceContext.SaveChanges();
+                    _logger.LogError("Error importando gasto. Falta por importar asiento contable.");
+                }
             }
         }
 
