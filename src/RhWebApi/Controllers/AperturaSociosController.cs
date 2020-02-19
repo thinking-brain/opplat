@@ -19,24 +19,41 @@ namespace RhWebApi.Controllers {
         // GET recursos_humanos/AperturaSocio
         [HttpGet]
         public IActionResult GetAll () {
-            var aperturaSocio = context.AperturaSocio
+            var aperturaSocios = context.AperturaSocio
                 .Select (s => new {
                     Id = s.Id,
                         Fecha = s.Fecha.ToString ("dd MMMM yyyy"),
                         CantTrabajadores = s.CantTrabajadores,
                         NumeroAcuerdo = s.NumeroAcuerdo,
-                        Cerrada = s.Cerrada,
-                }).ToList ();
-            if (aperturaSocio == null) {
+                        ColorDePiel = s.CaracteristicasSocio.ColorDePiel.ToString (),
+                        Municipio = s.CaracteristicasSocio.Municipio.Nombre,
+                        Sexo = s.CaracteristicasSocio.Sexo.ToString (),
+                        PerfilOcupacional = s.CaracteristicasSocio.Perfil_Ocupacional,
+                        NivelDeEscolaridad = s.CaracteristicasSocio.NivelDeEscolaridad.ToString (),
+                        Estado = s.EstadosApertura.ToString ()
+                });
+            if (aperturaSocios == null) {
                 return NotFound ();
             }
-            return Ok (aperturaSocio);
+            return Ok (aperturaSocios);
         }
 
         // GET: recursos_humanos/AperturaSocio/Id
         [HttpGet ("{id}", Name = "GetApertura")]
         public IActionResult GetbyId (int id) {
-            var aperturaSocio = context.AperturaSocio.FirstOrDefault (s => s.Id == id);
+            var aperturaSocio = context.AperturaSocio.Where (s => s.Id == id)
+                .Select (s => new {
+                    Id = s.Id,
+                        Fecha = s.Fecha.ToString ("dd MMMM yyyy"),
+                        CantTrabajadores = s.CantTrabajadores,
+                        NumeroAcuerdo = s.NumeroAcuerdo,
+                        ColorDePiel = s.CaracteristicasSocio.ColorDePiel.ToString (),
+                        Municipio = s.CaracteristicasSocio.Municipio.Nombre,
+                        Sexo = s.CaracteristicasSocio.Sexo.ToString (),
+                        PerfilOcupacional = s.CaracteristicasSocio.Perfil_Ocupacional,
+                        NivelDeEscolaridad = s.CaracteristicasSocio.NivelDeEscolaridad.ToString (),
+                        Estado = s.EstadosApertura.ToString ()
+                }).ToList ();
             if (aperturaSocio == null) {
                 return NotFound ();
             }
@@ -45,10 +62,22 @@ namespace RhWebApi.Controllers {
 
         // POST recursos_humanos/AperturaSocio
         [HttpPost]
-        public IActionResult POST ([FromBody] AperturaSocio aperturaSocio) {
+        public IActionResult POST ([FromBody] AperturaSocioDto aperturaSocioDto) {
             if (ModelState.IsValid) {
                 var apertura = new AperturaSocio () {
-                    Id = aperturaSocio.Id,
+                    Id = aperturaSocioDto.Id,
+                    Fecha = aperturaSocioDto.Fecha,
+                    CantTrabajadores = aperturaSocioDto.CantTrabajadores,
+                    NumeroAcuerdo = aperturaSocioDto.NumeroAcuerdo,
+                    CaracteristicasSocioId = aperturaSocioDto.CaracteristicasSocioId,
+                    EstadosApertura = EstadosApertura.Abierta
+                };
+                foreach (var trabajadorId in aperturaSocioDto.ListaTrabId) {
+                    var trab = context.Trabajador.FirstOrDefault (t => t.Id == trabajadorId);
+                    if (trab == null) {
+                        return BadRequest ($"No hay trabajador con este ID");
+                    }
+                    trab.AperturaSocioId = apertura.Id;
                 };
                 context.AperturaSocio.Add (apertura);
                 context.SaveChanges ();
@@ -59,13 +88,30 @@ namespace RhWebApi.Controllers {
 
         // PUT recursos_humanos/areas/id
         [HttpPut ("{id}")]
-        public IActionResult PUT ([FromBody] AperturaSocio aperturaSocio, int id) {
-            if (aperturaSocio.Id != id) {
+        public IActionResult PUT ([FromBody] AperturaSocioDto aperturaSocioDto, int id) {
+            if (aperturaSocioDto.Id != id) {
                 return BadRequest (ModelState);
             }
-            context.Entry (aperturaSocio).State = EntityState.Modified;
-            context.SaveChanges ();
-            return Ok ();
+            var apertura = context.AperturaSocio.Find (id);
+            if (apertura != null) {
+                apertura.Id = aperturaSocioDto.Id;
+                apertura.Fecha = aperturaSocioDto.Fecha;
+                apertura.CantTrabajadores = aperturaSocioDto.CantTrabajadores;
+                apertura.NumeroAcuerdo = aperturaSocioDto.NumeroAcuerdo;
+                apertura.CaracteristicasSocioId = aperturaSocioDto.CaracteristicasSocioId;
+                apertura.EstadosApertura = EstadosApertura.Sin_Definir;
+                foreach (var trabajadorId in aperturaSocioDto.ListaTrabId) {
+                    var trab = context.Trabajador.FirstOrDefault (t => t.Id == trabajadorId);
+                    if (trab == null) {
+                        return BadRequest ($"No hay trabajador con este ID");
+                    }
+                    trab.AperturaSocioId = aperturaSocioDto.Id;
+                };
+                context.Update (aperturaSocioDto).State = EntityState.Modified;
+                context.SaveChanges ();
+                return Ok ();
+            }
+            return NotFound ();
         }
 
         // DELETE recursos_humanos/AperturaSocio/id
@@ -77,6 +123,19 @@ namespace RhWebApi.Controllers {
                 return NotFound ();
             }
             context.AperturaSocio.Remove (aperturaSocio);
+            context.SaveChanges ();
+            return Ok (aperturaSocio);
+        }
+        // DELETE recursos_humanos/AperturaSocio/CerrarApertura/id
+        [HttpGet ("/recursos_humanos/AperturaSocio/CerrarApertura/id")]
+        public IActionResult CerrarApertura (int id) {
+            var aperturaSocio = context.AperturaSocio.FirstOrDefault (s => s.Id == id);
+
+            if (aperturaSocio.Id != id) {
+                return NotFound ();
+            }
+            aperturaSocio.EstadosApertura = EstadosApertura.Cerrada;
+            context.Update (aperturaSocio);
             context.SaveChanges ();
             return Ok (aperturaSocio);
         }

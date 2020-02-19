@@ -29,7 +29,7 @@ namespace RhWebApi.Dtos {
     public virtual NivelDeEscolaridad NivelDeEscolaridad { get; set; }
     public string EstadoTrabajador { get; set; }
     public DateTime Fecha { get; set; }
-    public string Perfil_Ocupacional { get; set; }
+    public int PerfilOcupacionalId { get; set; }
     public string Nombre_Referencia { get; set; }
 
     [NotMapped]

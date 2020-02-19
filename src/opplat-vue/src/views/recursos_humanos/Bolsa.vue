@@ -10,7 +10,7 @@
     dense
   >
     <template v-slot:top>
-       <!-- Filtro Trabajador -->
+      <!-- Filtro Trabajador -->
       <v-row>
         <v-col cols="12" sm="6" md="2">
           <div class="text-center">
@@ -37,32 +37,6 @@
               <v-card-text>
                 <v-container grid-list-md>
                   <v-layout wrap>
-                    <v-flex xs12 sm6 md6>
-                      <v-autocomplete
-                        v-model="unidadOrganizativa"
-                        item-text="nombre"
-                        :items="unidadesOrganizativas"
-                        :filter="activeFilter"
-                        cache-items
-                        clearable
-                        label="Unidad Organizativa"
-                        prepend-icon="mdi-database-search"
-                        chips
-                        allow-overflow
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                      <v-autocomplete
-                        v-model="cargo"
-                        item-text="nombre"
-                        :items="cargos"
-                        :filter="activeFilter"
-                        cache-items
-                        clearable
-                        label="Cargo"
-                        prepend-icon="mdi-database-search"
-                      ></v-autocomplete>
-                    </v-flex>
                     <v-flex xs12 sm6 md6>
                       <v-select
                         v-model="sexo"
@@ -100,27 +74,37 @@
                       ></v-select>
                     </v-flex>
                     <v-flex xs12 sm6 md6>
-                      <v-select
+                      <v-multiselect
                         v-model="estado"
                         item-text="nombre"
                         :items="estados"
                         :filter="activeFilter"
                         cache-items
                         clearable
-                        label="Estado"
+                        label="Perfil Ocupacional"
                         prepend-icon="mdi-database-search"
-                      ></v-select>
+                      ></v-multiselect>
                     </v-flex>
-                    <v-flex xs12 sm6 md6>
-                      <v-text-field
-                        v-model="edad"
-                        item-text="Edad"
-                        cache-items
-                        clearable
-                        label="Edad"
-                        prepend-icon="mdi-database-search"
-                      ></v-text-field>
-                    </v-flex>
+                    <v-layout>
+                      <v-flex xs12 sm6 md6>
+                        <v-text-field
+                          v-model="edadDesde"
+                          clearable
+                          label="Rango de Edad"
+                          placeholder="Mayores de"
+                          prepend-icon="mdi-database-search"
+                        ></v-text-field>
+                      </v-flex>
+                      <v-flex xs12 sm6 md6>
+                        <v-text-field
+                          v-model="edadHasta"
+                          clearable
+                          label="Rango de Edad"
+                          placeholder="Menores de"
+                          prepend-icon="mdi-database-search"
+                        ></v-text-field>
+                      </v-flex>
+                    </v-layout>
                   </v-layout>
                 </v-container>
               </v-card-text>
@@ -148,7 +132,16 @@
           clearable
         ></v-text-field>
         <v-spacer></v-spacer>
-
+        <template>
+          <v-btn
+            color="primary"
+            link
+            to="/recursos_humanos/Apertura"
+            @click="initApertura(selected)"
+            v-if="selected.length > 0"
+          >Iniciar Apertura</v-btn>
+        </template>
+        <v-spacer></v-spacer>
         <!-- Agregar y Editar Trabajador -->
         <v-dialog v-model="dialog" persistent>
           <template v-slot:activator="{ on }">
@@ -167,7 +160,7 @@
             <v-form ref="form" v-model="valid" lazy-validation>
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       label="Nombre"
                       v-model="trabajador.nombre"
@@ -176,7 +169,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       label="Apellidos"
                       v-model="trabajador.apellidos"
@@ -185,7 +178,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       label="Carnet de Identidad"
                       v-model="trabajador.ci"
@@ -196,18 +189,31 @@
                     ></v-text-field>
                     <span asp-validation-for="CI" class="text-danger"></span>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <!-- <v-flex xs3 class="px-3">
                     <v-file-input show-size label="Seleccionar Foto" v-model="trabajador.foto"></v-file-input>
-                  </v-flex>
-                  <v-flex xs4 class="px-5">
+                  </v-flex>-->
+                  <v-flex xs4 class="px-3">
                     <v-text-field
                       label="Dirección"
                       v-model="trabajador.direccion"
+                      placeholder="Calle e/ # Casa o Apto, Barrio o Finca"
                       clearable
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-5">
+                  <v-flex xs2 class="px-3">
+                    <v-autocomplete
+                      v-model="trabajador.municipioId"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="Municipios"
+                      :filter="activeFilter"
+                      label="Municipio"
+                      required
+                      clearable
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs3 class="px-3">
                     <v-select
                       v-model="trabajador.nivelDeEscolaridad"
                       item-text="nombre"
@@ -217,14 +223,18 @@
                       clearable
                     ></v-select>
                   </v-flex>
-                  <v-flex xs4 class="px-5">
-                    <v-text-field
-                      label="Perfil Ocupacional"
-                      v-model="trabajador.perfil_Ocupacional"
+                  <v-flex xs3 class="px-3">
+                    <v-autocomplete
+                      v-model="trabajador.perfilOcupacionalId"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="perfilesOcupacionales"
+                      :filter="activeFilter"
                       :rules="PerfilRules"
+                      label="Perfil Ocupacional"
                       required
                       clearable
-                    ></v-text-field>
+                    ></v-autocomplete>
                   </v-flex>
                   <v-flex xs3 class="px-3">
                     <v-text-field
@@ -254,7 +264,7 @@
                       clearable
                     ></v-select>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-select
                       v-model="trabajador.colorDePiel"
                       item-text="nombre"
@@ -264,14 +274,14 @@
                       clearable
                     ></v-select>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       v-model="trabajador.tallaCalzado"
                       label="Talla de Calzado"
                       clearable
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-select
                       v-model="trabajador.tallaDeCamisa"
                       item-text="nombre"
@@ -281,7 +291,7 @@
                       clearable
                     ></v-select>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       label="Talla de Pantalon"
                       v-model="trabajador.tallaPantalon"
@@ -290,15 +300,15 @@
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap>
-                  <v-flex xs2 class="px-5">
+                  <v-flex xs2 class="px-3">
                     <v-switch v-model="Referencia" :label="`Tiene Referencia`"></v-switch>
                   </v-flex>
-                  <v-flex xs2 class="px-2" v-if="Referencia">
+                  <v-flex xs2 class="px-3" v-if="Referencia">
                     <v-switch v-model="EsTrabEmpresa" :label="`Es Trabajador Suyo`"></v-switch>
                   </v-flex>
-                  <v-flex xs3 class="px-2" v-if="Referencia && EsTrabEmpresa">
+                  <v-flex xs3 class="px-3" v-if="Referencia && EsTrabEmpresa">
                     <v-autocomplete
-                      v-model="trabajador.referencia"
+                      v-model="trabajador.nombre_Referencia"
                       item-text="nombre_Completo"
                       :items="trabajadoresReferencia"
                       :filter="activeFilter"
@@ -306,14 +316,14 @@
                       label="Nombre de la Refencia"
                     ></v-autocomplete>
                   </v-flex>
-                  <v-flex xs3 class="px-2" v-if="Referencia && !EsTrabEmpresa">
+                  <v-flex xs3 class="px-3" v-if="Referencia &&! EsTrabEmpresa">
                     <v-text-field
                       label="Nombre de la Refencia"
-                      v-model="trabajador.referencia"
+                      v-model="trabajador.nombre_Referencia"
                       clearable
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs5 class="px-5">
+                  <v-flex xs5 class="px-3">
                     <v-text-field
                       label="Otras Características: "
                       v-model="trabajador.otrasCaracteristicas"
@@ -351,7 +361,7 @@
                     <v-layout>
                       <v-text>
                         <strong>Su perfil Ocupacional es :</strong>
-                        {{trabajador.perfil_Ocupacional}}
+                        {{trabajador.perfilOcupacionalId}}
                       </v-text>
                     </v-layout>
                     <v-layout>
@@ -489,6 +499,7 @@
                                       :items="cargos"
                                       label="Cargo"
                                       min-width="290px"
+                                      :rules="CargoRules"
                                       required
                                     ></v-select>
                                   </v-col>
@@ -504,6 +515,7 @@
                                       :items="unidadesOrganizativas"
                                       label="Unidad Organizativa"
                                       min-width="290px"
+                                      :rules="UniOrgalRules"
                                       required
                                     ></v-select>
                                   </v-col>
@@ -523,6 +535,8 @@
                                           readonly
                                           v-on="on"
                                           class="pa-2"
+                                          :rules="FechaEntRules"
+                                          required
                                         ></v-text-field>
                                       </template>
                                       <v-date-picker
@@ -533,7 +547,7 @@
                                   </v-col>
                                 </v-row>
                                 <v-btn color="green darken-1" text @click="Entrada">Aceptar</v-btn>
-                                <v-btn color="blue darken-1" text @click="clear">Cancelar</v-btn>
+                                <v-btn color="blue darken-1" text @click="closeEntrada">Cancelar</v-btn>
                               </v-container>
                             </form>
                           </v-card-text>
@@ -574,10 +588,12 @@
                     <v-layout class="pa-2">
                       <v-toolbar-items
                         class="text-capitalize"
-                      >Unidad Organizativa: {{trabajador.unidadOrganizativa}}</v-toolbar-items>
+                      >Perfil Ocupacional: {{trabajador.perfilOcupacionalId}}</v-toolbar-items>
                     </v-layout>
                     <v-layout class="pa-2">
-                      <v-toolbar-items class="text-capitalize">Cargo: {{trabajador.cargo}}</v-toolbar-items>
+                      <v-toolbar-items
+                        class="text-capitalize"
+                      >Nivel de Escolaridad: {{trabajador.nivelDeEscolaridadName}}</v-toolbar-items>
                     </v-layout>
                   </v-card>
                 </v-col>
@@ -666,6 +682,7 @@
 </template>
 <script>
 import api from "@/api";
+
 export default {
   data: () => ({
     dialog: false,
@@ -686,7 +703,9 @@ export default {
       colorDeOjos: 0,
       colorDePiel: 0,
       tallaDeCamisa: 0,
-      referencia: ""
+      nombre_Referencia: "",
+      perfilOcupacionalId: 0,
+      municipioId: 0
     },
     unidadesOrganizativas: [],
     cargos: [],
@@ -696,6 +715,8 @@ export default {
     tallasDeCamisas: [],
     nivelesEscolaridad: [],
     estados: [],
+    perfilesOcupacionales: [],
+    Municipios: [],
     unidadOrganizativa: "",
     edad: "",
     cargo: "",
@@ -719,9 +740,12 @@ export default {
     NombreRules: [v => !!v || "El Nombre es Requerido"],
     ApellidosRules: [v => !!v || "Los Apellidos son Requeridos"],
     PerfilRules: [v => !!v || "El Perfil Ocupacional es Requerido"],
+    CargoRules: [v => !!v || "El Cargo es Requerido"],
+    UniOrgalRules: [v => !!v || "La Unidad Organizativa es Requerida"],
+    FechaEntRules: [v => !!v || "La Fecha es Requerida"],
     ciRules: [
       v => !!v || "El Carnet de Identidad es Requerido",
-      v => (v && v.length <= 11) || "El CI tiene 11 Caracteres"
+      v => (v && v.length == 11) || "El CI tiene 11 Caracteres"
     ],
     emailRules: [v => /.+@.+\..+/.test(v) || "No tiene la estructura correcta"],
     selected: [],
@@ -735,8 +759,8 @@ export default {
       },
       { text: "Carnet de Identidad", value: "ci" },
       { text: "Dirección", value: "direccion" },
-      { text: "Perfil Ocupacional", value: "perfil_Ocupacional" },
-      { text: "Referencia", value: "referencia" },
+      { text: "Perfil Ocupacional", value: "perfilOcupacional" },
+      { text: "Referencia", value: "nombre_Referencia" },
       { text: "Tiempo en Bolsa", value: "tiempo_Bolsa" },
       { text: "Acciones", value: "action", sortable: false }
     ],
@@ -785,6 +809,8 @@ export default {
     this.getEstadosTrabFromApi();
     this.getColordeOjosTrabFromApi();
     this.gettallasDeCamisasFromApi();
+    this.getPerfilesFromApi();
+    this.getMunicipiosFromApi();
   },
 
   methods: {
@@ -816,7 +842,6 @@ export default {
       this.trabajador = Object.assign({}, item);
       this.dialog3 = true;
     },
-
     closeDetalles() {
       this.dialog3 = false;
     },
@@ -831,7 +856,8 @@ export default {
             estado: this.estado,
             nivelEscolaridad: this.nivelEscolaridad,
             edad: this.edad,
-            colordePiel: this.colordePiel
+            colordePiel: this.colordePiel,
+            bolsa: true
           }
         })
         .then(
@@ -945,31 +971,27 @@ export default {
         }
       );
     },
-
-    Entrada() {
-      const url = api.getUrl("recursos_humanos", "Entradas");
-      this.axios.post(url, this.entrada).then(
+    getPerfilesFromApi() {
+      const url = api.getUrl("recursos_humanos", "PerfilesOcupacionales");
+      this.axios.get(url).then(
         response => {
-          this.getResponse(response);
-          this.entrada = {
-            trabajadorId: "",
-            fechaEntrada: "",
-            unidadOrganizativaId: "",
-            cargoId: ""
-          };
-          this.dialog5 = false;
-          this.getTrabajadoresBolsa();
-          this.getTrabajadoresFromApi();
+          this.perfilesOcupacionales = response.data;
         },
         error => {
           console.log(error);
         }
       );
     },
-    editItem(item) {
-      this.editedIndex = this.trabajadores.indexOf(item);
-      this.trabajador = Object.assign({}, item);
-      this.dialog = true;
+    getMunicipiosFromApi() {
+      const url = api.getUrl("recursos_humanos", "Trabajadores/Municipios");
+      this.axios.get(url).then(
+        response => {
+          this.Municipios = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
     },
     save(method) {
       const url = api.getUrl("recursos_humanos", "Trabajadores");
@@ -981,7 +1003,7 @@ export default {
           this.trabajador.ci == null ||
           this.trabajador.nombre == null ||
           this.trabajador.apellidos == null ||
-          this.trabajador.perfil_Ocupacional == null
+          this.trabajador.perfilOcupacionalId == 0
         ) {
           vm.$snotify.error("Faltan campos por llenar que son obligatorios");
         } else if (
@@ -995,7 +1017,7 @@ export default {
           );
         } else if (
           this.Referencia == true &&
-          this.trabajador.referencia == ""
+          this.trabajador.nombre_Referencia == ""
         ) {
           vm.$snotify.error(
             "Seleccionó que el trabajador tenía referencia pero no llenó el campo"
@@ -1006,7 +1028,14 @@ export default {
               this.getResponse(response);
               this.getTrabajadoresBolsa();
               this.dialog = false;
-              this.trabajador = {};
+              this.trabajador = {
+                sexo: 0,
+                colorDeOjos: 0,
+                colorDePiel: 0,
+                tallaDeCamisa: 0,
+                nombre_Referencia: "",
+                perfilOcupacionalId: -1
+              };
             },
             error => {
               console.log(error);
@@ -1015,25 +1044,55 @@ export default {
         }
       }
       if (method === "PUT") {
-        this.axios.put(url + "/" + this.trabajador.id, this.trabajador).then(
-          response => {
-            this.getResponse(response);
-            this.dialog = false;
-          },
-          error => {
-            console.log(error);
-          }
-        );
+        if (
+          this.trabajador.ci == null ||
+          this.trabajador.nombre == null ||
+          this.trabajador.apellidos == null ||
+          this.trabajador.perfilOcupacionalId == -1
+        ) {
+          vm.$snotify.error("Faltan campos por llenar que son obligatorios");
+        } else if (
+          this.trabajador.telefonoFijo == null &&
+          this.trabajador.telefonoMovil == null &&
+          this.trabajador.direccion == null &&
+          this.trabajador.correo == null
+        ) {
+          vm.$snotify.error(
+            "Debe llenar al menos el Campo Dirección, Correo, Teléfono Fijo o Teléfono Móvil"
+          );
+        } else if (
+          (this.Referencia == true &&
+            this.trabajador.nombre_Referencia == "") ||
+          this.trabajador.nombre_Referencia == null
+        ) {
+          vm.$snotify.error(
+            "Seleccionó que el trabajador tenía referencia pero no llenó el campo"
+          );
+        } else {
+          this.axios.put(`${url}/${this.trabajador.id}`, this.trabajador).then(
+            response => {
+              this.getResponse(response);
+              this.dialog = false;
+            },
+            error => {
+              console.log(error);
+            }
+          );
+        }
       }
     },
-
+    editItem(item) {
+      this.editedIndex = this.trabajadores.indexOf(item);
+      this.trabajador = Object.assign({}, item);
+      this.dialog = true;
+    },
     confirmDelete(item) {
       this.trabajador = Object.assign({}, item);
       this.dialog4 = true;
     },
     deleteItem(trabajador) {
       const url = api.getUrl("recursos_humanos", "Trabajadores");
-      this.axios.delete(url + "/" + trabajador.id).then(
+      this.axios.delete(`${url}/${trabajador.id}`).then(
         response => {
           this.getResponse(response);
         },
@@ -1042,7 +1101,7 @@ export default {
         }
       );
     },
-    getResponse: function(response) {
+    getResponse(response) {
       if (response.status === 200 || response.status === 201) {
         vm.$snotify.success("Exito al realizar la operación");
         this.getTrabajadoresFromApi();
@@ -1053,7 +1112,9 @@ export default {
           colorDeOjos: 0,
           colorDePiel: 0,
           tallaDeCamisa: 0,
-          referencia: ""
+          nombre_Referencia: "",
+          perfilOcupacionalId: 0,
+          municipioId: 0
         };
       }
     },
@@ -1066,10 +1127,13 @@ export default {
       this.dialog6 = false;
       this.dialog7 = false;
       this.trabajador = {
-        colordeOjos: 0,
-        colordePiel: 0,
+        sexo: 0,
+        colorDeOjos: 0,
+        colorDePiel: 0,
         tallaDeCamisa: 0,
-        Nombre_Referencia: ""
+        nombre_Referencia: "",
+        perfilOcupacionalId: 0,
+        municipioId: 0
       };
       this.getTrabajadoresFromApi();
       this.getTrabajadoresBolsa();
@@ -1077,11 +1141,49 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
-
     movimiento(item) {
       this.editedIndex = this.trabajadores.indexOf(item);
       this.trabajador = Object.assign({}, item);
+      this.entrada.trabajadorId = this.trabajador.id;
       this.dialog5 = true;
+    },
+    Entrada() {
+      const url = api.getUrl("recursos_humanos", "Entradas");
+      if (this.entrada.cargoId == "") {
+        vm.$snotify.error("El campo Cargo es obligatorio");
+      }
+      if (this.entrada.unidadOrganizativaId == "") {
+        vm.$snotify.error("El campo Unidad Organizativa es obligatorio");
+      }
+      if (this.entrada.fechaEntrada == "") {
+        vm.$snotify.error("El campo Fecha es obligatorio");
+      } else {
+        this.axios.post(url, this.entrada).then(
+          response => {
+            this.getResponse(response);
+            this.entrada = {
+              trabajadorId: "",
+              fechaEntrada: "",
+              unidadOrganizativaId: "",
+              cargoId: ""
+            };
+            this.dialog5 = false;
+            this.getTrabajadoresBolsa();
+            this.getTrabajadoresFromApi();
+          },
+          error => {
+            console.log(error);
+          }
+        );
+      }
+    },
+    closeEntrada() {
+      this.entrada = {
+        fechaEntrada: "",
+        unidadOrganizativaId: "",
+        cargoId: ""
+      };
+      this.dialog5 = false;
     },
     confirmDescartado(item) {
       this.trabajador = Object.assign({}, item);
@@ -1089,16 +1191,20 @@ export default {
     },
     Descartado() {
       const url = api.getUrl("recursos_humanos", "Bolsas");
-      this.axios.post(url + "/" + this.trabajador.id).then(
+      this.axios.put(`${url}/${this.trabajador.id}`).then(
         response => {
           this.getResponse(response);
           this.dialog7 = false;
+          this.getTrabajadoresFromApi();
         },
         error => {
           console.log(error);
         }
       );
     }
+  },
+  initApertura() {
+    this.$refs.setApertura(this.selected);
   }
 };
 </script>
