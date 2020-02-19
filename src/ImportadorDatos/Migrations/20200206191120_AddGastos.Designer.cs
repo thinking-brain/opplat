@@ -3,15 +3,17 @@ using System;
 using ImportadorDatos.Models.EnlaceVersat;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ImportadorDatos.Migrations
 {
     [DbContext(typeof(EnlaceVersatDbContext))]
-    partial class EnlaceVersatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200206191120_AddGastos")]
+    partial class AddGastos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,22 +35,6 @@ namespace ImportadorDatos.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Asientos");
-                });
-
-            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.CentroDeCosto", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("CentroId");
-
-                    b.Property<int>("CentroVersatId");
-
-                    b.Property<DateTime>("Fecha");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CentrosDeCostos");
                 });
 
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Cuentas", b =>
@@ -113,22 +99,6 @@ namespace ImportadorDatos.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PeriodosContables");
-                });
-
-            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.RegistroDeGasto", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("Fecha");
-
-                    b.Property<int>("RegistroId");
-
-                    b.Property<int>("RegistroVersatId");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RegistroDeGastos");
                 });
 
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.SubElementoDeGasto", b =>
