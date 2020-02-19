@@ -101,7 +101,8 @@
 </template>
 
 <script>
-import api from "@/api";
+import api from '@/api';
+
 export default {
   data() {
     return {
@@ -109,34 +110,34 @@ export default {
       data: [],
       valid: true,
       tab: null,
-      tipos_plan: ["5920", "5921", "5922", "5923", "5924", "5925", "5926"],
-      tipo_plan_selected: "",
-      selectedMonths: "",
-      year_form: "",
-      mes: "",
-      year: "",
+      tipos_plan: ['5920', '5921', '5922', '5923', '5924', '5925', '5926'],
+      tipo_plan_selected: '',
+      selectedMonths: '',
+      year_form: '',
+      mes: '',
+      year: '',
       yearRules: [
-        v => !!v || "Este campo es requerido",
-        v => (v && v.length == 4) || "El año debe tener 4 caracteres."
+        v => !!v || 'Este campo es requerido',
+        v => (v && v.length == 4) || 'El año debe tener 4 caracteres.',
       ],
       estado: [],
       errors: [],
       meses: [
-        { id: 1, nombre: "ENERO" },
-        { id: 2, nombre: "FEBRERO" },
-        { id: 3, nombre: "MARZO" },
-        { id: 4, nombre: "ABRIL" },
-        { id: 5, nombre: "MAYO" },
-        { id: 6, nombre: "JUNIO" },
-        { id: 7, nombre: "JULIO" },
-        { id: 8, nombre: "AGOSTO" },
-        { id: 9, nombre: "SEPTIEMBRE" },
-        { id: 10, nombre: "OCTUBRE" },
-        { id: 11, nombre: "NOVIEMBRE" },
-        { id: 12, nombre: "DICIEMBRE" }
+        { id: 1, nombre: 'ENERO' },
+        { id: 2, nombre: 'FEBRERO' },
+        { id: 3, nombre: 'MARZO' },
+        { id: 4, nombre: 'ABRIL' },
+        { id: 5, nombre: 'MAYO' },
+        { id: 6, nombre: 'JUNIO' },
+        { id: 7, nombre: 'JULIO' },
+        { id: 8, nombre: 'AGOSTO' },
+        { id: 9, nombre: 'SEPTIEMBRE' },
+        { id: 10, nombre: 'OCTUBRE' },
+        { id: 11, nombre: 'NOVIEMBRE' },
+        { id: 12, nombre: 'DICIEMBRE' },
       ],
       visible: false,
-      lazy: false
+      lazy: false,
     };
   },
   computed: {
@@ -147,10 +148,10 @@ export default {
       return this.selectedMonths.length > 0 && !this.likesAllMonths;
     },
     icon() {
-      if (this.likesAllMonths) return "mdi-close-box";
-      if (this.likesSomeMonth) return "mdi-minus-box";
-      return "mdi-checkbox-blank-outline";
-    }
+      if (this.likesAllMonths) return 'mdi-close-box';
+      if (this.likesSomeMonth) return 'mdi-minus-box';
+      return 'mdi-checkbox-blank-outline';
+    },
   },
   methods: {
     GenerarReporte() {
@@ -158,18 +159,17 @@ export default {
       this.mes = this.selectedMonths;
       if (this.$refs.form.validate()) {
         const url = api.getUrl(
-          "finanzas",
-          `EstadoFinanciero/estadoFinanciero${this.tipo_plan_selected}Report/${this.year}/${this.mes.id}`
-        );
+          'finanzas',
+          `EstadoFinanciero/estadoFinanciero5020/${this.year}/${this.mes.id}`,
         this.axios
           .get(url)
-          .then(response => {
+          .then((response) => {
             this.data = response.data;
           })
-          .catch(e => {
+          .catch((e) => {
             this.errors.push(e);
             vm.$snotify.error(
-              "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+              'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
             );
           });
         this.visible = true;
@@ -183,8 +183,8 @@ export default {
           this.selectedMonths = this.meses.slice();
         }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>

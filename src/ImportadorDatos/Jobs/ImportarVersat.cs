@@ -244,7 +244,8 @@ namespace ImportadorDatos.Jobs
                         EstadoTrabajador = estado,
                         Sexo = sexo,
                         Fecha_Nac = fechaNac,
-                        Perfil_Ocupacional = "Sin Definir"
+                        PerfilOcupacionalId = 0,
+                        PuestoDeTrabajoId = 0
                     };
 
                     _rhContext.Add(nuevoTrabajador);

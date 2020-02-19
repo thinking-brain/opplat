@@ -72,7 +72,10 @@ namespace RhWebApi.Controllers {
                 new { Id = Estados.Interrupto, Nombre = Estados.Interrupto.ToString () },
                 new { Id = Estados.Disponible, Nombre = Estados.Disponible.ToString () },
                 new { Id = Estados.Licencia_Maternidad, Nombre = Estados.Licencia_Maternidad.ToString () },
+                new { Id = Estados.Licencia_Sin_Sueldo, Nombre = Estados.Licencia_Sin_Sueldo.ToString () },
                 new { Id = Estados.Certificado, Nombre = Estados.Certificado.ToString () },
+                new { Id = Estados.Bolsa, Nombre = Estados.Bolsa.ToString () },
+                new { Id = Estados.Descartado, Nombre = Estados.Descartado.ToString () },
             };
             return Ok (colorDePiel);
         }

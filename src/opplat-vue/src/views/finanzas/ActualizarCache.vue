@@ -32,11 +32,12 @@
 </template>
 <script>
 import api from '@/api';
+
 export default {
   data: () => ({
     data: null,
     valid: true,
-    loading:false,
+    loading: false,
     year: '',
     nameRules: [
       v => !!v || 'Este campo es requerido',
@@ -65,7 +66,7 @@ export default {
       if (this.$refs.form.validate()) {
         this.snackbar = true;
       }
-    },    
+    },
     resetValidation() {
       this.$refs.form.resetValidation();
     },

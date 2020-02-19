@@ -1,12 +1,11 @@
-import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr'
+import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
+
 export default {
-  install (Vue) {
+  install(Vue) {
     const connection = new HubConnectionBuilder()
       .withUrl('https://localhost:5001/notiHub')
       .configureLogging(LogLevel.Information)
-      .build()
-    connection.start().catch(function(err) {
-      return console.log(err);
-    });
-  }
-}
+      .build();
+    connection.start().catch(err => console.log(err));
+  },
+};

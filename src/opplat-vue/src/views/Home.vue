@@ -11,17 +11,17 @@
 </template>
 
 <script>
-import IngresosChart from "../components/dashboard/IngresosChart";
-import EgresosChart from "../components/dashboard/EgresosChart";
-import Razones from "../components/dashboard/Razones";
-import Utilidades from "../components/dashboard/Utilidades"
+import IngresosChart from '../components/dashboard/IngresosChart';
+import EgresosChart from '../components/dashboard/EgresosChart';
+import Razones from '../components/dashboard/Razones';
+import Utilidades from '../components/dashboard/Utilidades';
 
 export default {
   components: {
     IngresosChart,
     EgresosChart,
     Utilidades,
-    Razones
-  }
+    Razones,
+  },
 };
 </script>

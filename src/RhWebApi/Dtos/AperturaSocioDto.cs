@@ -9,14 +9,12 @@ using RhWebApi.Data;
 using RhWebApi.Models;
 
 namespace RhWebApi.Models {
-    public class AperturaSocio {
+    public class AperturaSocioDto {
         public int Id { get; set; }
         public DateTime Fecha { get; set; }
         public int CantTrabajadores { get; set; }
         public int NumeroAcuerdo { get; set; }
-        public virtual ICollection<Trabajador> ListaTrabajadores { get; set; }
+        public int [] ListaTrabId { get; set; }
         public int? CaracteristicasSocioId { get; set; }
-        public virtual CaracteristicasSocio CaracteristicasSocio { get; set; }
-        public EstadosApertura EstadosApertura { get; set; }
     }
 }

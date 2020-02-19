@@ -66,7 +66,7 @@ const firmasFinanzas = {
     }) {
       return new Promise((resolve, reject) => {
         const url = api.getUrl('opplat-app', 'licencia');
-        //console.log(url);
+        // console.log(url);
         axios({
           url,
           method: 'DELETE',

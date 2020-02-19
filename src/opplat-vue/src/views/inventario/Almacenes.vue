@@ -58,48 +58,49 @@
 </template>
 
 <script>
-import api from "@/api";
+import api from '@/api';
+
 export default {
   data: () => ({
     dialog: false,
-    search: "",
+    search: '',
     almacen: {
-      id: "",
-      codigo: "",
-      nombre: ""
+      id: '',
+      codigo: '',
+      nombre: '',
     },
     defaultItem: {
-      codigo: "",
-      nombre: ""
+      codigo: '',
+      nombre: '',
     },
     almacenes: [],
     errors: [],
     headers: [
       {
-        text: "Código",
-        align: "left",
+        text: 'Código',
+        align: 'left',
         sortable: true,
-        value: "codigo"
+        value: 'codigo',
       },
-      { text: "Nombre", value: "nombre" },
-      { text: "Actions", value: "action", sortable: false }
+      { text: 'Nombre', value: 'nombre' },
+      { text: 'Actions', value: 'action', sortable: false },
     ],
-    editedIndex: -1
+    editedIndex: -1,
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "Nuevo Almacén" : "Editar Almacén";
+      return this.editedIndex === -1 ? 'Nuevo Almacén' : 'Editar Almacén';
     },
     method() {
-      return this.editedIndex === -1 ? "POST" : "PUT";
-    }
+      return this.editedIndex === -1 ? 'POST' : 'PUT';
+    },
   },
 
   watch: {
     dialog(val) {
       val || this.close();
-    }
+    },
   },
 
   created() {
@@ -108,14 +109,14 @@ export default {
 
   methods: {
     initialize() {
-      const url = api.getUrl("inventario", "Almacenes");
+      const url = api.getUrl('inventario', 'Almacenes');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.almacenes = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
 
@@ -127,16 +128,16 @@ export default {
 
     deleteItem(item) {
       const index = this.almacenes.indexOf(item);
-      const url = api.getUrl("inventario", "Almacenes");
+      const url = api.getUrl('inventario', 'Almacenes');
 
-      confirm("¿Está seguro de eliminar este almacen?") &&
-        this.axios.delete(url + "/" + item.id).then(
-          response => {
+      confirm('¿Está seguro de eliminar este almacen?')
+        && this.axios.delete(`${url}/${item.id}`).then(
+          (response) => {
             this.getResponse(response);
           },
-          error => {
+          (error) => {
             console.log(error);
-          }
+          },
         );
     },
 
@@ -149,39 +150,39 @@ export default {
     },
 
     save(method) {
-      const url = api.getUrl("inventario", "Almacenes");
-      if (method === "POST") {
+      const url = api.getUrl('inventario', 'Almacenes');
+      if (method === 'POST') {
         this.axios.post(url, this.almacen).then(
-          response => {
+          (response) => {
             this.getResponse(response);
           },
-          error => {
+          (error) => {
             console.log(error);
-          }
+          },
         );
       }
-      if (method === "PUT") {
-        this.axios.put(url + "/" + this.almacen.id, this.almacen).then(
-          response => {
+      if (method === 'PUT') {
+        this.axios.put(`${url}/${this.almacen.id}`, this.almacen).then(
+          (response) => {
             this.getResponse(response);
           },
-          error => {
+          (error) => {
             console.log(error);
-          }
+          },
         );
       }
       this.close();
     },
 
-    getResponse: function(response) {
+    getResponse(response) {
       if (response.status == 200) {
         this.dialog = false;
-        this.almacen.nombre = "";
-        this.almacen.codigo = "";
-        vm.$snotify.success("Exito al realizar la operación");
+        this.almacen.nombre = '';
+        this.almacen.codigo = '';
+        vm.$snotify.success('Exito al realizar la operación');
         this.initialize();
       }
-    }
-  }
+    },
+  },
 };
 </script>
