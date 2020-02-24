@@ -28,7 +28,6 @@
                 </h2>
               </v-card-title>
             </v-row>
-            <Apertura></Apertura>
             <v-card-actions>
               <div class="flex-grow-1"></div>
               <v-btn color="green darken-1" text @click="save(method)">Aceptar</v-btn>
@@ -62,7 +61,6 @@
 </template>
 <script>
 import api from "@/api";
-import Apertura from "@/components/recursos_humanos/Apertura";
 export default {
   components: { Apertura },
   data: () => ({

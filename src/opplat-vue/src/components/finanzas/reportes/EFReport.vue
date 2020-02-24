@@ -160,7 +160,7 @@ export default {
       if (this.$refs.form.validate()) {
         const url = api.getUrl(
           'finanzas',
-          `EstadoFinanciero/estadoFinanciero5020/${this.year}/${this.mes.id}`,
+          `EstadoFinanciero/estadoFinanciero5020/${this.year}/${this.mes.id}`);
         this.axios
           .get(url)
           .then((response) => {
@@ -170,9 +170,9 @@ export default {
             this.errors.push(e);
             vm.$snotify.error(
               'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
-            );
-          });
-        this.visible = true;
+            )
+          }),
+        this.visible = true
       }
     },
     toggle() {
