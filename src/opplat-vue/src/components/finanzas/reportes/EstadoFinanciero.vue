@@ -56,44 +56,45 @@
 </template>
 
 <script>
-import api from "@/api";
-import EF_5920 from "@/components/finanzas/reportes/EF_5920";
+import api from '@/api';
+import EF_5920 from '@/components/finanzas/reportes/EF_5920';
+
 export default {
   components: {
-    EF_5920
+    EF_5920,
   },
   data() {
     return {
       data: null,
       valid: true,
       tab: null,
-      items: ["5920", "5921", "5922", "5923", "5924", "5925", "5926"],
-      mes_form: "",
-      year_form: "",
-      mes: "",
-      year: "",
+      items: ['5920', '5921', '5922', '5923', '5924', '5925', '5926'],
+      mes_form: '',
+      year_form: '',
+      mes: '',
+      year: '',
       nameRules: [
-        v => !!v || "Este campo es requerido",
-        v => (v && v.length == 4) || "El año debe tener 4 caracteres."
+        v => !!v || 'Este campo es requerido',
+        v => (v && v.length == 4) || 'El año debe tener 4 caracteres.',
       ],
       estado: [],
       errors: [],
       meses: [
-        { id: 1, nombre: "ENERO" },
-        { id: 2, nombre: "FEBRERO" },
-        { id: 3, nombre: "MARZO" },
-        { id: 4, nombre: "ABRIL" },
-        { id: 5, nombre: "MAYO" },
-        { id: 6, nombre: "JUNIO" },
-        { id: 7, nombre: "JULIO" },
-        { id: 8, nombre: "AGOSTO" },
-        { id: 9, nombre: "SEPTIEMBRE" },
-        { id: 10, nombre: "OCTUBRE" },
-        { id: 11, nombre: "NOVIEMBRE" },
-        { id: 12, nombre: "DICIEMBRE" }
+        { id: 1, nombre: 'ENERO' },
+        { id: 2, nombre: 'FEBRERO' },
+        { id: 3, nombre: 'MARZO' },
+        { id: 4, nombre: 'ABRIL' },
+        { id: 5, nombre: 'MAYO' },
+        { id: 6, nombre: 'JUNIO' },
+        { id: 7, nombre: 'JULIO' },
+        { id: 8, nombre: 'AGOSTO' },
+        { id: 9, nombre: 'SEPTIEMBRE' },
+        { id: 10, nombre: 'OCTUBRE' },
+        { id: 11, nombre: 'NOVIEMBRE' },
+        { id: 12, nombre: 'DICIEMBRE' },
       ],
       visible: false,
-      lazy: false
+      lazy: false,
     };
   },
   methods: {
@@ -101,8 +102,8 @@ export default {
       this.year = this.year_form;
       this.mes = this.mes_form;
       this.visible = true;
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>

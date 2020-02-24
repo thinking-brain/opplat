@@ -105,19 +105,19 @@
                     <v-layout>
                       <v-flex xs12 sm6 md6>
                         <v-text-field
-                          v-model="edadHasta"
+                          v-model="edadDesde"
                           clearable
                           label="Rango de Edad"
-                          placeholder="Menores de"
+                          placeholder="Mayores de"
                           prepend-icon="mdi-database-search"
                         ></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm6 md6>
                         <v-text-field
-                          v-model="edadDesde"
+                          v-model="edadHasta"
                           clearable
                           label="Rango de Edad"
-                          placeholder="Mayores de"
+                          placeholder="Menores de"
                           prepend-icon="mdi-database-search"
                         ></v-text-field>
                       </v-flex>
@@ -221,7 +221,7 @@
                   <v-flex xs4 class="px-5">
                     <v-text-field
                       label="Perfil Ocupacional"
-                      v-model="trabajador.perfil_Ocupacional"
+                      v-model="trabajador.perfilOcupacional"
                       :rules="PerfilRules"
                       required
                       clearable
@@ -413,7 +413,7 @@
                           <v-text>Nivel de Escolaridad: {{trabajador.nivelDeEscolaridadName}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Perfil Ocupacional: {{trabajador.perfil_Ocupacional}}</v-text>
+                          <v-text>Perfil Ocupacional: {{trabajador.perfilOcupacional}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
                           <v-text>Color de Ojos: {{trabajador.colorDeOjosName}}</v-text>
@@ -759,7 +759,8 @@
   </v-data-table>
 </template>
 <script>
-import api from "@/api";
+import api from '@/api';
+
 export default {
   data: () => ({
     dialog: false,
@@ -769,7 +770,7 @@ export default {
     dialog5: false,
     dialog6: false,
     volver: false,
-    search: "",
+    search: '',
     editedIndex: -1,
     trabajadores: [],
     trabajador: {},
@@ -781,14 +782,14 @@ export default {
     tallasDeCamisas: [],
     nivelesEscolaridad: [],
     estados: [],
-    unidadOrganizativa: "",
-    edad: "",
-    cargo: "",
-    nivelDeEscolaridad: "",
-    edadDesde: "",
-    edadHasta: "",
-    otrasCaracteristicas: "",
-    estado: "",
+    unidadOrganizativa: '',
+    edad: '',
+    cargo: '',
+    nivelDeEscolaridad: '',
+    edadDesde: '',
+    edadHasta: '',
+    otrasCaracteristicas: '',
+    estado: '',
     date: new Date().toISOString().substr(0, 10),
     menu: false,
     menu1: false,
@@ -797,66 +798,66 @@ export default {
     tabs: null,
     CausasDeBajas: [],
     traslado: {
-      trabajadorId: "",
-      fechaTraslado: "",
-      cargoOrigenId: "",
-      cargoDestinoId: "",
-      unidOrgOrigenId: "",
-      unidOrgDestinoId: ""
+      trabajadorId: '',
+      fechaTraslado: '',
+      cargoOrigenId: '',
+      cargoDestinoId: '',
+      unidOrgOrigenId: '',
+      unidOrgDestinoId: '',
     },
     baja: {
-      trabajadorId: "",
-      fechaBaja: "",
-      causaDeBaja: ""
+      trabajadorId: '',
+      fechaBaja: '',
+      causaDeBaja: '',
     },
     errors: [],
     headers: [
       {
-        text: "Nombre y Apellidos",
-        align: "left",
+        text: 'Nombre y Apellidos',
+        align: 'left',
         sortable: true,
-        value: "nombre_Completo"
+        value: 'nombre_Completo',
       },
-      { text: "Carnet de Identidad", value: "ci" },
-      { text: "Dirección", value: "direccion" },
-      { text: "Sexo", value: "sexoName" },
-      { text: "Cargo", value: "cargo" },
-      { text: "Edad", value: "edad" },
-      { text: "Estado", value: "estadoTrabajadorName" },
-      { text: "Acciones", value: "action", sortable: false }
+      { text: 'Carnet de Identidad', value: 'ci' },
+      { text: 'Dirección', value: 'direccion' },
+      { text: 'Sexo', value: 'sexoName' },
+      { text: 'Cargo', value: 'cargo' },
+      { text: 'Edad', value: 'edad' },
+      { text: 'Estado', value: 'estadoTrabajadorName' },
+      { text: 'Acciones', value: 'action', sortable: false },
     ],
     funciones: [
       {
         text:
-          "Participa en el establecimiento de las distintas fuentes de información"
+          'Participa en el establecimiento de las distintas fuentes de información',
       },
       {
-        text: "Participa en la elaboración de los conceptos"
+        text: 'Participa en la elaboración de los conceptos',
       },
       {
-        text: "Participa en las acciones de capacitación"
-      }
+        text: 'Participa en las acciones de capacitación',
+      },
     ],
     requisitos: [
       {
-        text: "Graduado de Nivel Medio Superior con entrenamiento en el puesto"
-      }
-    ]
+        text: 'Graduado de Nivel Medio Superior con entrenamiento en el puesto',
+      },
+    ],
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "Nuevo Trabajador" : "Editar Trabajador";
+      return this.editedIndex === -1 ? 'Nuevo Trabajador' : 'Editar Trabajador';
     },
     method() {
-      return this.editedIndex === -1 ? "POST" : "PUT";
-    }
+      return this.editedIndex === -1 ? 'POST' : 'PUT';
+    },
   },
 
   watch: {
     dialog(val) {
       val || this.close();
-    }
+    },
   },
 
   created() {
@@ -874,15 +875,15 @@ export default {
 
   methods: {
     getTrabajadoresFromApi() {
-      const url = api.getUrl("recursos_humanos", "Trabajadores");
+      const url = api.getUrl('recursos_humanos', 'Trabajadores');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.trabajadores = response.data;
           this.volver = false;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getDetallesTrabFromApi(item) {
@@ -893,7 +894,7 @@ export default {
       this.dialog3 = false;
     },
     getFiltrosFromApi() {
-      const url = api.getUrl("recursos_humanos", "Trabajadores/Filtro");
+      const url = api.getUrl('recursos_humanos', 'Trabajadores/Filtro');
       this.axios
         .get(url, {
           params: {
@@ -905,173 +906,173 @@ export default {
             edad: this.edad,
             colordePiel: this.colordePiel,
             edadDesde: this.edadDesde,
-            edadHasta: this.edadHasta
-          }
+            edadHasta: this.edadHasta,
+          },
         })
         .then(
-          response => {
+          (response) => {
             this.trabajadores = response.data;
             this.dialog1 = false;
             this.volver = true;
           },
-          error => {
+          (error) => {
             console.log(error);
-          }
+          },
         );
     },
     getUnidadOrganizativaFromApi() {
-      const url = api.getUrl("recursos_humanos", "UnidadOrganizativa");
+      const url = api.getUrl('recursos_humanos', 'UnidadOrganizativa');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.unidadesOrganizativas = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getCargosFromApi() {
-      const url = api.getUrl("recursos_humanos", "Cargos");
+      const url = api.getUrl('recursos_humanos', 'Cargos');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.cargos = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getSexoTrabFromApi() {
-      const url = api.getUrl("recursos_humanos", "CaracteristicasTrab/Sexo");
+      const url = api.getUrl('recursos_humanos', 'CaracteristicasTrab/Sexo');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.sexos = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getColordePielTrabFromApi() {
       const url = api.getUrl(
-        "recursos_humanos",
-        "CaracteristicasTrab/ColordePiel"
+        'recursos_humanos',
+        'CaracteristicasTrab/ColordePiel',
       );
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.coloresdePiel = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getColordeOjosTrabFromApi() {
       const url = api.getUrl(
-        "recursos_humanos",
-        "CaracteristicasTrab/ColordeOjos"
+        'recursos_humanos',
+        'CaracteristicasTrab/ColordeOjos',
       );
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.coloresdeOjos = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getnivelEscolaridadTrabFromApi() {
       const url = api.getUrl(
-        "recursos_humanos",
-        "CaracteristicasTrab/nivelEscolaridad"
+        'recursos_humanos',
+        'CaracteristicasTrab/nivelEscolaridad',
       );
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.nivelesEscolaridad = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     gettallasDeCamisasFromApi() {
       const url = api.getUrl(
-        "recursos_humanos",
-        "CaracteristicasTrab/TallaDeCamisa"
+        'recursos_humanos',
+        'CaracteristicasTrab/TallaDeCamisa',
       );
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.tallasDeCamisas = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getEstadosTrabFromApi() {
-      const url = api.getUrl("recursos_humanos", "CaracteristicasTrab/Estados");
+      const url = api.getUrl('recursos_humanos', 'CaracteristicasTrab/Estados');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.estados = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getCausaDeBajaFromApi() {
-      const url = api.getUrl("recursos_humanos", "Baja/CausaDeBaja");
+      const url = api.getUrl('recursos_humanos', 'Baja/CausaDeBaja');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.CausasDeBajas = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     save(method) {
-      const url = api.getUrl("recursos_humanos", "Trabajadores");
-      if (method === "POST") {
+      const url = api.getUrl('recursos_humanos', 'Trabajadores');
+      if (method === 'POST') {
         this.axios.post(url, this.trabajador).then(
-          response => {
+          (response) => {
             this.getResponse(response);
             this.dialog = false;
           },
-          error => {
+          (error) => {
             console.log(error);
-          }
+          },
         );
       }
-      if (method === "PUT") {
-        this.axios.put(url + "/" + this.trabajador.id, this.trabajador).then(
-          response => {
+      if (method === 'PUT') {
+        this.axios.put(`${url}/${this.trabajador.id}`, this.trabajador).then(
+          (response) => {
             this.getResponse(response);
             this.dialog = false;
           },
-          error => {
+          (error) => {
             console.log(error);
-          }
+          },
         );
       }
     },
     Entrada() {
-      const url = api.getUrl("recursos_humanos", "Entradas");
+      const url = api.getUrl('recursos_humanos', 'Entradas');
       this.axios.post(url, this.entrada).then(
-        response => {
+        (response) => {
           this.getResponse(response);
           this.entrada = {
-            trabajadorId: "",
-            fechaEntrada: "",
-            unidadOrganizativaId: "",
-            cargoId: ""
+            trabajadorId: '',
+            fechaEntrada: '',
+            unidadOrganizativaId: '',
+            cargoId: '',
           };
           this.dialog5 = false;
           this.getTrabajadoresFromApi();
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     movimiento(item) {
@@ -1084,37 +1085,37 @@ export default {
     Traslado() {
       this.traslado.cargoOrigenId = this.trabajador.cargoId;
       this.traslado.unidOrgOrigenId = this.trabajador.unidadOrganizativaId;
-      const url = api.getUrl("recursos_humanos", "Traslados");
-      if (this.traslado.cargoDestinoId == "") {
-        vm.$snotify.error("El campo Cargo a Ocupar es obligatorio");
+      const url = api.getUrl('recursos_humanos', 'Traslados');
+      if (this.traslado.cargoDestinoId == '') {
+        vm.$snotify.error('El campo Cargo a Ocupar es obligatorio');
       }
-      if (this.traslado.unidOrgDestinoId == "") {
-        vm.$snotify.error("El campo Unidad Organizativa es obligatorio");
+      if (this.traslado.unidOrgDestinoId == '') {
+        vm.$snotify.error('El campo Unidad Organizativa es obligatorio');
       }
-      if (this.traslado.fechaEntrada == "") {
-        vm.$snotify.error("El campo Fecha es obligatorio");
+      if (this.traslado.fechaEntrada == '') {
+        vm.$snotify.error('El campo Fecha es obligatorio');
       } else {
         this.axios.post(url, this.traslado).then(
-          response => {
+          (response) => {
             this.getResponse(response);
             this.traslado = {
-              trabajadorId: "",
-              fechaTraslado: "",
-              cargoDestinoId: ""
+              trabajadorId: '',
+              fechaTraslado: '',
+              cargoDestinoId: '',
             };
             this.dialog5 = false;
             this.getTrabajadoresFromApi();
           },
-          error => {
+          (error) => {
             console.log(error);
-          }
+          },
         );
       }
     },
     clearTraslado() {
       this.traslado = {
-        fechaTraslado: "",
-        cargoDestinoId: ""
+        fechaTraslado: '',
+        cargoDestinoId: '',
       };
     },
     confirmBaja() {
@@ -1122,27 +1123,27 @@ export default {
       this.baja = {
         trabajadorId: this.trabajador.id,
         causaDeBaja: this.causaDeBaja,
-        fechaBaja: this.fechaBaja
+        fechaBaja: this.fechaBaja,
       };
     },
     saveBaja() {
-      const url = api.getUrl("recursos_humanos", "Bajas");
+      const url = api.getUrl('recursos_humanos', 'Bajas');
       this.axios.post(url, this.baja).then(
-        response => {
+        (response) => {
           this.getResponse(response);
           this.dialog6 = false;
           this.dialog5 = false;
           this.getTrabajadoresFromApi();
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     clearBaja() {
       this.baja = {
-        causaDeBaja: "",
-        fechaBaja: ""
+        causaDeBaja: '',
+        fechaBaja: '',
       };
     },
     editItem(item) {
@@ -1155,19 +1156,19 @@ export default {
       this.dialog4 = true;
     },
     deleteItem(trabajador) {
-      const url = api.getUrl("recursos_humanos", "Trabajadores");
-      this.axios.delete(url + "/" + trabajador.id).then(
-        response => {
+      const url = api.getUrl('recursos_humanos', 'Trabajadores');
+      this.axios.delete(`${url}/${trabajador.id}`).then(
+        (response) => {
           this.getResponse(response);
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
-    getResponse: function(response) {
+    getResponse(response) {
       if (response.status === 200 || response.status === 201) {
-        vm.$snotify.success("Exito al realizar la operación");
+        vm.$snotify.success('Exito al realizar la operación');
         this.getTrabajadoresFromApi();
         this.trabajador = [];
       }
@@ -1184,7 +1185,7 @@ export default {
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);
-    }
-  }
+    },
+  },
 };
 </script>

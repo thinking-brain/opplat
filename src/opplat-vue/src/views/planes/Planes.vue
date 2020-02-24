@@ -83,70 +83,71 @@
 </template>
 
 <script>
-import api from "@/api";
-import Handsontable from "@/components/Handsontable.vue";
-import DetallesPlan from "@/components/DetallesPlan.vue";
+import api from '@/api';
+import Handsontable from '@/components/Handsontable.vue';
+import DetallesPlan from '@/components/DetallesPlan.vue';
+
 export default {
   components: {
     Handsontable,
-    DetallesPlan
+    DetallesPlan,
   },
   data: () => ({
     dialog: false,
     dialog2: false,
-    search: "",
+    search: '',
     plan: {
-      year: "",
-      file: null
+      year: '',
+      file: null,
     },
-    tipos_plan:["5920","5921","5924"],
+    tipos_plan: ['5920', '5921', '5924'],
     planes: [],
     errors: [],
     data: [
-      ["", "Tesla", "Nissan", "Toyota", "Honda", "Mazda", "Ford"],
-      ["2017", 10, 11, 12, 13, 15, 16],
-      ["2018", 10, 11, 12, 13, 15, 16],
-      ["2019", 10, 11, 12, 13, 15, 16],
-      ["2020", 10, 11, 12, 13, 15, 16],
-      ["2021", 10, 11, 12, 13, 15, 16]
+      ['', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford'],
+      ['2017', 10, 11, 12, 13, 15, 16],
+      ['2018', 10, 11, 12, 13, 15, 16],
+      ['2019', 10, 11, 12, 13, 15, 16],
+      ['2020', 10, 11, 12, 13, 15, 16],
+      ['2021', 10, 11, 12, 13, 15, 16],
     ],
     headers: [
       {
-        text: "Año",
-        align: "left",
+        text: 'Año',
+        align: 'left',
         sortable: true,
-        value: "year"
+        value: 'year',
       },
-      { text: "Nombre", value: "nombre" },
-      { text: "Actions", value: "action", sortable: false }
+      { text: 'Nombre', value: 'nombre' },
+      { text: 'Actions', value: 'action', sortable: false },
     ],
     editedIndex: -1,
     editedItem: {
-      name: "",
+      name: '',
       calories: 0,
       fat: 0,
       carbs: 0,
-      protein: 0
+      protein: 0,
     },
     defaultItem: {
-      name: "",
+      name: '',
       calories: 0,
       fat: 0,
       carbs: 0,
-      protein: 0
-    }
+      protein: 0,
+    },
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "New Item" : "Edit Item";
-    }
+      return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
+    },
   },
 
   watch: {
     dialog(val) {
       val || this.close();
-    }
+    },
   },
 
   created() {
@@ -157,17 +158,17 @@ export default {
   },
   methods: {
     initPopper() {
-      const chart = document.querySelector(".vtc");
-      const ref = chart.querySelector(".active-line");
-      const tooltip = this.$refs.tooltip;
+      const chart = document.querySelector('.vtc');
+      const ref = chart.querySelector('.active-line');
+      const { tooltip } = this.$refs;
       this.popper = new Popper(ref, tooltip, {
-        placement: "right",
+        placement: 'right',
         modifiers: {
-          offset: { offset: "0,10" },
+          offset: { offset: '0,10' },
           preventOverflow: {
-            boundariesElement: chart
-          }
-        }
+            boundariesElement: chart,
+          },
+        },
       });
     },
     onMouseMove(params) {
@@ -176,42 +177,42 @@ export default {
       this.tooltipData = params || null;
     },
     initialize() {
-      const url = api.getUrl("contabilidad", "PlanGI");
+      const url = api.getUrl('contabilidad', 'PlanGI');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.planes = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
 
     detallesPlan(item) {
-      const url = api.getUrl("contabilidad", "PlanGI");
+      const url = api.getUrl('contabilidad', 'PlanGI');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.data = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
       this.dialog2 = true;
     },
 
     deleteItem(item) {
       const index = this.planes.indexOf(item);
-      const url = api.getUrl("contabilidad", "PlanGI");
+      const url = api.getUrl('contabilidad', 'PlanGI');
 
-      confirm("¿Está seguro de eliminar este plan?") &&
-        this.axios.delete(url + "/" + item.id).then(
-          response => {
+      confirm('¿Está seguro de eliminar este plan?')
+        && this.axios.delete(`${url}/${item.id}`).then(
+          (response) => {
             this.getResponse(response);
           },
-          error => {
+          (error) => {
             console.log(error);
-          }
+          },
         );
     },
 
@@ -231,37 +232,37 @@ export default {
       }
       this.close();
     },
-    getResponse: function(response) {
+    getResponse(response) {
       if (response.status == 200) {
         this.dialog = false;
-        this.plan.year = "";
+        this.plan.year = '';
         this.plan.file = null;
-        vm.$snotify.success("Exito al realizar la operación");
+        vm.$snotify.success('Exito al realizar la operación');
         this.initialize();
       }
     },
-    guargarPlan: function() {
+    guargarPlan() {
       if (this.plan.file != null) {
-        var formData = new FormData();
-        formData.append("File", this.plan.file);
-        formData.append("year", this.plan.year);
-        const url = api.getUrl("contabilidad", "PlanGI/UploadPlanGI");
+        const formData = new FormData();
+        formData.append('File', this.plan.file);
+        formData.append('year', this.plan.year);
+        const url = api.getUrl('contabilidad', 'PlanGI/UploadPlanGI');
         this.axios
           .post(url, formData, {
             headers: {
-              "Content-Type": "multipart/form-data"
-            }
+              'Content-Type': 'multipart/form-data',
+            },
           })
           .then(
-            response => {
+            (response) => {
               this.getResponse(response);
             },
-            error => {
+            (error) => {
               console.log(error);
-            }
+            },
           );
       }
-    }
-  }
+    },
+  },
 };
 </script>

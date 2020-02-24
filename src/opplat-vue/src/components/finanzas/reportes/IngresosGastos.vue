@@ -32,7 +32,7 @@
 import IngresosGastosTabla from '@/components/finanzas/reportes/IngresosGastosTabla';
 
 export default {
-  components: { IngresosGastosTabla },  
+  components: { IngresosGastosTabla },
   data: () => ({
     data: null,
     valid: true,
@@ -72,9 +72,8 @@ export default {
       this.$refs.form.resetValidation();
     },
     GenerarReporte() {
-      const data = this.mes;      
-      this.$refs.tabla.loadReporte(data,this.year)
-      
+      const data = this.mes;
+      this.$refs.tabla.loadReporte(data, this.year);
     },
   },
 };

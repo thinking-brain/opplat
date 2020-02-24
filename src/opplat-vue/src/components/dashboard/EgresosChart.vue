@@ -7,96 +7,97 @@
 </template>
 
 <script>
-import VueApexCharts from "vue-apexcharts";
-import api from "@/api";
+import VueApexCharts from 'vue-apexcharts';
+import api from '@/api';
+
 export default {
   components: {
-    VueApexCharts
+    VueApexCharts,
   },
   data() {
     return {
       egresos_series: [
         {
-          name: "Real",
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          name: 'Real',
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         },
         {
-          name: "Plan",
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        }
+          name: 'Plan',
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        },
       ],
       egresosOptions: {
         title: {
-          text: "Egresos",
-          align: "center",
+          text: 'Egresos',
+          align: 'center',
           margin: 10,
           offsetX: 0,
           offsetY: 0,
           floating: false,
           style: {
-            fontSize: "20px",
-            color: "rgba(96, 89, 89, 0.87)"
-          }
+            fontSize: '20px',
+            color: 'rgba(96, 89, 89, 0.87)',
+          },
         },
         chart: {
-          id: "vuechart"
+          id: 'vuechart',
         },
         xaxis: {
           tooltip: {
-            enabled: false
+            enabled: false,
           },
           categories: [
-            "Enero",
-            "Febrero",
-            "Marzo",
-            "Abril",
-            "Mayo",
-            "Junio",
-            "Julio",
-            "Agosto",
-            "Septiembre",
-            "Octubre",
-            "Noviembre",
-            "Diciembre"
-          ]
+            'Enero',
+            'Febrero',
+            'Marzo',
+            'Abril',
+            'Mayo',
+            'Junio',
+            'Julio',
+            'Agosto',
+            'Septiembre',
+            'Octubre',
+            'Noviembre',
+            'Diciembre',
+          ],
         },
         yaxis: {
           min: 0,
-          forceNiceScale: true
-        }
+          forceNiceScale: true,
+        },
       },
       egresos_series: [],
-      errors: []
+      errors: [],
     };
   },
   created() {
-    var d = new Date();
-    var year = d.getFullYear();
+    const d = new Date();
+    const year = d.getFullYear();
 
     const url = api.getUrl(
-      "finanzas",
-      `ReporteIngresosGastos/egresosTotal/${year}`
+      'finanzas',
+      `ReporteIngresosGastos/egresosTotal/${year}`,
     );
     this.axios
       .get(url)
-      .then(response => {
+      .then((response) => {
         this.egresos_series = [
           {
-            name: "Real",
-            data: response.data.reales
+            name: 'Real',
+            data: response.data.reales,
           },
           {
-            name: "Plan",
-            data: response.data.planes
-          }
+            name: 'Plan',
+            data: response.data.planes,
+          },
         ];
       })
-      .catch(e => {
+      .catch((e) => {
         this.errors.push(e);
         vm.$snotify.error(
-          "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+          'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
         );
       });
-  }
+  },
 };
 </script>

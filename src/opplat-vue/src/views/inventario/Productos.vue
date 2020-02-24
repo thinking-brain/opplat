@@ -119,19 +119,20 @@
   </v-container>
 </template>
 <script>
-import api from "@/api";
+import api from '@/api';
+
 export default {
   data() {
     return {
       itemsPerPageArray: [10, 30, 50],
-      search: "",
+      search: '',
       filter: {},
       sortDesc: false,
       page: 1,
       itemsPerPage: 10,
-      sortBy: "codigo",
-      keys: ["Código", "Unidad de medida"],
-      items: []
+      sortBy: 'codigo',
+      keys: ['Código', 'Unidad de medida'],
+      items: [],
     };
   },
   created() {
@@ -142,19 +143,19 @@ export default {
       return Math.ceil(this.items.length / this.itemsPerPage);
     },
     filteredKeys() {
-      return this.keys.filter(key => key !== `Name`);
-    }
+      return this.keys.filter(key => key !== 'Name');
+    },
   },
   methods: {
     initialize() {
-      const url = api.getUrl("inventario", "Productos");
+      const url = api.getUrl('inventario', 'Productos');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.items = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     nextPage() {
@@ -165,7 +166,7 @@ export default {
     },
     updateItemsPerPage(number) {
       this.itemsPerPage = number;
-    }
-  }
+    },
+  },
 };
 </script>
