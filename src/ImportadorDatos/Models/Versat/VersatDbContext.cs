@@ -10,11 +10,8 @@ namespace ImportadorDatos.Models.Versat
         }
         public DbSet<ImportadorDatos.Models.Versat.GenPeriodo> GenPeriodo { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.ConCuentanat> ConCuentanat { get; set; }
-        public DbSet<ImportadorDatos.Models.Versat.CosCentro> CosCentro { get; set; }
         public virtual DbSet<ImportadorDatos.Models.Versat.ConApertura> ConApertura { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.ConCuenta> ConCuenta { get; set; }
-        public DbSet<ImportadorDatos.Models.Versat.CosElementogasto> CosElementogasto { get; set; }
-        public DbSet<ImportadorDatos.Models.Versat.CosSubelementogasto> CosSubelementogasto { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.GenUnidadcontable> GenUnidadcontable { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.OptCuentaCentroSubPeriodo> OptCuentaCentroSubPeriodo { get; set; }
         public DbSet<ImportadorDatos.Models.Versat.ConCuentamoneda> ConCuentamoneda { get; set; }
@@ -41,6 +38,15 @@ namespace ImportadorDatos.Models.Versat
         public virtual DbSet<ConComprobante> ConComprobante { get; set; }
         public virtual DbSet<ConComprobanteoperacion> ConComprobanteoperacion { get; set; }
         public virtual DbSet<GenTrabajador> GenTrabajador { get; set; }
+
+        //gastos
+        public virtual DbSet<ConRegistroanexo> ConRegistroanexo { get; set; }
+        public DbSet<ImportadorDatos.Models.Versat.CosElementogasto> CosElementogasto { get; set; }
+        public DbSet<ImportadorDatos.Models.Versat.CosSubelementogasto> CosSubelementogasto { get; set; }
+        public virtual DbSet<CosRegistrogasto> CosRegistrogasto { get; set; }
+        public virtual DbSet<CosPasecentro> CosPasecentro { get; set; }
+        public virtual DbSet<CosPasesubelemento> CosPasesubelemento { get; set; }
+        public DbSet<ImportadorDatos.Models.Versat.CosCentro> CosCentro { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -1411,6 +1417,116 @@ namespace ImportadorDatos.Models.Versat
                     .HasForeignKey(d => d.Idmascara)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_gen_aperturaarea_gen_mascara");
+            });
+
+            modelBuilder.Entity<CosPasecentro>(entity =>
+            {
+                entity.HasKey(e => e.Idpase)
+                    .HasName("PK_cos_PaseCentro")
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("cos_pasecentro");
+
+                entity.Property(e => e.Idpase).HasColumnName("idpase");
+
+                entity.Property(e => e.Idcentro).HasColumnName("idcentro");
+
+                entity.Property(e => e.Idregistro).HasColumnName("idregistro");
+
+                entity.Property(e => e.Importe)
+                    .HasColumnName("importe")
+                    .HasColumnType("numeric(18, 2)");
+
+                entity.HasOne(d => d.IdcentroNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idcentro)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_cos_gasto_cos_centro");
+
+                entity.HasOne(d => d.IdregistroNavigation)
+                    .WithMany(p => p.CosPasecentro)
+                    .HasPrincipalKey(p => p.Idregistro)
+                    .HasForeignKey(d => d.Idregistro)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_cos_pasecentro_cos_registrogasto");
+            });
+
+            modelBuilder.Entity<CosRegistrogasto>(entity =>
+            {
+                entity.HasKey(e => e.Idregistro);
+
+                entity.ToTable("cos_registrogasto");
+
+                entity.HasIndex(e => e.Idregistro)
+                    .HasName("IX_cos_registrogasto")
+                    .IsUnique();
+
+                entity.Property(e => e.Idregistro).HasColumnName("idregistro");
+
+                entity.Property(e => e.Importe)
+                    .HasColumnName("importe")
+                    .HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.Sumaclave)
+                    .HasColumnName("sumaclave")
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdregistroNavigation)
+                    .WithOne(p => p.CosRegistrogasto)
+                    .HasForeignKey<CosRegistrogasto>(d => d.Idregistro)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_cos_registrogasto_con_registroanexo");
+            });
+
+            modelBuilder.Entity<ConRegistroanexo>(entity =>
+            {
+                entity.HasKey(e => e.Idregistro)
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("con_registroanexo");
+
+                entity.HasIndex(e => e.Idpase)
+                    .HasName("IX_con_registroanexo")
+                    .IsUnique();
+
+                entity.Property(e => e.Idregistro).HasColumnName("idregistro");
+
+                entity.Property(e => e.Idoperador).HasColumnName("idoperador");
+
+                entity.Property(e => e.Idpase).HasColumnName("idpase");
+
+                entity.HasOne(d => d.IdpaseNavigation)
+                    .WithOne()
+                    .HasForeignKey<ConRegistroanexo>(d => d.Idpase)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_con_registroanexo_con_pase");
+            });
+            modelBuilder.Entity<CosPasesubelemento>(entity =>
+            {
+                entity.HasKey(e => e.Idpase)
+                    .HasName("PK_cos_Pasesubelemento")
+                    .ForSqlServerIsClustered(false);
+
+                entity.ToTable("cos_pasesubelemento");
+
+                entity.Property(e => e.Idpase)
+                    .HasColumnName("idpase")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.Idsubelemento).HasColumnName("idsubelemento");
+
+                entity.HasOne(d => d.IdpaseNavigation)
+                    .WithOne(p => p.CosPasesubelemento)
+                    .HasForeignKey<CosPasesubelemento>(d => d.Idpase)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_cos_Pasesubelemento_cos_PaseCentro");
+
+                entity.HasOne(d => d.IdsubelementoNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.Idsubelemento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_cos_Pasesubelemento_cos_subelementogasto");
             });
         }
     }
