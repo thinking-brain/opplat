@@ -1,20 +1,10 @@
 <template>
-<<<<<<< HEAD
-  <v-row justify="center pa-5">
-    <template>
-      <v-container>
-        <!-- Stack the columns on mobile by making one full-width and the other half-width -->
-        <v-row>
-          <v-container>
-            <v-row justify="center pa-8">
-=======
   <v-row justify="center px-4">
     <template>
       <v-container>
         <v-row>
           <v-container>
             <v-row justify="center">
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
               <v-card-title>
                 <h2>
                   <strong>Nueva Apertura de Socios</strong>
@@ -22,47 +12,17 @@
               </v-card-title>
             </v-row>
           </v-container>
-<<<<<<< HEAD
-          <v-col cols="12" sm="6" md="2" offset-md="1">
-            <v-menu v-model="menu" :close-on-content-click="false" full-width max-width="290">
-              <template v-slot:activator="{ on }">
-                <v-text-field
-                  :value="aperturaSocio.fechaAsamblea"
-=======
           <v-col cols="12" sm="6" md="4" class="px-12">
             <v-menu v-model="menu" :close-on-content-click="false" full-width max-width="290">
               <template v-slot:activator="{ on }">
                 <v-text-field
                   :value="aperturaSocio.Fecha"
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
                   clearable
                   label="Fecha"
                   readonly
                   v-on="on"
                 ></v-text-field>
               </template>
-<<<<<<< HEAD
-              <v-date-picker v-model="aperturaSocio.fechaAsamblea" @change="menu = false"></v-date-picker>
-            </v-menu>
-          </v-col>
-          <v-col cols="12" sm="6" md="3" offset-md="1">
-            <v-text-field label="# Acuerdo Asamblea"></v-text-field>
-          </v-col>
-          <v-col cols="12" sm="6" md="3" offset-md="1">
-            <v-text-field label="Cantidad de Socios a Aprobar"></v-text-field>
-          </v-col>
-          <v-col cols="12" sm="6" md="10" offset-md="1">
-            <v-text>Socios Escogidos Según las Características :</v-text>
-          </v-col>
-          <v-col cols="12" sm="6" md="10" offset-md="1">
-            <v-text v-for="item in selected" :key="item.nombre">{{item.nombre_Completo}}</v-text>
-          </v-col>
-        </v-row>
-
-        <!-- Columns start at 50% wide on mobile and bump up to 33.3% wide on desktop -->
-        <v-row>
-          <v-col cols="12" md="8" offset-md="1">
-=======
               <v-date-picker v-model="aperturaSocio.Fecha" @change="menu = false"></v-date-picker>
             </v-menu>
           </v-col>
@@ -98,115 +58,10 @@
         <!-- Buscar Socios -->
         <div>
           <v-col cols="12" sm="10" md="8" offset-md="3">
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
             <v-text>
               <strong>Seleccione las Caracerísticas de los Socios a Aprobar:</strong>
             </v-text>
           </v-col>
-<<<<<<< HEAD
-        </v-row>
-        <template>
-          <v-row>
-            <v-row justify="space-around">
-              <v-switch v-model="Sexo" cols="12" sm="6" md="2" label="Sexo"></v-switch>
-              <v-switch v-model="NivelEscolaridad" class="ma-2" label="Nivel de Escolaridad"></v-switch>
-              <v-switch v-model="RangoEdad" class="ma-2" label="Rango de Edad"></v-switch>
-              <v-switch v-model="PerfilOcupacional" class="ma-2" label="Perfil Ocupacional"></v-switch>
-            </v-row>
-          </v-row>
-        </template>
-        <template>
-          <v-row>
-            <v-row>
-              <v-flex cols="12" sm="6" md="2" offset-md="1" v-if="Sexo">
-                <v-select
-                  v-model="sexo"
-                  item-text="nombre"
-                  :items="sexos"
-                  :filter="activeFilter"
-                  cache-items
-                  clearable
-                  label="Sexo"
-                  prepend-icon="mdi-database-search"
-                ></v-select>
-              </v-flex>
-              <v-flex cols="12" sm="6" md="2" offset-md="1" v-if="NivelEscolaridad">
-                <v-select
-                  v-model="nivelEscolaridad"
-                  item-text="nombre"
-                  :items="nivelesEscolaridad"
-                  :filter="activeFilter"
-                  cache-items
-                  clearable
-                  label="Nivel de Escolaridad"
-                  prepend-icon="mdi-database-search"
-                ></v-select>
-              </v-flex>
-              <v-flex cols="12" sm="6" md="2" offset-md="1" v-if="RangoEdad">
-                <v-text-field
-                  v-model="edadDesde"
-                  clearable
-                  label="Rango de Edad"
-                  placeholder="Mayores de"
-                  prepend-icon="mdi-database-search"
-                ></v-text-field>
-              </v-flex>
-              <v-flex cols="12" sm="6" md="2" offset-md="1" v-if="RangoEdad">
-                <v-text-field
-                  v-model="edadHasta"
-                  clearable
-                  label="Rango de Edad"
-                  placeholder="Menores de"
-                  prepend-icon="mdi-database-search"
-                ></v-text-field>
-              </v-flex>
-              <v-flex cols="12" sm="6" md="2" offset-md="1" v-if="PerfilOcupacional">
-                <v-text-field
-                  v-model="perfilOcupacional"
-                  clearable
-                  label="Perfil Ocupacional"
-                  prepend-icon="mdi-database-search"
-                ></v-text-field>
-              </v-flex>
-            </v-row>
-          </v-row>
-          <v-row v-if="Sexo||ColordePiel||NivelEscolaridad||RangoEdad||PerfilOcupacional">
-            <v-btn color="green darken-1" class="ma-2" text @click="getFiltrosFromApi">Buscar</v-btn>
-          </v-row>
-          <template v-if="buscar">
-            <v-data-table
-              v-model="selected"
-              :headers="headers"
-              :items="trabajadores"
-              :search="search"
-              item-key="id"
-              show-select
-              class="elevation-1 pa-5"
-              dense
-            >
-              <template v-slot:top>
-                <v-toolbar flat color="white">
-                  <v-toolbar-title>Trabajadores Según las Caracteristicas Antes Seleccionadas</v-toolbar-title>
-                  <v-divider class="mx-4" inset vertical></v-divider>
-                  <v-spacer></v-spacer>
-                  <v-text-field
-                    v-model="search"
-                    append-icon="mdi-magnify"
-                    label="Buscar"
-                    single-line
-                    hide-details
-                    clearable
-                  ></v-text-field>
-                  <v-spacer></v-spacer>
-                  <v-spacer></v-spacer>
-                </v-toolbar>
-              </template>
-            </v-data-table>
-          </template>
-        </template>
-      </v-container>
-    </template>
-=======
           <v-row>
             <v-col cols="3">
               <v-checkbox v-model="Sexo" label="Sexo" class="mt-0 px-5"></v-checkbox>
@@ -351,7 +206,6 @@
       </v-data-table>
       <!-- /Trabajadores Segun las Caract-->
     </template>
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
   </v-row>
 </template>
 <script>
@@ -388,8 +242,6 @@ export default {
     },
     sexos: [],
     selected: [],
-<<<<<<< HEAD
-=======
     Municipios: [],
     edadDesde: "",
     edadHasta: "",
@@ -397,7 +249,6 @@ export default {
     nivelDeEscolaridad: "",
     PerfilesOcupacionales: [],
     perfilOcupacional: "",
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
     Sexo: false,
     ColordePiel: false,
     NivelEscolaridad: false,
@@ -426,16 +277,11 @@ export default {
   },
 
   created() {
-<<<<<<< HEAD
-    this.getAperturaSociosFromApi();
-    this.getSexoTrabFromApi();
-=======
     this.getaperturaSociosFromApi();
     this.getSexoTrabFromApi();
     this.getPerfilesOcupacionalesFromApi();
     this.getMunicipiosFromApi();
     this.getnivelEscolaridadTrabFromApi();
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
   },
 
   methods: {
@@ -457,21 +303,11 @@ export default {
       this.axios
         .get(url, {
           params: {
-<<<<<<< HEAD
-            unidadOrganizativa: this.unidadOrganizativa,
-            cargo: this.cargo,
-            sexo: this.sexo,
-            estado: this.estado,
-            nivelEscolaridad: this.nivelEscolaridad,
-            edad: this.edad,
-            colordePiel: this.colordePiel,
-=======
             sexo: this.sexo,
             nivelEscolaridad: this.nivelEscolaridad,
             edadDesde: this.edadDesde,
             edadHasta: this.edadHasta,
             perfilOcupacional: this.perfilOcupacional,
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
             bolsa: true
           }
         })
@@ -494,8 +330,6 @@ export default {
           console.log(error);
         }
       );
-<<<<<<< HEAD
-=======
     },
     remove(item) {
       this.selected.splice(this.selected.indexOf(item), 1);
@@ -562,7 +396,6 @@ export default {
           console.log(error);
         }
       );
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
     }
   }
 };

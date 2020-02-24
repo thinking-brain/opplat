@@ -254,14 +254,6 @@
                       clearable
                     ></v-select>
                   </v-flex>
-<<<<<<< HEAD
-                  <v-flex xs4 class="px-5">
-                    <v-text-field
-                      label="Perfil Ocupacional"
-                      v-model="trabajador.perfilOcupacional"
-                      :rules="PerfilRules"
-                      required
-=======
                   <v-flex xs3 class="px-3">
                     <v-autocomplete
                       v-model="trabajador.perfilOcupacional"
@@ -269,7 +261,6 @@
                       :items="PerfilesOcupacionales"
                       :filter="activeFilter"
                       cache-items
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
                       clearable
                       label="Perfil Ocupacional"
                     ></v-autocomplete>
@@ -806,11 +797,7 @@
   </v-data-table>
 </template>
 <script>
-<<<<<<< HEAD
 import api from '@/api';
-=======
-import api from "@/api";
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
 
 export default {
   data: () => ({
@@ -833,16 +820,6 @@ export default {
     tallasDeCamisas: [],
     nivelesEscolaridad: [],
     estados: [],
-<<<<<<< HEAD
-    unidadOrganizativa: '',
-    edad: '',
-    cargo: '',
-    nivelDeEscolaridad: '',
-    edadDesde: '',
-    edadHasta: '',
-    otrasCaracteristicas: '',
-    estado: '',
-=======
     PerfilesOcupacionales: [],
     Municipios: [],
     unidadOrganizativa: "",
@@ -855,7 +832,6 @@ export default {
     perfil: "",
     municipio: "",
     estado: "",
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
     date: new Date().toISOString().substr(0, 10),
     menu: false,
     menu1: false,
@@ -974,13 +950,9 @@ export default {
             colordePiel: this.colordePiel,
             edadDesde: this.edadDesde,
             edadHasta: this.edadHasta,
-<<<<<<< HEAD
-          },
-=======
             perfilOcupacional: this.perfil,
             municipio:this.municipio
           }
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
         })
         .then(
           (response) => {
@@ -1139,15 +1111,9 @@ export default {
           },
         );
       }
-<<<<<<< HEAD
-      if (method === 'PUT') {
-        this.axios.put(`${url}/${this.trabajador.id}`, this.trabajador).then(
-          (response) => {
-=======
       if (method === "PUT") {
         this.axios.put(`${url}/${this.trabajador.id}`, this.trabajador).then(
           response => {
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
             this.getResponse(response);
             this.dialog = false;
           },
@@ -1257,15 +1223,9 @@ export default {
       this.dialog4 = true;
     },
     deleteItem(trabajador) {
-<<<<<<< HEAD
-      const url = api.getUrl('recursos_humanos', 'Trabajadores');
-      this.axios.delete(`${url}/${trabajador.id}`).then(
-        (response) => {
-=======
       const url = api.getUrl("recursos_humanos", "Trabajadores");
       this.axios.delete(`${url}/${trabajador.id}`).then(
         response => {
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
           this.getResponse(response);
         },
         (error) => {

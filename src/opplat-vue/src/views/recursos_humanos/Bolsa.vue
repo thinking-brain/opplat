@@ -74,13 +74,8 @@
                       ></v-select>
                     </v-flex>
                     <v-flex xs12 sm6 md6>
-<<<<<<< HEAD
-                      <v-multiselect
-                        v-model="estado"
-=======
                       <v-autocomplete
                         v-model="perfilOcupacional"
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
                         item-text="nombre"
                         :items="PerfilesOcupacionales"
                         :filter="activeFilter"
@@ -88,11 +83,7 @@
                         clearable
                         label="Perfil Ocupacional"
                         prepend-icon="mdi-database-search"
-<<<<<<< HEAD
-                      ></v-multiselect>
-=======
                       ></v-autocomplete>
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
                     </v-flex>
                     <v-layout>
                       <v-flex xs12 sm6 md6>
@@ -233,19 +224,6 @@
                     ></v-select>
                   </v-flex>
                   <v-flex xs3 class="px-3">
-<<<<<<< HEAD
-                    <v-autocomplete
-                      v-model="trabajador.perfilOcupacionalId"
-                      item-text="nombre"
-                      item-value="id"
-                      :items="perfilesOcupacionales"
-                      :filter="activeFilter"
-                      :rules="PerfilRules"
-                      label="Perfil Ocupacional"
-                      required
-                      clearable
-                    ></v-autocomplete>
-=======
                     <v-select
                       v-model="trabajador.perfilOcupacional"
                       item-text="nombre"
@@ -256,7 +234,6 @@
                       clearable
                       label="Perfil "
                     ></v-select>
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
                   </v-flex>
                   <v-flex xs3 class="px-3">
                     <v-text-field
@@ -738,11 +715,7 @@ export default {
     tallasDeCamisas: [],
     nivelesEscolaridad: [],
     estados: [],
-<<<<<<< HEAD
-    perfilesOcupacionales: [],
-=======
     PerfilesOcupacionales: [],
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
     Municipios: [],
     unidadOrganizativa: "",
     edad: "",
@@ -841,10 +814,7 @@ export default {
     this.gettallasDeCamisasFromApi();
     this.getPerfilesFromApi();
     this.getMunicipiosFromApi();
-<<<<<<< HEAD
-=======
     this.getPerfilesOcupacionalesFromApi();
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
   },
 
   methods: {
@@ -889,15 +859,10 @@ export default {
             sexo: this.sexo,
             estado: this.estado,
             nivelEscolaridad: this.nivelEscolaridad,
-<<<<<<< HEAD
-            edad: this.edad,
-            colordePiel: this.colordePiel,
-=======
             edadDesde: this.edadDesde,
             edadHasta: this.edadHasta,
             colordePiel: this.colordePiel,
             perfilOcupacional: this.perfilOcupacional,
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
             bolsa: true
           }
         })
@@ -1012,19 +977,11 @@ export default {
         }
       );
     },
-<<<<<<< HEAD
-    getPerfilesFromApi() {
-      const url = api.getUrl("recursos_humanos", "PerfilesOcupacionales");
-      this.axios.get(url).then(
-        response => {
-          this.perfilesOcupacionales = response.data;
-=======
     getPerfilesOcupacionalesFromApi() {
       const url = api.getUrl("recursos_humanos", "PerfilesOcupacionales");
       this.axios.get(url).then(
         response => {
           this.PerfilesOcupacionales = response.data;
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
         },
         error => {
           console.log(error);
