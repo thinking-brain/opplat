@@ -49,5 +49,40 @@ namespace ImportadorDatos.Controllers
             importador.ImportarUnidadesOrganizativas();
             return Ok("Unidades Organizativas importadas.");
         }
+
+        [HttpGet("elementos-de-gastos")]
+        public async Task<IActionResult> GetElementosDeGastos()
+        {
+            importador.ImportarElementosDeGastos();
+            return Ok("Elementos de gastos importados correctamente.");
+        }
+
+        [HttpGet("partidas-de-gastos")]
+        public async Task<IActionResult> GetPartidasDeGastos()
+        {
+            importador.ImportarPartidasDeGastos();
+            return Ok("Partidas de gastos importadas correctamente.");
+        }
+
+        [HttpGet("subelementos-de-gastos")]
+        public async Task<IActionResult> GetSubElementosDeGastos()
+        {
+            importador.ImportarSubElementosDeGastos();
+            return Ok("SubElementos de gastos importados correctamente.");
+        }
+
+        [HttpGet("centros-de-costos")]
+        public async Task<IActionResult> GetCentrosDeCostos()
+        {
+            importador.ImportarCentrosDeCostos();
+            return Ok("Centros de costos importados correctamente.");
+        }
+
+        [HttpGet("registros-de-gastos")]
+        public async Task<IActionResult> GetRegistrosDeGastos()
+        {
+            importador.ImportarRegistrosDeGastos();
+            return Ok("Registros de gastos importados correctamente.");
+        }
     }
 }

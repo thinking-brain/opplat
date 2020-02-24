@@ -3,15 +3,17 @@ using System;
 using ContabilidadWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContabilidadWebApi.Migrations
 {
     [DbContext(typeof(ContabilidadDbContext))]
-    partial class ContabilidadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200206184122_AgregandoImporteRegistroDeGasto")]
+    partial class AgregandoImporteRegistroDeGasto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,22 +40,6 @@ namespace ContabilidadWebApi.Migrations
                     b.HasIndex("DiaContableId");
 
                     b.ToTable("contb_asientos");
-                });
-
-            modelBuilder.Entity("ContabilidadWebApi.Models.CentroDeCosto", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("Activo");
-
-                    b.Property<string>("Codigo");
-
-                    b.Property<string>("Nombre");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("contb_centros_de_costo");
                 });
 
             modelBuilder.Entity("ContabilidadWebApi.Models.ConceptoCuentas", b =>

@@ -1311,7 +1311,7 @@ namespace FinanzasWebApi.Helper.EstadoFinanciero
             totalPasivoPatrimonio.Real = totalPasivoPatrimonioValue;
 
 
-            return estado;
+            return estado.Where(s => s.Visible == true).ToList();
         }
 
         public List<EstadoFinancieroJsVM> estadoFinanciero5921(int year, int meses)
@@ -1553,7 +1553,6 @@ namespace FinanzasWebApi.Helper.EstadoFinanciero
 
             return estado;
         }
-
         public List<EstadoFinancieroJsVM> estadoFinanciero5921Hoja(int year, int meses)
         {
             var config = System.IO.File.ReadAllText("../FinanzasWebApi/Helper/EstadoFinanciero/Configs/Config5921Hoja.json");
@@ -1750,6 +1749,7 @@ namespace FinanzasWebApi.Helper.EstadoFinanciero
 
             return estado;
         }
+
         public List<EstadoFinancieroJsVM> estadoFinanciero5922(int year, int meses)
         {
             var config = System.IO.File.ReadAllText("../FinanzasWebApi/Helper/EstadoFinanciero/Configs/Config5922.json");
