@@ -154,7 +154,7 @@
               small
               class="ma-2"
               @click="cerrarApertura()"
-              v-if="aperturaSocio.fechaAsamblea!='' && aperturaSocio.numAcuerdo||numAcuerdo"
+              v-if="aperturaSocio.Fecha!=null"
             >Cerrar Apertura</v-btn>
           </div>
         </template>
@@ -373,9 +373,10 @@ export default {
       );
     },
     guardarApertura() {
-      this.aperturaSocio = {
-        ListaTrab: this.selected
-      };
+      for (let i = 0; index < this.selected.length; i++) {
+        const ListaTrabId = array[i];
+      }
+      this.aperturaSocio.ListaTrab = ListaTrabId;
       const url = api.getUrl("recursos_humanos", "aperturaSocios");
       this.axios.post(url, this.aperturaSocio).then(
         response => {
