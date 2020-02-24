@@ -122,6 +122,29 @@
                         ></v-text-field>
                       </v-flex>
                     </v-layout>
+                    <v-flex xs12 sm6 md6>
+                      <v-autocomplete
+                        v-model="perfil"
+                        item-text="nombre"
+                        :items="PerfilesOcupacionales"
+                        :filter="activeFilter"
+                        cache-items
+                        clearable
+                        label="Perfil Ocupacional"
+                        prepend-icon="mdi-database-search"
+                      ></v-autocomplete>
+                    </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-autocomplete
+                        v-model="municipio"
+                        item-text="nombre"
+                        :items="Municipios"
+                        :filter="activeFilter"
+                        label="Municipio"
+                        required
+                        clearable
+                      ></v-autocomplete>
+                    </v-flex>
                   </v-layout>
                 </v-container>
               </v-card-text>
@@ -168,7 +191,7 @@
             <v-form ref="form" v-model="valid" lazy-validation>
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       label="Nombre"
                       v-model="trabajador.nombre"
@@ -177,7 +200,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       label="Apellidos"
                       v-model="trabajador.apellidos"
@@ -186,7 +209,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       label="Carnet de Identidad"
                       v-model="trabajador.ci"
@@ -197,18 +220,31 @@
                     ></v-text-field>
                     <span asp-validation-for="CI" class="text-danger"></span>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <!-- <v-flex xs3 class="px-3">
                     <v-file-input show-size label="Seleccionar Foto" v-model="trabajador.foto"></v-file-input>
-                  </v-flex>
-                  <v-flex xs4 class="px-5">
+                  </v-flex>-->
+                  <v-flex xs4 class="px-3">
                     <v-text-field
                       label="Dirección"
                       v-model="trabajador.direccion"
+                      placeholder="Calle e/ # Casa o Apto, Barrio o Finca"
                       clearable
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-5">
+                  <v-flex xs2 class="px-3">
+                    <v-autocomplete
+                      v-model="trabajador.municipioId"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="Municipios"
+                      :filter="activeFilter"
+                      label="Municipio"
+                      required
+                      clearable
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs3 class="px-3">
                     <v-select
                       v-model="trabajador.nivelDeEscolaridad"
                       item-text="nombre"
@@ -218,14 +254,25 @@
                       clearable
                     ></v-select>
                   </v-flex>
+<<<<<<< HEAD
                   <v-flex xs4 class="px-5">
                     <v-text-field
                       label="Perfil Ocupacional"
                       v-model="trabajador.perfilOcupacional"
                       :rules="PerfilRules"
                       required
+=======
+                  <v-flex xs3 class="px-3">
+                    <v-autocomplete
+                      v-model="trabajador.perfilOcupacional"
+                      item-text="nombre"
+                      :items="PerfilesOcupacionales"
+                      :filter="activeFilter"
+                      cache-items
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
                       clearable
-                    ></v-text-field>
+                      label="Perfil Ocupacional"
+                    ></v-autocomplete>
                   </v-flex>
                   <v-flex xs3 class="px-3">
                     <v-text-field
@@ -255,7 +302,7 @@
                       clearable
                     ></v-select>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-select
                       v-model="trabajador.colorDePiel"
                       item-text="nombre"
@@ -265,14 +312,14 @@
                       clearable
                     ></v-select>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       v-model="trabajador.tallaCalzado"
                       label="Talla de Calzado"
                       clearable
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-select
                       v-model="trabajador.tallaDeCamisa"
                       item-text="nombre"
@@ -282,7 +329,7 @@
                       clearable
                     ></v-select>
                   </v-flex>
-                  <v-flex xs3 class="px-5">
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       label="Talla de Pantalon"
                       v-model="trabajador.tallaPantalon"
@@ -290,7 +337,7 @@
                     ></v-text-field>
                   </v-flex>
                 </v-layout>
-                <v-flex xs5 class="px-5">
+                <v-flex xs5 class="px-3">
                   <v-text-field
                     label="Otras Características: "
                     v-model="trabajador.otrasCaracteristicas"
@@ -759,7 +806,11 @@
   </v-data-table>
 </template>
 <script>
+<<<<<<< HEAD
 import api from '@/api';
+=======
+import api from "@/api";
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
 
 export default {
   data: () => ({
@@ -782,6 +833,7 @@ export default {
     tallasDeCamisas: [],
     nivelesEscolaridad: [],
     estados: [],
+<<<<<<< HEAD
     unidadOrganizativa: '',
     edad: '',
     cargo: '',
@@ -790,6 +842,20 @@ export default {
     edadHasta: '',
     otrasCaracteristicas: '',
     estado: '',
+=======
+    PerfilesOcupacionales: [],
+    Municipios: [],
+    unidadOrganizativa: "",
+    edad: "",
+    cargo: "",
+    nivelDeEscolaridad: "",
+    edadDesde: "",
+    edadHasta: "",
+    otrasCaracteristicas: "",
+    perfil: "",
+    municipio: "",
+    estado: "",
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
     date: new Date().toISOString().substr(0, 10),
     menu: false,
     menu1: false,
@@ -871,6 +937,8 @@ export default {
     this.getColordeOjosTrabFromApi();
     this.gettallasDeCamisasFromApi();
     this.getCausaDeBajaFromApi();
+    this.getPerfilesOcupacionalesFromApi();
+    this.getMunicipiosFromApi();
   },
 
   methods: {
@@ -903,11 +971,16 @@ export default {
             sexo: this.sexo,
             estado: this.estado,
             nivelDeEscolaridad: this.nivelDeEscolaridad,
-            edad: this.edad,
             colordePiel: this.colordePiel,
             edadDesde: this.edadDesde,
             edadHasta: this.edadHasta,
+<<<<<<< HEAD
           },
+=======
+            perfilOcupacional: this.perfil,
+            municipio:this.municipio
+          }
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
         })
         .then(
           (response) => {
@@ -1031,6 +1104,28 @@ export default {
         },
       );
     },
+    getPerfilesOcupacionalesFromApi() {
+      const url = api.getUrl("recursos_humanos", "PerfilesOcupacionales");
+      this.axios.get(url).then(
+        response => {
+          this.PerfilesOcupacionales = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    getMunicipiosFromApi() {
+      const url = api.getUrl("recursos_humanos", "Trabajadores/Municipios");
+      this.axios.get(url).then(
+        response => {
+          this.Municipios = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     save(method) {
       const url = api.getUrl('recursos_humanos', 'Trabajadores');
       if (method === 'POST') {
@@ -1044,9 +1139,15 @@ export default {
           },
         );
       }
+<<<<<<< HEAD
       if (method === 'PUT') {
         this.axios.put(`${url}/${this.trabajador.id}`, this.trabajador).then(
           (response) => {
+=======
+      if (method === "PUT") {
+        this.axios.put(`${url}/${this.trabajador.id}`, this.trabajador).then(
+          response => {
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
             this.getResponse(response);
             this.dialog = false;
           },
@@ -1156,9 +1257,15 @@ export default {
       this.dialog4 = true;
     },
     deleteItem(trabajador) {
+<<<<<<< HEAD
       const url = api.getUrl('recursos_humanos', 'Trabajadores');
       this.axios.delete(`${url}/${trabajador.id}`).then(
         (response) => {
+=======
+      const url = api.getUrl("recursos_humanos", "Trabajadores");
+      this.axios.delete(`${url}/${trabajador.id}`).then(
+        response => {
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
           this.getResponse(response);
         },
         (error) => {

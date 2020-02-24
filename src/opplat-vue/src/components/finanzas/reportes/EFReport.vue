@@ -55,7 +55,7 @@
               class="font-weight-bold display-1 basil--text"
             >Estado Financiero {{mes.nombre}} {{year}}</h6>
           </v-card-title>
-          <v-simple-table :fixed-header="true" height="500">
+          <v-simple-table :fixed-header="true" height="700">
             <template v-slot:default>
               <thead>
                 <tr>
@@ -160,8 +160,12 @@ export default {
       if (this.$refs.form.validate()) {
         const url = api.getUrl(
           'finanzas',
+<<<<<<< HEAD
           `EstadoFinanciero/estadoFinanciero5020/${this.year}/${this.mes.id}`,
         );
+=======
+          `EstadoFinanciero/estadoFinanciero5020/${this.year}/${this.mes.id}`);
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
         this.axios
           .get(url)
           .then((response) => {
@@ -171,9 +175,15 @@ export default {
             this.errors.push(e);
             vm.$snotify.error(
               'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
+<<<<<<< HEAD
             );
           });
         this.visible = true;
+=======
+            )
+          }),
+        this.visible = true
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
       }
     },
     toggle() {

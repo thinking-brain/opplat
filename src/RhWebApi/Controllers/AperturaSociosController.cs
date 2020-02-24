@@ -25,10 +25,16 @@ namespace RhWebApi.Controllers {
                         Fecha = s.Fecha.ToString ("dd MMMM yyyy"),
                         CantTrabajadores = s.CantTrabajadores,
                         NumeroAcuerdo = s.NumeroAcuerdo,
+<<<<<<< HEAD
                         ColorDePiel = s.CaracteristicasSocio.ColorDePiel.ToString (),
                         Municipio = s.CaracteristicasSocio.Municipio.Nombre,
                         Sexo = s.CaracteristicasSocio.Sexo.ToString (),
                         PerfilOcupacional = s.CaracteristicasSocio.Perfil_Ocupacional,
+=======
+                        Municipio = s.CaracteristicasSocio.Municipio.Nombre,
+                        Sexo = s.CaracteristicasSocio.Sexo.ToString (),
+                        PerfilOcupacional = s.CaracteristicasSocio.PerfilOcupacional.Nombre,
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
                         NivelDeEscolaridad = s.CaracteristicasSocio.NivelDeEscolaridad.ToString (),
                         Estado = s.EstadosApertura.ToString ()
                 });
@@ -47,10 +53,16 @@ namespace RhWebApi.Controllers {
                         Fecha = s.Fecha.ToString ("dd MMMM yyyy"),
                         CantTrabajadores = s.CantTrabajadores,
                         NumeroAcuerdo = s.NumeroAcuerdo,
+<<<<<<< HEAD
                         ColorDePiel = s.CaracteristicasSocio.ColorDePiel.ToString (),
                         Municipio = s.CaracteristicasSocio.Municipio.Nombre,
                         Sexo = s.CaracteristicasSocio.Sexo.ToString (),
                         PerfilOcupacional = s.CaracteristicasSocio.Perfil_Ocupacional,
+=======
+                        Municipio = s.CaracteristicasSocio.Municipio.Nombre,
+                        Sexo = s.CaracteristicasSocio.Sexo.ToString (),
+                        PerfilOcupacional = s.CaracteristicasSocio.PerfilOcupacional.Nombre,
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
                         NivelDeEscolaridad = s.CaracteristicasSocio.NivelDeEscolaridad.ToString (),
                         Estado = s.EstadosApertura.ToString ()
                 }).ToList ();
@@ -64,16 +76,35 @@ namespace RhWebApi.Controllers {
         [HttpPost]
         public IActionResult POST ([FromBody] AperturaSocioDto aperturaSocioDto) {
             if (ModelState.IsValid) {
+                var caratSocios = new CaracteristicasSocio () {
+                    Direccion = aperturaSocioDto.CaracteristicasSocio.Direccion,
+                    Sexo = aperturaSocioDto.CaracteristicasSocio.Sexo,
+                    MunicipioId = aperturaSocioDto.CaracteristicasSocio.MunicipioId,
+                    NivelDeEscolaridad = aperturaSocioDto.CaracteristicasSocio.NivelDeEscolaridad,
+                    EdadDesde = aperturaSocioDto.CaracteristicasSocio.EdadDesde,
+                    EdadHasta = aperturaSocioDto.CaracteristicasSocio.EdadHasta,
+                    PerfilOcupacional = aperturaSocioDto.CaracteristicasSocio.PerfilOcupacional
+                };
+                context.CaracteristicasSocio.Add (caratSocios);
+                context.SaveChanges ();
                 var apertura = new AperturaSocio () {
                     Id = aperturaSocioDto.Id,
                     Fecha = aperturaSocioDto.Fecha,
                     CantTrabajadores = aperturaSocioDto.CantTrabajadores,
                     NumeroAcuerdo = aperturaSocioDto.NumeroAcuerdo,
+<<<<<<< HEAD
                     CaracteristicasSocioId = aperturaSocioDto.CaracteristicasSocioId,
                     EstadosApertura = EstadosApertura.Abierta
                 };
                 foreach (var trabajadorId in aperturaSocioDto.ListaTrabId) {
                     var trab = context.Trabajador.FirstOrDefault (t => t.Id == trabajadorId);
+=======
+                    CaracteristicasSocioId = caratSocios.Id,
+                    EstadosApertura = EstadosApertura.Abierta
+                };
+                foreach (var trabajador in aperturaSocioDto.ListaTrab) {
+                    var trab = context.Trabajador.FirstOrDefault (t => t.Id == trabajador.Id);
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
                     if (trab == null) {
                         return BadRequest ($"No hay trabajador con este ID");
                     }
@@ -100,8 +131,13 @@ namespace RhWebApi.Controllers {
                 apertura.NumeroAcuerdo = aperturaSocioDto.NumeroAcuerdo;
                 apertura.CaracteristicasSocioId = aperturaSocioDto.CaracteristicasSocioId;
                 apertura.EstadosApertura = EstadosApertura.Sin_Definir;
+<<<<<<< HEAD
                 foreach (var trabajadorId in aperturaSocioDto.ListaTrabId) {
                     var trab = context.Trabajador.FirstOrDefault (t => t.Id == trabajadorId);
+=======
+                foreach (var trabajador in aperturaSocioDto.ListaTrab) {
+                    var trab = context.Trabajador.FirstOrDefault (t => t.Id == trabajador.Id);
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
                     if (trab == null) {
                         return BadRequest ($"No hay trabajador con este ID");
                     }

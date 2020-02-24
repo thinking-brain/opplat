@@ -28,7 +28,10 @@
                 </h2>
               </v-card-title>
             </v-row>
+<<<<<<< HEAD
             <Apertura></Apertura>
+=======
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
             <v-card-actions>
               <div class="flex-grow-1"></div>
               <v-btn color="green darken-1" text @click="save(method)">Aceptar</v-btn>
