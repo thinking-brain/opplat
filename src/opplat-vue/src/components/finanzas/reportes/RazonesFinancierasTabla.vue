@@ -190,12 +190,12 @@ th {
 }
 </style>
 <script>
-import api from "@/api";
-import VueApexCharts from "vue-apexcharts";
+import VueApexCharts from 'vue-apexcharts';
+import api from '@/api';
 
 export default {
   components: {
-    VueApexCharts
+    VueApexCharts,
   },
   data() {
     return {
@@ -206,56 +206,56 @@ export default {
       hasdata: false,
       razones_series: [
         {
-          name: "Real",
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          name: 'Real',
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         },
         {
-          name: "Plan",
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        }
+          name: 'Plan',
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        },
       ],
       razonesOptions: {
         title: {
-          text: "Comportamiento de las razones en el año",
-          align: "center",
+          text: 'Comportamiento de las razones en el año',
+          align: 'center',
           margin: 10,
           offsetX: 0,
           offsetY: 0,
           floating: false,
           style: {
-            fontSize: "20px",
-            color: "rgba(96, 89, 89, 0.87)"
-          }
+            fontSize: '20px',
+            color: 'rgba(96, 89, 89, 0.87)',
+          },
         },
         chart: {
-          id: "vuechart"
+          id: 'vuechart',
         },
         xaxis: {
           tooltip: {
-            enabled: false
+            enabled: false,
           },
           categories: [
-            "Enero",
-            "Febrero",
-            "Marzo",
-            "Abril",
-            "Mayo",
-            "Junio",
-            "Julio",
-            "Agosto",
-            "Septiembre",
-            "Octubre",
-            "Noviembre",
-            "Diciembre"
-          ]
+            'Enero',
+            'Febrero',
+            'Marzo',
+            'Abril',
+            'Mayo',
+            'Junio',
+            'Julio',
+            'Agosto',
+            'Septiembre',
+            'Octubre',
+            'Noviembre',
+            'Diciembre',
+          ],
         },
         yaxis: {
           min: 0,
-          forceNiceScale: true
-        }
+          forceNiceScale: true,
+        },
       },
       razones_series: [],
-      errors: []
+      errors: [],
     };
   },
   methods: {
@@ -264,22 +264,22 @@ export default {
       this.getRazonesFinancierasFromApi();
     },
     getRazonesFinancierasFromApi() {
-      const url = api.getUrl("finanzas", `RazonesFinancieras/${this.year}`);
+      const url = api.getUrl('finanzas', `RazonesFinancieras/${this.year}`);
       this.visible = true;
       this.hasdata = false;
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.razones = response.data;
-          response.data.forEach(element => {
-            this.razones_series.push({"name": element.razon, data:[element.enero, element.febrero, element.marzo,element.abril,element.mayo,element.junio,element.julio,element.agosto,element.septiembre,element.octubre,element.noviembre,element.diciembre]});
+          response.data.forEach((element) => {
+            this.razones_series.push({ name: element.razon, data: [element.enero, element.febrero, element.marzo, element.abril, element.mayo, element.junio, element.julio, element.agosto, element.septiembre, element.octubre, element.noviembre, element.diciembre] });
           });
           this.hasdata = true;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
           vm.$snotify.error(
-            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
           );
         });
     },
@@ -288,21 +288,21 @@ export default {
     },
     imprimirviejo() {
       // Get HTML to print from element
-      const prtHtml = document.getElementById("print").innerHTML;
+      const prtHtml = document.getElementById('print').innerHTML;
 
       // Get all stylesheets HTML
-      let stylesHtml = "";
+      let stylesHtml = '';
       for (const node of [
-        ...document.querySelectorAll('link[rel="stylesheet"], style')
+        ...document.querySelectorAll('link[rel="stylesheet"], style'),
       ]) {
         stylesHtml += node.outerHTML;
       }
 
       // Open the print window
       const WinPrint = window.open(
-        "",
-        "",
-        "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
+        '',
+        '',
+        'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0',
       );
 
       WinPrint.document.write(`<!DOCTYPE html>
@@ -320,35 +320,35 @@ export default {
       WinPrint.print();
       WinPrint.close();
     },
-    exportTableToExcel(tableID = "table1", filename = "Reportee") {
-      var downloadLink;
-      var dataType = "application/vnd.ms-excel";
-      var tableSelect = document.getElementById("table1");
-      var tableHTML = tableSelect.outerHTML.replace(/ /g, "%20");
+    exportTableToExcel(tableID = 'table1', filename = 'Reportee') {
+      let downloadLink;
+      const dataType = 'application/vnd.ms-excel';
+      const tableSelect = document.getElementById('table1');
+      const tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
 
       // Specify file name
-      filename = filename ? filename + ".xls" : "excel_data.xls";
+      filename = filename ? `${filename}.xls` : 'excel_data.xls';
 
       // Create download link element
-      downloadLink = document.createElement("a");
+      downloadLink = document.createElement('a');
 
       document.body.appendChild(downloadLink);
 
       if (navigator.msSaveOrOpenBlob) {
-        var blob = new Blob(["\ufeff", tableHTML], {
-          type: dataType
+        const blob = new Blob(['\ufeff', tableHTML], {
+          type: dataType,
         });
         navigator.msSaveOrOpenBlob(blob, filename);
       } else {
         // Create a link to the file
-        downloadLink.href = "data:" + dataType + ", " + tableHTML;
+        downloadLink.href = `data:${dataType}, ${tableHTML}`;
 
         // Setting the file name
         downloadLink.download = filename;
-        //triggering the function
+        // triggering the function
         downloadLink.click();
       }
-    }
-  }
+    },
+  },
 };
 </script>

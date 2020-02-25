@@ -244,12 +244,12 @@ th {
 }
 </style>
 <script>
-import api from "@/api";
+import api from '@/api';
 
 export default {
   data() {
     return {
-      mes: { id: 0, nombre: "Ninguno" },
+      mes: { id: 0, nombre: 'Ninguno' },
       year: 0,
       ingresos: null,
       egresos: null,
@@ -262,9 +262,9 @@ export default {
     jefe() {
       if (!this.$store.getters.jefe) {
         this.$store
-          .dispatch("cargar")
+          .dispatch('cargar')
           .then(() => {})
-          .catch(err => {
+          .catch((err) => {
             console.log(err);
           });
       }
@@ -273,9 +273,9 @@ export default {
     economico() {
       if (!this.$store.getters.economico) {
         this.$store
-          .dispatch("cargar")
+          .dispatch('cargar')
           .then(() => {})
-          .catch(err => {
+          .catch((err) => {
             console.log(err);
           });
       }
@@ -285,9 +285,9 @@ export default {
       let hd = false;
       if (this.egresos && this.ingresos && this.utilidades) {
         if (
-          this.ingresos.length > 0 &&
-          this.egresos.length > 0 &&
-          this.utilidades.length > 0
+          this.ingresos.length > 0
+          && this.egresos.length > 0
+          && this.utilidades.length > 0
         ) {
           hd = true;
         }
@@ -300,7 +300,7 @@ export default {
         hd = true;
       }
       return hd;
-    }
+    },
   },
   methods: {
     loadReporte(mes, year) {
@@ -315,53 +315,53 @@ export default {
     },
     getIngresosFromApi() {
       const url = api.getUrl(
-        "finanzas",
-        `ReporteIngresosGastos/ingresos/${this.year}/${this.mes.id}`
+        'finanzas',
+        `ReporteIngresosGastos/ingresos/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.ingresos = response.data;
           this.visible = true;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
           vm.$snotify.error(
-            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
           );
         });
     },
     getEgresosFromApi() {
       const url = api.getUrl(
-        "finanzas",
-        `ReporteIngresosGastos/egresos/${this.year}/${this.mes.id}`
+        'finanzas',
+        `ReporteIngresosGastos/egresos/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.egresos = response.data;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
           vm.$snotify.error(
-            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
           );
         });
     },
     getUtilidadesFromApi() {
       const url = api.getUrl(
-        "finanzas",
-        `ReporteIngresosGastos/utilidad/${this.year}/${this.mes.id}`
+        'finanzas',
+        `ReporteIngresosGastos/utilidad/${this.year}/${this.mes.id}`,
       );
       this.axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           this.utilidades = response.data;
         })
-        .catch(e => {
+        .catch((e) => {
           this.errors.push(e);
           vm.$snotify.error(
-            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
           );
         });
     },
@@ -370,21 +370,21 @@ export default {
     },
     imprimirviejo() {
       // Get HTML to print from element
-      const prtHtml = document.getElementById("print").innerHTML;
+      const prtHtml = document.getElementById('print').innerHTML;
 
       // Get all stylesheets HTML
-      let stylesHtml = "";
+      let stylesHtml = '';
       for (const node of [
-        ...document.querySelectorAll('link[rel="stylesheet"], style')
+        ...document.querySelectorAll('link[rel="stylesheet"], style'),
       ]) {
         stylesHtml += node.outerHTML;
       }
 
       // Open the print window
       const WinPrint = window.open(
-        "",
-        "",
-        "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
+        '',
+        '',
+        'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0',
       );
 
       WinPrint.document.write(`<!DOCTYPE html>
@@ -402,35 +402,35 @@ export default {
       WinPrint.print();
       WinPrint.close();
     },
-    exportTableToExcel(tableID = "table1", filename = "Reporte ingresos y gastos "+ this.mes.nombre +" "+this.year) {
-      var downloadLink;
-      var dataType = "application/vnd.ms-excel";
-      var tableSelect = document.getElementById("table1");
-      var tableHTML = tableSelect.outerHTML.replace(/ /g, "%20");
+    exportTableToExcel(tableID = 'table1', filename = 'Reportee') {
+      let downloadLink;
+      const dataType = 'application/vnd.ms-excel';
+      const tableSelect = document.getElementById('table1');
+      const tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
 
       // Specify file name
-      filename = filename ? filename + ".xls" : "excel_data.xls";
+      filename = filename ? `${filename}.xls` : 'excel_data.xls';
 
       // Create download link element
-      downloadLink = document.createElement("a");
+      downloadLink = document.createElement('a');
 
       document.body.appendChild(downloadLink);
 
       if (navigator.msSaveOrOpenBlob) {
-        var blob = new Blob(["\ufeff", tableHTML], {
-          type: dataType
+        const blob = new Blob(['\ufeff', tableHTML], {
+          type: dataType,
         });
         navigator.msSaveOrOpenBlob(blob, filename);
       } else {
         // Create a link to the file
-        downloadLink.href = "data:" + dataType + ", " + tableHTML;
+        downloadLink.href = `data:${dataType}, ${tableHTML}`;
 
         // Setting the file name
         downloadLink.download = filename;
-        //triggering the function
+        // triggering the function
         downloadLink.click();
       }
-    }
-  }
+    },
+  },
 };
 </script>

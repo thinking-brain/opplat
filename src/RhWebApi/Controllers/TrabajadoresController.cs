@@ -38,12 +38,15 @@ namespace RhWebApi.Controllers {
                         Direccion = t.Direccion,
                         NivelDeEscolaridad = t.NivelDeEscolaridad,
                         NivelDeEscolaridadName = t.NivelDeEscolaridad.ToString (),
+                        PerfilOcupacional=t.PerfilOcupacional.Nombre,
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
+                        CargoId = t.PuestoDeTrabajo.Cargo.Id,
                         UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
+                        UnidadOrganizativaId = t.PuestoDeTrabajo.UnidadOrganizativa.Id,
                         EstadoTrabajador = t.EstadoTrabajador,
                         EstadoTrabajadorName = t.EstadoTrabajador.ToString (),
                         Correo = t.Correo,
-                        Perfil_Ocupacional = t.Perfil_Ocupacional,
+                        Municipio = t.Municipio.Nombre,
                         ColorDePiel = t.CaracteristicasTrab.ColorDePiel,
                         ColorDePielName = t.CaracteristicasTrab.ColorDePiel.ToString (),
                         ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos,
@@ -81,7 +84,7 @@ namespace RhWebApi.Controllers {
                         Direccion = t.Direccion,
                         NivelDeEscolaridad = t.NivelDeEscolaridad.ToString (),
                         MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
-                        Perfil_Ocupacional = t.Perfil_Ocupacional,
+                        Municipio = t.Municipio.Nombre,
                         UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                         EstadoTrabajador = t.EstadoTrabajador.ToString (),
@@ -104,14 +107,17 @@ namespace RhWebApi.Controllers {
         }
 
         // POST recursos_humanos/trabajadores
-        // POST recursos_humanos/trabajadores
         [HttpPost]
         public IActionResult POST ([FromBody] TrabajadorDto trabajadorDto) {
             if (ModelState.IsValid) {
-                if (context.Trabajador.Any (e => e.CI == trabajadorDto.CI)) {
+                var trab = context.Trabajador.FirstOrDefault (s => s.CI == trabajadorDto.CI);
+                if (trab != null) {
+                    if (trab.EstadoTrabajador == Estados.Descartado) {
+                        return BadRequest ($"El trabajador ya está en el sistema y fue descartado de la bolsa");
+                    }
                     return BadRequest ($"El trabajador ya está en el sistema");
                 } else {
-                    // Saber sexo y fecha cumple del CI
+                    // Saber sexo y fecha de cumpleaños por el CI
                     var sexo = new Sexo ();
                     string fecha = "";
                     DateTime fechaNac = new DateTime ();
@@ -144,7 +150,7 @@ namespace RhWebApi.Controllers {
                         TelefonoMovil = trabajadorDto.TelefonoMovil,
                         TelefonoFijo = trabajadorDto.TelefonoFijo,
                         EstadoTrabajador = Estados.Bolsa,
-                        Perfil_Ocupacional = trabajadorDto.Perfil_Ocupacional,
+                        PerfilOcupacionalId = trabajadorDto.PerfilOcupacionalId,
                         Fecha_Nac = fechaNac,
                     };
                     context.Trabajador.Add (trabajador);
@@ -192,7 +198,7 @@ namespace RhWebApi.Controllers {
                     t.Direccion = trabajadorDto.Direccion;
                     t.Correo = trabajadorDto.Correo;
                     t.MunicipioId = trabajadorDto.MunicipioId;
-                    t.Perfil_Ocupacional = trabajadorDto.Perfil_Ocupacional;
+                    t.PerfilOcupacionalId = trabajadorDto.PerfilOcupacionalId;
                     t.NivelDeEscolaridad = trabajadorDto.NivelDeEscolaridad;
                     t.TelefonoMovil = trabajadorDto.TelefonoMovil;
                     t.TelefonoFijo = trabajadorDto.TelefonoFijo;
@@ -271,7 +277,7 @@ namespace RhWebApi.Controllers {
         }
         // GET: recursos_humanos/trabajadores/Filtro
         [HttpGet ("/recursos_humanos/Trabajadores/Filtro")]
-        public IActionResult GetByFiltro (string UnidadOrganizativa = "", string Cargo = "", string Sexo = "", string Estado = "", string ColorDePiel = "", string NivelDeEscolaridad = "", string EdadDesde = "", string EdadHasta = "") {
+        public IActionResult GetByFiltro (bool bolsa, string UnidadOrganizativa = "", string Cargo = "", string Sexo = "", string Estado = "", string ColorDePiel = "", string NivelDeEscolaridad = "", string EdadDesde = "", string EdadHasta = "") {
             var trabajadores = context.Trabajador.Select (t => new {
                 Id = t.Id,
                     Nombre = t.Nombre,
@@ -303,6 +309,9 @@ namespace RhWebApi.Controllers {
                     Foto = t.CaracteristicasTrab.Foto,
                     Edad = (DateTime.Now - t.Fecha_Nac).Days / 365
             });
+            if (bolsa) {
+                trabajadores = trabajadores.Where (t => t.EstadoTrabajador==Estados.Bolsa);
+            }
             if (!string.IsNullOrEmpty (UnidadOrganizativa)) {
                 trabajadores = trabajadores.Where (t => t.UnidadOrganizativa.ToString ().Equals (UnidadOrganizativa));
             }
@@ -339,7 +348,7 @@ namespace RhWebApi.Controllers {
         // GET: recursos_humanos/trabajadores/Bolsa
         [HttpGet ("/recursos_humanos/Trabajadores/Bolsa")]
         public IActionResult GetAllBolsa () {
-            var trab = context.Bolsa.Include (b => b.Trabajador)
+            var trab = context.Bolsa.Include (b => b.Trabajador).Where (s => s.Trabajador.EstadoTrabajador == Estados.Bolsa)
                 .Select (t => new {
                     Id = t.Trabajador.Id,
                         Nombre = t.Trabajador.Nombre,
@@ -353,7 +362,8 @@ namespace RhWebApi.Controllers {
                         Direccion = t.Trabajador.Direccion,
                         NivelDeEscolaridad = t.Trabajador.NivelDeEscolaridad,
                         NivelDeEscolaridadName = t.Trabajador.NivelDeEscolaridad.ToString (),
-                        Perfil_Ocupacional = t.Trabajador.Perfil_Ocupacional,
+                        PerfilOcupacional=t.Trabajador.PerfilOcupacional.Nombre,
+                        Municipio = t.Trabajador.Municipio.Nombre,
                         MunicipioProv = t.Trabajador.Municipio.Nombre + " " + t.Trabajador.Municipio.Provincia.Nombre,
                         Correo = t.Trabajador.Correo,
                         ColorDePiel = t.Trabajador.CaracteristicasTrab.ColorDePiel,
@@ -369,7 +379,7 @@ namespace RhWebApi.Controllers {
                         Foto = t.Trabajador.CaracteristicasTrab.Foto,
                         Fecha_Nac = t.Trabajador.Fecha_Nac.ToString ("dd MMMM yyyy"),
                         Edad = (DateTime.Now - t.Trabajador.Fecha_Nac).Days / 365,
-                        Referencia = t.Nombre_Referencia,
+                        nombre_Referencia = t.Nombre_Referencia,
                         Fecha_Entrada = t.Fecha.ToString ("dd MMMM yyyy"),
                         Tiempo_Bolsa = (DateTime.Now - t.Fecha).Days + " Días",
                 });
@@ -378,6 +388,11 @@ namespace RhWebApi.Controllers {
                 return NotFound ();
             }
             return Ok (trab);
+        }
+         // GET recursos_humanos/Trabajadores/Municipios
+        [HttpGet ("/recursos_humanos/Trabajadores/Municipios")]
+        public IEnumerable<Municipio> GetAllMunicipios () {
+            return context.Municipio.ToList ();
         }
         private bool TrabajadorExists (int id) {
             return context.Trabajador.Any (e => e.Id == id);

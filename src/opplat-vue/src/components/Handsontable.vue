@@ -4,23 +4,23 @@
 </template>
 
 <script>
-import { HotTable, HotColumn } from "@handsontable/vue";
-import Handsontable from "handsontable";
+import { HotTable, HotColumn } from '@handsontable/vue';
+import Handsontable from 'handsontable';
 
 export default {
-  props:{
-    data:{
-      type: Array
-    }
+  props: {
+    data: {
+      type: Array,
+    },
   },
-  data: function() {
+  data() {
     return {
-      data1: this.data
+      data1: this.data,
     };
   },
   components: {
     HotTable,
-  }
+  },
 };
 </script>
 <style src="handsontable/dist/handsontable.full.css"></style>

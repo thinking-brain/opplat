@@ -35,6 +35,22 @@ namespace ImportadorDatos.Migrations
                     b.ToTable("Asientos");
                 });
 
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.CentroDeCosto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CentroId");
+
+                    b.Property<int>("CentroVersatId");
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CentrosDeCostos");
+                });
+
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Cuentas", b =>
                 {
                     b.Property<int>("Id")
@@ -51,6 +67,38 @@ namespace ImportadorDatos.Migrations
                     b.ToTable("Cuentas");
                 });
 
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.ElementoDeGasto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("ElementoId");
+
+                    b.Property<int>("ElementoVersatId");
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ElementoDeGastos");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.PartidaDeGasto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.Property<int>("PartidaId");
+
+                    b.Property<int>("PartidaVersatId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PartidaDeGastos");
+                });
+
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.PeriodosContables", b =>
                 {
                     b.Property<int>("Id")
@@ -65,6 +113,38 @@ namespace ImportadorDatos.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PeriodosContables");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.RegistroDeGasto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.Property<int>("RegistroId");
+
+                    b.Property<int>("RegistroVersatId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RegistroDeGastos");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.SubElementoDeGasto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.Property<int>("SubElementoId");
+
+                    b.Property<int>("SubElementoVersatId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubElementoDeGastos");
                 });
 
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Trabajador", b =>

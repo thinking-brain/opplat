@@ -83,7 +83,7 @@ export default {
         });
     },
     submit() {
-      this.formHasErrors = false;    
+      this.formHasErrors = false;
       if (!this.formHasErrors) {
         const formData = new FormData();
         formData.append('licence', this.imageFile);
@@ -99,7 +99,7 @@ export default {
             this.$store
               .dispatch('agregar', lic)
               .then(() => {})
-              .catch(() => {});            
+              .catch(() => {});
             vm.$snotify.success('Licencia agregada correctamente.');
           })
           .catch(() => {

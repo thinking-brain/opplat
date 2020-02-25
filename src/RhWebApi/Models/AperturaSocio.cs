@@ -17,6 +17,6 @@ namespace RhWebApi.Models {
         public virtual ICollection<Trabajador> ListaTrabajadores { get; set; }
         public int? CaracteristicasSocioId { get; set; }
         public virtual CaracteristicasSocio CaracteristicasSocio { get; set; }
-        public bool Cerrada { get; set; }
+        public EstadosApertura EstadosApertura { get; set; }
     }
 }

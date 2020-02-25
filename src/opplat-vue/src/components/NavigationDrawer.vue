@@ -145,7 +145,7 @@ export default {
         return this.$store.getters.drawerVisibility;
       },
       set(value) {
-          this.$store
+        this.$store
           .dispatch('changeVisibility', value)
           .then(() => {})
           .catch(() => {});

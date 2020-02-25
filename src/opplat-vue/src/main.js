@@ -12,6 +12,7 @@ import store from './store/index';
 import './registerServiceWorker';
 import App from './App.vue';
 import notificationsHub from './notificationsHub';
+
 const options = {
   toast: {
     position: SnotifyPosition.rightBottom,
@@ -70,20 +71,20 @@ if (token) {
 numeral.register('locale', 'fr', {
   delimiters: {
     thousands: ' ',
-    decimal: ','
+    decimal: ',',
   },
   abbreviations: {
     thousand: 'k',
     million: 'm',
     billion: 'b',
-    trillion: 't'
+    trillion: 't',
   },
   ordinal(number) {
     return number === 1 ? 'er' : 'ème';
   },
   currency: {
-    symbol: '$'
-  }
+    symbol: '$',
+  },
 });
 
 // switch between locales

@@ -80,7 +80,7 @@
                     </v-flex>
                     <v-flex xs12 sm6 md6>
                       <v-select
-                        v-model="nivelEscolaridad"
+                        v-model="nivelDeEscolaridad"
                         item-text="nombre"
                         :items="nivelesEscolaridad"
                         :filter="activeFilter"
@@ -102,27 +102,26 @@
                         prepend-icon="mdi-database-search"
                       ></v-select>
                     </v-flex>
-                    <v-text>Rango de Edad</v-text>
-                    <v-flex xs12 sm6 md6>
-                      <v-text-field
-                        v-model="edadDesde"
-                        item-text="Edad"
-                        cache-items
-                        clearable
-                        label="Mayores que"
-                        prepend-icon="mdi-database-search"
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                      <v-text-field
-                        v-model="edadHasta"
-                        item-text="Edad"
-                        cache-items
-                        clearable
-                        label="Menores que"
-                        prepend-icon="mdi-database-search"
-                      ></v-text-field>
-                    </v-flex>
+                    <v-layout>
+                      <v-flex xs12 sm6 md6>
+                        <v-text-field
+                          v-model="edadDesde"
+                          clearable
+                          label="Rango de Edad"
+                          placeholder="Mayores de"
+                          prepend-icon="mdi-database-search"
+                        ></v-text-field>
+                      </v-flex>
+                      <v-flex xs12 sm6 md6>
+                        <v-text-field
+                          v-model="edadHasta"
+                          clearable
+                          label="Rango de Edad"
+                          placeholder="Menores de"
+                          prepend-icon="mdi-database-search"
+                        ></v-text-field>
+                      </v-flex>
+                    </v-layout>
                   </v-layout>
                 </v-container>
               </v-card-text>
@@ -222,7 +221,7 @@
                   <v-flex xs4 class="px-5">
                     <v-text-field
                       label="Perfil Ocupacional"
-                      v-model="trabajador.perfil_Ocupacional"
+                      v-model="trabajador.perfilOcupacional"
                       :rules="PerfilRules"
                       required
                       clearable
@@ -414,7 +413,7 @@
                           <v-text>Nivel de Escolaridad: {{trabajador.nivelDeEscolaridadName}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Perfil Ocupacional: {{trabajador.perfil_Ocupacional}}</v-text>
+                          <v-text>Perfil Ocupacional: {{trabajador.perfilOcupacional}}</v-text>
                         </v-layout>
                         <v-layout class="pa-2">
                           <v-text>Color de Ojos: {{trabajador.colorDeOjosName}}</v-text>
@@ -473,7 +472,7 @@
 
             <v-container fluid>
               <v-row dense>
-                <v-col cols="8">
+                <v-col cols="7">
                   <v-card flat>
                     <v-toolbar flat>
                       <v-tabs slot="extension" v-model="tabs" centered>
@@ -490,7 +489,7 @@
                             <form>
                               <v-container>
                                 <v-row>
-                                  <v-col cols="12" md="8">
+                                  <v-col cols="12" md="7">
                                     <v-autocomplete
                                       xs6
                                       class="pa-2"
@@ -504,35 +503,34 @@
                                       disabled
                                     ></v-autocomplete>
                                   </v-col>
-                                  <v-col cols="6" md="4">
-                                    <v-select
+                                  <v-col cols="6" md="5">
+                                    <v-autocomplete
                                       xs6
                                       class="pa-2"
-                                      v-model="traslado.cargoId"
+                                      v-model="traslado.cargoDestinoId"
                                       item-text="nombre"
                                       item-value="id"
                                       :items="cargos"
-                                      label="Cargo de Destino"
-                                      min-width="290px"
+                                      label="Cargo a Ocupar"
+                                      clearable
                                       required
-                                    ></v-select>
+                                    ></v-autocomplete>
                                   </v-col>
                                 </v-row>
                                 <v-row>
-                                  <v-col cols="6" md="4">
-                                    <v-select
-                                      xs6
+                                  <v-col cols="6" md="6">
+                                    <v-autocomplete
                                       class="pa-2"
-                                      v-model="traslado.unidadOrganizativaId"
+                                      v-model="traslado.unidOrgDestinoId"
                                       item-text="nombre"
                                       item-value="id"
                                       :items="unidadesOrganizativas"
                                       label="Unidad Organizativa"
-                                      min-width="290px"
+                                      clearable
                                       required
-                                    ></v-select>
+                                    ></v-autocomplete>
                                   </v-col>
-                                  <v-col cols="6" md="4">
+                                  <v-col cols="6" md="6">
                                     <v-menu
                                       v-model="menu1"
                                       :close-on-content-click="false"
@@ -558,8 +556,8 @@
                                     </v-menu>
                                   </v-col>
                                 </v-row>
-                                <v-btn color="green darken-1" text @click="traslado()">Aceptar</v-btn>
-                                <v-btn color="blue darken-1" text @click="clearTraslado()">Cancelar</v-btn>
+                                <v-btn color="green darken-1" text @click="Traslado">Aceptar</v-btn>
+                                <v-btn color="blue darken-1" text @click="clearTraslado">Cancelar</v-btn>
                               </v-container>
                             </form>
                           </v-card-text>
@@ -661,7 +659,7 @@
                   </v-card>
                 </v-col>
 
-                <v-col cols="4">
+                <v-col cols="5">
                   <v-card color="blue darken-3" dark>
                     <v-list-item>
                       <v-layout column align-center xs12 sm10 md6 lg4>
@@ -692,10 +690,15 @@
                     <v-layout class="pa-2">
                       <v-toolbar-items
                         class="text-capitalize"
-                      >Unidad Organizativa: {{trabajador.unidadOrganizativa}}</v-toolbar-items>
+                      >Perfil Ocupacional: {{trabajador.perfil_Ocupacional}}</v-toolbar-items>
                     </v-layout>
                     <v-layout class="pa-2">
-                      <v-toolbar-items class="text-capitalize">Cargo: {{trabajador.cargo}}</v-toolbar-items>
+                      <v-toolbar-items
+                        class="text-capitalize"
+                      >Unidad Organizativa Actual: {{trabajador.unidadOrganizativa}}</v-toolbar-items>
+                    </v-layout>
+                    <v-layout class="pa-2">
+                      <v-toolbar-items class="text-capitalize">Cargo Actual: {{trabajador.cargo}}</v-toolbar-items>
                     </v-layout>
                   </v-card>
                 </v-col>
@@ -756,7 +759,8 @@
   </v-data-table>
 </template>
 <script>
-import api from "@/api";
+import api from '@/api';
+
 export default {
   data: () => ({
     dialog: false,
@@ -766,7 +770,7 @@ export default {
     dialog5: false,
     dialog6: false,
     volver: false,
-    search: "",
+    search: '',
     editedIndex: -1,
     trabajadores: [],
     trabajador: {},
@@ -778,14 +782,14 @@ export default {
     tallasDeCamisas: [],
     nivelesEscolaridad: [],
     estados: [],
-    unidadOrganizativa: "",
-    edad: "",
-    cargo: "",
-    nivelEscolaridad: "",
-    edadDesde: "",
-    edadHasta: "",
-    otrasCaracteristicas: "",
-    estado: "",
+    unidadOrganizativa: '',
+    edad: '',
+    cargo: '',
+    nivelDeEscolaridad: '',
+    edadDesde: '',
+    edadHasta: '',
+    otrasCaracteristicas: '',
+    estado: '',
     date: new Date().toISOString().substr(0, 10),
     menu: false,
     menu1: false,
@@ -794,64 +798,66 @@ export default {
     tabs: null,
     CausasDeBajas: [],
     traslado: {
-      trabajadorId: "",
-      fechaTraslado: "",
-      cargoId: "",
-      unidadOrganizativaId: ""
+      trabajadorId: '',
+      fechaTraslado: '',
+      cargoOrigenId: '',
+      cargoDestinoId: '',
+      unidOrgOrigenId: '',
+      unidOrgDestinoId: '',
     },
     baja: {
-      trabajadorId: "",
-      fechaBaja: "",
-      causaDeBaja: ""
+      trabajadorId: '',
+      fechaBaja: '',
+      causaDeBaja: '',
     },
     errors: [],
     headers: [
       {
-        text: "Nombre y Apellidos",
-        align: "left",
+        text: 'Nombre y Apellidos',
+        align: 'left',
         sortable: true,
-        value: "nombre_Completo"
+        value: 'nombre_Completo',
       },
-      { text: "Carnet de Identidad", value: "ci" },
-      { text: "Dirección", value: "direccion" },
-      { text: "Sexo", value: "sexoName" },
-      { text: "Cargo", value: "cargo" },
-      { text: "Edad", value: "edad" },
-      { text: "Estado", value: "estadoTrabajadorName" },
-      { text: "Acciones", value: "action", sortable: false }
+      { text: 'Carnet de Identidad', value: 'ci' },
+      { text: 'Dirección', value: 'direccion' },
+      { text: 'Sexo', value: 'sexoName' },
+      { text: 'Cargo', value: 'cargo' },
+      { text: 'Edad', value: 'edad' },
+      { text: 'Estado', value: 'estadoTrabajadorName' },
+      { text: 'Acciones', value: 'action', sortable: false },
     ],
     funciones: [
       {
         text:
-          "Participa en el establecimiento de las distintas fuentes de información"
+          'Participa en el establecimiento de las distintas fuentes de información',
       },
       {
-        text: "Participa en la elaboración de los conceptos"
+        text: 'Participa en la elaboración de los conceptos',
       },
       {
-        text: "Participa en las acciones de capacitación"
-      }
+        text: 'Participa en las acciones de capacitación',
+      },
     ],
     requisitos: [
       {
-        text: "Graduado de Nivel Medio Superior con entrenamiento en el puesto"
-      }
-    ]
+        text: 'Graduado de Nivel Medio Superior con entrenamiento en el puesto',
+      },
+    ],
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "Nuevo Trabajador" : "Editar Trabajador";
+      return this.editedIndex === -1 ? 'Nuevo Trabajador' : 'Editar Trabajador';
     },
     method() {
-      return this.editedIndex === -1 ? "POST" : "PUT";
-    }
+      return this.editedIndex === -1 ? 'POST' : 'PUT';
+    },
   },
 
   watch: {
     dialog(val) {
       val || this.close();
-    }
+    },
   },
 
   created() {
@@ -869,27 +875,26 @@ export default {
 
   methods: {
     getTrabajadoresFromApi() {
-      const url = api.getUrl("recursos_humanos", "Trabajadores");
+      const url = api.getUrl('recursos_humanos', 'Trabajadores');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.trabajadores = response.data;
           this.volver = false;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getDetallesTrabFromApi(item) {
       this.trabajador = Object.assign({}, item);
       this.dialog3 = true;
     },
-
     closeDetalles() {
       this.dialog3 = false;
     },
     getFiltrosFromApi() {
-      const url = api.getUrl("recursos_humanos", "Trabajadores/Filtro");
+      const url = api.getUrl('recursos_humanos', 'Trabajadores/Filtro');
       this.axios
         .get(url, {
           params: {
@@ -897,204 +902,248 @@ export default {
             cargo: this.cargo,
             sexo: this.sexo,
             estado: this.estado,
-            nivelEscolaridad: this.nivelEscolaridad,
+            nivelDeEscolaridad: this.nivelDeEscolaridad,
             edad: this.edad,
             colordePiel: this.colordePiel,
             edadDesde: this.edadDesde,
-            edadHasta: this.edadHasta
-          }
+            edadHasta: this.edadHasta,
+          },
         })
         .then(
-          response => {
+          (response) => {
             this.trabajadores = response.data;
             this.dialog1 = false;
             this.volver = true;
           },
-          error => {
+          (error) => {
             console.log(error);
-          }
+          },
         );
     },
     getUnidadOrganizativaFromApi() {
-      const url = api.getUrl("recursos_humanos", "UnidadOrganizativa");
+      const url = api.getUrl('recursos_humanos', 'UnidadOrganizativa');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.unidadesOrganizativas = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getCargosFromApi() {
-      const url = api.getUrl("recursos_humanos", "Cargos");
+      const url = api.getUrl('recursos_humanos', 'Cargos');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.cargos = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getSexoTrabFromApi() {
-      const url = api.getUrl("recursos_humanos", "CaracteristicasTrab/Sexo");
+      const url = api.getUrl('recursos_humanos', 'CaracteristicasTrab/Sexo');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.sexos = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getColordePielTrabFromApi() {
       const url = api.getUrl(
-        "recursos_humanos",
-        "CaracteristicasTrab/ColordePiel"
+        'recursos_humanos',
+        'CaracteristicasTrab/ColordePiel',
       );
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.coloresdePiel = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getColordeOjosTrabFromApi() {
       const url = api.getUrl(
-        "recursos_humanos",
-        "CaracteristicasTrab/ColordeOjos"
+        'recursos_humanos',
+        'CaracteristicasTrab/ColordeOjos',
       );
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.coloresdeOjos = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getnivelEscolaridadTrabFromApi() {
       const url = api.getUrl(
-        "recursos_humanos",
-        "CaracteristicasTrab/nivelEscolaridad"
+        'recursos_humanos',
+        'CaracteristicasTrab/nivelEscolaridad',
       );
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.nivelesEscolaridad = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     gettallasDeCamisasFromApi() {
       const url = api.getUrl(
-        "recursos_humanos",
-        "CaracteristicasTrab/TallaDeCamisa"
+        'recursos_humanos',
+        'CaracteristicasTrab/TallaDeCamisa',
       );
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.tallasDeCamisas = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getEstadosTrabFromApi() {
-      const url = api.getUrl("recursos_humanos", "CaracteristicasTrab/Estados");
+      const url = api.getUrl('recursos_humanos', 'CaracteristicasTrab/Estados');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.estados = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     getCausaDeBajaFromApi() {
-      const url = api.getUrl("recursos_humanos", "Baja/CausaDeBaja");
+      const url = api.getUrl('recursos_humanos', 'Baja/CausaDeBaja');
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.CausasDeBajas = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
+    },
+    save(method) {
+      const url = api.getUrl('recursos_humanos', 'Trabajadores');
+      if (method === 'POST') {
+        this.axios.post(url, this.trabajador).then(
+          (response) => {
+            this.getResponse(response);
+            this.dialog = false;
+          },
+          (error) => {
+            console.log(error);
+          },
+        );
+      }
+      if (method === 'PUT') {
+        this.axios.put(`${url}/${this.trabajador.id}`, this.trabajador).then(
+          (response) => {
+            this.getResponse(response);
+            this.dialog = false;
+          },
+          (error) => {
+            console.log(error);
+          },
+        );
+      }
     },
     Entrada() {
-      const url = api.getUrl("recursos_humanos", "Entradas");
+      const url = api.getUrl('recursos_humanos', 'Entradas');
       this.axios.post(url, this.entrada).then(
-        response => {
+        (response) => {
           this.getResponse(response);
           this.entrada = {
-            trabajadorId: "",
-            fechaEntrada: "",
-            unidadOrganizativaId: "",
-            cargoId: ""
+            trabajadorId: '',
+            fechaEntrada: '',
+            unidadOrganizativaId: '',
+            cargoId: '',
           };
           this.dialog5 = false;
           this.getTrabajadoresFromApi();
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
-    traslado() {
-      const url = api.getUrl("recursos_humanos", "Traslados");
-      this.axios.post(url, this.traslado).then(
-        response => {
-          this.getResponse(response);
-          this.traslado = {
-            trabajadorId: "",
-            fechaTraslado: "",
-            cargoDestinoId: ""
-          };
-          this.dialog5 = false;
-          this.getTrabajadoresFromApi();
-        },
-        error => {
-          console.log(error);
-        }
-      );
+    movimiento(item) {
+      this.editedIndex = this.trabajadores.indexOf(item);
+      this.trabajador = Object.assign({}, item);
+      this.traslado.trabajadorId = this.trabajador.id;
+      this.baja.trabajadorId = this.trabajador.id;
+      this.dialog5 = true;
+    },
+    Traslado() {
+      this.traslado.cargoOrigenId = this.trabajador.cargoId;
+      this.traslado.unidOrgOrigenId = this.trabajador.unidadOrganizativaId;
+      const url = api.getUrl('recursos_humanos', 'Traslados');
+      if (this.traslado.cargoDestinoId == '') {
+        vm.$snotify.error('El campo Cargo a Ocupar es obligatorio');
+      }
+      if (this.traslado.unidOrgDestinoId == '') {
+        vm.$snotify.error('El campo Unidad Organizativa es obligatorio');
+      }
+      if (this.traslado.fechaEntrada == '') {
+        vm.$snotify.error('El campo Fecha es obligatorio');
+      } else {
+        this.axios.post(url, this.traslado).then(
+          (response) => {
+            this.getResponse(response);
+            this.traslado = {
+              trabajadorId: '',
+              fechaTraslado: '',
+              cargoDestinoId: '',
+            };
+            this.dialog5 = false;
+            this.getTrabajadoresFromApi();
+          },
+          (error) => {
+            console.log(error);
+          },
+        );
+      }
+    },
+    clearTraslado() {
+      this.traslado = {
+        fechaTraslado: '',
+        cargoDestinoId: '',
+      };
     },
     confirmBaja() {
       this.dialog6 = true;
       this.baja = {
         trabajadorId: this.trabajador.id,
         causaDeBaja: this.causaDeBaja,
-        fechaBaja: this.fechaBaja
+        fechaBaja: this.fechaBaja,
       };
     },
     saveBaja() {
-      const url = api.getUrl("recursos_humanos", "Bajas");
+      const url = api.getUrl('recursos_humanos', 'Bajas');
       this.axios.post(url, this.baja).then(
-        response => {
+        (response) => {
           this.getResponse(response);
           this.dialog6 = false;
           this.dialog5 = false;
           this.getTrabajadoresFromApi();
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
     clearBaja() {
       this.baja = {
-        causaDeBaja: "",
-        fechaBaja: ""
-      };
-    },
-    clearTraslado() {
-      this.traslado = {
-        fechaTraslado: "",
-        cargoDestinoId: ""
+        causaDeBaja: '',
+        fechaBaja: '',
       };
     },
     editItem(item) {
@@ -1102,50 +1151,24 @@ export default {
       this.trabajador = Object.assign({}, item);
       this.dialog = true;
     },
-    save(method) {
-      const url = api.getUrl("recursos_humanos", "Trabajadores");
-      if (method === "POST") {
-        this.axios.post(url, this.trabajador).then(
-          response => {
-            this.getResponse(response);
-            this.dialog = false;
-          },
-          error => {
-            console.log(error);
-          }
-        );
-      }
-      if (method === "PUT") {
-        this.axios.put(url + "/" + this.trabajador.id, this.trabajador).then(
-          response => {
-            this.getResponse(response);
-            this.dialog = false;
-          },
-          error => {
-            console.log(error);
-          }
-        );
-      }
-    },
-
     confirmDelete(item) {
       this.trabajador = Object.assign({}, item);
       this.dialog4 = true;
     },
     deleteItem(trabajador) {
-      const url = api.getUrl("recursos_humanos", "Trabajadores");
-      this.axios.delete(url + "/" + trabajador.id).then(
-        response => {
+      const url = api.getUrl('recursos_humanos', 'Trabajadores');
+      this.axios.delete(`${url}/${trabajador.id}`).then(
+        (response) => {
           this.getResponse(response);
         },
-        error => {
+        (error) => {
           console.log(error);
-        }
+        },
       );
     },
-    getResponse: function(response) {
+    getResponse(response) {
       if (response.status === 200 || response.status === 201) {
-        vm.$snotify.success("Exito al realizar la operación");
+        vm.$snotify.success('Exito al realizar la operación');
         this.getTrabajadoresFromApi();
         this.trabajador = [];
       }
@@ -1163,14 +1186,6 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
-
-    movimiento(item) {
-      this.editedIndex = this.trabajadores.indexOf(item);
-      this.trabajador = Object.assign({}, item);
-      this.traslado.trabajadorId = this.trabajador.id;
-      this.baja.trabajadorId = this.trabajador.id;
-      this.dialog5 = true;
-    }
-  }
+  },
 };
 </script>

@@ -54,11 +54,12 @@
 </template>
 
 <script>
-import api from "@/api";
-import EF_5920 from "@/components/finanzas/reportes/EF_5920";
+import api from '@/api';
+import EF_5920 from '@/components/finanzas/reportes/EF_5920';
+
 export default {
   components: {
-    EF_5920
+    EF_5920,
   },
   data() {
     return {
@@ -78,21 +79,21 @@ export default {
       estado: [],
       errors: [],
       meses: [
-        { id: 1, nombre: "ENERO" },
-        { id: 2, nombre: "FEBRERO" },
-        { id: 3, nombre: "MARZO" },
-        { id: 4, nombre: "ABRIL" },
-        { id: 5, nombre: "MAYO" },
-        { id: 6, nombre: "JUNIO" },
-        { id: 7, nombre: "JULIO" },
-        { id: 8, nombre: "AGOSTO" },
-        { id: 9, nombre: "SEPTIEMBRE" },
-        { id: 10, nombre: "OCTUBRE" },
-        { id: 11, nombre: "NOVIEMBRE" },
-        { id: 12, nombre: "DICIEMBRE" }
+        { id: 1, nombre: 'ENERO' },
+        { id: 2, nombre: 'FEBRERO' },
+        { id: 3, nombre: 'MARZO' },
+        { id: 4, nombre: 'ABRIL' },
+        { id: 5, nombre: 'MAYO' },
+        { id: 6, nombre: 'JUNIO' },
+        { id: 7, nombre: 'JULIO' },
+        { id: 8, nombre: 'AGOSTO' },
+        { id: 9, nombre: 'SEPTIEMBRE' },
+        { id: 10, nombre: 'OCTUBRE' },
+        { id: 11, nombre: 'NOVIEMBRE' },
+        { id: 12, nombre: 'DICIEMBRE' },
       ],
       visible: false,
-      lazy: false
+      lazy: false,
     };
   },
   methods: {

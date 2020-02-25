@@ -59,128 +59,128 @@
 import api from '@/api';
 
 export default {
-  data: () => ({    
+  data: () => ({
     porcientoContingencia: null,
     nombreJefe: null,
     cargoJefe: null,
     nombreEconomico: null,
-    cargoEconomico: null,    
+    cargoEconomico: null,
     rules: {
-      required: value => !!value || 'Obligatorio.',      
+      required: value => !!value || 'Obligatorio.',
     },
     formHasErrors: false,
     errors: [],
   }),
   computed: {
-    
+
   },
   created() {
     const url = api.getUrl('finanzas', 'configuraciones');
-        this.axios
-          .get(url)
-          .then((resp) => {
-            const configs = resp.data;
-            this.porcientoContingencia = configs.find(config => config.nombre === 'PorcientoContingencia').valor;
-            this.nombreJefe = configs.find(config => config.nombre === 'NombreJefe').valor;
-            this.cargoJefe = configs.find(config => config.nombre === 'CargoJefe').valor;
-            this.nombreEconomico = configs.find(config => config.nombre === 'NombreEconomico').valor;
-            this.cargoEconomico = configs.find(config => config.nombre === 'CargoEconomico').valor;
-          })
-          .catch((e) => {
-            vm.$snotify.error(e.response.data.errors);
-          });    
+    this.axios
+      .get(url)
+      .then((resp) => {
+        const configs = resp.data;
+        this.porcientoContingencia = configs.find(config => config.nombre === 'PorcientoContingencia').valor;
+        this.nombreJefe = configs.find(config => config.nombre === 'NombreJefe').valor;
+        this.cargoJefe = configs.find(config => config.nombre === 'CargoJefe').valor;
+        this.nombreEconomico = configs.find(config => config.nombre === 'NombreEconomico').valor;
+        this.cargoEconomico = configs.find(config => config.nombre === 'CargoEconomico').valor;
+      })
+      .catch((e) => {
+        vm.$snotify.error(e.response.data.errors);
+      });
   },
-  watch: {    
+  watch: {
   },
 
-  methods: {   
-    submit() {      
+  methods: {
+    submit() {
       if (!this.formHasErrors) {
-        let errorCount = 0;        
+        let errorCount = 0;
         const url = api.getUrl('finanzas', 'configuraciones');
         let form = {
-          Nombre : "PorcientoContingencia",
-          Valor: this.porcientoContingencia
+          Nombre: 'PorcientoContingencia',
+          Valor: this.porcientoContingencia,
         };
         this.axios
-          .put(url+ '/PorcientoContingencia', form)
+          .put(`${url}/PorcientoContingencia`, form)
           .then((
             p, // console.log(p)
-          ) => {            
+          ) => {
           })
           .catch((e) => {
-            errorCount ++;
+            errorCount++;
             this.errors.push(e.response.data.errors);
           });
-        
+
         form = {
-          Nombre : "NombreJefe",
-          Valor: this.nombreJefe
+          Nombre: 'NombreJefe',
+          Valor: this.nombreJefe,
         };
         this.axios
-          .put(url+ '/NombreJefe', form)
+          .put(`${url}/NombreJefe`, form)
           .then((
             p, // console.log(p)
-          ) => {            
+          ) => {
           })
           .catch((e) => {
-            errorCount ++;
+            errorCount++;
             this.errors.push(e.response.data.errors);
           });
-        
+
         form = {
-          Nombre : "CargoJefe",
-          Valor: this.cargoJefe
+          Nombre: 'CargoJefe',
+          Valor: this.cargoJefe,
         };
         this.axios
-          .put(url+ '/CargoJefe', form)
+          .put(`${url}/CargoJefe`, form)
           .then((
             p, // console.log(p)
-          ) => {            
+          ) => {
           })
           .catch((e) => {
-            errorCount ++;
-            this.errors.push(e.response.data.errors);
-          });
-        form = {
-          Nombre : "NombreEconomico",
-          Valor: this.nombreEconomico
-        };
-        this.axios
-          .put(url+ '/NombreEconomico', form)
-          .then((
-            p, // console.log(p)
-          ) => {            
-          })
-          .catch((e) => {
-            errorCount ++;
+            errorCount++;
             this.errors.push(e.response.data.errors);
           });
         form = {
-          Nombre : "CargoEconomico",
-          Valor: this.cargoEconomico
+          Nombre: 'NombreEconomico',
+          Valor: this.nombreEconomico,
         };
         this.axios
-          .put(url+ '/CargoEconomico', form)
+          .put(`${url}/NombreEconomico`, form)
           .then((
             p, // console.log(p)
-          ) => {            
+          ) => {
           })
           .catch((e) => {
-            errorCount ++;
+            errorCount++;
             this.errors.push(e.response.data.errors);
-          });  
+          });
+        form = {
+          Nombre: 'CargoEconomico',
+          Valor: this.cargoEconomico,
+        };
+        this.axios
+          .put(`${url}/CargoEconomico`, form)
+          .then((
+            p, // console.log(p)
+          ) => {
+          })
+          .catch((e) => {
+            errorCount++;
+            this.errors.push(e.response.data.errors);
+          });
         const data = {
           jefe: { nombre: this.nombreJefe, cargo: this.cargoJefe },
           economico: { nombre: this.nombreEconomico, cargo: this.cargoEconomico },
-        };         
+        };
         this.$store
-              .dispatch('update',data)
-              .then(() => {})
-              .catch((err) => {console.log(err)});
-        if(errorCount > 0){
+          .dispatch('update', data)
+          .then(() => {})
+          .catch((err) => { console.log(err); });
+        if (errorCount > 0) {
           vm.$snotify.error(this.errors);
-        } else{
+        } else {
           vm.$snotify.success('Configuraciones guardadas correctamente, ya puede salir.');
         }
       }
