@@ -69,7 +69,7 @@
               </thead>
               <tbody>
                 <tr v-for="item in data" :key="item.efe" :title="item.concepto">
-                  <td :class="item.encabezado ? 'font-weight-bold' : ''">{{item.concepto}}</td>
+                  <td :class="item.encabezado ? 'font-weight-bold encabezado' : 's'">{{item.concepto}}</td>
                   <td
                     :class="item.encabezado ? 'font-weight-bold text-center' : 'text-center'"
                   >{{item.plan}}</td>
@@ -197,5 +197,11 @@ export default {
   color: #356859 !important;
   font-weight: bold;
   font-size: large;
+}
+.s{
+  padding-left: 40px;
+}
+.encabezado{
+  font-size: 18px;
 }
 </style>

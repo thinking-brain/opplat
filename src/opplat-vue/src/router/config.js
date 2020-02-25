@@ -335,12 +335,22 @@ export const protectedRoute = [
     name: 'Recusos Humanos',
     path: '/recursos_humanos',
     component: DefaultLayout,
-    redirect: '/recursos_humanos/Trabajadores',
+    redirect: '/recursos_humanos/dashboard',
     meta: {
       title: 'Trabajadores',
       group: 'recursos_humanos',
     },
-    children: [{
+    children: [
+      {
+        path: '/recursos_humanos/dashboard',
+        name: 'Dashboard',
+        meta: {
+          title: 'Cuadro de mando',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Dashboard.vue'),
+      },
+      {
       path: '/recursos_humanos/Trabajadores',
       name: 'Trabajadores',
       meta: {
