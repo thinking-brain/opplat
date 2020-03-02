@@ -243,6 +243,7 @@ namespace FinanzasWebApi.Controllers
             detalle.Add(new DetalleRazonYearVM
             {
                 Razon = "Solvencia Financiera",
+                Tipo = 1,
                 Enero = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 1),
                 Febrero = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 2),
                 Marzo = _obtenerVariables.ObtenerSolvenciaFinanciera(año, 3),
@@ -261,6 +262,7 @@ namespace FinanzasWebApi.Controllers
             detalle.Add(new DetalleRazonYearVM
             {
                 Razon = "Capital de Trabajo",
+                Tipo = 1,
                 Enero = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 1),
                 Febrero = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 2),
                 Marzo = _obtenerVariables.ObtenerCapitalDeTrabajo(año, 3),
@@ -278,6 +280,7 @@ namespace FinanzasWebApi.Controllers
             //Indice de Disponibilidad
             detalle.Add(new DetalleRazonYearVM
             {
+                Tipo = 1,
                 Razon = "Indice de Disponibilidad",
                 Enero = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 1),
                 Febrero = _obtenerVariables.ObtenerIndiceDeDisponibilidad(año, 2),
@@ -296,6 +299,7 @@ namespace FinanzasWebApi.Controllers
             //Indice de Liquidez General
             detalle.Add(new DetalleRazonYearVM
             {
+                Tipo = 1,
                 Razon = "Indice de Liquidez General",
                 Enero = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 1),
                 Febrero = _obtenerVariables.ObtenerIndiceDeLiquidez(año, 2),
@@ -314,6 +318,7 @@ namespace FinanzasWebApi.Controllers
             //Liquidez de Tesorería
             detalle.Add(new DetalleRazonYearVM
             {
+                Tipo = 1,
                 Razon = "Liquidez de Tesorería",
                 Enero = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 1),
                 Febrero = _obtenerVariables.ObtenerLiquidezDeTesoreria(año, 2),
@@ -332,6 +337,7 @@ namespace FinanzasWebApi.Controllers
             //Indice de Deuda o Razon de Endeudamiento
             detalle.Add(new DetalleRazonYearVM
             {
+                Tipo = 2,
                 Razon = "Indice de Deuda o Razon de Endeudamiento",
                 Enero = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 1),
                 Febrero = _obtenerVariables.ObtenerIndiceDeDeudaRazonDeEndeudamiento(año, 2),
@@ -350,6 +356,7 @@ namespace FinanzasWebApi.Controllers
             //Margen de Utilidad
             detalle.Add(new DetalleRazonYearVM
             {
+                Tipo = 3,
                 Razon = "Margen de Utilidad",
                 Enero = _obtenerVariables.ObtenerMargenDeUtilidad(año, 1),
                 Febrero = _obtenerVariables.ObtenerMargenDeUtilidad(año, 2),
@@ -368,6 +375,7 @@ namespace FinanzasWebApi.Controllers
             //Rentabilidad económica 
             detalle.Add(new DetalleRazonYearVM
             {
+                Tipo = 3,
                 Razon = "Rentabilidad Económica",
                 Enero = _obtenerVariables.ObtenerRentabilidadEconomica(año, 1),
                 Febrero = _obtenerVariables.ObtenerRentabilidadEconomica(año, 2),
@@ -385,6 +393,7 @@ namespace FinanzasWebApi.Controllers
             //Rentabilidad Financiera
             detalle.Add(new DetalleRazonYearVM
             {
+                Tipo = 3,
                 Razon = "Rentabilidad Financiera",
                 Enero = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 1),
                 Febrero = _obtenerVariables.ObtenerRentabilidadFinanciera(año, 2),

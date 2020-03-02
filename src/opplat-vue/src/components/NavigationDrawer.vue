@@ -110,12 +110,6 @@
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
         </template>
-        <v-list-item  ripple="ripple" @click="getMenusDeModulo('recursos_humanos')" link to="recursos_humanos">
-            <v-list-item-icon>
-              <v-icon>Home</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Recursos humanos</v-list-item-title>
-          </v-list-item>
       </v-list>
     </vue-perfect-scrollbar>
   </v-navigation-drawer>

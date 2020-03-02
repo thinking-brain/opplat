@@ -82,6 +82,21 @@
     <v-row v-if="hasdata">
       <v-flex xs12 pa-2>
         <v-card :elevation="4">
+          <v-card-title>
+            <p class="razones_subtitle">Comportamiento de las razones en el año</p>
+            <v-spacer></v-spacer>
+            <v-col class="d-flex" cols="12" sm="4">
+              <v-select
+                v-model="tipo_razon_selected"
+                :items="tipos_de_razones"
+                label="Seleccione tipo de razón"
+                solo
+                item-text="name"
+                item-value="id"
+              ></v-select>
+            </v-col>
+          </v-card-title>
+
           <VueApexCharts type="line" :options="razonesOptions" :series="razones_series" />
         </v-card>
       </v-flex>
@@ -188,14 +203,19 @@ th {
 .firmas > tr > th > p {
   margin: 0px;
 }
+.razones_subtitle {
+  font-size: 20px;
+  color: rgba(96, 89, 89, 0.87);
+  font-family: Arial, Helvetica, sans-serif;
+}
 </style>
 <script>
-import VueApexCharts from 'vue-apexcharts';
-import api from '@/api';
+import VueApexCharts from "vue-apexcharts";
+import api from "@/api";
 
 export default {
   components: {
-    VueApexCharts,
+    VueApexCharts
   },
   data() {
     return {
@@ -206,80 +226,118 @@ export default {
       hasdata: false,
       razones_series: [
         {
-          name: 'Real',
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          name: "Real",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         },
         {
-          name: 'Plan',
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        },
+          name: "Plan",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      ],
+      tipo_razon_selected: null,
+      tipos_de_razones: [
+        { id: 1, name: "Razones de Liquidéz" },
+        { id: 2, name: "Razones de Endeudamiento" },
+        { id: 3, name: "Razones de Rentabilidad" }
       ],
       razonesOptions: {
-        title: {
-          text: 'Comportamiento de las razones en el año',
-          align: 'center',
-          margin: 10,
-          offsetX: 0,
-          offsetY: 0,
-          floating: false,
-          style: {
-            fontSize: '20px',
-            color: 'rgba(96, 89, 89, 0.87)',
-          },
-        },
+        // title: {
+        //   text: "Comportamiento de las razones en el año",
+        //   align: "center",
+        //   margin: 10,
+        //   offsetX: 0,
+        //   offsetY: 0,
+        //   floating: false,
+        //   style: {
+        //     fontSize: "20px",
+        //     color: "rgba(96, 89, 89, 0.87)"
+        //   }
+        // },
         chart: {
-          id: 'vuechart',
+          id: "vuechart"
         },
         xaxis: {
           tooltip: {
-            enabled: false,
+            enabled: false
           },
           categories: [
-            'Enero',
-            'Febrero',
-            'Marzo',
-            'Abril',
-            'Mayo',
-            'Junio',
-            'Julio',
-            'Agosto',
-            'Septiembre',
-            'Octubre',
-            'Noviembre',
-            'Diciembre',
-          ],
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+          ]
         },
         yaxis: {
           min: 0,
-          forceNiceScale: true,
-        },
+          forceNiceScale: true
+        }
       },
       razones_series: [],
-      errors: [],
+      errors: []
     };
   },
+  watch: {
+    tipo_razon_selected: function() {
+      var r = this.razones.filter(r => r.tipo === this.tipo_razon_selected);
+      this.razones_series = [];
+      r.forEach(element => {
+        this.razones_series.push({
+          name: element.razon,
+          data: [
+            element.enero,
+            element.febrero,
+            element.marzo,
+            element.abril,
+            element.mayo,
+            element.junio,
+            element.julio,
+            element.agosto,
+            element.septiembre,
+            element.octubre,
+            element.noviembre,
+            element.diciembre
+          ]
+        });
+      });
+      console.log(r);
+    }
+  },
   methods: {
+    razonesFilter() {
+      var r = this.razones_series;
+      this.razones_series = r.filter(
+        razon => razon.tipo == this.tipo_razon_selected
+      );
+      console.log(this.razones_series);
+    },
     loadReporte(year) {
       this.year = year;
       this.getRazonesFinancierasFromApi();
     },
     getRazonesFinancierasFromApi() {
-      const url = api.getUrl('finanzas', `RazonesFinancieras/${this.year}`);
+      const url = api.getUrl("finanzas", `RazonesFinancieras/${this.year}`);
       this.visible = true;
       this.hasdata = false;
       this.axios
         .get(url)
-        .then((response) => {
+        .then(response => {
           this.razones = response.data;
-          response.data.forEach((element) => {
-            this.razones_series.push({ name: element.razon, data: [element.enero, element.febrero, element.marzo, element.abril, element.mayo, element.junio, element.julio, element.agosto, element.septiembre, element.octubre, element.noviembre, element.diciembre] });
-          });
+          this.tipo_razon_selected = 1;
           this.hasdata = true;
         })
-        .catch((e) => {
+        .catch(e => {
           this.errors.push(e);
+          console.log(e);
           vm.$snotify.error(
-            'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
+            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
           );
         });
     },
@@ -288,21 +346,21 @@ export default {
     },
     imprimirviejo() {
       // Get HTML to print from element
-      const prtHtml = document.getElementById('print').innerHTML;
+      const prtHtml = document.getElementById("print").innerHTML;
 
       // Get all stylesheets HTML
-      let stylesHtml = '';
+      let stylesHtml = "";
       for (const node of [
-        ...document.querySelectorAll('link[rel="stylesheet"], style'),
+        ...document.querySelectorAll('link[rel="stylesheet"], style')
       ]) {
         stylesHtml += node.outerHTML;
       }
 
       // Open the print window
       const WinPrint = window.open(
-        '',
-        '',
-        'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0',
+        "",
+        "",
+        "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
       );
 
       WinPrint.document.write(`<!DOCTYPE html>
@@ -320,23 +378,23 @@ export default {
       WinPrint.print();
       WinPrint.close();
     },
-    exportTableToExcel(tableID = 'table1', filename = 'Reportee') {
+    exportTableToExcel(tableID = "table1", filename = "Reportee") {
       let downloadLink;
-      const dataType = 'application/vnd.ms-excel';
-      const tableSelect = document.getElementById('table1');
-      const tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+      const dataType = "application/vnd.ms-excel";
+      const tableSelect = document.getElementById("table1");
+      const tableHTML = tableSelect.outerHTML.replace(/ /g, "%20");
 
       // Specify file name
-      filename = filename ? `${filename}.xls` : 'excel_data.xls';
+      filename = filename ? `${filename}.xls` : "excel_data.xls";
 
       // Create download link element
-      downloadLink = document.createElement('a');
+      downloadLink = document.createElement("a");
 
       document.body.appendChild(downloadLink);
 
       if (navigator.msSaveOrOpenBlob) {
-        const blob = new Blob(['\ufeff', tableHTML], {
-          type: dataType,
+        const blob = new Blob(["\ufeff", tableHTML], {
+          type: dataType
         });
         navigator.msSaveOrOpenBlob(blob, filename);
       } else {
@@ -348,7 +406,7 @@ export default {
         // triggering the function
         downloadLink.click();
       }
-    },
-  },
+    }
+  }
 };
 </script>

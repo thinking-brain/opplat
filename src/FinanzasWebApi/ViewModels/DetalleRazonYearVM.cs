@@ -10,6 +10,8 @@ namespace FinanzasWebApi.ViewModels
     {
         public string Razon { get; set; }
 
+        public int Tipo { get;set; }
+
         [DataType(DataType.Currency)]
         public decimal Enero { get; set; }
 
