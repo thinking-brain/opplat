@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RhWebApi.Data;
@@ -9,9 +10,10 @@ using RhWebApi.Data;
 namespace RhWebApi.Migrations
 {
     [DbContext(typeof(RhWebApiDbContext))]
-    partial class RhWebApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200223160826_EstadosApertura")]
+    partial class EstadosApertura
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,25 +118,21 @@ namespace RhWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int>("ColorDePiel");
+
                     b.Property<string>("Direccion");
-
-                    b.Property<int?>("EdadDesde");
-
-                    b.Property<int?>("EdadHasta");
 
                     b.Property<int?>("MunicipioId");
 
                     b.Property<int>("NivelDeEscolaridad");
 
-                    b.Property<int?>("PerfilOcupacionalId");
+                    b.Property<string>("Perfil_Ocupacional");
 
                     b.Property<int?>("Sexo");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MunicipioId");
-
-                    b.HasIndex("PerfilOcupacionalId");
 
                     b.ToTable("caracteristicas_de_los_socios");
                 });
@@ -607,10 +605,6 @@ namespace RhWebApi.Migrations
                     b.HasOne("RhWebApi.Models.Municipio", "Municipio")
                         .WithMany()
                         .HasForeignKey("MunicipioId");
-
-                    b.HasOne("RhWebApi.Models.PerfilOcupacional", "PerfilOcupacional")
-                        .WithMany()
-                        .HasForeignKey("PerfilOcupacionalId");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.CaracteristicasTrab", b =>
