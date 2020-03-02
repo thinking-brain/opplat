@@ -39,6 +39,45 @@
         </v-row>
         <template>
           <v-row>
+<<<<<<< HEAD
+=======
+            <v-card flat>
+              <v-card-text>
+                <v-container fluid>
+                  <v-row>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-radio-group v-model="ex7" column>
+                        <v-radio label="red" color="red" value="red"></v-radio>
+                        <v-radio label="red darken-3" color="red darken-3" value="red darken-3"></v-radio>
+                        <v-radio label="indigo" color="indigo" value="indigo"></v-radio>
+                        <v-radio
+                          label="indigo darken-3"
+                          color="indigo darken-3"
+                          value="indigo darken-3"
+                        ></v-radio>
+                        <v-radio label="orange" color="orange" value="orange"></v-radio>
+                        <v-radio
+                          label="orange darken-3"
+                          color="orange darken-3"
+                          value="orange darken-3"
+                        ></v-radio>
+                      </v-radio-group>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-radio-group v-model="ex8" column>
+                        <v-radio label="primary" color="primary" value="primary"></v-radio>
+                        <v-radio label="secondary" color="secondary" value="secondary"></v-radio>
+                        <v-radio label="success" color="success" value="success"></v-radio>
+                        <v-radio label="info" color="info" value="info"></v-radio>
+                        <v-radio label="warning" color="warning" value="warning"></v-radio>
+                        <v-radio label="error" color="error" value="error"></v-radio>
+                      </v-radio-group>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+            </v-card>
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
             <v-row justify="space-around">
               <v-switch v-model="Sexo" class="ma-2" label="Sexo"></v-switch>
               <v-switch v-model="NivelEscolaridad" class="ma-2" label="Nivel de Escolaridad"></v-switch>
@@ -133,7 +172,10 @@
                   <v-spacer></v-spacer>
                 </v-toolbar>
               </template>
+<<<<<<< HEAD
 
+=======
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
             </v-data-table>
           </template>
         </template>
@@ -165,7 +207,11 @@ export default {
       perfilOcupacionalId: 0,
       municipioId: 0
     },
+<<<<<<< HEAD
     sexos:[],
+=======
+    sexos: [],
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
     selected: [],
     Sexo: false,
     ColordePiel: false,
@@ -173,7 +219,13 @@ export default {
     RangoEdad: false,
     PerfilOcupacional: false,
     errors: [],
+<<<<<<< HEAD
      headers: [
+=======
+    ex7: "red",
+    ex8: "primary",
+    headers: [
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
       {
         text: "Nombre y Apellidos",
         align: "left",
@@ -186,7 +238,11 @@ export default {
       { text: "Referencia", value: "nombre_Referencia" },
       { text: "Tiempo en Bolsa", value: "tiempo_Bolsa" },
       { text: "Acciones", value: "action", sortable: false }
+<<<<<<< HEAD
     ],
+=======
+    ]
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
   }),
 
   computed: {
@@ -195,8 +251,13 @@ export default {
   },
 
   created() {
+<<<<<<< HEAD
     this.getAperturaSociosFromApi(); 
     this.getSexoTrabFromApi(); 
+=======
+    this.getAperturaSociosFromApi();
+    this.getSexoTrabFromApi();
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
   },
 
   methods: {
@@ -247,7 +308,11 @@ export default {
           console.log(error);
         }
       );
+<<<<<<< HEAD
     },
+=======
+    }
+>>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
   }
 };
 </script>

@@ -8,11 +8,13 @@ namespace RhWebApi.Models {
         public int Id { get; set; }
         public string Direccion { get; set; }
         public Sexo? Sexo { get; set; }
-        public ColorDePiel ColorDePiel { get; set; }
         public int? MunicipioId { get; set; }
         public virtual Municipio Municipio { get; set; }
-        public string Perfil_Ocupacional { get; set; }
+        public int? PerfilOcupacionalId { get; set; }
+        public virtual PerfilOcupacional PerfilOcupacional { get; set; }
         public virtual NivelDeEscolaridad NivelDeEscolaridad { get; set; }
+        public int? EdadDesde { get; set; }
+        public int? EdadHasta { get; set; }
 
     }
 }

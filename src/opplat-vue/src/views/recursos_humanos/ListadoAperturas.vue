@@ -15,7 +15,6 @@
           dense
         ></v-text-field>
         <v-spacer></v-spacer>
-        <div class="flex-grow-1"></div>
         <v-dialog v-model="dialog" persistent transition="dialog-bottom-transition" flat>
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark class="mb-2" v-on="on">Nueva Apertura</v-btn>
@@ -28,7 +27,6 @@
                 </h2>
               </v-card-title>
             </v-row>
-            <Apertura></Apertura>
             <v-card-actions>
               <div class="flex-grow-1"></div>
               <v-btn color="green darken-1" text @click="save(method)">Aceptar</v-btn>
@@ -36,6 +34,30 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+
+        <!-- Cerrar Apertura -->
+        <v-dialog v-model="dialog1" persistent max-width="350px">
+          <v-toolbar dark fadeOnScroll color="red">
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn icon dark @click="dialog1 = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+          <v-card>
+            <div class="pa-5">
+              <v-card-title class="headline text-center">Estas Seguro de Cerrar la Aperura de Fecha </v-card-title>
+              <v-card-text class="text-center"><strong>{{aperturaSocio.fecha}}</strong></v-card-text>
+            </div>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="red" dark @click="deleteItem(item)">Aceptar</v-btn>
+              <v-btn color="primary" @click="close()">Cancelar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <!-- /Cerrar Apertura -->
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
@@ -47,7 +69,7 @@
       </v-tooltip>
       <v-tooltip top>
         <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-close-outline</v-icon>
+          <v-icon small class="mr-2" v-on="on" @click="confCerrarApertura(item)">mdi-close-outline</v-icon>
         </template>
         <span>Cerrar Apertura</span>
       </v-tooltip>
@@ -62,11 +84,10 @@
 </template>
 <script>
 import api from "@/api";
-import Apertura from "@/components/recursos_humanos/Apertura";
 export default {
-  components: { Apertura },
   data: () => ({
     dialog: false,
+    dialog1: false,
     search: "",
     editedIndex: -1,
     aperturaSocios: [],
@@ -122,10 +143,15 @@ export default {
     },
     close() {
       this.dialog = false;
+      this.dialog1 = false;
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       }, 300);
+    },
+    confCerrarApertura(item) {
+      this.aperturaSocio = Object.assign({}, item);
+      this.dialog1 = true;
     }
   }
 };
