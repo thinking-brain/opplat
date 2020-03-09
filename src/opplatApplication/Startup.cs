@@ -7,7 +7,6 @@ using Account.WebApi.Data;
 using Account.WebApi.Models;
 using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Services;
-using ContratacionWebApi.Data;
 using FinanzasWebApi.Data;
 using FinanzasWebApi.Helper;
 using FinanzasWebApi.Helper.EstadoFinanciero;
@@ -33,6 +32,7 @@ using opplatApplication.Data;
 using opplatApplication.Hubs;
 using opplatApplication.Utils;
 using RhWebApi.Data;
+using ContratacionWebApi.Data;
 using Swashbuckle.AspNetCore.Swagger;
 
 [assembly : HostingStartup (typeof (opplatApplication.Startup))]
