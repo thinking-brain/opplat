@@ -15,11 +15,8 @@ namespace ContratacionWebApi.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-<<<<<<< HEAD
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-=======
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
->>>>>>> 74f96f4520b199584c84165057d3754bc522849c
                 .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -92,7 +89,6 @@ namespace ContratacionWebApi.Migrations
 
                     b.HasKey("Id");
 
-<<<<<<< HEAD
                     b.ToTable("Entidades");
                 });
 
@@ -109,9 +105,7 @@ namespace ContratacionWebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EspecialistasExternos");
-=======
                     b.ToTable("Entidad");
->>>>>>> 74f96f4520b199584c84165057d3754bc522849c
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.FormaDePago", b =>
@@ -127,11 +121,8 @@ namespace ContratacionWebApi.Migrations
 
                     b.HasIndex("ContratoId");
 
-<<<<<<< HEAD
                     b.ToTable("FormasDePago");
-=======
-                    b.ToTable("FormaDePago");
->>>>>>> 74f96f4520b199584c84165057d3754bc522849c
+
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.HistoricoEstadoContrato", b =>
@@ -150,12 +141,7 @@ namespace ContratacionWebApi.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ContratoId");
-
-<<<<<<< HEAD
-                    b.ToTable("HistEstDeContratos");
-=======
-                    b.ToTable("HistoricoEstadoContrato");
->>>>>>> 74f96f4520b199584c84165057d3754bc522849c
+                    b.ToTable("HistoricosEstadoContratos");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.Contrato", b =>
