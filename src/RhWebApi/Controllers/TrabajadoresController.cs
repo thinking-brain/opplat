@@ -27,9 +27,9 @@ namespace RhWebApi.Controllers {
                     s.EstadoTrabajador != Estados.Descartado)
                 .Select (t => new {
                     Id = t.Id,
-                        Nombre = t.Nombre,
+                        Nombre = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(t.Nombre),
                         Apellidos = t.Apellidos,
-                        Nombre_Completo = t.Nombre + " " + t.Apellidos,
+                        Nombre_Completo = CultureInfo.InvariantCulture.TextInfo.ToTitleCase (t.Nombre + " " + t.Apellidos),
                         CI = t.CI,
                         Sexo = t.Sexo,
                         SexoName = t.Sexo.ToString (),
@@ -90,7 +90,7 @@ namespace RhWebApi.Controllers {
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                         EstadoTrabajador = t.EstadoTrabajador.ToString (),
                         Correo = t.Correo,
-                        Nombre_Completo = t.Nombre + " " + t.Apellidos,
+                        Nombre_Completo = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(t.Nombre + " " + t.Apellidos),
                         ColorDePiel = t.CaracteristicasTrab.ColorDePiel.ToString (),
                         ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos.ToString (),
                         TallaPantalon = t.CaracteristicasTrab.TallaPantalon,
@@ -341,7 +341,7 @@ namespace RhWebApi.Controllers {
                 trabajadores = trabajadores.Where (t => t.PerfilOcupacional.ToString ().Equals (PerfilOcupacional));
             }
             if (!string.IsNullOrEmpty (Municipio)) {
-                trabajadores = trabajadores.Where (t => t.MunicipioProv.ToString().Equals(Municipio));
+                trabajadores = trabajadores.Where (t => t.MunicipioProv.ToString ().Equals (Municipio));
             }
             if (string.IsNullOrEmpty (EdadDesde)) {
                 EdadDesde = "0";

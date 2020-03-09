@@ -7,7 +7,10 @@ using Account.WebApi.Data;
 using Account.WebApi.Models;
 using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Services;
+<<<<<<< HEAD
 using ContratacionWebApi.Data;
+=======
+>>>>>>> 74f96f4520b199584c84165057d3754bc522849c
 using FinanzasWebApi.Data;
 using FinanzasWebApi.Helper;
 using FinanzasWebApi.Helper.EstadoFinanciero;
@@ -33,6 +36,10 @@ using opplatApplication.Data;
 using opplatApplication.Hubs;
 using opplatApplication.Utils;
 using RhWebApi.Data;
+<<<<<<< HEAD
+=======
+using ContratacionWebApi.Data;
+>>>>>>> 74f96f4520b199584c84165057d3754bc522849c
 using Swashbuckle.AspNetCore.Swagger;
 
 [assembly : HostingStartup (typeof (opplatApplication.Startup))]
@@ -75,11 +82,17 @@ namespace opplatApplication {
             services.AddDbContext<EnlaceVersatDbContext> (options =>
                 options.UseNpgsql (context.Configuration.GetConnectionString ("EnlaceVersatDbContext")));
 
+<<<<<<< HEAD
             //recursos humanos db context
             services.AddDbContext<RhWebApiDbContext> (options =>
                 options.UseNpgsql (context.Configuration.GetConnectionString ("RhWebApiDbContext"), b => b.MigrationsAssembly ("RhWebApi")));
 
             //contratación db context
+=======
+            services.AddDbContext<RhWebApiDbContext> (options =>
+                options.UseNpgsql (context.Configuration.GetConnectionString ("RhWebApiDbContext"), b => b.MigrationsAssembly ("RhWebApi")));
+
+>>>>>>> 74f96f4520b199584c84165057d3754bc522849c
             services.AddDbContext<ContratacionDbContext> (options =>
                 options.UseNpgsql (context.Configuration.GetConnectionString ("ContratacionDbContext"), b => b.MigrationsAssembly ("ContratacionWebApi")));
 

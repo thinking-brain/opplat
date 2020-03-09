@@ -1,11 +1,11 @@
 <template>
   <v-flex md6 lg6 xs12 pa-2>
     <v-card :elevation="4">
-      <v-subheader :inset="inset">
-        <h2>Razones Financieras</h2>
-      </v-subheader>
+
+        <p class="razones_subtitle text-center">Razones Financieras</p>
+
       <v-card-text>
-        <v-simple-table fixed-header height="300px">
+        <v-simple-table fixed-header height="500px">
           <thead>
             <tr>
               <th class="text-left">Razon</th>
@@ -44,12 +44,12 @@
 </template>
 
 <script>
-import api from '@/api';
+import api from "@/api";
 
 export default {
   data() {
     return {
-      razones: [],
+      razones: []
     };
   },
   created() {
@@ -57,18 +57,25 @@ export default {
     const year = d.getFullYear();
     const month = d.getMonth() + 1;
     const url = api.getUrl(
-      'finanzas',
-      `RazonesFinancieras/MesActual/${year}/${month}`,
+      "finanzas",
+      `RazonesFinancieras/MesActual/${year}/${month}`
     );
     this.axios
       .get(url)
-      .then((response) => {
+      .then(response => {
         this.razones = response.data;
       })
-      .catch((e) => {
+      .catch(e => {
         this.errors.push(e);
-        vm.$snotify.error('Error al conectarse con la API Finanzas');
+        vm.$snotify.error("Error al conectarse con la API Finanzas");
       });
-  },
+  }
 };
 </script>
+<style>
+.razones_subtitle {
+  font-size: 20px;
+  color: rgba(96, 89, 89, 0.87);
+  font-family: Arial, Helvetica, sans-serif;
+}
+</style>

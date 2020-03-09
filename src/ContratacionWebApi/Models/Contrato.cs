@@ -4,7 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
+<<<<<<< HEAD
 namespace ContratacionWebApi.Models {
+=======
+namespace ContratacionWebApi.Models
+{
+>>>>>>> 74f96f4520b199584c84165057d3754bc522849c
     public class Contrato {
         public int Id { get; set; }
         public string Nombre { get; set; }
@@ -14,7 +19,10 @@ namespace ContratacionWebApi.Models {
         public virtual Entidad Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
         public string Numero { get; set; }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 74f96f4520b199584c84165057d3754bc522849c
         [Display (Name = "Monto CUP")]
         [DataType (DataType.Currency)]
         public decimal? MontoCup { get; set; }
@@ -26,19 +34,26 @@ namespace ContratacionWebApi.Models {
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Llegada")]
         public DateTime FechaDeLlegada { get; set; }
+<<<<<<< HEAD
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Firmado")]
         public DateTime? FechaDeFirmado { get; set; }
+=======
+>>>>>>> 74f96f4520b199584c84165057d3754bc522849c
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Vencimiento")]
         public DateTime? FechaDeVencimiento { get; set; }
+        public DateTime? FechaDeFirmado { get; set; }
 
         [Display (Name = "Formas de Pago")]
         public virtual ICollection<FormaDePago> FormasDePago { get; set; }
 
+<<<<<<< HEAD
         //Término de pago en días
+=======
+>>>>>>> 74f96f4520b199584c84165057d3754bc522849c
         [Display (Name = "Término de Pago")]
         public int TerminoDePago { get; set; }
         public virtual ICollection<HistoricoEstadoContrato> Estados { get; set; }
@@ -54,7 +69,6 @@ namespace ContratacionWebApi.Models {
                     return Estado.SinEstado;
                 }
                 return estadoActual.Estado;
-
             }
         }
 
