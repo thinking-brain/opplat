@@ -14,14 +14,9 @@ namespace RhWebApi.Models {
         public DateTime Fecha { get; set; }
         public int CantTrabajadores { get; set; }
         public int NumeroAcuerdo { get; set; }
-<<<<<<< HEAD
-        public int [] ListaTrabId { get; set; }
-        public int? CaracteristicasSocioId { get; set; }
-=======
-        public List<Trabajador> ListaTrab { get; set; }
+        public int [] ListaTrab { get; set; }
        public int? CaracteristicasSocioId { get; set; }
         public virtual CaracteristicasSocio CaracteristicasSocio { get; set; }
         public EstadosApertura EstadosApertura { get; set; }
->>>>>>> cf1e645ce9778f428d321854f37b566c23d25e24
     }
 }

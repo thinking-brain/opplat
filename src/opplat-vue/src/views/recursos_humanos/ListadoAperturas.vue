@@ -15,7 +15,6 @@
           dense
         ></v-text-field>
         <v-spacer></v-spacer>
-        <div class="flex-grow-1"></div>
         <v-dialog v-model="dialog" persistent transition="dialog-bottom-transition" flat>
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark class="mb-2" v-on="on">Nueva Apertura</v-btn>
@@ -62,7 +61,6 @@
 <script>
 import api from "@/api";
 export default {
-  components: { Apertura },
   data: () => ({
     dialog: false,
     search: "",

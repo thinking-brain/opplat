@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using ContratacionWebApi.Models;
 
 namespace ContratacionWebApi.Models {
-    public class Contrato {
+    public class ContratoDto {
         public int Id { get; set; }
         public string Nombre { get; set; }
         public Tipo Tipo { get; set; }
         public int AdminContratoId { get; set; }
         public int EntidadId { get; set; }
-        public virtual Entidad Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
         public string Numero { get; set; }
 
@@ -28,23 +28,19 @@ namespace ContratacionWebApi.Models {
         public DateTime FechaDeLlegada { get; set; }
 
         [DataType (DataType.Date)]
-        [Display (Name = "Fecha de Firmado")]
-        public DateTime? FechaDeFirmado { get; set; }
-
-        [DataType (DataType.Date)]
         [Display (Name = "Fecha de Vencimiento")]
         public DateTime? FechaDeVencimiento { get; set; }
+        public DateTime? FechaDeFirmado { get; set; }
 
         [Display (Name = "Formas de Pago")]
         public virtual ICollection<FormaDePago> FormasDePago { get; set; }
 
-        //Término de pago en días
+       //Término de pago en días
         [Display (Name = "Término de Pago")]
         public int TerminoDePago { get; set; }
-        public virtual ICollection<HistoricoEstadoContrato> Estados { get; set; }
+        public string Usuario { get; set; }
 
-        [NotMapped]
-        public string Descripcion => $"{Entidad.Nombre}-{Tipo} ({Numero})";
+        public virtual ICollection<HistoricoEstadoContrato> Estados { get; set; }
 
         [NotMapped]
         public Estado Estado {
@@ -54,11 +50,10 @@ namespace ContratacionWebApi.Models {
                     return Estado.SinEstado;
                 }
                 return estadoActual.Estado;
-
             }
         }
 
-        public Contrato () {
+        public ContratoDto () {
             Estados = new HashSet<HistoricoEstadoContrato> ();
         }
 
