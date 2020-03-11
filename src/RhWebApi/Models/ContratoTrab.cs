@@ -7,8 +7,8 @@ using System.Web;
 using RhWebApi.Models;
 
 namespace RhWebApi.Models {
-    [Table ("contratos")]
-    public class Contrato {
+    [Table ("ContratoTrabs")]
+    public class ContratoTrab {
         public int Id { get; set; }
         public string CentroDeCosto { get; set; }
         public string Descripcion { get; set; }
@@ -23,7 +23,7 @@ namespace RhWebApi.Models {
         public DateTime? FechaTerminado { get; set; }
         public bool Pagado { get; set; }
         public virtual Boolean Sobregirado { get; set; }
-        public virtual ICollection<ActividadContrato> ActividadContratos { get; set; }
+        public virtual ICollection<ActividadContratoTrab> ActividadContratoTrabs { get; set; }
 
     }
 }

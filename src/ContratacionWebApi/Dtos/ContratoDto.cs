@@ -38,24 +38,7 @@ namespace ContratacionWebApi.Models {
        //Término de pago en días
         [Display (Name = "Término de Pago")]
         public int TerminoDePago { get; set; }
-        public string Usuario { get; set; }
-
-        public virtual ICollection<HistoricoEstadoContrato> Estados { get; set; }
-
-        [NotMapped]
-        public Estado Estado {
-            get {
-                var estadoActual = Estados.OrderBy (e => e.Fecha).Last ();
-                if (estadoActual == null) {
-                    return Estado.SinEstado;
-                }
-                return estadoActual.Estado;
-            }
-        }
-
-        public ContratoDto () {
-            Estados = new HashSet<HistoricoEstadoContrato> ();
-        }
+        public string Usuario { get; set; }   
 
     }
 }

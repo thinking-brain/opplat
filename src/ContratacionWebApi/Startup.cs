@@ -38,7 +38,7 @@ namespace ContratacionWebApi
             services.AddSwaggerGen(c =>
             {
 
-                c.SwaggerDoc("Cont-v1", new Info { Title = "Contratación Web API", Version = "Cont_v1", Description = "Api de Contratación del Sistema OPPLAT" });
+                c.SwaggerDoc("Cont-v1", new Info { Title = "Contratación Web API", Version = "Cont-v1", Description = "Api de Contratación del Sistema OPPLAT" });
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -67,7 +67,7 @@ namespace ContratacionWebApi
             app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/docs/SGCont-v1/docs.json", "SGCont Web API v1");
+                c.SwaggerEndpoint("/docs/Cont-v1/docs.json", "SGCont Web API v1");
                 c.RoutePrefix = "docs";
             });
             app.UseHttpsRedirection();

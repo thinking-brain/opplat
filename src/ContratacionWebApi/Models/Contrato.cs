@@ -4,8 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
-namespace ContratacionWebApi.Models
-{
+namespace ContratacionWebApi.Models {
     public class Contrato {
         public int Id { get; set; }
         public string Nombre { get; set; }
@@ -15,6 +14,7 @@ namespace ContratacionWebApi.Models
         public virtual Entidad Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
         public string Numero { get; set; }
+
         [Display (Name = "Monto CUP")]
         [DataType (DataType.Currency)]
         public decimal? MontoCup { get; set; }
@@ -26,13 +26,14 @@ namespace ContratacionWebApi.Models
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Llegada")]
         public DateTime FechaDeLlegada { get; set; }
+
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Firmado")]
         public DateTime? FechaDeFirmado { get; set; }
+
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Vencimiento")]
         public DateTime? FechaDeVencimiento { get; set; }
-        public DateTime? FechaDeFirmado { get; set; }
 
         [Display (Name = "Formas de Pago")]
         public virtual ICollection<FormaDePago> FormasDePago { get; set; }

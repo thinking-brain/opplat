@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    [Migration("20200309015459_contratacionFirst")]
-    partial class contratacionFirst
+    [Migration("20200310123433_1")]
+    partial class _1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -121,7 +121,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.HasIndex("ContratoId");
 
-                    b.ToTable("FormasDePago");
+                    b.ToTable("FormasDePagos");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.HistoricoEstadoContrato", b =>
@@ -141,7 +141,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.HasIndex("ContratoId");
 
-                    b.ToTable("HistEstDeContratos");
+                    b.ToTable("HistoricosEstadoContratos");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.Contrato", b =>
