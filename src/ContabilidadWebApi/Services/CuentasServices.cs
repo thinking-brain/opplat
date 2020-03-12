@@ -53,7 +53,9 @@ namespace ContabilidadWebApi.Services
                     cuentaSuperior = FindCuentaByNumero(numeroSuperior);
                     if (cuentaSuperior == null)
                     {
-                        throw new Exception("No existe la cuenta a la que pertenece la cuenta que esta creando, cree la cuenta superior primero.");
+                        CrearCuenta(numeroSuperior, "SIN NOMBRE", naturaleza);
+                        cuentaSuperior = FindCuentaByNumero(numeroSuperior);
+                        // throw new Exception("No existe la cuenta a la que pertenece la cuenta que esta creando, cree la cuenta superior primero.");
                     }
                 }
                 cuenta = new Cuenta { NumeroParcial = numeroParcial, Nombre = nombre, Naturaleza = naturaleza };
