@@ -3,15 +3,17 @@ using System;
 using ContratacionWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    partial class ContratacionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200313142020_DictContratoModels")]
+    partial class DictContratoModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,7 +57,7 @@ namespace ContratacionWebApi.Migrations
                     b.ToTable("Contratos");
                 });
 
-            modelBuilder.Entity("ContratacionWebApi.Models.ContratoId_DictaminadorId", b =>
+            modelBuilder.Entity("ContratacionWebApi.Models.DictContrato", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -69,18 +71,6 @@ namespace ContratacionWebApi.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ContratoId");
-
-                    b.ToTable("ContratoId_DictaminadorId");
-                });
-
-            modelBuilder.Entity("ContratacionWebApi.Models.DictaminadoresContrato", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("TrabajadorId");
-
-                    b.HasKey("Id");
 
                     b.ToTable("DictaminadoresContrato");
                 });
@@ -121,24 +111,6 @@ namespace ContratacionWebApi.Migrations
                     b.ToTable("Entidades");
                 });
 
-            modelBuilder.Entity("ContratacionWebApi.Models.EspExternoId_ContratoId", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("ContratoId");
-
-                    b.Property<int>("EspecialistaExternoId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContratoId");
-
-                    b.HasIndex("EspecialistaExternoId");
-
-                    b.ToTable("EspecialistaExternoId_ContratoId");
-                });
-
             modelBuilder.Entity("ContratacionWebApi.Models.EspecialistaExterno", b =>
                 {
                     b.Property<int>("Id")
@@ -146,10 +118,16 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("Cargo");
 
+                    b.Property<int?>("ContratoId");
+
+                    b.Property<int?>("DictContratoId");
+
                     b.Property<string>("Nombre")
                         .IsRequired();
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DictContratoId");
 
                     b.ToTable("EspecialistasExternos");
                 });
@@ -198,7 +176,7 @@ namespace ContratacionWebApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("ContratacionWebApi.Models.ContratoId_DictaminadorId", b =>
+            modelBuilder.Entity("ContratacionWebApi.Models.DictContrato", b =>
                 {
                     b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
                         .WithMany()
@@ -206,17 +184,11 @@ namespace ContratacionWebApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("ContratacionWebApi.Models.EspExternoId_ContratoId", b =>
+            modelBuilder.Entity("ContratacionWebApi.Models.EspecialistaExterno", b =>
                 {
-                    b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
-                        .WithMany()
-                        .HasForeignKey("ContratoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ContratacionWebApi.Models.EspecialistaExterno", "EspecialistaExterno")
-                        .WithMany()
-                        .HasForeignKey("EspecialistaExternoId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne("ContratacionWebApi.Models.DictContrato")
+                        .WithMany("EspecialistaExterno")
+                        .HasForeignKey("DictContratoId");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.FormaDePago", b =>

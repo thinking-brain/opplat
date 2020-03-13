@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    [Migration("20200310123433_1")]
-    partial class _1
+    [Migration("20200313144100_DictaminadoresContratoModels")]
+    partial class DictaminadoresContratoModels
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -55,6 +55,24 @@ namespace ContratacionWebApi.Migrations
                     b.HasIndex("EntidadId");
 
                     b.ToTable("Contratos");
+                });
+
+            modelBuilder.Entity("ContratacionWebApi.Models.DictaminadoresContrato", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("ContratoId");
+
+                    b.Property<int>("EconomicoId");
+
+                    b.Property<int>("JuridicoId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContratoId");
+
+                    b.ToTable("DictaminadoresContrato");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.Entidad", b =>
@@ -149,6 +167,14 @@ namespace ContratacionWebApi.Migrations
                     b.HasOne("ContratacionWebApi.Models.Entidad", "Entidad")
                         .WithMany()
                         .HasForeignKey("EntidadId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("ContratacionWebApi.Models.DictaminadoresContrato", b =>
+                {
+                    b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
+                        .WithMany()
+                        .HasForeignKey("ContratoId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
