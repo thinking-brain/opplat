@@ -7,7 +7,7 @@ namespace ContratacionWebApi.Models
         Venta,
         Servicio,
     }
-
+    
     public enum Estado
     {
         Nuevo,

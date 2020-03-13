@@ -31,13 +31,13 @@ namespace RhWebApi.Controllers
         [HttpGet("{id}", Name = "GetActividadLaboral")]
         public IActionResult GetbyId(int id)
         {
-            var actividadContrato = context.ActividadLaboral.FirstOrDefault(s => s.Id == id);
+            var actividadContratoTrab = context.ActividadLaboral.FirstOrDefault(s => s.Id == id);
 
-            if (actividadContrato == null)
+            if (actividadContratoTrab == null)
             {
                 return NotFound();
             }
-            return Ok(actividadContrato);
+            return Ok(actividadContratoTrab);
            
         }
 
