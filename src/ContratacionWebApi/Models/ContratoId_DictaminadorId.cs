@@ -6,12 +6,11 @@ namespace ContratacionWebApi.Models {
     [Table ("ContratoId_DictaminadorId")]
     public class ContratoId_DictaminadorId {
         public int Id { get; set; }
-
         [Required]
         public int ContratoId { get; set; }
         public virtual Contrato Contrato { get; set; }
-        //trabajador
-        public int JuridicoId { get; set; }
-        public int EconomicoId { get; set; }
+        //trabajador en el cargo Jurídico
+        public int DictaminadorContratoId { get; set; }
+        public virtual DictaminadorContrato DictaminadorContrato{get;set;}
     }
 }
