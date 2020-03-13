@@ -15,8 +15,8 @@ namespace RhWebApi.Models
 
         public virtual Decimal PagoCUP { get; set; }
 
-        public virtual ActividadContrato Actividad { get; set; }
-        public int ActividadContratoId { get; set; }
+        public virtual ActividadContratoTrab Actividad { get; set; }
+        public int ActividadContratoTrabId { get; set; }
 
         public virtual MandatoDePago MandatoDePago { get; set; }
         public int MandatoDePagoId { get; set; }

@@ -35,7 +35,7 @@ namespace RhWebApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "contratos",
+                name: "ContratoTrabs",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -52,7 +52,7 @@ namespace RhWebApi.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_contratos", x => x.Id);
+                    table.PrimaryKey("PK_ContratoTrabs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -105,29 +105,29 @@ namespace RhWebApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "actividades_de_contratos",
+                name: "actividades_de_ContratoTrabs",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     ActividadLaboralId = table.Column<int>(nullable: false),
-                    ContratoId = table.Column<int>(nullable: false),
+                    ContratoTrabId = table.Column<int>(nullable: false),
                     PrecioCUC = table.Column<decimal>(nullable: false),
                     PrecioCUP = table.Column<decimal>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_actividades_de_contratos", x => x.Id);
+                    table.PrimaryKey("PK_actividades_de_ContratoTrabs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_actividades_de_contratos_actividades_laborales_ActividadLab~",
+                        name: "FK_actividades_de_ContratoTrabs_actividades_laborales_ActividadLab~",
                         column: x => x.ActividadLaboralId,
                         principalTable: "actividades_laborales",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_actividades_de_contratos_contratos_ContratoId",
-                        column: x => x.ContratoId,
-                        principalTable: "contratos",
+                        name: "FK_actividades_de_ContratoTrabs_ContratoTrabs_ContratoTrabId",
+                        column: x => x.ContratoTrabId,
+                        principalTable: "ContratoTrabs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -483,14 +483,14 @@ namespace RhWebApi.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_actividades_de_contratos_ActividadLaboralId",
-                table: "actividades_de_contratos",
+                name: "IX_actividades_de_ContratoTrabs_ActividadLaboralId",
+                table: "actividades_de_ContratoTrabs",
                 column: "ActividadLaboralId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_actividades_de_contratos_ContratoId",
-                table: "actividades_de_contratos",
-                column: "ContratoId");
+                name: "IX_actividades_de_ContratoTrabs_ContratoTrabId",
+                table: "actividades_de_ContratoTrabs",
+                column: "ContratoTrabId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_bajas_TrabajadorId",
@@ -622,7 +622,7 @@ namespace RhWebApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "actividades_de_contratos");
+                name: "actividades_de_ContratoTrabs");
 
             migrationBuilder.DropTable(
                 name: "bajas");
@@ -649,7 +649,7 @@ namespace RhWebApi.Migrations
                 name: "actividades_laborales");
 
             migrationBuilder.DropTable(
-                name: "contratos");
+                name: "ContratoTrabs");
 
             migrationBuilder.DropTable(
                 name: "trabajadores");
