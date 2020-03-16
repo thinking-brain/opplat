@@ -36,5 +36,6 @@ namespace RhWebApi.Data {
         public DbSet<RhWebApi.Models.Bolsa> Bolsa { get; set; }
         public DbSet<RhWebApi.Models.AperturaSocio> AperturaSocio { get; set; }
         public DbSet<RhWebApi.Models.PerfilOcupacional> PerfilOcupacional { get; set; }
+        public DbSet<RhWebApi.Models.CaracteristicasSocio> CaracteristicasSocio { get; set; }
     }
 }

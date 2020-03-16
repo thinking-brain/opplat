@@ -2,22 +2,22 @@
 
 namespace RhWebApi.Migrations
 {
-    public partial class ColorPiel : Migration
+    public partial class QuitarColorpiel : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
+            migrationBuilder.DropColumn(
                 name: "ColorDePiel",
-                table: "caracteristicas_del_trabjador",
-                nullable: false,
-                defaultValue: 0);
+                table: "caracteristicas_de_los_socios");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            migrationBuilder.AddColumn<int>(
                 name: "ColorDePiel",
-                table: "caracteristicas_del_trabjador");
+                table: "caracteristicas_de_los_socios",
+                nullable: false,
+                defaultValue: 0);
         }
     }
 }

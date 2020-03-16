@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-divider class="d-print-none"></v-divider>
-    <v-row class="my-4 mb-4 d-print-none">
+    <v-row v-if="visible" class="my-4 mb-4 d-print-none">
       <v-tooltip top>
         <template v-slot:activator="{ on }">
           <v-btn class="mx-2" fab small>
@@ -255,6 +255,7 @@ export default {
       egresos: null,
       utilidades: null,
       errors: [],
+      visible: false
     };
   },
   computed: {
@@ -321,6 +322,7 @@ export default {
         .get(url)
         .then((response) => {
           this.ingresos = response.data;
+          this.visible = true;
         })
         .catch((e) => {
           this.errors.push(e);

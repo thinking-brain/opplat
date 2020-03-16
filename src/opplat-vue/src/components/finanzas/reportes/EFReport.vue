@@ -51,10 +51,40 @@
       <v-col md="11">
         <v-card v-if="visible" color="basil" style="overflow:auto">
           <v-card-title class="text-center justify-center py-6">
-            <h6
+            <h3
               class="font-weight-bold display-1 basil--text"
-            >Estado Financiero {{mes.nombre}} {{year}}</h6>
+            >Estado Financiero {{mes.nombre}} {{year}}</h3>
+            <v-spacer></v-spacer>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn class="mx-2" fab small>
+                  <v-icon
+                    class="mx-2"
+                    color="blue darken-4"
+                    fab
+                    v-on="on"
+                    @click="imprimir"
+                  >mdi-printer</v-icon>
+                </v-btn>
+              </template>
+              <span>Imprimir</span>
+            </v-tooltip>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  @click="exportTableToExcel"
+                  class="mx-2 xlsx"
+                  tableexport-id="51b48fa9-xlsx"
+                  fab
+                  small
+                >
+                  <v-icon class="mx-2" color="green" fab v-on="on">mdi-file-excel</v-icon>
+                </v-btn>
+              </template>
+              <span>Exportar a Excel</span>
+            </v-tooltip>
           </v-card-title>
+
           <v-simple-table :fixed-header="true" height="700">
             <template v-slot:default>
               <thead>
@@ -68,8 +98,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in data" :key="item.efe" :title="item.concepto">
-                  <td :class="item.encabezado ? 'font-weight-bold' : ''">{{item.concepto}}</td>
+                <tr v-for="item in data" :key="item.concepto" :title="item.concepto">
+                  <td
+                    :class="item.encabezado ? 'font-weight-bold encabezado' : 's'"
+                  >{{item.concepto}}</td>
                   <td
                     :class="item.encabezado ? 'font-weight-bold text-center' : 'text-center'"
                   >{{item.plan}}</td>
@@ -80,20 +112,6 @@
               </tbody>
             </template>
           </v-simple-table>
-          <!-- <v-data-table :headers="header" :items="desserts" fixed-header height="400" hide-default-footer="true" disable-sort="true" item-key="name">
-        <template slot="items" slot-scope="props">
-          <tr>
-            <td>{{ props.item.name }}</td>
-            <td>{{ props.item.calories }}</td>
-            <td>{{ props.item.fat }}</td>
-            <td>{{ props.item.carbs }}</td>
-            <td>{{ props.item.protein }}</td>
-            <td>{{ props.item.nprotein }}</td>
-            <td>{{ props.item.iron }}</td>
-            <td>{{ props.item.niron }}</td>
-          </tr>
-        </template>
-          </v-data-table>-->
         </v-card>
       </v-col>
     </v-row>
@@ -101,7 +119,7 @@
 </template>
 
 <script>
-import api from '@/api';
+import api from "@/api";
 
 export default {
   data() {
@@ -110,34 +128,35 @@ export default {
       data: [],
       valid: true,
       tab: null,
-      tipos_plan: ['5920', '5921', '5922', '5923', '5924', '5925', '5926'],
-      tipo_plan_selected: '',
-      selectedMonths: '',
-      year_form: '',
-      mes: '',
-      year: '',
+      tipos_plan: ["5920", "5921", "5922", "5923", "5924", "5925", "5926"],
+      tipo_plan_selected: "",
+      selectedMonths: "",
+      year_form: "",
+      mes: "",
+      year: "",
       yearRules: [
-        v => !!v || 'Este campo es requerido',
-        v => (v && v.length == 4) || 'El año debe tener 4 caracteres.',
+        v => !!v || "Este campo es requerido",
+        v => /^[0-9]+$/.test(v) || "Solo números",
+        v => (v && v.length == 4) || "El año debe tener 4 caracteres."
       ],
       estado: [],
       errors: [],
       meses: [
-        { id: 1, nombre: 'ENERO' },
-        { id: 2, nombre: 'FEBRERO' },
-        { id: 3, nombre: 'MARZO' },
-        { id: 4, nombre: 'ABRIL' },
-        { id: 5, nombre: 'MAYO' },
-        { id: 6, nombre: 'JUNIO' },
-        { id: 7, nombre: 'JULIO' },
-        { id: 8, nombre: 'AGOSTO' },
-        { id: 9, nombre: 'SEPTIEMBRE' },
-        { id: 10, nombre: 'OCTUBRE' },
-        { id: 11, nombre: 'NOVIEMBRE' },
-        { id: 12, nombre: 'DICIEMBRE' },
+        { id: 1, nombre: "ENERO" },
+        { id: 2, nombre: "FEBRERO" },
+        { id: 3, nombre: "MARZO" },
+        { id: 4, nombre: "ABRIL" },
+        { id: 5, nombre: "MAYO" },
+        { id: 6, nombre: "JUNIO" },
+        { id: 7, nombre: "JULIO" },
+        { id: 8, nombre: "AGOSTO" },
+        { id: 9, nombre: "SEPTIEMBRE" },
+        { id: 10, nombre: "OCTUBRE" },
+        { id: 11, nombre: "NOVIEMBRE" },
+        { id: 12, nombre: "DICIEMBRE" }
       ],
       visible: false,
-      lazy: false,
+      lazy: false
     };
   },
   computed: {
@@ -148,10 +167,10 @@ export default {
       return this.selectedMonths.length > 0 && !this.likesAllMonths;
     },
     icon() {
-      if (this.likesAllMonths) return 'mdi-close-box';
-      if (this.likesSomeMonth) return 'mdi-minus-box';
-      return 'mdi-checkbox-blank-outline';
-    },
+      if (this.likesAllMonths) return "mdi-close-box";
+      if (this.likesSomeMonth) return "mdi-minus-box";
+      return "mdi-checkbox-blank-outline";
+    }
   },
   methods: {
     GenerarReporte() {
@@ -159,21 +178,30 @@ export default {
       this.mes = this.selectedMonths;
       if (this.$refs.form.validate()) {
         const url = api.getUrl(
-          'finanzas',
-          `EstadoFinanciero/estadoFinanciero5020/${this.year}/${this.mes.id}`,
+          "finanzas",
+          `EstadoFinanciero/estadoFinanciero${this.tipo_plan_selected}Report/${this.year}/${this.mes.id}`
+        );
+        console.log(url);
         this.axios
           .get(url)
-          .then((response) => {
+          .then(response => {
             this.data = response.data;
+            this.visible = true;
           })
-          .catch((e) => {
+          .catch(e => {
             this.errors.push(e);
+            console.log(e);
             vm.$snotify.error(
-              'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
+              "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
             );
           });
-        this.visible = true;
       }
+    },
+    exportTableToExcel() {
+      console.log("Exportando");
+    },
+    imprimir(){
+      console.log('Printing');
     },
     toggle() {
       this.$nextTick(() => {
@@ -183,8 +211,8 @@ export default {
           this.selectedMonths = this.meses.slice();
         }
       });
-    },
-  },
+    }
+  }
 };
 </script>
 <style scoped>
@@ -196,5 +224,11 @@ export default {
   color: #356859 !important;
   font-weight: bold;
   font-size: large;
+}
+.s {
+  padding-left: 40px;
+}
+.encabezado {
+  font-size: 18px;
 }
 </style>
