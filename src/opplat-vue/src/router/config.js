@@ -262,6 +262,15 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/EFReport.vue'),
     },
     {
+      path: '/finanzas/ConfiguradorEFReport',
+      name: 'ConfiguradorEFReport',
+      meta: {
+        title: 'Config EFReport',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/EFReportConfig.vue'),
+    },
+    {
       path: '/finanzas/configuraciones',
       name: 'Configuraciones',
       meta: {
@@ -351,41 +360,41 @@ export const protectedRoute = [
         component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Dashboard.vue'),
       },
       {
-      path: '/recursos_humanos/Trabajadores',
-      name: 'Trabajadores',
-      meta: {
-        title: 'Trabajadores',
-        requiresAuth: true,
+        path: '/recursos_humanos/Trabajadores',
+        name: 'Trabajadores',
+        meta: {
+          title: 'Trabajadores',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Trabajadores.vue'),
       },
-      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Trabajadores.vue'),
-    },
-    {
-      path: '/recursos_humanos/Bolsa',
-      name: 'Bolsa',
-      meta: {
-        title: 'Bolsa',
-        requiresAuth: true,
+      {
+        path: '/recursos_humanos/Bolsa',
+        name: 'Bolsa',
+        meta: {
+          title: 'Bolsa',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Bolsa.vue'),
       },
-      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Bolsa.vue'),
-    },
-    {
-      path: '/recursos_humanos/ListadoAperturas',
-      name: 'ListadoAperturas',
-      meta: {
-        title: 'Listado de Aperturas',
-        requiresAuth: true,
+      {
+        path: '/recursos_humanos/ListadoAperturas',
+        name: 'ListadoAperturas',
+        meta: {
+          title: 'Listado de Aperturas',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/ListadoAperturas.vue'),
       },
-      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/ListadoAperturas.vue'),
-    },
-    {
-      path: '/recursos_humanos/Apertura',
-      name: 'Apertura',
-      meta: {
-        title: 'Apertura',
-        requiresAuth: true,
+      {
+        path: '/recursos_humanos/Apertura',
+        name: 'Apertura',
+        meta: {
+          title: 'Apertura',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Apertura.vue'),
       },
-      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Apertura.vue'),
-    },
     ],
   },
 ];

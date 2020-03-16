@@ -1,8 +1,8 @@
-﻿[
-  {
-    "concepto": "Activo Circulante",
-    "conceptos": [
-      {
+﻿[{
+    "id": 1,
+    "name": "Activo Circulante",
+    "children": [{
+        "id": 2,
         "name": "Efectivo en Caja  (101-108)",
         "celda": "C6",
         "cuentas": [
@@ -17,6 +17,7 @@
         ]
       },
       {
+        "id": 3,
         "name": "Efectivo en Banco y en otras instituciones (109-119)",
         "celda": "C7",
         "cuentas": [
@@ -34,6 +35,7 @@
         ]
       },
       {
+        "id": 4,
         "name": "Inversiones a Corto Plazo o Temporales (120-129)",
         "celda": "C8",
         "cuentas": [
@@ -50,6 +52,7 @@
         ]
       },
       {
+        "id": 5,
         "name": "Efectos por Cobrar a Corto Plazo (130-133)",
         "celda": "C9",
         "cuentas": [
@@ -60,6 +63,7 @@
         ]
       },
       {
+        "id": 6,
         "name": "Menos:Efectos por Cobrar Descontados (365)",
         "celda": "C10",
         "cuentas": [
@@ -67,6 +71,7 @@
         ]
       },
       {
+        "id": 7,
         "name": "Cuenta en Participación (134)",
         "celda": "C11",
         "cuentas": [
@@ -74,6 +79,7 @@
         ]
       },
       {
+        "id": 8,
         "name": "Cuentas por Cobrar a Corto Plazo (135-139 y 154)",
         "celda": "C12",
         "cuentas": [
@@ -86,6 +92,7 @@
         ]
       },
       {
+        "id": 9,
         "name": "Menos: Provisión para Cuentas Incobrables (369)",
         "celda": "C13",
         "cuentas": [
@@ -93,6 +100,7 @@
         ]
       },
       {
+        "id": 10,
         "name": "Pagos por Cuentas de Terceros (140)",
         "celda": "C14",
         "cuentas": [
@@ -100,6 +108,7 @@
         ]
       },
       {
+        "id": 11,
         "name": "Participación de Reaseguradores por Siniestros Pend.(141)",
         "celda": "C15",
         "cuentas": [
@@ -107,6 +116,7 @@
         ]
       },
       {
+        "id": 12,
         "name": "Préstamos y Otras Operaciones Crediticias a Cobrar a Corto Plazo (142)",
         "celda": "C16",
         "cuentas": [
@@ -114,6 +124,7 @@
         ]
       },
       {
+        "id": 13,
         "name": "Suscriptores de Bonos (143)",
         "celda": "C17",
         "cuentas": [
@@ -121,6 +132,7 @@
         ]
       },
       {
+        "id": 14,
         "name": "Pagos Anticipados a Suministradores (146-149)",
         "celda": "C18",
         "cuentas": [
@@ -131,6 +143,7 @@
         ]
       },
       {
+        "id": 15,
         "name": "Pagos Anticipados del Proceso Inversionista (150-152)",
         "celda": "C19",
         "cuentas": [
@@ -140,6 +153,7 @@
         ]
       },
       {
+        "id": 16,
         "name": "Materiales Anticipados del Proceso Inversionista (153)",
         "celda": "C20",
         "cuentas": [
@@ -147,6 +161,7 @@
         ]
       },
       {
+        "id": 17,
         "name": "Anticipos a Justificar (161-163)",
         "celda": "C21",
         "cuentas": [
@@ -156,6 +171,7 @@
         ]
       },
       {
+        "id": 18,
         "name": "Adeudos del Presupuesto del Estado (164-166)",
         "celda": "C22",
         "cuentas": [
@@ -165,6 +181,7 @@
         ]
       },
       {
+        "id": 19,
         "name": "Adeudos del Organo u Organismo (167-170)",
         "celda": "C23",
         "cuentas": [
@@ -175,6 +192,7 @@
         ]
       },
       {
+        "id": 20,
         "name": "Ingresos acumulados por Cobrar (173-180)",
         "celda": "C24",
         "cuentas": [
@@ -189,6 +207,7 @@
         ]
       },
       {
+        "id": 21,
         "name": "Dividendos y Participaciones por Cobrar (181)",
         "celda": "C25",
         "cuentas": [
@@ -196,6 +215,7 @@
         ]
       },
       {
+        "id": 22,
         "name": "Ingresos Acumulados por Cobrar - Reaseguros Aceptados (182)",
         "celda": "C26",
         "cuentas": [
@@ -205,9 +225,10 @@
     ]
   },
   {
-    "concepto": "Total de Inventario",
-    "conceptos": [
-      {
+    "id": 23,
+    "name": "Total de Inventario",
+    "children": [{
+        "id": 24,
         "name": "Materias Primas y Materiales (183)",
         "celda": "C28",
         "cuentas": [
@@ -215,6 +236,7 @@
         ]
       },
       {
+        "id": 25,
         "name": "Combustibles y Lubricantes (184)",
         "celda": "C29",
         "cuentas": [
@@ -222,6 +244,7 @@
         ]
       },
       {
+        "id": 26,
         "name": "Partes y Piezas de Respuesto (185)",
         "celda": "C30",
         "cuentas": [
@@ -229,6 +252,7 @@
         ]
       },
       {
+        "id": 27,
         "name": "Envases y Embalajes (186)",
         "celda": "C31",
         "cuentas": [
@@ -236,6 +260,7 @@
         ]
       },
       {
+        "id": 28,
         "name": "Utiles, Herramientas y Otros (187)",
         "celda": "C32",
         "cuentas": [
@@ -243,6 +268,7 @@
         ]
       },
       {
+        "id": 29,
         "name": "Menos: Desgaste de Utiles y Herramientas (373)",
         "celda": "C33",
         "cuentas": [
@@ -250,6 +276,7 @@
         ]
       },
       {
+        "id": 30,
         "name": "Producción Terminada (188)",
         "celda": "C34",
         "cuentas": [
@@ -257,6 +284,7 @@
         ]
       },
       {
+        "id": 31,
         "name": "Mercancias para la Venta (189)",
         "celda": "C35",
         "cuentas": [
@@ -264,6 +292,7 @@
         ]
       },
       {
+        "id": 32,
         "name": "Menos: Descuento comercial e Impuesto (370-372)",
         "celda": "C36",
         "cuentas": [
@@ -273,6 +302,7 @@
         ]
       },
       {
+        "id": 33,
         "name": "Medicamentos (190)",
         "celda": "C37",
         "cuentas": [
@@ -280,6 +310,7 @@
         ]
       },
       {
+        "id": 34,
         "name": "Base Material de Estudio (191)",
         "celda": "C38",
         "cuentas": [
@@ -287,6 +318,7 @@
         ]
       },
       {
+        "id": 35,
         "name": "Menos: Desgaste de Base Material de Estudio (366)",
         "celda": "C39",
         "cuentas": [
@@ -294,6 +326,7 @@
         ]
       },
       {
+        "id": 36,
         "name": "Vestuario y Lencería (192)",
         "celda": "C40",
         "cuentas": [
@@ -301,6 +334,7 @@
         ]
       },
       {
+        "id": 37,
         "name": "Menos: Desgaste de Vestuario y Lenceria  (367)",
         "celda": "C41",
         "cuentas": [
@@ -308,6 +342,7 @@
         ]
       },
       {
+        "id": 38,
         "name": "Alimentos (193)",
         "celda": "C42",
         "cuentas": [
@@ -315,6 +350,7 @@
         ]
       },
       {
+        "id": 39,
         "name": "Inventario de Mercancías de Importación (194)",
         "celda": "C43",
         "cuentas": [
@@ -322,6 +358,7 @@
         ]
       },
       {
+        "id": 40,
         "name": "Inventario de Mercancias de Exportación (195)",
         "celda": "C44",
         "cuentas": [
@@ -329,6 +366,7 @@
         ]
       },
       {
+        "id": 41,
         "name": "Producciones para Insumo o Autoconsumo (196)",
         "celda": "C45",
         "cuentas": [
@@ -336,6 +374,7 @@
         ]
       },
       {
+        "id": 42,
         "name": "Otros Inventarios (205-207)",
         "celda": "C46",
         "cuentas": [
@@ -345,6 +384,7 @@
         ]
       },
       {
+        "id": 43,
         "name": "Inventarios Ociosos (208)",
         "celda": "C47",
         "cuentas": [
@@ -352,6 +392,7 @@
         ]
       },
       {
+        "id": 44,
         "name": "Inventarios de lento Movimiento (209)",
         "celda": "C48",
         "cuentas": [
@@ -359,6 +400,7 @@
         ]
       },
       {
+        "id": 45,
         "name": "Producción en Proceso (700-724)",
         "celda": "C49",
         "cuentas": [
@@ -391,6 +433,7 @@
         ]
       },
       {
+        "id": 46,
         "name": "Producción Propia para Insumo (725)",
         "celda": "C50",
         "cuentas": [
@@ -398,6 +441,7 @@
         ]
       },
       {
+        "id": 47,
         "name": "Reparaciones Capitales con Medios Propios (726)",
         "celda": "C51",
         "cuentas": [
@@ -405,6 +449,7 @@
         ]
       },
       {
+        "id": 48,
         "name": "Inversiones con Medios Propios Activos Fijos Intangibles (727)",
         "celda": "C52",
         "cuentas": [
@@ -412,6 +457,7 @@
         ]
       },
       {
+        "id": 49,
         "name": "Inversiones con Medios Propios (728)",
         "celda": "C53",
         "cuentas": [
@@ -419,6 +465,7 @@
         ]
       },
       {
+        "id": 50,
         "name": "Créditos Documentarios (211)",
         "celda": "C54",
         "cuentas": [
@@ -428,9 +475,10 @@
     ]
   },
   {
-    "concepto": "Activos a Largo Plazo",
-    "conceptos": [
-      {
+    "id": 51,
+    "name": "Activos a Largo Plazo",
+    "children": [{
+        "id": 52,
         "name": "Efectos por Cobrar a Largo Plazo (215-217)",
         "celda": "C56",
         "cuentas": [
@@ -440,6 +488,7 @@
         ]
       },
       {
+        "id": 53,
         "name": "Cuentas por Cobrar a Largo Plazo (218-220)",
         "celda": "C57",
         "cuentas": [
@@ -449,6 +498,7 @@
         ]
       },
       {
+        "id": 54,
         "name": "Préstamos Concedidos a Cobrar a Largo Plazo (221-224)",
         "celda": "C58",
         "cuentas": [
@@ -459,6 +509,7 @@
         ]
       },
       {
+        "id": 55,
         "name": "Inversiones a Largo Plazo o Permanentes (225-234)",
         "celda": "C59",
         "cuentas": [
@@ -477,9 +528,10 @@
     ]
   },
   {
-    "concepto": "Activos Fijos",
-    "conceptos": [
-      {
+    "id": 56,
+    "name": "Activos Fijos",
+    "children": [{
+        "id": 57,
         "name": "Activos Fijos Tangibles (240-251)",
         "celda": "C61",
         "cuentas": [
@@ -498,6 +550,7 @@
         ]
       },
       {
+        "id": 58,
         "name": "Menos:Depreciación de Activos Fijos Tangibles (375-388)",
         "celda": "C62",
         "cuentas": [
@@ -518,6 +571,7 @@
         ]
       },
       {
+        "id": 59,
         "name": "Fondos Bibliotecarios (252)",
         "celda": "C63",
         "cuentas": [
@@ -525,6 +579,7 @@
         ]
       },
       {
+        "id": 60,
         "name": "Medios y Equipos para Alquilar  (253)",
         "celda": "C64",
         "cuentas": [
@@ -532,6 +587,7 @@
         ]
       },
       {
+        "id": 61,
         "name": "Menos: Desgaste de Medios y Equipos para Alquilar (389)",
         "celda": "C65",
         "cuentas": [
@@ -539,6 +595,7 @@
         ]
       },
       {
+        "id": 62,
         "name": "Monumentos y Obras de Arte (254)",
         "celda": "C66",
         "cuentas": [
@@ -546,6 +603,7 @@
         ]
       },
       {
+        "id": 63,
         "name": "Activos Fijos Intangibles (255 a 263)",
         "celda": "C67",
         "cuentas": [
@@ -561,6 +619,7 @@
         ]
       },
       {
+        "id": 64,
         "name": "Activos Fijos Intangibles en Proceso (264)",
         "celda": "C68",
         "cuentas": [
@@ -568,6 +627,7 @@
         ]
       },
       {
+        "id": 65,
         "name": "Menos:Amortización de Activos Fijos Intangibles (390-399)",
         "celda": "C69",
         "cuentas": [
@@ -584,6 +644,7 @@
         ]
       },
       {
+        "id": 66,
         "name": "Inversiones en Proceso (265-278)",
         "celda": "C70",
         "cuentas": [
@@ -604,6 +665,7 @@
         ]
       },
       {
+        "id": 67,
         "name": "Plan de Preparaci�n de Inversiones (279)",
         "celda": "C71",
         "cuentas": [
@@ -611,6 +673,7 @@
         ]
       },
       {
+        "id": 68,
         "name": "Equipos por Instalar y Materiales para el Proceso Inversionista (280-289)",
         "celda": "C72",
         "cuentas": [
@@ -629,9 +692,10 @@
     ]
   },
   {
-    "concepto": "Activos Diferidos",
-    "conceptos": [
-      {
+    "id": 69,
+    "name": "Activos Diferidos",
+    "children": [{
+        "id": 70,
         "name": "Gastos de Produccion y Servicios Diferidos (300-305)",
         "celda": "C74",
         "cuentas": [
@@ -644,6 +708,7 @@
         ]
       },
       {
+        "id": 71,
         "name": "Gastos Financieros Diferidos (306-307)",
         "celda": "C75",
         "cuentas": [
@@ -652,6 +717,7 @@
         ]
       },
       {
+        "id": 72,
         "name": "Gastos Diferidos del Proceso Inversionista (310-311)",
         "celda": "C76",
         "cuentas": [
@@ -660,6 +726,7 @@
         ]
       },
       {
+        "id": 73,
         "name": "Gastos por Faltante y Perdidas Diferidas (312)",
         "celda": "C77",
         "cuentas": [
@@ -669,9 +736,10 @@
     ]
   },
   {
-    "concepto": "Otros Activos",
-    "conceptos": [
-      {
+    "id": 74,
+    "name": "Otros Activos",
+    "children": [{
+        "id": 75,
         "name": "Pérdidas en Investigación (330-331)",
         "celda": "C79",
         "cuentas": [
@@ -680,6 +748,7 @@
         ]
       },
       {
+        "id": 76,
         "name": "Faltante de Bienes en Investigación (332-333)",
         "celda": "C80",
         "cuentas": [
@@ -688,6 +757,7 @@
         ]
       },
       {
+        "id": 77,
         "name": "Cuentas por Cobrar Diversas-Operaciones Corrientes (334-341)",
         "celda": "C81",
         "cuentas": [
@@ -702,6 +772,7 @@
         ]
       },
       {
+        "id": 78,
         "name": "Cuentas por Cobrar- Compra de Monedas (342)",
         "celda": "C82",
         "cuentas": [
@@ -709,6 +780,7 @@
         ]
       },
       {
+        "id": 79,
         "name": "Cuentas por Cobrar Diversa del Proceso Inversionista (343-345)",
         "celda": "C83",
         "cuentas": [
@@ -718,6 +790,7 @@
         ]
       },
       {
+        "id": 80,
         "name": "Efectos por Cobrar en Litigio (346)",
         "celda": "C84",
         "cuentas": [
@@ -725,6 +798,7 @@
         ]
       },
       {
+        "id": 81,
         "name": "Cuentas por Cobrar en Litigio (347)",
         "celda": "C85",
         "cuentas": [
@@ -732,6 +806,7 @@
         ]
       },
       {
+        "id": 82,
         "name": "Efectos por Cobrar Protestados (348)",
         "celda": "C86",
         "cuentas": [
@@ -739,6 +814,7 @@
         ]
       },
       {
+        "id": 83,
         "name": "Cuentas por Cobrar en Proceso Judicial (349)",
         "celda": "C87",
         "cuentas": [
@@ -746,6 +822,7 @@
         ]
       },
       {
+        "id": 84,
         "name": "Depósitos y Fianzas (354-355)",
         "celda": "C88",
         "cuentas": [
@@ -754,6 +831,7 @@
         ]
       },
       {
+        "id": 85,
         "name": "Fondo de Amortización de Bonos - Efectivo en Valores (364)",
         "celda": "C89",
         "cuentas": [
@@ -761,6 +839,7 @@
         ]
       },
       {
+        "id": 86,
         "name": "Menos:Otras Provisiones Reguladoras de Activos (374)",
         "celda": "C90",
         "cuentas": [
@@ -770,9 +849,10 @@
     ]
   },
   {
-    "concepto": "Pasivo Circulante",
-    "conceptos": [
-      {
+    "id": 87,
+    "name": "Pasivo Circulante",
+    "children": [{
+        "id": 88,
         "name": "Sobregiro Bancario (400)",
         "celda": "C94",
         "cuentas": [
@@ -780,6 +860,7 @@
         ]
       },
       {
+        "id": 89,
         "name": "Efectos por Pagar a Corto Plazo (401-404)",
         "celda": "C95",
         "cuentas": [
@@ -790,6 +871,7 @@
         ]
       },
       {
+        "id": 90,
         "name": "Cuentas por Pagar a Corto Plazo (405-415)",
         "celda": "C96",
         "cuentas": [
@@ -807,6 +889,7 @@
         ]
       },
       {
+        "id": 91,
         "name": "Cobros por Cuenta de Terceros (416)",
         "celda": "C97",
         "cuentas": [
@@ -814,6 +897,7 @@
         ]
       },
       {
+        "id": 92,
         "name": "Dividendos y Participaciones por Pagar (417)",
         "celda": "C98",
         "cuentas": [
@@ -821,6 +905,7 @@
         ]
       },
       {
+        "id": 93,
         "name": "Cuentas en Participación (418-420)",
         "celda": "C99",
         "cuentas": [
@@ -830,6 +915,7 @@
         ]
       },
       {
+        "id": 94,
         "name": "Cuentas por Pagar-Activos Fijos Tangibles (421-424)",
         "celda": "C100",
         "cuentas": [
@@ -840,6 +926,7 @@
         ]
       },
       {
+        "id": 95,
         "name": "Cuentas por Pagar del Proceso Inversionista (425-429)",
         "celda": "C101",
         "cuentas": [
@@ -851,6 +938,7 @@
         ]
       },
       {
+        "id": 96,
         "name": "Cobros Anticipados (430-433)",
         "celda": "C102",
         "cuentas": [
@@ -858,6 +946,7 @@
         ]
       },
       {
+        "id": 97,
         "name": "Materiales Recibidos de Forma Anticipa (434)",
         "celda": "C103",
         "cuentas": [
@@ -865,6 +954,7 @@
         ]
       },
       {
+        "id": 98,
         "name": "Depósitos Recibidos (435-439)",
         "celda": "C104",
         "cuentas": [
@@ -876,6 +966,7 @@
         ]
       },
       {
+        "id": 99,
         "name": "Obligaciones con el Presupuesto del Estado (440-449)",
         "celda": "C105",
         "cuentas": [
@@ -892,6 +983,7 @@
         ]
       },
       {
+        "id": 100,
         "name": "Obligaciones con el Organo u Organismo (450-453)",
         "celda": "C106",
         "cuentas": [
@@ -902,6 +994,7 @@
         ]
       },
       {
+        "id": 101,
         "name": "Nóminas por Pagar (455-459)",
         "celda": "C107",
         "cuentas": [
@@ -913,6 +1006,7 @@
         ]
       },
       {
+        "id": 102,
         "name": "Retenciones por Pagar (460-469)",
         "celda": "C108",
         "cuentas": [
@@ -929,6 +1023,7 @@
         ]
       },
       {
+        "id": 103,
         "name": "Préstamos Recibidos y Otras Operaciones Crediticias por Pagar (470-479)",
         "celda": "C109",
         "cuentas": [
@@ -945,6 +1040,7 @@
         ]
       },
       {
+        "id": 104,
         "name": "Gastos Acumulados por Pagar (480-489)",
         "celda": "C110",
         "cuentas": [
@@ -961,6 +1057,7 @@
         ]
       },
       {
+        "id": 105,
         "name": "Provisión para Vacaciones (491;492)",
         "celda": "C111",
         "cuentas": [
@@ -969,6 +1066,7 @@
         ]
       },
       {
+        "id": 106,
         "name": "Otras Provosiones Operacionales (493-499)",
         "celda": "C112",
         "cuentas": [
@@ -982,6 +1080,7 @@
         ]
       },
       {
+        "id": 107,
         "name": "Provisión para Pagos de los Subsidios de Seguridad Social a Corto Plazo (500)",
         "celda": "C113",
         "cuentas": [
@@ -989,6 +1088,7 @@
         ]
       },
       {
+        "id": 108,
         "name": "Fondo de Compensación para Desbalances Financieros (501)",
         "celda": "C114",
         "cuentas": [
@@ -998,9 +1098,10 @@
     ]
   },
   {
-    "concepto": "Pasivos a Largo Plazo",
-    "conceptos": [
-      {
+    "id": 109,
+    "name": "Pasivos a Largo Plazo",
+    "children": [{
+        "id": 110,
         "name": "Efectos por Pagar a Largo Plazo (510-514)",
         "celda": "C116",
         "cuentas": [
@@ -1008,6 +1109,7 @@
         ]
       },
       {
+        "id": 111,
         "name": "Cuentas por Pagar a Largo Plazo (515-518)",
         "celda": "C117",
         "cuentas": [
@@ -1018,6 +1120,7 @@
         ]
       },
       {
+        "id": 112,
         "name": "Préstamos Recibidos por Pagar a Largo Plazo (520-524)",
         "celda": "C118",
         "cuentas": [
@@ -1035,6 +1138,7 @@
         ]
       },
       {
+        "id": 113,
         "name": "Obligaciones a Largo Plazo (525-532)",
         "celda": "C119",
         "cuentas": [
@@ -1042,6 +1146,7 @@
         ]
       },
       {
+        "id": 114,
         "name": "Otras Provisiones a Largo Plazo (533-539)",
         "celda": "C120",
         "cuentas": [
@@ -1049,6 +1154,7 @@
         ]
       },
       {
+        "id": 115,
         "name": "Bonos por Pagar (540)-(144)-(363)",
         "celda": "C121",
         "cuentas": [
@@ -1058,6 +1164,7 @@
         ]
       },
       {
+        "id": 116,
         "name": "Bonos Suscritos (541)",
         "celda": "C122",
         "cuentas": [
@@ -1070,9 +1177,10 @@
     ]
   },
   {
-    "concepto": "Pasivos Diferidos",
-    "conceptos": [
-      {
+    "id": 117,
+    "name": "Pasivos Diferidos",
+    "children": [{
+        "id": 118,
         "name": "Ingresos Diferidos (545-548)",
         "celda": "C124",
         "cuentas": [
@@ -1083,6 +1191,7 @@
         ]
       },
       {
+        "id": 119,
         "name": "Ingresos Diferidos por Donaciones Recibidas (549)",
         "celda": "C125",
         "cuentas": [
@@ -1092,9 +1201,10 @@
     ]
   },
   {
-    "concepto": "Otros Pasivos",
-    "conceptos": [
-      {
+    "id": 120,
+    "name": "Otros Pasivos",
+    "children": [{
+        "id": 121,
         "name": "Sobrantes en Investigación (555-564)",
         "celda": "C127",
         "cuentas": [
@@ -1105,6 +1215,7 @@
         ]
       },
       {
+        "id": 122,
         "name": "Cuentas por Pagar Diversas (565-568)",
         "celda": "C128",
         "cuentas": [
@@ -1115,6 +1226,7 @@
         ]
       },
       {
+        "id": 123,
         "name": "Cuentas por Pagar- Compra de Moneda (569)",
         "celda": "C129",
         "cuentas": [
@@ -1122,6 +1234,7 @@
         ]
       },
       {
+        "id": 124,
         "name": "Ingresos de Períodos Futuros (570-574)",
         "celda": "C130",
         "cuentas": [
@@ -1133,6 +1246,7 @@
         ]
       },
       {
+        "id": 125,
         "name": "Obligaciones con el Presupuesto del Estado por Garantía Activada (575)",
         "celda": "C131",
         "cuentas": [
@@ -1142,9 +1256,10 @@
     ]
   },
   {
-    "concepto": "PATRIMONIO NETO O CAPITAL CONTABLE",
-    "conceptos": [
-      {
+    "id": 126,
+    "name": "PATRIMONIO NETO O CAPITAL CONTABLE",
+    "children": [{
+        "id": 127,
         "name": "Patrimonio y Fondo Común  (600-612) Sector Privado",
         "celda": "C134",
         "cuentas": [
@@ -1164,6 +1279,7 @@
         ]
       },
       {
+        "id": 128,
         "name": "Inversión Estatal (600-612) Sector Público",
         "celda": "C135",
         "cuentas": [
@@ -1185,9 +1301,10 @@
     ]
   },
   {
-    "concepto": "Capital Social Suscrito y Pagado",
-    "conceptos": [
-      {
+    "id": 129,
+    "name": "Capital Social Suscrito y Pagado",
+    "children": [{
+        "id": 130,
         "name": "Recursos Recibidos  (617-618) Sector Publico",
         "celda": "C137",
         "cuentas": [
@@ -1196,6 +1313,7 @@
         ]
       },
       {
+        "id": 131,
         "name": "Donaciones Recibidas - Nacionales (620)",
         "celda": "C138",
         "cuentas": [
@@ -1203,6 +1321,7 @@
         ]
       },
       {
+        "id": 132,
         "name": "Donaciones Recibidas - Exterior (621)",
         "celda": "C139",
         "cuentas": [
@@ -1210,6 +1329,7 @@
         ]
       },
       {
+        "id": 133,
         "name": "Utilidad  Retenida (630-634)",
         "celda": "C140",
         "cuentas": [
@@ -1221,6 +1341,7 @@
         ]
       },
       {
+        "id": 134,
         "name": "Subvención por Pérdida  (635-639)",
         "celda": "C141",
         "cuentas": [
@@ -1232,6 +1353,7 @@
         ]
       },
       {
+        "id": 135,
         "name": "Reservas para Contingencias (645)",
         "celda": "C142",
         "cuentas": [
@@ -1239,6 +1361,7 @@
         ]
       },
       {
+        "id": 136,
         "name": "Otras Reservas Patrimoniales (646-654)",
         "celda": "C143",
         "cuentas": [
@@ -1254,6 +1377,7 @@
         ]
       },
       {
+        "id": 137,
         "name": "Fondo de Contravalor para proyectos de Inversión (688)",
         "celda": "C144",
         "cuentas": [
@@ -1261,6 +1385,7 @@
         ]
       },
       {
+        "id": 138,
         "name": "Menos: Recursos Entregados (619) Sector Publico",
         "celda": "C145",
         "cuentas": [
@@ -1268,6 +1393,7 @@
         ]
       },
       {
+        "id": 139,
         "name": "Donaciones Entregadas - Nacionales (626)",
         "celda": "C146",
         "cuentas": [
@@ -1275,6 +1401,7 @@
         ]
       },
       {
+        "id": 140,
         "name": "Donaciones Entregadas - Exterior (627)",
         "celda": "C147",
         "cuentas": [
@@ -1282,6 +1409,7 @@
         ]
       },
       {
+        "id": 141,
         "name": "Pago a Cuenta de Utilidades (693)",
         "celda": "C148",
         "cuentas": [
@@ -1289,6 +1417,7 @@
         ]
       },
       {
+        "id": 142,
         "name": "Pago a Cuenta de Dividendos (691)",
         "celda": "C149",
         "cuentas": [
@@ -1296,6 +1425,7 @@
         ]
       },
       {
+        "id": 143,
         "name": "Pérdida (640-644)",
         "celda": "C150",
         "cuentas": [
@@ -1307,6 +1437,7 @@
         ]
       },
       {
+        "id": 144,
         "name": "Mas o Menos: Reevalucion de Activos Fijos Tangibles (613-615)",
         "celda": "C151",
         "cuentas": [
@@ -1316,6 +1447,7 @@
         ]
       },
       {
+        "id": 145,
         "name": "Otras Operaciones de Capital (616-619) Sector Privado",
         "celda": "C152",
         "cuentas": [
@@ -1326,6 +1458,7 @@
         ]
       },
       {
+        "id": 146,
         "name": "Revaluación de Inventarios (697)",
         "celda": "C153",
         "cuentas": [
@@ -1333,6 +1466,7 @@
         ]
       },
       {
+        "id": 147,
         "name": "Ganancia o Pérdida no Realizada (698)",
         "celda": "C154",
         "cuentas": [
