@@ -16,8 +16,6 @@ using System.Reflection;
 using System.IO;
 using FinanzasWebApi.Data;
 using FinanzasWebApi.Helper;
-using FinanzasWebApi.Helper.EstadoFinanciero;
-using Microsoft.EntityFrameworkCore;
 
 [assembly: HostingStartup(typeof(FinanzasWebApi.Startup))]
 
@@ -58,7 +56,7 @@ namespace FinanzasWebApi
                });
             services.AddScoped<FinanzasDbContext>();
             services.AddScoped<ObtenerPlanGI>();
-            services.AddScoped<GetEstadoFinanciero>();
+            // services.AddScoped<GetEstadoFinanciero>();
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();
 

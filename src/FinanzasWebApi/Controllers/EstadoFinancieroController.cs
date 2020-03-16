@@ -11,7 +11,6 @@ using FinanzasWebApi.Data;
 using FinanzasWebApi.Helper;
 using FinanzasWebApi.ViewModels;
 using Microsoft.Extensions.Configuration;
-using FinanzasWebApi.Helper.EstadoFinanciero;
 using FinanzasWebApi.Models;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Hosting;
@@ -26,17 +25,15 @@ namespace FinanzasWebApi.Controllers
     {
         private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         private readonly IHostingEnvironment _hostingEnvironment;
-        GetEstadoFinanciero _obtenerEstadoFinanciero { get; set; }
-        GetEF _obtenerEF { get; set; }
+        // GetEstadoFinanciero _obtenerEstadoFinanciero { get; set; }
+        // GetEF _obtenerEF { get; set; }
         IConfiguration _config { get; set; }
         FinanzasDbContext _context { get; set; }
 
-        public EstadoFinancieroController(FinanzasDbContext context, GetEstadoFinanciero obtenerEstadoFinaciero, GetEF obtenerEF, IHostingEnvironment hostingEnvironment, IConfiguration config)
+        public EstadoFinancieroController(FinanzasDbContext context, IHostingEnvironment hostingEnvironment, IConfiguration config)
         {
             _context = context;
             _config = config;
-            _obtenerEstadoFinanciero = obtenerEstadoFinaciero;
-            _obtenerEF = obtenerEF;
             _hostingEnvironment = hostingEnvironment;
         }
 
