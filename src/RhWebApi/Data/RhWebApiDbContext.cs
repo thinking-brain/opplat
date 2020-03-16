@@ -20,8 +20,8 @@ namespace RhWebApi.Data {
         public DbSet<RhWebApi.Models.ActividadLaboral> ActividadLaboral { get; set; }
         public DbSet<RhWebApi.Models.CaracteristicasTrab> CaracteristicasTrab { get; set; }
         public DbSet<RhWebApi.Models.CategoriaOcupacional> CategoriaOcupacional { get; set; }
-        public DbSet<RhWebApi.Models.Contrato> Contrato { get; set; }
-        public DbSet<RhWebApi.Models.ActividadContrato> ActividadContrato { get; set; }
+        public DbSet<RhWebApi.Models.ContratoTrab> ContratoTrab { get; set; }
+        public DbSet<RhWebApi.Models.ActividadContratoTrab> ActividadContratoTrab { get; set; }
         public DbSet<RhWebApi.Models.HistoricoPuestoDeTrabajo> HistoricoPuestoDeTrabajo { get; set; }
         public DbSet<RhWebApi.Models.PuestoDeTrabajo> PuestoDeTrabajo { get; set; }
         public DbSet<RhWebApi.Models.GrupoEscala> GrupoEscala { get; set; }
@@ -36,5 +36,6 @@ namespace RhWebApi.Data {
         public DbSet<RhWebApi.Models.Bolsa> Bolsa { get; set; }
         public DbSet<RhWebApi.Models.AperturaSocio> AperturaSocio { get; set; }
         public DbSet<RhWebApi.Models.PerfilOcupacional> PerfilOcupacional { get; set; }
+        public DbSet<RhWebApi.Models.CaracteristicasSocio> CaracteristicasSocio { get; set; }
     }
 }

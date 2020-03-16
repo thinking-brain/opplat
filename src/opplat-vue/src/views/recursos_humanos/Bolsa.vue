@@ -74,16 +74,16 @@
                       ></v-select>
                     </v-flex>
                     <v-flex xs12 sm6 md6>
-                      <v-multiselect
-                        v-model="estado"
+                      <v-autocomplete
+                        v-model="perfilOcupacional"
                         item-text="nombre"
-                        :items="estados"
+                        :items="PerfilesOcupacionales"
                         :filter="activeFilter"
                         cache-items
                         clearable
                         label="Perfil Ocupacional"
                         prepend-icon="mdi-database-search"
-                      ></v-multiselect>
+                      ></v-autocomplete>
                     </v-flex>
                     <v-layout>
                       <v-flex xs12 sm6 md6>
@@ -224,17 +224,16 @@
                     ></v-select>
                   </v-flex>
                   <v-flex xs3 class="px-3">
-                    <v-autocomplete
-                      v-model="trabajador.perfilOcupacionalId"
+                    <v-select
+                      v-model="trabajador.perfilOcupacional"
                       item-text="nombre"
                       item-value="id"
-                      :items="perfilesOcupacionales"
+                      :items="PerfilesOcupacionales"
                       :filter="activeFilter"
-                      :rules="PerfilRules"
-                      label="Perfil Ocupacional"
-                      required
+                      cache-items
                       clearable
-                    ></v-autocomplete>
+                      label="Perfil "
+                    ></v-select>
                   </v-flex>
                   <v-flex xs3 class="px-3">
                     <v-text-field
@@ -602,6 +601,7 @@
           </v-card>
         </v-dialog>
         <!-- /Movimientos -->
+
         <!-- Descartar Trabajador de la Bolsa -->
         <v-dialog v-model="dialog7" persistent max-width="350px">
           <v-toolbar dark fadeOnScroll color="red">
@@ -715,12 +715,15 @@ export default {
     tallasDeCamisas: [],
     nivelesEscolaridad: [],
     estados: [],
-    perfilesOcupacionales: [],
+    PerfilesOcupacionales: [],
     Municipios: [],
     unidadOrganizativa: "",
     edad: "",
+    edadDesde: "",
+    edadHasta: "",
+    perfilOcupacional: "",
     cargo: "",
-    nivelEscolaridad: "",
+    nivelDeEscolaridad: "",
     otrasCaracteristicas: "",
     estado: "",
     date: new Date().toISOString().substr(0, 10),
@@ -811,6 +814,7 @@ export default {
     this.gettallasDeCamisasFromApi();
     this.getPerfilesFromApi();
     this.getMunicipiosFromApi();
+    this.getPerfilesOcupacionalesFromApi();
   },
 
   methods: {
@@ -855,8 +859,10 @@ export default {
             sexo: this.sexo,
             estado: this.estado,
             nivelEscolaridad: this.nivelEscolaridad,
-            edad: this.edad,
+            edadDesde: this.edadDesde,
+            edadHasta: this.edadHasta,
             colordePiel: this.colordePiel,
+            perfilOcupacional: this.perfilOcupacional,
             bolsa: true
           }
         })
@@ -971,11 +977,11 @@ export default {
         }
       );
     },
-    getPerfilesFromApi() {
+    getPerfilesOcupacionalesFromApi() {
       const url = api.getUrl("recursos_humanos", "PerfilesOcupacionales");
       this.axios.get(url).then(
         response => {
-          this.perfilesOcupacionales = response.data;
+          this.PerfilesOcupacionales = response.data;
         },
         error => {
           console.log(error);

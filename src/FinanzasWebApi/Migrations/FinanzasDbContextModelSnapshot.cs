@@ -69,6 +69,30 @@ namespace FinanzasWebApi.Migrations
                     b.ToTable("CachesEstadosFinancieros");
                 });
 
+            modelBuilder.Entity("FinanzasWebApi.Models.CacheSubElementoPeriodo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<decimal>("Acumulado");
+
+                    b.Property<DateTime>("FechaActualizado");
+
+                    b.Property<int>("Mes");
+
+                    b.Property<decimal>("Saldo");
+
+                    b.Property<int>("Year");
+
+                    b.Property<string>("elemento");
+
+                    b.Property<string>("subElemento");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CachesSubElementosPeriodos");
+                });
+
             modelBuilder.Entity("FinanzasWebApi.Models.ConfiguracionFirmas", b =>
                 {
                     b.Property<int>("Id")
@@ -95,6 +119,82 @@ namespace FinanzasWebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ConfiguracionesPorcientos");
+                });
+
+            modelBuilder.Entity("FinanzasWebApi.Models.ElementosDelReporteEF", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Celda");
+
+                    b.Property<bool>("ColeccionSubElementos");
+
+                    b.Property<string>("Descripcion");
+
+                    b.Property<string>("Dividir");
+
+                    b.Property<string>("ReporteEstadoFinancieroDescripcion");
+
+                    b.Property<int>("ReporteEstadoFinancieroId");
+
+                    b.Property<string>("Restar");
+
+                    b.Property<string>("Sumar");
+
+                    b.Property<string>("Tipo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReporteEstadoFinancieroId");
+
+                    b.ToTable("ElementosDelReporteEFs");
+                });
+
+            modelBuilder.Entity("FinanzasWebApi.Models.ReporteEstadoFinanciero", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Descripcion");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReporteEstadoFinancieros");
+                });
+
+            modelBuilder.Entity("FinanzasWebApi.Models.SubElementosEfReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Descripcion");
+
+                    b.Property<string>("ElementosDelReporteEFDescripcion");
+
+                    b.Property<int>("ElementosDelReporteEFId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ElementosDelReporteEFId");
+
+                    b.ToTable("SubElementosEfReports");
+                });
+
+            modelBuilder.Entity("FinanzasWebApi.Models.ElementosDelReporteEF", b =>
+                {
+                    b.HasOne("FinanzasWebApi.Models.ReporteEstadoFinanciero", "ReporteEstadoFinanciero")
+                        .WithMany("ElementosDelReporteEF")
+                        .HasForeignKey("ReporteEstadoFinancieroId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("FinanzasWebApi.Models.SubElementosEfReport", b =>
+                {
+                    b.HasOne("FinanzasWebApi.Models.ElementosDelReporteEF", "ElementosDelReporteEF")
+                        .WithMany("SubElementosEfReports")
+                        .HasForeignKey("ElementosDelReporteEFId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

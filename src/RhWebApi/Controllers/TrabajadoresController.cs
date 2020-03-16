@@ -27,9 +27,9 @@ namespace RhWebApi.Controllers {
                     s.EstadoTrabajador != Estados.Descartado)
                 .Select (t => new {
                     Id = t.Id,
-                        Nombre = t.Nombre,
+                        Nombre = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(t.Nombre),
                         Apellidos = t.Apellidos,
-                        Nombre_Completo = t.Nombre + " " + t.Apellidos,
+                        Nombre_Completo = CultureInfo.InvariantCulture.TextInfo.ToTitleCase (t.Nombre + " " + t.Apellidos),
                         CI = t.CI,
                         Sexo = t.Sexo,
                         SexoName = t.Sexo.ToString (),
@@ -38,7 +38,8 @@ namespace RhWebApi.Controllers {
                         Direccion = t.Direccion,
                         NivelDeEscolaridad = t.NivelDeEscolaridad,
                         NivelDeEscolaridadName = t.NivelDeEscolaridad.ToString (),
-                        PerfilOcupacional=t.PerfilOcupacional.Nombre,
+                        PerfilOcupacionalId = t.PerfilOcupacional.Id,
+                        PerfilOcupacional = t.PerfilOcupacional.Nombre,
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                         CargoId = t.PuestoDeTrabajo.Cargo.Id,
                         UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
@@ -89,7 +90,7 @@ namespace RhWebApi.Controllers {
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                         EstadoTrabajador = t.EstadoTrabajador.ToString (),
                         Correo = t.Correo,
-                        Nombre_Completo = t.Nombre + " " + t.Apellidos,
+                        Nombre_Completo = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(t.Nombre + " " + t.Apellidos),
                         ColorDePiel = t.CaracteristicasTrab.ColorDePiel.ToString (),
                         ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos.ToString (),
                         TallaPantalon = t.CaracteristicasTrab.TallaPantalon,
@@ -277,7 +278,12 @@ namespace RhWebApi.Controllers {
         }
         // GET: recursos_humanos/trabajadores/Filtro
         [HttpGet ("/recursos_humanos/Trabajadores/Filtro")]
-        public IActionResult GetByFiltro (bool bolsa, string UnidadOrganizativa = "", string Cargo = "", string Sexo = "", string Estado = "", string ColorDePiel = "", string NivelDeEscolaridad = "", string EdadDesde = "", string EdadHasta = "") {
+        public IActionResult GetByFiltro (
+            bool bolsa, string UnidadOrganizativa = "",
+            string Cargo = "", string Sexo = "", string Estado = "",
+            string ColorDePiel = "", string NivelDeEscolaridad = "",
+            string EdadDesde = "", string EdadHasta = "",
+            string PerfilOcupacional = "", string Municipio = "") {
             var trabajadores = context.Trabajador.Select (t => new {
                 Id = t.Id,
                     Nombre = t.Nombre,
@@ -291,6 +297,7 @@ namespace RhWebApi.Controllers {
                     Direccion = t.Direccion,
                     NivelDeEscolaridad = t.NivelDeEscolaridad,
                     NivelDeEscolaridadName = t.NivelDeEscolaridad.ToString (), MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
+                    PerfilOcupacional = t.PerfilOcupacional.Nombre,
                     Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                     UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
                     EstadoTrabajador = t.EstadoTrabajador,
@@ -310,7 +317,7 @@ namespace RhWebApi.Controllers {
                     Edad = (DateTime.Now - t.Fecha_Nac).Days / 365
             });
             if (bolsa) {
-                trabajadores = trabajadores.Where (t => t.EstadoTrabajador==Estados.Bolsa);
+                trabajadores = trabajadores.Where (t => t.EstadoTrabajador == Estados.Bolsa);
             }
             if (!string.IsNullOrEmpty (UnidadOrganizativa)) {
                 trabajadores = trabajadores.Where (t => t.UnidadOrganizativa.ToString ().Equals (UnidadOrganizativa));
@@ -329,6 +336,12 @@ namespace RhWebApi.Controllers {
             }
             if (!string.IsNullOrEmpty (NivelDeEscolaridad)) {
                 trabajadores = trabajadores.Where (t => t.NivelDeEscolaridad.Equals (NivelDeEscolaridad.ToString ()));
+            }
+            if (!string.IsNullOrEmpty (PerfilOcupacional)) {
+                trabajadores = trabajadores.Where (t => t.PerfilOcupacional.ToString ().Equals (PerfilOcupacional));
+            }
+            if (!string.IsNullOrEmpty (Municipio)) {
+                trabajadores = trabajadores.Where (t => t.MunicipioProv.ToString ().Equals (Municipio));
             }
             if (string.IsNullOrEmpty (EdadDesde)) {
                 EdadDesde = "0";
@@ -362,7 +375,7 @@ namespace RhWebApi.Controllers {
                         Direccion = t.Trabajador.Direccion,
                         NivelDeEscolaridad = t.Trabajador.NivelDeEscolaridad,
                         NivelDeEscolaridadName = t.Trabajador.NivelDeEscolaridad.ToString (),
-                        PerfilOcupacional=t.Trabajador.PerfilOcupacional.Nombre,
+                        PerfilOcupacional = t.Trabajador.PerfilOcupacional.Nombre,
                         Municipio = t.Trabajador.Municipio.Nombre,
                         MunicipioProv = t.Trabajador.Municipio.Nombre + " " + t.Trabajador.Municipio.Provincia.Nombre,
                         Correo = t.Trabajador.Correo,
@@ -389,7 +402,7 @@ namespace RhWebApi.Controllers {
             }
             return Ok (trab);
         }
-         // GET recursos_humanos/Trabajadores/Municipios
+        // GET recursos_humanos/Trabajadores/Municipios
         [HttpGet ("/recursos_humanos/Trabajadores/Municipios")]
         public IEnumerable<Municipio> GetAllMunicipios () {
             return context.Municipio.ToList ();

@@ -11,75 +11,75 @@ namespace RhWebApi.Controllers
 {
     [Route("recursos_humanos/[controller]")]
     [ApiController]
-    public class ActividadContratoController : Controller
+    public class ActividadContratoTrabController : Controller
     {
         private readonly RhWebApiDbContext context;
-        public ActividadContratoController(RhWebApiDbContext context)
+        public ActividadContratoTrabController(RhWebApiDbContext context)
         {
             this.context = context;
         }
 
-        // GET recursos_humanos/ActividadContrato
+        // GET recursos_humanos/ActividadContratoTrab
         [HttpGet]
-        public IEnumerable<ActividadContrato> GetAll()
+        public IEnumerable<ActividadContratoTrab> GetAll()
         {                            
-            return context.ActividadContrato.ToList();            
+            return context.ActividadContratoTrab.ToList();            
         }       
        
-      // GET: recursos_humanos/ActividadContrato/Id
+      // GET: recursos_humanos/ActividadContratoTrab/Id
         [HttpGet("{id}", Name = "GetActCont")]
         public IActionResult GetbyId(int id)
         {
-            var actividadContrato = context.ActividadContrato.FirstOrDefault(s => s.Id == id);
+            var actividadContratoTrab = context.ActividadContratoTrab.FirstOrDefault(s => s.Id == id);
 
-            if (actividadContrato == null)
+            if (actividadContratoTrab == null)
             {
                 return NotFound();
             }
-            return Ok(actividadContrato);
+            return Ok(actividadContratoTrab);
            
         }
 
-        // POST recursos_humanos/actividadContrato
+        // POST recursos_humanos/actividadContratoTrab
        [HttpPost]
-        public IActionResult POST([FromBody] ActividadContrato actividadContrato)
+        public IActionResult POST([FromBody] ActividadContratoTrab actividadContratoTrab)
         {            
             if (ModelState.IsValid)
             {
-                context.ActividadContrato.Add(actividadContrato);
+                context.ActividadContratoTrab.Add(actividadContratoTrab);
                 context.SaveChanges();
-                return new CreatedAtRouteResult("GetActCont", new { id = actividadContrato.Id });
+                return new CreatedAtRouteResult("GetActCont", new { id = actividadContratoTrab.Id });
             }
             return BadRequest(ModelState);
         }
 
-        // PUT recursos_humanos/actividadContrato/id
+        // PUT recursos_humanos/actividadContratoTrab/id
        [HttpPut("{id}")]
-        public IActionResult PUT([FromBody] ActividadContrato actividadContrato, int id)
+        public IActionResult PUT([FromBody] ActividadContratoTrab actividadContratoTrab, int id)
         {
-            if (actividadContrato.Id != id)
+            if (actividadContratoTrab.Id != id)
             {
                 return BadRequest(ModelState);
 
             }
-            context.Entry(actividadContrato).State = EntityState.Modified;
+            context.Entry(actividadContratoTrab).State = EntityState.Modified;
             context.SaveChanges();
             return Ok();
         }
 
-        // DELETE recursos_humanos/actividadContrato/id
+        // DELETE recursos_humanos/actividadContratoTrab/id
        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-              var actividadContrato = context.ActividadContrato.FirstOrDefault(s => s.Id == id);
+              var actividadContratoTrab = context.ActividadContratoTrab.FirstOrDefault(s => s.Id == id);
 
-            if (actividadContrato.Id != id)
+            if (actividadContratoTrab.Id != id)
             {
                 return NotFound();
             }
-            context.ActividadContrato.Remove(actividadContrato);
+            context.ActividadContratoTrab.Remove(actividadContratoTrab);
             context.SaveChanges();
-            return Ok(actividadContrato);
+            return Ok(actividadContratoTrab);
        }
     }
 }

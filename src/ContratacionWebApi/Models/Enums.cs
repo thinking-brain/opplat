@@ -7,13 +7,17 @@ namespace ContratacionWebApi.Models
         Venta,
         Servicio,
     }
-
+    
     public enum Estado
     {
         Nuevo,
         Circulando,
         Aprobado,
+        AprobadoEconomico,
+        AprobadoJuridico,
         NoAprobado,
+        NoAprobadoEconomico,
+        NoAprobadoJuridico,
         Vigente,
         Cancelado,
         Vencido,

@@ -40,7 +40,7 @@ namespace RhWebApi.Controllers {
            if (ModelState.IsValid) {
                 context.PerfilOcupacional.Add (PerfilOcupacional);
                 context.SaveChanges ();
-                return new CreatedAtRouteResult ("GetContrato", new { id = PerfilOcupacional.Id });
+                return new CreatedAtRouteResult ("GetContratoTrab", new { id = PerfilOcupacional.Id });
             }
             return BadRequest (ModelState);
         }

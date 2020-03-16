@@ -11,64 +11,64 @@ using RhWebApi.Data;
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
     [ApiController]
-    public class ContratosController : Controller {
+    public class ContratoTrabsController : Controller {
         private readonly RhWebApiDbContext context;
-        public ContratosController (RhWebApiDbContext context) {
+        public ContratoTrabsController (RhWebApiDbContext context) {
             this.context = context;
         }
 
-        // GET recursos_humanos/Contrato
+        // GET recursos_humanos/ContratoTrab
         [HttpGet]
-        public IEnumerable<Contrato> GetAll () {
-            return context.Contrato.ToList ();
+        public IEnumerable<ContratoTrab> GetAll () {
+            return context.ContratoTrab.ToList ();
         }
 
-        // GET: recursos_humanos/Contrato/Id
-        [HttpGet ("{id}", Name = "GetContrato")]
+        // GET: recursos_humanos/ContratoTrab/Id
+        [HttpGet ("{id}", Name = "GetContratoTrab")]
         public IActionResult GetbyId (int id) {
-            var contrato = context.Contrato.FirstOrDefault (s => s.Id == id);
+            var ContratoTrab = context.ContratoTrab.FirstOrDefault (s => s.Id == id);
 
-            if (contrato == null) {
+            if (ContratoTrab == null) {
                 return NotFound ();
             }
-            return Ok (contrato);
+            return Ok (ContratoTrab);
 
         }
 
-        // POST recursos_humanos/Contrato
+        // POST recursos_humanos/ContratoTrab
         [HttpPost]
-        public IActionResult POST ([FromBody] Contrato contrato) {
+        public IActionResult POST ([FromBody] ContratoTrab ContratoTrab) {
             if (ModelState.IsValid) {
-                context.Contrato.Add (contrato);
+                context.ContratoTrab.Add (ContratoTrab);
                 context.SaveChanges ();
-                return new CreatedAtRouteResult ("GetContrato", new { id = contrato.Id });
+                return new CreatedAtRouteResult ("GetContratoTrab", new { id = ContratoTrab.Id });
             }
             return BadRequest (ModelState);
         }
 
-        // PUT recursos_humanos/contrato/id
+        // PUT recursos_humanos/ContratoTrab/id
         [HttpPut ("{id}")]
-        public IActionResult PUT ([FromBody] Contrato contrato, int id) {
-            if (contrato.Id != id) {
+        public IActionResult PUT ([FromBody] ContratoTrab ContratoTrab, int id) {
+            if (ContratoTrab.Id != id) {
                 return BadRequest (ModelState);
 
             }
-            context.Entry (contrato).State = EntityState.Modified;
+            context.Entry (ContratoTrab).State = EntityState.Modified;
             context.SaveChanges ();
             return Ok ();
         }
 
-        // DELETE recursos_humanos/contrato/id
+        // DELETE recursos_humanos/ContratoTrab/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
-            var contrato = context.Contrato.FirstOrDefault (s => s.Id == id);
+            var ContratoTrab = context.ContratoTrab.FirstOrDefault (s => s.Id == id);
 
-            if (contrato.Id != id) {
+            if (ContratoTrab.Id != id) {
                 return NotFound ();
             }
-            context.Contrato.Remove (contrato);
+            context.ContratoTrab.Remove (ContratoTrab);
             context.SaveChanges ();
-            return Ok (contrato);
+            return Ok (ContratoTrab);
         }
     }
 }
