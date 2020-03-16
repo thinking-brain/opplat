@@ -9,7 +9,8 @@ namespace ContratacionWebApi.Models {
         [Required]
         public int ContratoId { get; set; }
         public virtual Contrato Contrato { get; set; }
-        //trabajador en el cargo Jurídico
+        
+        //trabajador en el Cargo de Jurídico o Económico
         public int DictaminadorContratoId { get; set; }
         public virtual DictaminadorContrato DictaminadorContrato{get;set;}
     }

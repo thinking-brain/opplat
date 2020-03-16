@@ -37,7 +37,6 @@ namespace ContratacionWebApi
 
             services.AddSwaggerGen(c =>
             {
-
                 c.SwaggerDoc("Cont-v1", new Info { Title = "Contratación Web API", Version = "Cont-v1", Description = "Api de Contratación del Sistema OPPLAT" });
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";

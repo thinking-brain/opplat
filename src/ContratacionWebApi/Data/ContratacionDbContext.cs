@@ -18,6 +18,8 @@ namespace ContratacionWebApi.Data
         public DbSet<EspecialistaExterno> EspecialistasExternos { get; set; }
         public DbSet<EspExternoId_ContratoId> EspExternoId_ContratoId { get; set; }
         public DbSet<FormaDePago> FormasDePagos { get; set; }
+        public DbSet<ContratoId_FormaPagoId> ContratoId_FormaPagoId { get; set; }
         public DbSet<HistoricoEstadoContrato> HistoricosEstadoContratos { get; set; }
+        public DbSet<AdminContrato> AdminContratos { get; set; }
     }
 }
