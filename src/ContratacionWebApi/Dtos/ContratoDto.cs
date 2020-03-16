@@ -29,16 +29,17 @@ namespace ContratacionWebApi.Models {
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Vencimiento")]
-        public DateTime? FechaDeVencimiento { get; set; }
-        public DateTime? FechaDeFirmado { get; set; }
+        public DateTime FechaDeVencimiento { get; set; }
+        public DateTime FechaDeFirmado { get; set; }
 
         [Display (Name = "Formas de Pago")]
-        public virtual ICollection<FormaDePago> FormasDePago { get; set; }
+        public virtual List<int> FormasDePago { get; set; }
 
-       //Término de pago en días
+        //Término de pago en días
         [Display (Name = "Término de Pago")]
         public int TerminoDePago { get; set; }
-        public string Usuario { get; set; }   
-
+        public string Usuario { get; set; }
+        public List<int> DictaminadoresId { get; set; }
+        public List<int> EspExternoId { get; set; }
     }
 }

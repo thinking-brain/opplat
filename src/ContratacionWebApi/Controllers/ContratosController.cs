@@ -25,16 +25,16 @@ namespace ContratacionWebApi.Controllers {
                     Tipo = t.Tipo,
                     AdminContratoId = t.AdminContratoId,
                     EntidadId = t.EntidadId,
-                    Entidad = t.Entidad,
+                    Entidad = t.Entidad.Nombre,
                     ObjetoDeContrato = t.ObjetoDeContrato,
                     Numero = t.Numero,
                     MontoCup = t.MontoCup,
                     MontoCuc = t.MontoCuc,
-                    FechaDeLlegada = t.FechaDeLlegada,
-                    FechaDeVencimiento = t.FechaDeVencimiento,
-                    FechaDeFirmado = t.FechaDeFirmado,
-                    TerminoDePago = t.TerminoDePago,
-                    // Estado=t.Estado,
+                    FechaDeLlegada = t.FechaDeLlegada.ToString ("dd/MM/yyyy"),
+                    FechaDeVencimiento = t.FechaDeVencimiento.ToString ("dd/MM/yyyy"),
+                    FechaDeFirmado = t.FechaDeFirmado.ToString ("dd/MM/yyyy"),
+                    TerminoDePago = t.TerminoDePago / 30 + " Meses y " + t.TerminoDePago % 30 + " Días",
+                    FormaDePago = t.FormasDePago.ToList (),
             });
             return Ok (contratos);
         }
@@ -73,9 +73,45 @@ namespace ContratacionWebApi.Controllers {
                 context.Contratos.Add (contrato);
                 context.SaveChanges ();
 
+                foreach (var item in contratoDto.FormasDePago) {
+                    var contratoId_FormaPagoId = new ContratoId_FormaPagoId {
+                        ContratoId = contrato.Id,
+                        FormaDePagoId = item
+
+                    };
+                    context.ContratoId_FormaPagoId.Add (contratoId_FormaPagoId);
+                    context.SaveChanges ();
+                }
+
+                //Agregar Juridico y Económico como Dictaminador del contrato 
+                if (contratoDto.DictaminadoresId != null) {
+                    foreach (var item in contratoDto.DictaminadoresId) {
+                    var contratoId_DictaminadorId = new ContratoId_DictaminadorId {
+                    ContratoId = contrato.Id,
+                    DictaminadorContratoId = item
+                        };
+                        context.ContratoId_DictaminadorId.Add (contratoId_DictaminadorId);
+                        context.SaveChanges ();
+                    }
+                } else {
+                    return BadRequest ($"Tienen que dictaminar el contrato el económico y el jurídico");
+                }
+
+                //Agregar Especialistas externos como Dictaminador/es del contrato 
+                if (contratoDto.EspExternoId != null) {
+                    foreach (var item in contratoDto.EspExternoId) {
+                    var espExternoId_ContratoId = new EspExternoId_ContratoId {
+                    ContratoId = contrato.Id,
+                    EspecialistaExternoId = item
+                        };
+                        context.EspExternoId_ContratoId.Add (espExternoId_ContratoId);
+                        context.SaveChanges ();
+                    }
+                }
+
                 var HistoricoEstadoContrato = new HistoricoEstadoContrato {
                     ContratoId = contrato.Id,
-                    Estado = Estado.SinEstado,
+                    Estado = Estado.Circulando,
                     Fecha = DateTime.Now,
                     Usuario = contratoDto.Usuario,
                 };
