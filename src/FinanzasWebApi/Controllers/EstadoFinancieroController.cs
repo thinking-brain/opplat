@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Hosting;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using Newtonsoft.Json;
 
 namespace FinanzasWebApi.Controllers
 {
@@ -329,6 +330,7 @@ namespace FinanzasWebApi.Controllers
             return result;
         }
 
+        [HttpGet("exportexcel")]
         public IActionResult Export(List<EstadoFinancieroJsVM> data)
         {
             var fileDownloadName = "Report.xlsx";
@@ -342,6 +344,7 @@ namespace FinanzasWebApi.Controllers
             return Ok("Reporte Exportado Correctamente.");
         }
 
+        [HttpGet("export")]
         private ExcelPackage createExcelPackage(List<EstadoFinancieroJsVM> data)
         {
             // var meses = inicioSemana.Date.Month;
@@ -396,6 +399,29 @@ namespace FinanzasWebApi.Controllers
             return package;
         }
 
+        [HttpGet("configurarReporte/{tipo_plan}")]
+        public ActionResult configurarReporte(string tipo_plan)
+        {
+            var urlitems = $"../FinanzasWebApi/Helper/EstadoFinanciero/Configs/Config{tipo_plan}.json";
+            var urlselection = $"../FinanzasWebApi/Helper/EstadoFinanciero/Configs/Config{tipo_plan}Hoja.json";
+            var plan = System.IO.File.ReadAllText(urlitems);
+            var planconfig = System.IO.File.ReadAllText(urlselection);
+            dynamic obj = new
+            {
+                items = JsonConvert.DeserializeObject<List<dynamic>>(plan),
+                selection = JsonConvert.DeserializeObject<List<dynamic>>(planconfig),
+            };
+            return Ok(obj);
+        }
+        [HttpPost("configurarReporte")]
+        public ActionResult configurarReportePost(ConfiguradorPlanViewModel viewModel)
+        {
+            var url = $"../FinanzasWebApi/Helper/EstadoFinanciero/Configs/Config{viewModel.TipoPlan}Hoja.json";
+            string json = JsonConvert.SerializeObject(viewModel.Items);
+            System.IO.File.WriteAllText(url, json);
+            var result = JsonConvert.DeserializeObject<List<dynamic>>(json);
+            return Ok(result);
+        }
 
     }
 }
