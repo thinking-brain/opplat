@@ -9,15 +9,14 @@ namespace ContratacionWebApi.Models
     public class Contrato
     {
         public int Id { get; set; }
-
+        public string Nombre { get; set; }
         public Tipo Tipo { get; set; }
-
+        //Trabajador
+        public int AdminContratoId { get; set; }
+        public virtual AdminContrato AdminContrato { get; set; }
         public int EntidadId { get; set; }
-
         public virtual Entidad Entidad { get; set; }
-
         public string ObjetoDeContrato { get; set; }
-
         public string Numero { get; set; }
 
         [Display(Name = "Monto CUP")]
@@ -28,18 +27,28 @@ namespace ContratacionWebApi.Models
         [DataType(DataType.Currency)]
         public decimal? MontoCuc { get; set; }
 
-        public DateTime? FechaDeFirmado { get; set; }
+        [DataType(DataType.Date)]
+        [Display(Name = "Fecha de Llegada")]
+        public DateTime FechaDeLlegada { get; set; }
+
+        [DataType(DataType.Date)]
+        [Display(Name = "Fecha de Firmado")]
+        public DateTime FechaDeFirmado { get; set; }
 
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Vencimiento")]
-        public DateTime? FechaDeVencimiento { get; set; }
-
+        public DateTime FechaDeVencimiento { get; set; }
+        [NotMapped]
         [Display(Name = "Formas de Pago")]
         public virtual ICollection<FormaDePago> FormasDePago { get; set; }
-
+        [NotMapped]
+        public ICollection<DictaminadorContrato> DictaminadoresId { get; set; }
+        [NotMapped]
+        public ICollection<EspecialistaExterno> EspExternoId { get; set; }
+        //Término de pago en días
         [Display(Name = "Término de Pago")]
         public int TerminoDePago { get; set; }
-
+        [NotMapped]
         public virtual ICollection<HistoricoEstadoContrato> Estados { get; set; }
 
         [NotMapped]
@@ -56,7 +65,6 @@ namespace ContratacionWebApi.Models
                     return Estado.SinEstado;
                 }
                 return estadoActual.Estado;
-
             }
         }
 

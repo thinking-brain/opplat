@@ -21,14 +21,14 @@ namespace RhWebApi.Migrations
                 .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("RhWebApi.Models.ActividadContrato", b =>
+            modelBuilder.Entity("RhWebApi.Models.ActividadContratoTrab", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<int>("ActividadLaboralId");
 
-                    b.Property<int>("ContratoId");
+                    b.Property<int>("ContratoTrabId");
 
                     b.Property<decimal>("PrecioCUC");
 
@@ -38,9 +38,9 @@ namespace RhWebApi.Migrations
 
                     b.HasIndex("ActividadLaboralId");
 
-                    b.HasIndex("ContratoId");
+                    b.HasIndex("ContratoTrabId");
 
-                    b.ToTable("actividades_de_contratos");
+                    b.ToTable("actividades_de_ContratoTrabs");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.ActividadLaboral", b =>
@@ -207,7 +207,7 @@ namespace RhWebApi.Migrations
                     b.ToTable("categorias_ocupacionales");
                 });
 
-            modelBuilder.Entity("RhWebApi.Models.Contrato", b =>
+            modelBuilder.Entity("RhWebApi.Models.ContratoTrab", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -232,7 +232,7 @@ namespace RhWebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("contratos");
+                    b.ToTable("ContratoTrabs");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.Entrada", b =>
@@ -570,16 +570,16 @@ namespace RhWebApi.Migrations
                     b.ToTable("unidades_organizativas");
                 });
 
-            modelBuilder.Entity("RhWebApi.Models.ActividadContrato", b =>
+            modelBuilder.Entity("RhWebApi.Models.ActividadContratoTrab", b =>
                 {
                     b.HasOne("RhWebApi.Models.ActividadLaboral", "ActividadLaboral")
                         .WithMany()
                         .HasForeignKey("ActividadLaboralId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("RhWebApi.Models.Contrato", "Contrato")
-                        .WithMany("ActividadContratos")
-                        .HasForeignKey("ContratoId")
+                    b.HasOne("RhWebApi.Models.ContratoTrab", "ContratoTrab")
+                        .WithMany("ActividadContratoTrabs")
+                        .HasForeignKey("ContratoTrabId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
