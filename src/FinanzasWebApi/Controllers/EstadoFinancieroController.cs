@@ -11,12 +11,12 @@ using FinanzasWebApi.Data;
 using FinanzasWebApi.Helper;
 using FinanzasWebApi.ViewModels;
 using Microsoft.Extensions.Configuration;
-using FinanzasWebApi.Helper.EstadoFinanciero;
 using FinanzasWebApi.Models;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Hosting;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using Newtonsoft.Json;
 
 namespace FinanzasWebApi.Controllers
 {
@@ -26,17 +26,15 @@ namespace FinanzasWebApi.Controllers
     {
         private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         private readonly IHostingEnvironment _hostingEnvironment;
-        GetEstadoFinanciero _obtenerEstadoFinanciero { get; set; }
-        GetEF _obtenerEF { get; set; }
+        // GetEstadoFinanciero _obtenerEstadoFinanciero { get; set; }
+        // GetEF _obtenerEF { get; set; }
         IConfiguration _config { get; set; }
         FinanzasDbContext _context { get; set; }
 
-        public EstadoFinancieroController(FinanzasDbContext context, GetEstadoFinanciero obtenerEstadoFinaciero, GetEF obtenerEF, IHostingEnvironment hostingEnvironment, IConfiguration config)
+        public EstadoFinancieroController(FinanzasDbContext context, IHostingEnvironment hostingEnvironment, IConfiguration config)
         {
             _context = context;
             _config = config;
-            _obtenerEstadoFinanciero = obtenerEstadoFinaciero;
-            _obtenerEF = obtenerEF;
             _hostingEnvironment = hostingEnvironment;
         }
 
@@ -332,25 +330,39 @@ namespace FinanzasWebApi.Controllers
             return result;
         }
 
-        public IActionResult Export(List<EstadoFinancieroJsVM> data)
+        [HttpPost("exportexcel")]
+        public async Task<FileResult> Export(ColeccionViewModel viewModel)
         {
+            List<EstadoFinancieroJsVM> data = viewModel.Data;
             var fileDownloadName = "Report.xlsx";
             var reportsFolder = "Reportes_EstadoFinanciero";
-
+            var path = new FileInfo(Path.Combine(_hostingEnvironment.WebRootPath, reportsFolder, fileDownloadName));
             using (var package = createExcelPackage(data))
             {
-                package.SaveAs(new FileInfo(Path.Combine(_hostingEnvironment.WebRootPath, reportsFolder, fileDownloadName)));
+                package.SaveAs(path);
             }
-            // return File($"~/{reportsFolder}/{fileDownloadName}", XlsxContentType, fileDownloadName);
-             return Ok("Reporte Exportado Correctamente.");
+
+            var bytes = System.IO.File.ReadAllBytes(path.ToString());
+
+            const string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            HttpContext.Response.ContentType = contentType;
+            HttpContext.Response.Headers.Add("Access-Control-Expose-Headers", "Content-Disposition");
+
+            var fileContentResult = new FileContentResult(bytes, contentType)
+            {
+                FileDownloadName = fileDownloadName
+            };
+
+            return fileContentResult;
         }
 
+        [HttpGet("export")]
         private ExcelPackage createExcelPackage(List<EstadoFinancieroJsVM> data)
         {
             // var meses = inicioSemana.Date.Month;
             // var años = inicioSemana.Date.Year;
-         
-          
+
+
             var package = new ExcelPackage();
 
 
@@ -371,7 +383,7 @@ namespace FinanzasWebApi.Controllers
             worksheet.Cells[1, 3].Value = "Real en Mes";
             worksheet.Cells[1, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             worksheet.Cells[1, 3].Style.Font.Bold = true;
-           
+
 
             var numberformat = "#,##0.00";
             var dataCellStyleName = "TableNumber";
@@ -386,9 +398,9 @@ namespace FinanzasWebApi.Controllers
                 worksheet.Cells[count, 2].Style.Numberformat.Format = numberformat;
                 worksheet.Cells[count, 3].Value = item.Real;
                 worksheet.Cells[count, 3].Style.Numberformat.Format = numberformat;
-                
+
                 count++;
-               
+
             }
 
             const double minWidth = 0.00;
@@ -399,6 +411,29 @@ namespace FinanzasWebApi.Controllers
             return package;
         }
 
+        [HttpGet("configurarReporte/{tipo_plan}")]
+        public ActionResult configurarReporte(string tipo_plan)
+        {
+            var urlitems = $"../FinanzasWebApi/Helper/EstadoFinanciero/Configs/Config{tipo_plan}.json";
+            var urlselection = $"../FinanzasWebApi/Helper/EstadoFinanciero/Configs/Config{tipo_plan}Hoja.json";
+            var plan = System.IO.File.ReadAllText(urlitems);
+            var planconfig = System.IO.File.ReadAllText(urlselection);
+            dynamic obj = new
+            {
+                items = JsonConvert.DeserializeObject<List<dynamic>>(plan),
+                selection = JsonConvert.DeserializeObject<List<dynamic>>(planconfig),
+            };
+            return Ok(obj);
+        }
+        [HttpPost("configurarReporte")]
+        public ActionResult configurarReportePost(ConfiguradorPlanViewModel viewModel)
+        {
+            var url = $"../FinanzasWebApi/Helper/EstadoFinanciero/Configs/Config{viewModel.TipoPlan}Hoja.json";
+            string json = JsonConvert.SerializeObject(viewModel.Items);
+            System.IO.File.WriteAllText(url, json);
+            var result = JsonConvert.DeserializeObject<List<dynamic>>(json);
+            return Ok(result);
+        }
 
     }
 }
