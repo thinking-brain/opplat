@@ -330,18 +330,30 @@ namespace FinanzasWebApi.Controllers
             return result;
         }
 
-        [HttpGet("exportexcel")]
-        public IActionResult Export(List<EstadoFinancieroJsVM> data)
+        [HttpPost("exportexcel")]
+        public async Task<FileResult> Export(ColeccionViewModel viewModel)
         {
+            List<EstadoFinancieroJsVM> data = viewModel.Data;
             var fileDownloadName = "Report.xlsx";
             var reportsFolder = "Reportes_EstadoFinanciero";
-
+            var path = new FileInfo(Path.Combine(_hostingEnvironment.WebRootPath, reportsFolder, fileDownloadName));
             using (var package = createExcelPackage(data))
             {
-                package.SaveAs(new FileInfo(Path.Combine(_hostingEnvironment.WebRootPath, reportsFolder, fileDownloadName)));
+                package.SaveAs(path);
             }
-            // return File($"~/{reportsFolder}/{fileDownloadName}", XlsxContentType, fileDownloadName);
-            return Ok("Reporte Exportado Correctamente.");
+
+            var bytes = System.IO.File.ReadAllBytes(path.ToString());
+
+            const string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            HttpContext.Response.ContentType = contentType;
+            HttpContext.Response.Headers.Add("Access-Control-Expose-Headers", "Content-Disposition");
+
+            var fileContentResult = new FileContentResult(bytes, contentType)
+            {
+                FileDownloadName = fileDownloadName
+            };
+
+            return fileContentResult;
         }
 
         [HttpGet("export")]
