@@ -51,6 +51,7 @@ export default {
         })
         .then(response => {
           this.selection = response.data;
+          vm.$snotify.success("Se han aplicado los cambios satisfactoriamente");
         })
         .catch(e => {
           this.errors.push(e);
