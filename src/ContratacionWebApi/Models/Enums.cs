@@ -13,15 +13,19 @@ namespace ContratacionWebApi.Models
         Nuevo,
         Circulando,
         Aprobado,
-        AprobadoEconomico,
-        AprobadoJuridico,
         NoAprobado,
-        NoAprobadoEconomico,
-        NoAprobadoJuridico,
         Vigente,
         Cancelado,
         Vencido,
         Revision,
         SinEstado
+    }
+     public enum EstadoSolicitud
+    {
+        Nueva,
+        Aprobada,
+        NoAprobada,
+        Cancelada,
+        Pagada
     }
 }

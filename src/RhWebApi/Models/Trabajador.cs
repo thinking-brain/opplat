@@ -39,5 +39,14 @@ namespace RhWebApi.Models {
         public int? AperturaSocioId { get; set; }
         public virtual AperturaSocio AperturaSocio { get; set; }
         public DateTime Fecha_Nac { get; set; }
+
+        [NotMapped]
+        private string _nombreCompleto;
+
+        [NotMapped]
+        public string NombreCompleto {
+            get { return Nombre + " " + Apellidos; }
+            set { _nombreCompleto = value; }
+        }
     }
 }
