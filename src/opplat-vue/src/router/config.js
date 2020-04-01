@@ -262,6 +262,15 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/EFReport.vue'),
     },
     {
+      path: '/finanzas/ConfiguradorEFReport',
+      name: 'ConfiguradorEFReport',
+      meta: {
+        title: 'Config EFReport',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/EFReportConfig.vue'),
+    },
+    {
       path: '/finanzas/configuraciones',
       name: 'Configuraciones',
       meta: {
@@ -385,6 +394,7 @@ export const protectedRoute = [
           requiresAuth: true,
         },
         component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Apertura.vue'),
+<<<<<<< HEAD
       },
     ],
   },
@@ -494,6 +504,9 @@ export const protectedRoute = [
         },
         component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Config.vue'),
       },
+=======
+      },
+>>>>>>> origin/develop
     ],
   },
 ];
