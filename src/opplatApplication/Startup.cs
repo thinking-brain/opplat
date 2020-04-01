@@ -9,7 +9,7 @@ using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Services;
 using FinanzasWebApi.Data;
 using FinanzasWebApi.Helper;
-using FinanzasWebApi.Helper.EstadoFinanciero;
+// using FinanzasWebApi.Helper.EstadoFinanciero;
 using ImportadorDatos.HostedServices;
 using ImportadorDatos.Jobs;
 using ImportadorDatos.Models.EnlaceVersat;
@@ -35,175 +35,197 @@ using RhWebApi.Data;
 using ContratacionWebApi.Data;
 using Swashbuckle.AspNetCore.Swagger;
 
-[assembly : HostingStartup (typeof (opplatApplication.Startup))]
-namespace opplatApplication {
-    public class Startup : IHostingStartup {
-        public void Configure (IWebHostBuilder builder) {
+[assembly: HostingStartup(typeof(opplatApplication.Startup))]
+namespace opplatApplication
+{
+    public class Startup : IHostingStartup
+    {
+        public void Configure(IWebHostBuilder builder)
+        {
 
-            builder.ConfigureServices (ConfigureServices);
-            builder.Configure (Configure);
-            builder.Configure (Configure);
+            builder.ConfigureServices(ConfigureServices);
+            builder.Configure(Configure);
+            builder.Configure(Configure);
         }
 
-        public void ConfigureServices (WebHostBuilderContext context, IServiceCollection services) {
+        public void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
+        {
             //contabilidad context
-            services.AddDbContext<ContabilidadWebApi.Data.ContabilidadDbContext> (options =>
-                options.UseNpgsql (context.Configuration.GetConnectionString ("ContabilidadApiDbContext"), b => b.MigrationsAssembly ("ContabilidadWebApi")));
+            services.AddDbContext<ContabilidadWebApi.Data.ContabilidadDbContext>(options =>
+               options.UseNpgsql(context.Configuration.GetConnectionString("ContabilidadApiDbContext"), b => b.MigrationsAssembly("ContabilidadWebApi")));
 
             //finanzas db context
-            services.AddDbContext<FinanzasWebApi.Data.FinanzasDbContext> (options =>
-                options.UseNpgsql (context.Configuration.GetConnectionString ("FinanzasApiDbContext"), b => b.MigrationsAssembly ("FinanzasWebApi")));
+            services.AddDbContext<FinanzasWebApi.Data.FinanzasDbContext>(options =>
+               options.UseNpgsql(context.Configuration.GetConnectionString("FinanzasApiDbContext"), b => b.MigrationsAssembly("FinanzasWebApi")));
             //
             // NotificationsDbContext
-            services.AddDbContext<notificationsDbContext> (options =>
-                options.UseNpgsql (context.Configuration.GetConnectionString ("notificationsApi"), b => b.MigrationsAssembly ("notificationsWebApi")));
+            services.AddDbContext<notificationsDbContext>(options =>
+               options.UseNpgsql(context.Configuration.GetConnectionString("notificationsApi"), b => b.MigrationsAssembly("notificationsWebApi")));
             //
 
             //inventario DbContext
-            services.AddDbContext<InventarioDbContext> (options =>
-                options.UseNpgsql (context.Configuration.GetConnectionString ("InventarioConnection"), b => b.MigrationsAssembly ("InventarioWebApi")));
+            services.AddDbContext<InventarioDbContext>(options =>
+               options.UseNpgsql(context.Configuration.GetConnectionString("InventarioConnection"), b => b.MigrationsAssembly("InventarioWebApi")));
             //
-            services.AddDbContext<AccountDbContext> (options =>
-                options.UseNpgsql (context.Configuration.GetConnectionString ("AccountConnection"), b => b.MigrationsAssembly ("Account.WebApi")));
+            services.AddDbContext<AccountDbContext>(options =>
+               options.UseNpgsql(context.Configuration.GetConnectionString("AccountConnection"), b => b.MigrationsAssembly("Account.WebApi")));
 
-            services.AddDbContext<OpplatAppDbContext> (options =>
-                options.UseNpgsql (context.Configuration.GetConnectionString ("DefaultConnection"), b => b.MigrationsAssembly ("opplatApplication")));
+            services.AddDbContext<OpplatAppDbContext>(options =>
+               options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("opplatApplication")));
 
-            services.AddDbContext<VersatDbContext> (options =>
-                options.UseSqlServer (context.Configuration.GetConnectionString ("VersatConnection")));
+            services.AddDbContext<VersatDbContext>(options =>
+               options.UseSqlServer(context.Configuration.GetConnectionString("VersatConnection")));
 
-            services.AddDbContext<EnlaceVersatDbContext> (options =>
-                options.UseNpgsql (context.Configuration.GetConnectionString ("EnlaceVersatDbContext")));
+            services.AddDbContext<EnlaceVersatDbContext>(options =>
+               options.UseNpgsql(context.Configuration.GetConnectionString("EnlaceVersatDbContext")));
 
             //recursos humanos db context
-            services.AddDbContext<RhWebApiDbContext> (options =>
-                options.UseNpgsql (context.Configuration.GetConnectionString ("RhWebApiDbContext"), b => b.MigrationsAssembly ("RhWebApi")));
+            services.AddDbContext<RhWebApiDbContext>(options =>
+               options.UseNpgsql(context.Configuration.GetConnectionString("RhWebApiDbContext"), b => b.MigrationsAssembly("RhWebApi")));
 
             //contratación db context
-            services.AddDbContext<ContratacionDbContext> (options =>
-                options.UseNpgsql (context.Configuration.GetConnectionString ("ContratacionDbContext"), b => b.MigrationsAssembly ("ContratacionWebApi")));
+            services.AddDbContext<ContratacionDbContext>(options =>
+               options.UseNpgsql(context.Configuration.GetConnectionString("ContratacionDbContext"), b => b.MigrationsAssembly("ContratacionWebApi")));
 
-            services.AddSignalR ();
+            services.AddSignalR();
 
-            services.AddIdentity<Usuario, IdentityRole> ()
-                .AddEntityFrameworkStores<AccountDbContext> ()
-                .AddDefaultTokenProviders ();
+            services.AddIdentity<Usuario, IdentityRole>()
+                .AddEntityFrameworkStores<AccountDbContext>()
+                .AddDefaultTokenProviders();
 
-            services.AddTransient<AccountDbContext> ();
-            services.AddAuthentication (options => {
+            services.AddTransient<AccountDbContext>();
+            services.AddAuthentication(options =>
+            {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer (options => {
-                options.TokenValidationParameters = new TokenValidationParameters {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = "https://microapp.cu",
-                ValidAudience = "https://microapp.cu",
-                IssuerSigningKey = new SymmetricSecurityKey (Encoding.ASCII.GetBytes ("Admin123*1234567890"))
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "https://microapp.cu",
+                    ValidAudience = "https://microapp.cu",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Admin123*1234567890"))
                 };
             });
 
-            services.AddSwaggerGen (c => {
-                c.SwaggerDoc ("v1", new OpenApiInfo {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
                     Version = "v1",
-                        Title = "Account API",
-                        Description = "Gestiona la autenticacion y autorizacion, asi como la gestion de usuarios.",
-                        TermsOfService = new Uri ("https://example.com/terms"),
-                        Contact = new OpenApiContact {
-                            Name = "EFAVAI Tech",
-                                Email = "efavai.tech@gmail.com",
-                                Url = new Uri ("https://efavai.com/")
-                        }
+                    Title = "Account API",
+                    Description = "Gestiona la autenticacion y autorizacion, asi como la gestion de usuarios.",
+                    TermsOfService = new Uri("https://example.com/terms"),
+                    Contact = new OpenApiContact
+                    {
+                        Name = "EFAVAI Tech",
+                        Email = "efavai.tech@gmail.com",
+                        Url = new Uri("https://efavai.com/")
+                    }
                 });
 
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine (AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments (xmlPath);
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
 
-            services.AddTransient<OpplatAppDbContext> ();
-            services.AddSingleton<MenuLoader> ();
-            services.AddSingleton<LicenciaService> ();
+            services.AddTransient<OpplatAppDbContext>();
+            services.AddSingleton<MenuLoader>();
+            services.AddSingleton<LicenciaService>();
 
-            services.AddScoped<CuentasServices> ();
+            services.AddScoped<CuentasServices>();
 
             //finanzas services
-            services.AddScoped<FinanzasDbContext> ();
-            services.AddScoped<ObtenerPlanGI> ();
-            services.AddScoped<ObtenerValuesEnVariablesEstadoFinanciero> ();
-            services.AddScoped<GetEstadoFinanciero> ();
-            services.AddScoped<GetEF> ();
+            services.AddScoped<FinanzasDbContext>();
+            services.AddScoped<ObtenerPlanGI>();
+            services.AddScoped<ObtenerValuesEnVariablesEstadoFinanciero>();
+            // services.AddScoped<GetEstadoFinanciero>();
+            // services.AddScoped<GetEF> ();
             // services.AddSingleton<ObtenerPlanGI_Context>();
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();
             //fin
 
             //importador
-            services.AddScoped<VersatDbContext> ();
-            services.AddScoped<ContabilidadDbContext> ();
-            services.AddScoped<EnlaceVersatDbContext> ();
-            services.AddTransient<ImportarVersat> ();
+            services.AddScoped<VersatDbContext>();
+            services.AddScoped<ContabilidadDbContext>();
+            services.AddScoped<EnlaceVersatDbContext>();
+            services.AddTransient<ImportarVersat>();
 
-            services.AddHostedService<UpdateCuentasHostedService> ();
-            services.AddHostedService<UpdatePeriodosHostedService> ();
-            services.AddHostedService<UpdateAsientosHostedService> ();
+            services.AddHostedService<UpdateCuentasHostedService>();
+            services.AddHostedService<UpdatePeriodosHostedService>();
+            services.AddHostedService<UpdateAsientosHostedService>();
             //fin
-            services.AddSpaStaticFiles (config => {
-                config.RootPath = context.Configuration.GetValue<string> ("ClientApp");
+            services.AddSpaStaticFiles(config =>
+            {
+                config.RootPath = context.Configuration.GetValue<string>("ClientApp");
             });
-            services.AddCors ();
-            var mvcBuilder = services.AddMvc ().SetCompatibilityVersion (CompatibilityVersion.Version_2_2).AddJsonOptions (options => {
+            services.AddCors();
+            var mvcBuilder = services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2).AddJsonOptions(options =>
+            {
                 options.SerializerSettings.Formatting = Formatting.Indented;
             });
             var lista = new string[] {
                 "Account.WebApi"
             };
-            var asseblies = AppDomain.CurrentDomain.GetAssemblies ().Where (c => lista.Contains (c.FullName));
-            foreach (var assembly in asseblies) {
-                mvcBuilder.AddApplicationPart (assembly);
+            var asseblies = AppDomain.CurrentDomain.GetAssemblies().Where(c => lista.Contains(c.FullName));
+            foreach (var assembly in asseblies)
+            {
+                mvcBuilder.AddApplicationPart(assembly);
             }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure (IApplicationBuilder app) {
-            var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment> ();
-            var config = app.ApplicationServices.GetRequiredService<IConfiguration> ();
-            var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory> ();
+        public void Configure(IApplicationBuilder app)
+        {
+            var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
+            var config = app.ApplicationServices.GetRequiredService<IConfiguration>();
+            var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
 
-            loggerFactory.AddFile ("Logs/Log-{Date}.txt");
+            loggerFactory.AddFile("Logs/Log-{Date}.txt");
 
-            app.UseAuthentication ();
-            if (env.IsDevelopment ()) {
-                app.UseDeveloperExceptionPage ();
-            } else {
-                app.UseExceptionHandler ("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts ();
+            app.UseAuthentication();
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
             }
-            app.UseHttpsRedirection ();
-            app.UseStaticFiles ();
-            app.UseSwagger (c => c.RouteTemplate = "docs/{documentName}/docs.json");
-            app.UseSwaggerUI (c => {
-                c.SwaggerEndpoint ("/docs/v1/docs.json", "Account API v1");
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/docs/v1/docs.json", "Account API v1");
                 c.RoutePrefix = "docs";
             });
-            app.UseSignalR (routes => {
-                routes.MapHub<NotificationsHub> ("/notihub");
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<NotificationsHub>("/notihub");
             });
-            app.UseCors (build => build.AllowAnyOrigin ().AllowAnyHeader ().AllowAnyMethod ());
-            app.UseMvc (builder => {
-                builder.MapRoute (
+            app.UseCors(build => build.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            app.UseMvc(builder =>
+            {
+                builder.MapRoute(
                     name: "default",
                     template: "admin/{controller=Home}/{action=Index}/{id?}");
 
             });
-            app.UseSpaStaticFiles ();
-            app.Map ("/home", conf => {
-                conf.UseSpa (builder => {
-                    builder.Options.SourcePath = config.GetValue<string> ("ClientApp");
+            app.UseSpaStaticFiles();
+            app.Map("/home", conf =>
+            {
+                conf.UseSpa(builder =>
+                {
+                    builder.Options.SourcePath = config.GetValue<string>("ClientApp");
 
                 });
             });
