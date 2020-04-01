@@ -38,7 +38,7 @@ namespace ContratacionWebApi.Controllers {
                     MontoCup = c.MontoCup,
                     MontoCuc = c.MontoCuc,
                     FechaDeLlegada = c.FechaDeLlegada.ToString ("dd/MM/yyyy"),
-                    FechaDeVencimiento = c.FechaDeVencimiento,
+                    FechaDeVencimiento = c.FechaDeVencimiento.ToString ("dd/MM/yyyy"),
                     FechaDeFirmado = c.FechaDeFirmado,
                     TerminoDePago = c.TerminoDePago / 30 + " Meses y " + c.TerminoDePago % 30 + " Días",
                     EstadoId = c.Estado,
@@ -48,10 +48,10 @@ namespace ContratacionWebApi.Controllers {
                     AprobComitContratacion = c.AprobComitContratacion
             });
             if (tipoTramite == "proforma") {
-                contratos = contratos.Where (c => c.FechaDeFirmado == null && c.AprobComitContratacion == false);
+                contratos = contratos.Where (c => c.FechaDeFirmado == null && c.AprobComitContratacion == false && c.EstadoId != Estado.Aprobado);
             }
             if (tipoTramite == "contrato") {
-                contratos = contratos.Where (c => c.FechaDeFirmado == null && c.AprobComitContratacion == true);
+                contratos = contratos.Where (c => c.FechaDeFirmado != null && c.AprobComitContratacion == true && c.EstadoId == Estado.Aprobado);
             }
             return Ok (contratos);
         }
@@ -82,11 +82,20 @@ namespace ContratacionWebApi.Controllers {
                     Numero = contratoDto.Numero,
                     MontoCup = contratoDto.MontoCup,
                     MontoCuc = contratoDto.MontoCuc,
-                    FechaDeLlegada = contratoDto.FechaDeLlegada,
-                    FechaDeVencimiento = contratoDto.FechaDeVencimiento,
                     FechaDeFirmado = contratoDto.FechaDeFirmado,
                     TerminoDePago = contratoDto.TerminoDePago,
                 };
+                if (contratoDto.FechaDeLlegada != null) {
+                    contrato.FechaDeLlegada = contratoDto.FechaDeLlegada;
+                } else {
+                    contrato.FechaDeLlegada = DateTime.Now;
+                }
+                if (contratoDto.FechaDeVencimiento != null) {
+                    contrato.FechaDeVencimiento = contratoDto.FechaDeVencimiento;
+                } else {
+                    contrato.FechaDeVencimiento = DateTime.Now;
+                }
+
                 context.Contratos.Add (contrato);
                 context.SaveChanges ();
 

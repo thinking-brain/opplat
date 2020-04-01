@@ -1,15 +1,8 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="Contratos"
-    :search="search"
-    item-key="id"
-    class="elevation-1 pa-5"
-    dense
-  >
+  <v-data-table :headers="headers" :items="contratos" :search="search" class="elevation-1 pa-5">
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>Contratos</v-toolbar-title>
+        <v-toolbar-title>Listado de Contratos</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field
@@ -19,89 +12,173 @@
           single-line
           hide-details
           clearable
+          dense
         ></v-text-field>
         <v-spacer></v-spacer>
-        <!-- Agregar y Editar Contrato -->
-        <v-dialog v-model="dialog" persistent>
-          <template v-slot:activator="{ on }">
-            <v-btn color="primary" dark v-on="on">Agregar Contrato</v-btn>
-          </template>
+
+        <!-- Detalles del Contrato -->
+        <v-dialog
+          v-model="dialog6"
+          persistent
+          transition="dialog-bottom-transition"
+          flat
+          max-width="1100"
+        >
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
-              <v-flex xs12 sm10 md6 lg4>{{ formTitle }}</v-flex>
+              <v-flex xs12 sm10 md6 lg4>Detalles del Contrato</v-flex>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn icon dark @click=" close()">
+                <v-btn icon dark @click="close()">
                   <v-icon>mdi-close</v-icon>
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
 
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="green darken-1" text @click="save(method)">Aceptar</v-btn>
-              <v-btn color="blue darken-1" text @click=" close()">Cancelar</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-        <!-- /Agregar y Editar Contrato -->
+            <v-container fluid>
+              <v-row dense no-gutters>
+                <v-col cols="7">
+                  <v-container>
+                    <v-row>
+                      <v-col cols="10" md="6">
+                        <v-text-field v-model="contrato.nombre" label="Nombre" outlined readonly></v-text-field>
+                      </v-col>
+                      <v-col cols="3" md="2">
+                        <v-text-field
+                          v-model="contrato.numero"
+                          label="Número"
+                          outlined
+                          readonly
+                          prefix="#"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="3" md="4">
+                        <v-text-field
+                          v-model="contrato.objetoDeContrato"
+                          label="Objeto de Contrato"
+                          outlined
+                          readonly
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col cols="6" md="4">
+                        <v-text-field v-model="contrato.entidad" label="Entidad" outlined readonly></v-text-field>
+                      </v-col>
+                      <v-col cols="6" md="4">
+                        <v-text-field
+                          v-model="contrato.montoCup"
+                          label="Monto en CUP"
+                          outlined
+                          readonly
+                          prefix="$"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="6" md="4">
+                        <v-text-field
+                          v-model="contrato.montoCuc"
+                          label="Monto en CUC"
+                          outlined
+                          readonly
+                          prefix="$"
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
 
-        <!-- Detalles del Contrato -->
-        <v-dialog v-model="dialog2" persistent transition="dialog-bottom-transition" flat>
-          <v-card>
-            <v-toolbar dark fadeOnScroll color="blue darken-3">
-              <v-flex xs12 sm10 md6 lg4>Detalles de la Contrato</v-flex>
-              <v-spacer></v-spacer>
-            </v-toolbar>
-          </v-card>
-        </v-dialog>
-        <!-- Detalles  del Contrato -->
+                    <v-row>
+                      <v-col cols="6" md="6">
+                        <v-text-field
+                          v-model="contrato.terminoDePago"
+                          label="Término de Pago"
+                          outlined
+                          readonly
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="6" md="6">
+                        <v-text-field v-model="contrato.estado" label="Estado" outlined readonly></v-text-field>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-col>
 
-        <!-- Delete Trajador -->
-        <v-dialog v-model="dialog4" persistent max-width="350px">
-          <v-toolbar dark fadeOnScroll color="red">
-            <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-btn icon dark @click="dialog4 = false">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </v-toolbar-items>
-          </v-toolbar>
-          <v-card>
-            <v-card-title class="headline text-center">Seguro que deseas eliminar la Contrato</v-card-title>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="red" dark @click="deleteItem(trabajador)">Aceptar</v-btn>
-              <v-btn color="primary" @click="close()">Cancelar</v-btn>
-            </v-card-actions>
+                <v-col cols="5">
+                  <v-timeline>
+                    <v-timeline-item :color="'blue'" :right="true" small>
+                      <template v-slot:opposite>
+                        <h5 :class="`subtitle-2 blue--text`" v-text="contrato.fechaDeLlegada"></h5>
+                      </template>
+                      <v-card class="elevation-2">
+                        <v-card-text
+                          :class="`subtitle-2 blue--text`"
+                        >Fecha en que se Recibió el Contrato</v-card-text>
+                      </v-card>
+                    </v-timeline-item>
+                    <v-timeline-item :color="'success'" :right="true" small>
+                      <template v-slot:opposite>
+                        <span :class="`subtitle-2 success--text`" v-text="contrato.fechaDeFirmado"></span>
+                      </template>
+                      <v-card class="elevation-2">
+                        <v-card-text
+                          :class="`subtitle-2 success--text`"
+                        >Fecha en que se Firmó el Contrato</v-card-text>
+                      </v-card>
+                    </v-timeline-item>
+                  </v-timeline>
+                </v-col>
+              </v-row>
+              <v-row no-gutters class="px-3">
+                <v-col>
+                  <v-card class="pa-2" outlined tile>
+                    <v-text>Aprobado por el Jurídico :</v-text>
+                    <span v-if="contrato.aprobJuridico">
+                      <v-icon color="success">mdi-check-underline</v-icon>
+                      <v-text :class="`success--text`">Sí</v-text>
+                    </span>
+                    <span v-else>
+                      <v-icon color="red">mdi-close-outline</v-icon>
+                      <v-text :class="`red--text`">No</v-text>
+                    </span>
+                  </v-card>
+                </v-col>
+                <v-col>
+                  <v-card class="pa-2" outlined tile>
+                    <v-text>Aprobado por el Económico :</v-text>
+                    <span v-if="contrato.aprobEconomico">
+                      <v-icon color="success">mdi-check-underline</v-icon>
+                      <v-text :class="`success--text`">Sí</v-text>
+                    </span>
+                    <span v-else>
+                      <v-icon color="red">mdi-close-outline</v-icon>
+                      <v-text :class="`red--text`">No</v-text>
+                    </span>
+                  </v-card>
+                </v-col>
+                <v-col>
+                  <v-card class="pa-2" outlined tile>
+                    <v-text>Aprobado por el Comité Contratación:</v-text>
+                    <span v-if="contrato.aprobComitContratacion">
+                      <v-text :class="`success--text`">Sí</v-text>
+                      <v-icon color="success">mdi-check-underline</v-icon>
+                    </span>
+                    <span v-else>
+                      <v-icon color="red">mdi-close-outline</v-icon>
+                      <v-text :class="`red--text`">No</v-text>
+                    </span>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-container>
           </v-card>
         </v-dialog>
-        <!-- /Delete Trajador -->
+        <!-- /Detalles del Contrato -->
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
       <v-tooltip top>
         <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
-        </template>
-        <span>Editar</span>
-      </v-tooltip>
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-icon
-            small
-            class="mr-2"
-            v-on="on"
-            @click="getDetallesProfFromApi(item)"
-          >mdi-account-plus</v-icon>
+          <v-icon medium class="mr-2" v-on="on" @click="getDetalles(item)">mdi-file-document-box-plus</v-icon>
         </template>
         <span>Detalles</span>
-      </v-tooltip>
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="deleteItem(item)">mdi-delete</v-icon>
-        </template>
-        <span>Eliminar</span>
       </v-tooltip>
     </template>
   </v-data-table>
@@ -114,30 +191,34 @@ export default {
     dialog: false,
     dialog1: false,
     dialog2: false,
+    dialog6: false,
+    menu: false,
     search: "",
     editedIndex: -1,
-    trabajadores: [],
-    Contratos: [],
-    date: new Date().toISOString().substr(0, 10),
-    menu: false,
-    menu1: false,
-    menu2: false,
-    modal: false,
+    tabs: null,
+    contratos: [],
+    contrato: {},
     errors: [],
     headers: [
       {
-        text: "Nombre de la Contrato",
+        text: "Nombre",
         align: "left",
         sortable: true,
         value: "nombre"
       },
+      { text: "Tipo", value: "tipo" },
+      { text: "Entidad", value: "entidad" },
+      { text: "Monto Cup", value: "montoCup" },
+      { text: "Monto Cuc", value: "montoCuc" },
+      { text: "Fecha de Llegada", value: "fechaDeLlegada" },
+      { text: "Estado", value: "estado" },
       { text: "Acciones", value: "action", sortable: false }
     ]
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "Nuevo Contrato" : "Editar Contrato";
+      return this.editedIndex === -1 ? "Nueva Contrato" : "Editar Contrato";
     },
     method() {
       return this.editedIndex === -1 ? "POST" : "PUT";
@@ -152,58 +233,58 @@ export default {
 
   created() {
     this.getContratosFromApi();
-    this.getTrabajadoresFromApi();
   },
 
   methods: {
     getContratosFromApi() {
-      const url = api.getUrl("contratacion", "Contratos");
+      const url = api.getUrl("contratacion", "Contratos?tipoTramite=contrato");
       this.axios.get(url).then(
         response => {
-          this.Contratos = response.data;
-          this.volver = false;
+          this.contratos = response.data;
         },
         error => {
           console.log(error);
         }
       );
     },
-    getTrabajadoresFromApi() {
-      const url = api.getUrl("recursos_humanos", "Trabajadores");
-      this.axios.get(url).then(
-        response => {
-          this.trabajadores = response.data;
-          this.volver = false;
-        },
-        error => {
-          console.log(error);
-        }
-      );
+    getDetalles(item) {
+      this.contrato = Object.assign({}, item);
+      this.dialog6 = true;
+    },
+    editItem(item) {
+      this.editedIndex = this.contratos.indexOf(item);
+      this.contrato = Object.assign({}, item);
+      this.dialog = true;
+    },
+  close() {
+      this.dialog = false;
+      this.dialog2 = false;
+      this.dialog6 = false;
+      setTimeout(() => {
+        this.editedIndex = -1;
+      }, 300);
     },
     save(method) {
-      this.axios.post(url, this.trabajador).then(
-        response => {
-          this.getResponse(response);
-          this.getTrabajadoresBolsa();
-          this.dialog = false;
-          this.trabajador = {
-            sexo: 0,
-            colorDeOjos: 0,
-            colorDePiel: 0,
-            tallaDeCamisa: 0,
-            nombre_Referencia: "",
-            perfilOcupacionalId: -1
-          };
-        },
-        error => {
-          console.log(error);
+      const url = api.getUrl("contratacion", "Contratos");
+      if (method === "POST") {
+        if (this.$refs.form.validate()) {
+          this.axios.post(url, this.contrato).then(
+            response => {
+              this.getResponse(response);
+              this.getContratosFromApi();
+              this.dialog = false;
+            },
+            error => {
+              console.log(error);
+            }
+          );
         }
-      );
-
+      }
       if (method === "PUT") {
-        this.axios.put(`${url}/${this.trabajador.id}`, this.trabajador).then(
+        this.axios.put(`${url}/${this.Contrato.id}`, this.Contrato).then(
           response => {
             this.getResponse(response);
+            this.getContratosFromApi();
             this.dialog = false;
           },
           error => {
@@ -211,41 +292,37 @@ export default {
           }
         );
       }
-    }
-  },
-  editItem(item) {
-    this.editedIndex = this.trabajadores.indexOf(item);
-    this.trabajador = Object.assign({}, item);
-    this.dialog = true;
-  },
-  confirmDelete(item) {
-    this.trabajador = Object.assign({}, item);
-    this.dialog4 = true;
-  },
-  deleteItem(trabajador) {
-    const url = api.getUrl("recursos_humanos", "Trabajadores");
-    this.axios.delete(`${url}/${trabajador.id}`).then(
-      response => {
-        this.getResponse(response);
-      },
-      error => {
-        console.log(error);
+    },
+    confirmDelete(item) {
+      this.contrato = Object.assign({}, item);
+      this.dialog2 = true;
+    },
+    deleteItem(Contrato) {
+      const url = api.getUrl("contratacion", "Contratos");
+      this.axios.delete(`${url}/${Contrato.id}`).then(
+        response => {
+          this.getResponse(response);
+          this.getContratosFromApi();
+          this.dialog2 = false;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    close() {
+      this.dialog = false;
+      this.dialog2 = false;
+      this.dialog6 = false;
+      setTimeout(() => {
+        this.editedIndex = -1;
+      }, 300);
+    },
+    getResponse(response) {
+      if (response.status === 200 || response.status === 201) {
+        vm.$snotify.success("Exito al realizar la operación");
       }
-    );
-  },
-  getResponse(response) {
-    if (response.status === 200 || response.status === 201) {
-      vm.$snotify.success("Exito al realizar la operación");
-      this.getTrabajadoresFromApi();
     }
-  },
-  close() {
-    this.dialog = false;
-
-    this.getTrabajadoresFromApi();
-    setTimeout(() => {
-      this.editedIndex = -1;
-    }, 300);
   }
 };
 </script>

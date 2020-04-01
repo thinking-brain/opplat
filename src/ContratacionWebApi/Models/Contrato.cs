@@ -35,7 +35,7 @@ namespace ContratacionWebApi.Models {
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Vencimiento")]
-        public DateTime? FechaDeVencimiento { get; set; }
+        public DateTime FechaDeVencimiento { get; set; }
 
         [NotMapped]
         [Display (Name = "Formas de Pago")]

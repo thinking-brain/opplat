@@ -1,5 +1,5 @@
 <template>
-  <v-data-table :headers="headers" :items="formasDePagos" :search="search" class="elevation-1 pa-5">
+  <v-data-table :headers="headers" :items="adminContratos" :search="search" class="elevation-1 pa-5">
     <template v-slot:top>
       <v-toolbar flat color="white">
         <v-toolbar-title>Administradores de Contratos</v-toolbar-title>
@@ -72,6 +72,7 @@ export default {
     dialog1: false,
     search: "",
     editedIndex: -1,
+    adminContratos: [],
     trabajadores: [],
     trabajador: {},
     formasDePagos: [],
@@ -106,16 +107,16 @@ export default {
   },
 
   created() {
-    this.getTrabajadoresFromApi();
+    this.getAdminContratosFromApi();
     this.getFormasDePagoFromApi();
   },
 
   methods: {
-    getTrabajadoresFromApi() {
-      const url = api.getUrl("recursos_humanos", "Administradores de Contratos");
+    getAdminContratosFromApi() {
+      const url = api.getUrl("contratacion", "AdminContratos");
       this.axios.get(url).then(
         response => {
-          this.trabajadores = response.data;
+          this.adminContratos = response.data;
         },
         error => {
           console.log(error);

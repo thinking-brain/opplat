@@ -16,7 +16,7 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <!-- Agregar y Editar Entidad -->
-        <v-dialog v-model="dialog" persistent>
+        <v-dialog v-model="dialog" persistent max-width="800">
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark v-on="on">Nueva Entidad</v-btn>
           </template>
@@ -34,8 +34,75 @@
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs4 class="px-3">
+                    <v-text-field v-model="entidad.nombre" label="Nombre" clearable required></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 class="px-3">
                     <v-text-field
-                      label="Forma de pago"
+                      v-model="entidad.codigoReup"
+                      label="Código Reup"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 class="px-3">
+                    <v-text-field
+                      v-model="entidad.direccion"
+                      label="Direccion"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex xs4 class="px-3">
+                    <v-text-field v-model="entidad.nit" label="NIT" clearable required></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 class="px-3">
+                    <v-text-field
+                      v-model="entidad.ctaBancariaCuc"
+                      label="Cuenta Bancaria Cuc"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 class="px-3">
+                    <v-text-field
+                      v-model="entidad.ctaBancariaMn"
+                      label="Cuenta Bancaria Mn"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex xs4 class="px-3">
+                    <v-text-field v-model="entidad.nombreCtaCuc" label="Nombre Cuenta Cuc" clearable required></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 class="px-3">
+                    <v-text-field
+                      v-model="entidad.nombreCtaMn"
+                      label="Nombre Cuenta Mn"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 class="px-3">
+                    <v-text-field
+                      v-model="entidad.telefono"
+                      label="Teléfono"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex xs6 class="px-3">
+                    <v-text-field v-model="entidad.fax" label="Fax" clearable required></v-text-field>
+                  </v-flex>
+                  <v-flex xs6 class="px-3">
+                    <v-text-field
+                      v-model="entidad.correo"
+                      label="Correo"
                       clearable
                       required
                     ></v-text-field>
@@ -51,6 +118,27 @@
           </v-card>
         </v-dialog>
         <!-- /Agregar y Editar Entidad -->
+         <!-- Delete entidad -->
+        <v-dialog v-model="dialog2" persistent max-width="350px">
+          <v-toolbar dark fadeOnScroll color="red">
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn icon dark @click="dialog2 = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+          <v-card>
+            <v-card-title class="headline text-center">Seguro que deseas eliminar la Entidad</v-card-title>
+            <v-card-text class="text-center">{{entidad.nombre}}</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="red" dark @click="deleteItem(entidad)">Aceptar</v-btn>
+              <v-btn color="primary" @click="close()">Cancelar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <!-- /Delete entidad -->
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
@@ -59,6 +147,12 @@
           <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
         </template>
         <span>Editar</span>
+      </v-tooltip>
+       <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-icon small class="mr-2" v-on="on" @click="confirmDelete(item)">mdi-trash-can</v-icon>
+        </template>
+        <span>Eliminar</span>
       </v-tooltip>
     </template>
   </v-data-table>
@@ -70,6 +164,7 @@ export default {
   data: () => ({
     dialog: false,
     dialog1: false,
+    dialog2: false,
     search: "",
     editedIndex: -1,
     entidades: [],
@@ -84,13 +179,13 @@ export default {
         sortable: true,
         value: "nombre"
       },
-      { text: "Cód MReup", value: "codigoReup"},
-      { text: "Dirección", value: "direccion"},
-      { text: "NIT", value: "nit"},
-      { text: "Cuenta Ban Cuc", value: "ctaBancariaCuc"},
-      { text: "Cuenta Ban Mn", value: "ctaBancariaMn"},
+      { text: "Cód MReup", value: "codigoReup" },
+      { text: "Dirección", value: "direccion" },
+      { text: "NIT", value: "nit" },
+      { text: "Cuenta Ban Cuc", value: "ctaBancariaCuc" },
+      { text: "Cuenta Ban Mn", value: "ctaBancariaMn" },
       { text: "Acciones", value: "action", sortable: false }
-    ],
+    ]
   }),
 
   computed: {
@@ -109,11 +204,11 @@ export default {
   },
 
   created() {
-    this.getFormasDePagoFromApi();
+    this.getEntidadesFromApi();
   },
 
   methods: {
-    getFormasDePagoFromApi() {
+    getEntidadesFromApi() {
       const url = api.getUrl("contratacion", "Entidades");
       this.axios.get(url).then(
         response => {
@@ -125,14 +220,73 @@ export default {
       );
     },
     editItem(item) {
+      this.editedIndex = this.entidades.indexOf(item);
+      this.entidad = Object.assign({}, item);
       this.dialog = true;
     },
 
+    save(method) {
+      const url = api.getUrl("contratacion", "Entidades");
+      if (method === "POST") {
+        if (this.$refs.form.validate()) {
+          this.axios.post(url, this.entidad).then(
+            response => {
+              this.getResponse(response);
+              this.getEntidadesFromApi();
+              this.dialog = false;
+            },
+            error => {
+              console.log(error);
+            }
+          );
+        }
+      }
+      if (method === "PUT") {
+        this.axios
+          .put(
+            `${url}/${this.entidad.id}`,
+            this.entidad
+          )
+          .then(
+            response => {
+              this.getResponse(response);
+              this.getEntidadesFromApi();
+              this.dialog = false;
+            },
+            error => {
+              console.log(error);
+            }
+          );
+      }
+    },
+    confirmDelete(item) {
+      this.entidad = Object.assign({}, item);
+      this.dialog2 = true;
+    },
+    deleteItem(entidad) {
+      const url = api.getUrl("contratacion", "Entidades");
+      this.axios.delete(`${url}/${entidad.id}`).then(
+        response => {
+          this.getResponse(response);
+          this.getEntidadesFromApi();
+          this.dialog2 = false;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     close() {
       this.dialog = false;
+      this.dialog2 = false;
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);
+    },
+    getResponse(response) {
+      if (response.status === 200 || response.status === 201) {
+        vm.$snotify.success("Exito al realizar la operación");
+      }
     }
   }
 };
