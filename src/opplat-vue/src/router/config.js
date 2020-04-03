@@ -394,7 +394,6 @@ export const protectedRoute = [
           requiresAuth: true,
         },
         component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Apertura.vue'),
-<<<<<<< HEAD
       },
     ],
   },
@@ -504,9 +503,6 @@ export const protectedRoute = [
         },
         component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Config.vue'),
       },
-=======
-      },
->>>>>>> origin/develop
     ],
   },
 ];

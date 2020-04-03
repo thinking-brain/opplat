@@ -9,7 +9,7 @@
                 <v-tab>Admin Contratos</v-tab>
                 <v-tab>Especialistas Externos</v-tab>
                 <v-tab>Formas de Pago</v-tab>
-                <v-tab>Entidades</v-tab>
+                <v-tab>Prestadores del Servicio</v-tab>
               </v-tabs>
             </v-toolbar>
             <v-tabs-items v-model="tabs" py-6>

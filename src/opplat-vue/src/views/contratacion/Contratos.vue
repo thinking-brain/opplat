@@ -157,8 +157,8 @@
                   <v-card class="pa-2" outlined tile>
                     <v-text>Aprobado por el Comité Contratación:</v-text>
                     <span v-if="contrato.aprobComitContratacion">
-                      <v-text :class="`success--text`">Sí</v-text>
                       <v-icon color="success">mdi-check-underline</v-icon>
+                      <v-text :class="`success--text`">Sí</v-text>
                     </span>
                     <span v-else>
                       <v-icon color="red">mdi-close-outline</v-icon>
@@ -176,7 +176,12 @@
     <template v-slot:item.action="{ item }">
       <v-tooltip top>
         <template v-slot:activator="{ on }">
-          <v-icon medium class="mr-2" v-on="on" @click="getDetalles(item)">mdi-file-document-box-plus</v-icon>
+          <v-icon
+            medium
+            class="mr-2"
+            v-on="on"
+            @click="getDetalles(item)"
+          >mdi-file-document-box-plus</v-icon>
         </template>
         <span>Detalles</span>
       </v-tooltip>
@@ -200,12 +205,8 @@ export default {
     contrato: {},
     errors: [],
     headers: [
-      {
-        text: "Nombre",
-        align: "left",
-        sortable: true,
-        value: "nombre"
-      },
+      { text: "Número", align: "left", sortable: true, value: "numero" },
+      { text: "Nombre", sortable: true, value: "nombre" },
       { text: "Tipo", value: "tipo" },
       { text: "Entidad", value: "entidad" },
       { text: "Monto Cup", value: "montoCup" },
@@ -256,7 +257,7 @@ export default {
       this.contrato = Object.assign({}, item);
       this.dialog = true;
     },
-  close() {
+    close() {
       this.dialog = false;
       this.dialog2 = false;
       this.dialog6 = false;

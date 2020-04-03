@@ -34,7 +34,12 @@
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs4 class="px-3">
-                    <v-text-field v-model="proforma.nombre" label="Nombre" clearable required></v-text-field>
+                    <v-text-field
+                      v-model="proforma.nombre"
+                      label="Nombre de la Proforma"
+                      clearable
+                      required
+                    ></v-text-field>
                   </v-flex>
                   <v-flex xs4 class="px-3">
                     <v-autocomplete
@@ -50,14 +55,14 @@
                   <v-flex xs4 class="px-3">
                     <v-text-field
                       v-model="proforma.objetoDeContrato"
-                      label="Objeto de Contrato"
+                      label="Objeto de la Proforma"
                       clearable
                       required
                     ></v-text-field>
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap>
-                  <v-flex xs4 class="px-3">
+                  <v-flex xs2 class="px-3">
                     <v-text-field
                       v-model="proforma.numero"
                       label="Número"
@@ -67,22 +72,93 @@
                     ></v-text-field>
                   </v-flex>
                   <v-flex xs4 class="px-3">
+                    <v-autocomplete
+                      v-model="proforma.formaDePago"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="formasDePagos"
+                      :filter="activeFilter"
+                      cache-items
+                      label="Formas de Pago"
+                      multiple
+                    >
+                      <template v-slot:selection="{ item, index }">
+                        <span v-if="index <= 2">{{ item.nombre }}</span>
+                        <v-spacer></v-spacer>
+                        <span
+                          v-if="index > 2"
+                          class="grey--text caption"
+                        >( y {{ proforma.formaDePago.length - 3 }} más)</span>
+                      </template>
+                    </v-autocomplete>
+                  </v-flex>
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       v-model="proforma.montoCup"
-                      label="Monto Cup"
+                      label="Monto CUP"
                       clearable
                       required
                       prefix="$"
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-3">
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       v-model="proforma.montoCuc"
-                      label="Monto Cuc"
+                      label="Monto CUC"
                       clearable
                       required
                       prefix="$"
                     ></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex xs3 class="px-3">
+                    <v-text-field
+                      v-model="proforma.terminoDePago"
+                      label="Término de Pago en Meses"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs3 class="px-3">
+                    <v-menu
+                      v-model="menu"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      full-width
+                      min-width="290px"
+                    >
+                      <template v-slot:activator="{ on }">
+                        <v-text-field
+                          v-model="proforma.fechaDeLlegada"
+                          label="Fecha de Llegada"
+                          readonly
+                          clearable
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker v-model="proforma.fechaDeLlegada" @input="menu = false"></v-date-picker>
+                    </v-menu>
+                  </v-flex>
+                  <v-flex xs3 class="px-3">
+                    <v-text-field
+                      v-model="proforma.vigencia"
+                      label="Vigencia de la Proforma"
+                      placeholder="Cantidad"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs3 class="px-3">
+                    <v-select
+                      v-model="proforma.vigenciaAMD"
+                      :items="items"
+                      label="Vigencia en"
+                      placeholder="Días, Meses o Años"
+                      clearable
+                    ></v-select>
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap>
@@ -94,7 +170,7 @@
                       :items="entidades"
                       :filter="activeFilter"
                       cache-items
-                      label="Entidad"
+                      label="Prestador del Servicio"
                     >
                       <v-icon @click="dialog3=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
@@ -121,61 +197,10 @@
                       :filter="activeFilter"
                       cache-items
                       label="Especialista Externo"
+                      placeholder="Dictaminador Externo del Proforma"
                     >
                       <v-icon @click="dialog5=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
-                  </v-flex>
-                </v-layout>
-                <v-layout row wrap>
-                  <v-flex xs4 class="px-3">
-                    <v-text-field
-                      v-model="proforma.terminoDePago"
-                      label="Término de Pago en Meses"
-                      clearable
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex xs4 class="px-3">
-                    <v-menu
-                      v-model="menu"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      full-width
-                      min-width="290px"
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-text-field
-                          v-model="proforma.fechaDeLlegada"
-                          label="Fecha de Llegada"
-                          readonly
-                          v-on="on"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker v-model="proforma.fechaDeLlegada" @input="menu = false"></v-date-picker>
-                    </v-menu>
-                  </v-flex>
-                  <v-flex xs4 class="px-3">
-                    <v-menu
-                      v-model="menu1"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      full-width
-                      min-width="290px"
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-text-field
-                          v-model="proforma.fechaDeVencimiento"
-                          label="Fecha de Vencimiento"
-                          readonly
-                          v-on="on"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker v-model="proforma.fechaDeVencimiento" @input="menu1 = false"></v-date-picker>
-                    </v-menu>
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap>
@@ -192,8 +217,10 @@
                   </v-flex>
                   <v-flex xs6 class="px-3">
                     <v-file-input
+                    v-model="proforma.file"
+                      show-size
                       prepend-icon="mdi-note-multiple"
-                      label="Guardar Documento de la Proforma"
+                      label="Seleccionar Documento de la Proforma"
                     ></v-file-input>
                   </v-flex>
                 </v-layout>
@@ -209,7 +236,13 @@
         <!-- /Agregar y Editar Proforma -->
 
         <!-- Detalles de la Proforma -->
-        <v-dialog v-model="dialog6" persistent transition="dialog-bottom-transition" flat max-width="1100">
+        <v-dialog
+          v-model="dialog6"
+          persistent
+          transition="dialog-bottom-transition"
+          flat
+          max-width="1100"
+        >
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
               <v-flex xs12 sm10 md6 lg4>Detalles de la Proforma</v-flex>
@@ -220,22 +253,17 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-
             <v-container fluid>
               <v-row dense no-gutters>
                 <v-col cols="7">
                   <v-container>
                     <v-row>
                       <v-col cols="10" md="6">
-                        <v-text-field v-model="proforma.nombre" label="Nombre" outlined readonly></v-text-field>
-                      </v-col>
-                      <v-col cols="3" md="2">
                         <v-text-field
-                          v-model="proforma.numero"
-                          label="Número"
+                          v-model="proforma.nombre"
+                          label="Nombre de la Proforma"
                           outlined
                           readonly
-                          prefix="#"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="3" md="4">
@@ -244,6 +272,15 @@
                           label="Objeto de Contrato"
                           outlined
                           readonly
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="3" md="2">
+                        <v-text-field
+                          v-model="proforma.numero"
+                          label="Número"
+                          outlined
+                          readonly
+                          prefix="#"
                         ></v-text-field>
                       </v-col>
                     </v-row>
@@ -429,6 +466,7 @@
         <!-- /Agregar EspExternos-->
       </v-toolbar>
     </template>
+    <!-- Actions -->
     <template v-slot:item.action="{ item }">
       <v-tooltip top>
         <template v-slot:activator="{ on }">
@@ -449,6 +487,7 @@
         <span>Eliminar</span>
       </v-tooltip>
     </template>
+    <!-- /Actions -->
   </v-data-table>
 </template>
 <script>
@@ -484,15 +523,14 @@ export default {
     adminContratos: [],
     estados: [],
     tipos: [],
+    formasDePagos: [],
+    formaDePago: {},
     tabs: null,
     errors: [],
+    items: ["Días", "Meses", "Años"],
     headers: [
-      {
-        text: "Nombre",
-        align: "left",
-        sortable: true,
-        value: "nombre"
-      },
+      { text: "Número", sortable: true, value: "numero" },
+      { text: "Nombre", align: "left", sortable: true, value: "nombre" },
       { text: "Tipo", value: "tipo" },
       { text: "Entidad", value: "entidad" },
       { text: "Monto Cup", value: "montoCup" },
@@ -525,6 +563,7 @@ export default {
     this.getEntidadesFromApi();
     this.getEspecialistasExternosFromApi();
     this.getAdminContratosFromApi();
+    this.getFormasDePagosFromApi();
   },
 
   methods: {
@@ -577,6 +616,17 @@ export default {
       this.axios.get(url).then(
         response => {
           this.especialistasExternos = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    getFormasDePagosFromApi() {
+      const url = api.getUrl("contratacion", "FormasDePagos");
+      this.axios.get(url).then(
+        response => {
+          this.formasDePagos = response.data;
         },
         error => {
           console.log(error);
