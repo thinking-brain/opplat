@@ -1,0 +1,35 @@
+[
+    {
+        "title": "Contratos",
+        "group": "contratacion",
+        "icon": "mdi-note-multiple-outline",
+        "name": "Contratos",
+        "component": "Contratos",
+        "roles": [
+            "administrador",
+            "contratacion"
+        ]
+    },
+    {
+        "title": "Proformas",
+        "group": "contratacion",
+        "icon": "mdi-note-multiple",
+        "component": "Proformas",
+        "name": "Proformas",
+        "roles": [
+            "administrador",
+            "contratacion"
+        ]
+    },
+    {
+        "title": "Configuraciones",
+        "group": "contratacion",
+        "icon": "mdi-cogs",
+        "component": "Config",
+        "name": "Config",
+        "roles": [
+            "administrador",
+            "contratacion"
+        ]
+    }
+]

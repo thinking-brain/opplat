@@ -15,7 +15,7 @@
             label="MES"
             required
           ></v-select>
-          <!-- <v-select v-model="selectedMonths" :items="meses" item-text="nombre" label="MES" return-object multiple>
+          <v-select v-model="selectedMonths" :items="meses" item-text="nombre" label="MES" return-object multiple>
             <template v-slot:prepend-item>
               <v-list-item ripple @click="toggle">
                 <v-list-item-action>
@@ -30,7 +30,7 @@
             <template v-slot:append-item>
               <v-divider class="mb-2"></v-divider>
             </template>
-          </v-select>-->
+          </v-select>
         </v-col>
 
         <v-col cols="12" md="2">

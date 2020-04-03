@@ -42,5 +42,14 @@
             "administrador",
             "recursos_humanos"
         ]
+    },
+    {
+        "name": "contratacion",
+        "title": "Contratacion",
+        "icon": "mdi-folder-open",
+        "roles": [
+            "administrador",
+            "contratacion"
+        ]
     }
 ]
