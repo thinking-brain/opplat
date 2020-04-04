@@ -782,7 +782,7 @@
             small
             class="mr-2"
             v-on="on"
-            @click="getDetallesTrabFromApi(item)"
+            @click="getDetallesTrab(item)"
           >mdi-account-plus</v-icon>
         </template>
         <span>Detalles</span>
@@ -930,7 +930,7 @@ export default {
         },
       );
     },
-    getDetallesTrabFromApi(item) {
+    getDetallesTrab(item) {
       this.trabajador = Object.assign({}, item);
       this.dialog3 = true;
     },

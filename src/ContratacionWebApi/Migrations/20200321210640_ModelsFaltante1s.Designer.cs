@@ -3,15 +3,17 @@ using System;
 using ContratacionWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    partial class ContratacionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200321210640_ModelsFaltante1s")]
+    partial class ModelsFaltante1s
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +54,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<DateTime>("FechaDeLlegada");
 
-                    b.Property<DateTime>("FechaDeVencimiento");
+                    b.Property<DateTime?>("FechaDeVencimiento");
 
                     b.Property<decimal?>("MontoCuc");
 
@@ -67,8 +69,6 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("TerminoDePago");
 
                     b.Property<int>("Tipo");
-
-                    b.Property<string>("Vigencia");
 
                     b.HasKey("Id");
 
