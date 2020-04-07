@@ -10,6 +10,7 @@ using ContabilidadWebApi.Services;
 using ContratacionWebApi.Data;
 using FinanzasWebApi.Data;
 using FinanzasWebApi.Helper;
+// using FinanzasWebApi.Helper.EstadoFinanciero;
 using ImportadorDatos.HostedServices;
 using ImportadorDatos.Jobs;
 using ImportadorDatos.Models.EnlaceVersat;
@@ -134,7 +135,7 @@ namespace opplatApplication {
             services.AddScoped<ObtenerPlanGI> ();
             services.AddScoped<ObtenerValuesEnVariablesEstadoFinanciero> ();
             // services.AddScoped<GetEstadoFinanciero>();
-            // services.AddScoped<GetEF>();
+            // services.AddScoped<GetEF> ();
             // services.AddSingleton<ObtenerPlanGI_Context>();
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();

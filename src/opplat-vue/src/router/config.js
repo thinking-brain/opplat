@@ -262,6 +262,15 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/EFReport.vue'),
     },
     {
+      path: '/finanzas/ConfiguradorEFReport',
+      name: 'ConfiguradorEFReport',
+      meta: {
+        title: 'Config EFReport',
+        requiresAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/components/finanzas/reportes/EFReportConfig.vue'),
+    },
+    {
       path: '/finanzas/configuraciones',
       name: 'Configuraciones',
       meta: {
@@ -351,41 +360,149 @@ export const protectedRoute = [
         component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Dashboard.vue'),
       },
       {
-      path: '/recursos_humanos/Trabajadores',
-      name: 'Trabajadores',
-      meta: {
-        title: 'Trabajadores',
-        requiresAuth: true,
+        path: '/recursos_humanos/Trabajadores',
+        name: 'Trabajadores',
+        meta: {
+          title: 'Trabajadores',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Trabajadores.vue'),
       },
-      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Trabajadores.vue'),
-    },
-    {
-      path: '/recursos_humanos/Bolsa',
-      name: 'Bolsa',
-      meta: {
-        title: 'Bolsa',
-        requiresAuth: true,
+      {
+        path: '/recursos_humanos/Bolsa',
+        name: 'Bolsa',
+        meta: {
+          title: 'Bolsa',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Bolsa.vue'),
       },
-      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Bolsa.vue'),
-    },
-    {
-      path: '/recursos_humanos/ListadoAperturas',
-      name: 'ListadoAperturas',
-      meta: {
-        title: 'Listado de Aperturas',
-        requiresAuth: true,
+      {
+        path: '/recursos_humanos/ListadoAperturas',
+        name: 'ListadoAperturas',
+        meta: {
+          title: 'Listado de Aperturas',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/ListadoAperturas.vue'),
       },
-      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/ListadoAperturas.vue'),
-    },
-    {
-      path: '/recursos_humanos/Apertura',
-      name: 'Apertura',
-      meta: {
-        title: 'Apertura',
-        requiresAuth: true,
+      {
+        path: '/recursos_humanos/Apertura',
+        name: 'Apertura',
+        meta: {
+          title: 'Apertura',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Apertura.vue'),
       },
-      component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Apertura.vue'),
+    ],
+  },
+
+  // Recursos Humanos
+  {
+    name: 'Recusos Humanos',
+    path: '/recursos_humanos',
+    component: DefaultLayout,
+    redirect: '/recursos_humanos/dashboard',
+    meta: {
+      title: 'Trabajadores',
+      group: 'recursos_humanos',
     },
+    children: [
+      {
+        path: '/recursos_humanos/dashboard',
+        name: 'Dashboard',
+        meta: {
+          title: 'Cuadro de mando',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Dashboard.vue'),
+      },
+      {
+        path: '/recursos_humanos/Trabajadores',
+        name: 'Trabajadores',
+        meta: {
+          title: 'Trabajadores',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Trabajadores.vue'),
+      },
+      {
+        path: '/recursos_humanos/Bolsa',
+        name: 'Bolsa',
+        meta: {
+          title: 'Bolsa',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Bolsa.vue'),
+      },
+      {
+        path: '/recursos_humanos/ListadoAperturas',
+        name: 'ListadoAperturas',
+        meta: {
+          title: 'Listado de Aperturas',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/ListadoAperturas.vue'),
+      },
+      {
+        path: '/recursos_humanos/Apertura',
+        name: 'Apertura',
+        meta: {
+          title: 'Apertura',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Apertura.vue'),
+      },
+    ],
+  },
+  // Contratacion
+  {
+    name: 'Contratacion',
+    path: '/contratacion',
+    component: DefaultLayout,
+    redirect: '/contratacion/dashboard',
+    meta: {
+      title: 'Contratos',
+      group: 'contratacion',
+    },
+    children: [
+      {
+        path: '/contratacion/dashboard',
+        name: 'Dashboard',
+        meta: {
+          title: 'Cuadro de mando',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Dashboard.vue'),
+      },
+      {
+        path: '/contratacion/Contratos',
+        name: 'Contratos',
+        meta: {
+          title: 'Contratos',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Contratos.vue'),
+      },
+      {
+        path: '/contratacion/Proformas',
+        name: 'Proformas',
+        meta: {
+          title: 'Proformas',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Proformas.vue'),
+      },
+      {
+        path: '/contratacion/Config',
+        name: 'Config',
+        meta: {
+          title: 'Config',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Config.vue'),
+      },
     ],
   },
 ];

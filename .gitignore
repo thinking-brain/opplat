@@ -293,3 +293,4 @@ yarn-error.log*
 src/opplat-vue/vue.config.js
 src/InventarioWebApi/global.json
 src/opplatApplication/global.json
+global.json

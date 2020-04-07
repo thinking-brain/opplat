@@ -1,5 +1,4 @@
-[
-    {
+[{
         "title": "Reportes",
         "group": "finanzas",
         "icon": "mdi-file-chart",
@@ -8,8 +7,7 @@
             "administrador",
             "economico"
         ],
-        "items": [
-            {
+        "items": [{
                 "title": "Ingresos y Gastos",
                 "group": "reportes",
                 "icon": "mdi-chart-areaspline",
@@ -43,11 +41,22 @@
                 ]
             },
             {
-                "title": "EF Report",
+                "title": "EFReport",
                 "group": "reportes",
                 "icon": "mdi-chart-areaspline",
                 "component": "EFReport",
                 "name": "EstadoFinancieroReport",
+                "roles": [
+                    "administrador",
+                    "economico"
+                ]
+            },
+            {
+                "title": "Config EFReport",
+                "group": "reportes",
+                "icon": "mdi-chart-areaspline",
+                "component": "EFReport",
+                "name": "ConfiguradorEFReport",
                 "roles": [
                     "administrador",
                     "economico"

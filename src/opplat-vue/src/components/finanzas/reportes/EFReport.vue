@@ -15,7 +15,7 @@
             label="MES"
             required
           ></v-select>
-          <!-- <v-select v-model="selectedMonths" :items="meses" item-text="nombre" label="MES" return-object multiple>
+          <v-select v-model="selectedMonths" :items="meses" item-text="nombre" label="MES" return-object multiple>
             <template v-slot:prepend-item>
               <v-list-item ripple @click="toggle">
                 <v-list-item-action>
@@ -30,7 +30,7 @@
             <template v-slot:append-item>
               <v-divider class="mb-2"></v-divider>
             </template>
-          </v-select>-->
+          </v-select>
         </v-col>
 
         <v-col cols="12" md="2">
@@ -119,6 +119,7 @@
 </template>
 
 <script>
+import { saveAs } from "file-saver";
 import api from "@/api";
 
 export default {
@@ -179,7 +180,7 @@ export default {
       if (this.$refs.form.validate()) {
         const url = api.getUrl(
           "finanzas",
-          `EstadoFinanciero/estadoFinanciero${this.tipo_plan_selected}Report/${this.year}/${this.mes.id}`
+          `EstadoFinanciero/estadoFinancieroReportok/${this.year}/${this.mes.id}/${this.tipo_plan_selected}`
         );
         console.log(url);
         this.axios
@@ -198,10 +199,61 @@ export default {
       }
     },
     exportTableToExcel() {
-      console.log("Exportando");
+      const url = api.getUrl("finanzas", `EstadoFinanciero/exportexcel`);
+      this.axios({
+        method: "post",
+        url: url,
+        data: {
+          nombre: "reporte",
+          data: this.data
+        },
+        responseType: "blob"
+      })
+        .then(response => {
+          const url = URL.createObjectURL(
+            new Blob([response.data], {
+              type:
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            })
+          );
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", "Reporte.xlsx"); //or any other extension
+          document.body.appendChild(link);
+          link.click();
+        })
+        .catch(e => {
+          this.errors.push(e);
+          console.log(e);
+          vm.$snotify.error(
+            "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+          );
+        });
+      // this.axios
+      //   .post(url, { nombre: "reporte", data: this.data })
+      //   .then(response => {
+      //     const url = window.URL.createObjectURL(
+      //       new Blob(response.data.blob, {
+      //         type:
+      //           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      //       })
+      //     );
+      //     const link = document.createElement("a");
+      //     link.href = url;
+      //     link.setAttribute("download", "Reporte.xlsx"); //or any other extension
+      //     document.body.appendChild(link);
+      //     link.click();
+      //   })
+      //   .catch(e => {
+      //     this.errors.push(e);
+      //     console.log(e);
+      //     vm.$snotify.error(
+      //       "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+      //     );
+      //   });
     },
-    imprimir(){
-      console.log('Printing');
+    imprimir() {
+      console.log("Printing");
     },
     toggle() {
       this.$nextTick(() => {

@@ -1,7 +1,11 @@
 ﻿using System;
 using System.IO;
+using System.IO;
+using System.Reflection;
 using System.Reflection;
 using FinanzasWebApi.Data;
+using FinanzasWebApi.Data;
+using FinanzasWebApi.Helper;
 using FinanzasWebApi.Helper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,7 +47,6 @@ namespace FinanzasWebApi {
             });
             services.AddScoped<FinanzasDbContext> ();
             services.AddScoped<ObtenerPlanGI> ();
-            services.AddScoped<GetPlanesPeriodo> ();
             // services.AddScoped<GetEstadoFinanciero>();
             // services.AddSingleton<GetTotalIngresosEnMes>();
             // services.AddSingleton<GetTotalEgresosEnMes>();

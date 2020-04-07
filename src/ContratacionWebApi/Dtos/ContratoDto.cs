@@ -41,5 +41,9 @@ namespace ContratacionWebApi.Models {
         public string Usuario { get; set; }
         public List<int> DictaminadoresId { get; set; }
         public List<int> EspExternoId { get; set; }
+        public bool AprobJurico { get; set; }
+        public bool AprobEconomico { get; set; }
+        public bool AprobComitContratacion { get; set; }
+
     }
 }
