@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 
 namespace RhWebApi.Data {
-    public enum TipoDeContratoTrabajador {
+    public enum TipoDeContratoTrabTrabajador {
         Sin_Definir,
         Fijo,
         Temporal,

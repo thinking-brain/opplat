@@ -7,6 +7,7 @@ using Account.WebApi.Data;
 using Account.WebApi.Models;
 using ContabilidadWebApi.Data;
 using ContabilidadWebApi.Services;
+using ContratacionWebApi.Data;
 using FinanzasWebApi.Data;
 using FinanzasWebApi.Helper;
 using ImportadorDatos.HostedServices;
@@ -73,8 +74,13 @@ namespace opplatApplication {
             services.AddDbContext<EnlaceVersatDbContext> (options =>
                 options.UseNpgsql (context.Configuration.GetConnectionString ("EnlaceVersatDbContext")));
 
+            //recursos humanos db context
             services.AddDbContext<RhWebApiDbContext> (options =>
                 options.UseNpgsql (context.Configuration.GetConnectionString ("RhWebApiDbContext"), b => b.MigrationsAssembly ("RhWebApi")));
+
+            //contratación db context
+            services.AddDbContext<ContratacionDbContext> (options =>
+                options.UseNpgsql (context.Configuration.GetConnectionString ("ContratacionDbContext"), b => b.MigrationsAssembly ("ContratacionWebApi")));
 
             services.AddSignalR ();
 
