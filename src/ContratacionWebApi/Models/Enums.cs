@@ -25,8 +25,8 @@ namespace ContratacionWebApi.Models {
         Pagada
     }
     public enum FormaDePago {
-        Transferencia,
-        Cheque,
+        TransferenciaBancaria,
+        ChequeBancario,
         Efectivo
     }
     public enum NombreSucursal {
