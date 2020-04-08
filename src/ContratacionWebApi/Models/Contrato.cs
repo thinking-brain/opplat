@@ -10,8 +10,8 @@ namespace ContratacionWebApi.Models {
         public string Nombre { get; set; }
         public Tipo Tipo { get; set; }
         //Trabajador
-        public int AdminContratoId { get; set; }
-        public virtual AdminContrato AdminContrato { get; set; }
+        public int TrabajadorId { get; set; }
+        public virtual AdminContrato Trabajador { get; set; }
         public int EntidadId { get; set; }
         public virtual Entidad Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
@@ -27,7 +27,7 @@ namespace ContratacionWebApi.Models {
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Llegada")]
-        public DateTime FechaDeLlegada { get; set; }
+        public DateTime FechaDeRecepcion { get; set; }
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Firmado")]
@@ -37,19 +37,20 @@ namespace ContratacionWebApi.Models {
         [Display (Name = "Fecha de Vencimiento")]
         public DateTime FechaDeVencimiento { get; set; }
         public string Vigencia { get; set; }
+        public string FilePath  { get; set; }
 
         [NotMapped]
         [Display (Name = "Formas de Pago")]
         public virtual ICollection<FormaDePago> FormasDePago { get; set; }
 
         [NotMapped]
-        public ICollection<DictaminadorContrato> DictaminadoresId { get; set; }
+        public ICollection<Dictaminador> DictaminadoresId { get; set; }
 
         [NotMapped]
         public ICollection<EspecialistaExterno> EspExternoId { get; set; }
         //Término de pago en días
         [Display (Name = "Término de Pago")]
-        public int TerminoDePago { get; set; }
+        public double TerminoDePago { get; set; }
 
         [NotMapped]
         public virtual ICollection<HistoricoEstadoContrato> Estados { get; set; }

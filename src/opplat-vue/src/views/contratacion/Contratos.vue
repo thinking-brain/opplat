@@ -105,7 +105,7 @@
                   <v-timeline>
                     <v-timeline-item :color="'blue'" :right="true" small>
                       <template v-slot:opposite>
-                        <h5 :class="`subtitle-2 blue--text`" v-text="contrato.fechaDeLlegada"></h5>
+                        <h5 :class="`subtitle-2 blue--text`" v-text="contrato.fechaDeRecepcion"></h5>
                       </template>
                       <v-card class="elevation-2">
                         <v-card-text
@@ -211,7 +211,7 @@ export default {
       { text: "Entidad", value: "entidad" },
       { text: "Monto Cup", value: "montoCup" },
       { text: "Monto Cuc", value: "montoCuc" },
-      { text: "Fecha de Llegada", value: "fechaDeLlegada" },
+      { text: "Fecha de Llegada", value: "fechaDeRecepcion" },
       { text: "Estado", value: "estado" },
       { text: "Acciones", value: "action", sortable: false }
     ]

@@ -8,9 +8,9 @@ namespace ContratacionWebApi.Models
     {
         public int Id { get; set; }
 
-        public int DocumentoDeContratoId { get; set; }
+        public int DocumentoId { get; set; }
 
-        public virtual DocumentoDeContrato DocumentoDeContrato { get; set; }
+        public virtual Documento Documento { get; set; }
 
         [Required]
         public int UsuarioId { get; set; }

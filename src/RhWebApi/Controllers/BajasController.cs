@@ -97,18 +97,18 @@ namespace RhWebApi.Controllers {
         [HttpGet ("/recursos_humanos/Baja/CausaDeBaja")]
         public IActionResult GetAllCausaDeBaja () {
             var causaDeBaja = new List<dynamic> () {
-                new { Id = CausaDeBaja.SinDefinir, Nombre = CausaDeBaja.SinDefinir.ToString () },
+                new { Id = CausaDeBaja.SinDefinir, Nombre = "Sin Definir" },
                 new { Id = CausaDeBaja.Salarial, Nombre = CausaDeBaja.Salarial.ToString () },
                 new { Id = CausaDeBaja.Jubilación, Nombre = CausaDeBaja.Jubilación.ToString () },
                 new { Id = CausaDeBaja.Fallecimiento, Nombre = CausaDeBaja.Fallecimiento.ToString () },
-                new { Id = CausaDeBaja.InvalidezTotal, Nombre = CausaDeBaja.InvalidezTotal.ToString () },
-                new { Id = CausaDeBaja.InvalidezParcial, Nombre = CausaDeBaja.InvalidezParcial.ToString () },
-                new { Id = CausaDeBaja.PrivacionDeLibertad, Nombre = CausaDeBaja.PrivacionDeLibertad.ToString () },
-                new { Id = CausaDeBaja.PasoAFormasNoEstatales, Nombre = CausaDeBaja.PasoAFormasNoEstatales.ToString () },
-                new { Id = CausaDeBaja.ProcesoDeDisponibilidad, Nombre = CausaDeBaja.ProcesoDeDisponibilidad.ToString () },
-                new { Id = CausaDeBaja.SancionAdministrativa, Nombre = CausaDeBaja.SancionAdministrativa.ToString () },
-                new { Id = CausaDeBaja.SalidaDelPais, Nombre = CausaDeBaja.SalidaDelPais.ToString () },
-                new { Id = CausaDeBaja.OtrasCausas, Nombre = CausaDeBaja.OtrasCausas.ToString () },
+                new { Id = CausaDeBaja.InvalidezTotal, Nombre = "Invalidez Total" },
+                new { Id = CausaDeBaja.InvalidezParcial, Nombre =  "Invalidez Parcial"},
+                new { Id = CausaDeBaja.PrivacionDeLibertad, Nombre = "Privación de Libertad" },
+                new { Id = CausaDeBaja.PasoAFormasNoEstatales, Nombre = "Paso a Formas no Estatales" },
+                new { Id = CausaDeBaja.ProcesoDeDisponibilidad, Nombre = "Proceso de Disponibilidad" },
+                new { Id = CausaDeBaja.SancionAdministrativa, Nombre = "Sanción Administrativa" },
+                new { Id = CausaDeBaja.SalidaDelPais, Nombre = "Salida del País" },
+                new { Id = CausaDeBaja.OtrasCausas, Nombre = "Otras Causas" },
             };
             return Ok (causaDeBaja);
         }
