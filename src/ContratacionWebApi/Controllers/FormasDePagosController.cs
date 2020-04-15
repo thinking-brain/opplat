@@ -17,8 +17,8 @@ namespace ContratacionWebApi.Controllers {
         [HttpGet]
         public IActionResult GetAll () {
             var formasDePagos = new List<dynamic> () {
-                new { Id = FormaDePago.TransferenciaBancaria, Nombre = "Transferencia Bancaria" },
-                new { Id = FormaDePago.ChequeBancario, Nombre = "Cheque Bancario" },
+                new { Id = FormaDePago.Transferencia_Bancaria, Nombre = "Transferencia Bancaria" },
+                new { Id = FormaDePago.Cheque_Bancario, Nombre = "Cheque Bancario" },
                 new { Id = FormaDePago.Efectivo, Nombre = FormaDePago.Efectivo.ToString () },
             };
             return Ok (formasDePagos);

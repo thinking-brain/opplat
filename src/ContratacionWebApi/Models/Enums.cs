@@ -10,7 +10,7 @@ namespace ContratacionWebApi.Models {
         Nuevo,
         Circulando,
         Aprobado,
-        NoAprobado,
+        No_Aprobado,
         Vigente,
         Cancelado,
         Vencido,
@@ -25,18 +25,25 @@ namespace ContratacionWebApi.Models {
         Pagada
     }
     public enum FormaDePago {
-        TransferenciaBancaria,
-        ChequeBancario,
+        Transferencia_Bancaria,
+        Cheque_Bancario,
         Efectivo
     }
     public enum NombreSucursal {
         Bandec,
         BPA,
-        BancoMetropolitano
+        Banco_Metropolitano
     }
     public enum Moneda {
         CUC,
         MN,
         USD
+    }
+    public enum Sector {
+        Sin_Definir,
+        Estatal,
+        Cooperativo,
+        TCP,
+        PYME
     }
 }

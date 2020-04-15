@@ -1,8 +1,7 @@
 using ContratacionWebApi.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ContratacionWebApi.Data
-{
+namespace ContratacionWebApi.Data {
     public class ContratacionDbContext : DbContext {
         public ContratacionDbContext (DbContextOptions<ContratacionDbContext> options) : base (options) {
 
@@ -22,5 +21,6 @@ namespace ContratacionWebApi.Data
         public DbSet<HistoricoEstadoContrato> HistoricosEstadoContratos { get; set; }
         public DbSet<AdminContrato> AdminContratos { get; set; }
         public DbSet<Documento> Documentos { get; set; }
+        public DbSet<Telefono> Telefonos { get; set; }
     }
 }

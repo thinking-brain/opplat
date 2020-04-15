@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    [Migration("20200408040704_cuentaBancaria")]
-    partial class cuentaBancaria
+    [Migration("20200409214602_CuentasModels")]
+    partial class CuentasModels
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -72,7 +72,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("TrabajadorId");
 
-                    b.Property<string>("Vigencia");
+                    b.Property<int>("Vigencia");
 
                     b.HasKey("Id");
 
@@ -119,6 +119,24 @@ namespace ContratacionWebApi.Migrations
                     b.HasIndex("ContratoId");
 
                     b.ToTable("ContratoId_FormaPagoId");
+                });
+
+            modelBuilder.Entity("ContratacionWebApi.Models.CuentaBancaria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("Moneda");
+
+                    b.Property<int>("NombreSucursal");
+
+                    b.Property<int>("NumeroCuenta");
+
+                    b.Property<int>("NumeroSucursal");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CuentasBancarias");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.Dictamen", b =>
@@ -360,6 +378,24 @@ namespace ContratacionWebApi.Migrations
                     b.ToTable("cont_objs_de_contratos");
                 });
 
+            modelBuilder.Entity("ContratacionWebApi.Models.Telefono", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("EntidadId");
+
+                    b.Property<int>("Extension");
+
+                    b.Property<int>("Numero");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EntidadId");
+
+                    b.ToTable("Telefonos");
+                });
+
             modelBuilder.Entity("ContratacionWebApi.Models.Suplemento", b =>
                 {
                     b.HasBaseType("ContratacionWebApi.Models.Documento");
@@ -477,6 +513,13 @@ namespace ContratacionWebApi.Migrations
                     b.HasOne("ContratacionWebApi.Models.Documento")
                         .WithMany("ObjetosDeContrato")
                         .HasForeignKey("DocumentoId");
+                });
+
+            modelBuilder.Entity("ContratacionWebApi.Models.Telefono", b =>
+                {
+                    b.HasOne("ContratacionWebApi.Models.Entidad")
+                        .WithMany("Telefonos")
+                        .HasForeignKey("EntidadId");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.Suplemento", b =>

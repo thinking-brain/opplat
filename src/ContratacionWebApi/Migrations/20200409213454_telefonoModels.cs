@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
-    public partial class cuentaBancaria : Migration
+    public partial class telefonoModels : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -68,7 +68,7 @@ namespace ContratacionWebApi.Migrations
                     FechaDeRecepcion = table.Column<DateTime>(nullable: false),
                     FechaDeFirmado = table.Column<DateTime>(nullable: true),
                     FechaDeVencimiento = table.Column<DateTime>(nullable: false),
-                    Vigencia = table.Column<string>(nullable: true),
+                    Vigencia = table.Column<int>(nullable: false),
                     FilePath = table.Column<string>(nullable: true),
                     TerminoDePago = table.Column<double>(nullable: false),
                     AprobEconomico = table.Column<bool>(nullable: false),
@@ -89,6 +89,29 @@ namespace ContratacionWebApi.Migrations
                         name: "FK_Contratos_AdminContratos_TrabajadorId",
                         column: x => x.TrabajadorId,
                         principalTable: "AdminContratos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CuentasBancarias",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    NumeroCuenta = table.Column<int>(nullable: false),
+                    NumeroSucursal = table.Column<int>(nullable: false),
+                    NombreSucursal = table.Column<int>(nullable: false),
+                    Moneda = table.Column<int>(nullable: false),
+                    EntidadId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CuentasBancarias", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CuentasBancarias_Entidades_EntidadId",
+                        column: x => x.EntidadId,
+                        principalTable: "Entidades",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -115,6 +138,27 @@ namespace ContratacionWebApi.Migrations
                         principalTable: "Entidades",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Telefonos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Numero = table.Column<int>(nullable: false),
+                    Extension = table.Column<int>(nullable: false),
+                    EntidadId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Telefonos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Telefonos_Entidades_EntidadId",
+                        column: x => x.EntidadId,
+                        principalTable: "Entidades",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -395,6 +439,11 @@ namespace ContratacionWebApi.Migrations
                 column: "TrabajadorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CuentasBancarias_EntidadId",
+                table: "CuentasBancarias",
+                column: "EntidadId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Dictamen_EspecialistaId",
                 table: "Dictamen",
                 column: "EspecialistaId");
@@ -438,6 +487,11 @@ namespace ContratacionWebApi.Migrations
                 name: "IX_HistoricosEstadoContratos_ContratoId",
                 table: "HistoricosEstadoContratos",
                 column: "ContratoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Telefonos_EntidadId",
+                table: "Telefonos",
+                column: "EntidadId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -452,6 +506,9 @@ namespace ContratacionWebApi.Migrations
                 name: "ContratoId_FormaPagoId");
 
             migrationBuilder.DropTable(
+                name: "CuentasBancarias");
+
+            migrationBuilder.DropTable(
                 name: "Dictamen");
 
             migrationBuilder.DropTable(
@@ -462,6 +519,9 @@ namespace ContratacionWebApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "HistoricosEstadoContratos");
+
+            migrationBuilder.DropTable(
+                name: "Telefonos");
 
             migrationBuilder.DropTable(
                 name: "Dictaminadores");

@@ -36,7 +36,7 @@ namespace ContratacionWebApi.Controllers {
                     TipoId = c.Tipo,
                     Tipo = c.Tipo.ToString (),
                     TrabajadorId = c.TrabajadorId,
-                    // AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.AdminContratoId),
+                    // AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.TrabajadorId),
                     EntidadId = c.EntidadId,
                     Entidad = c.Entidad.Nombre,
                     ObjetoDeContrato = c.ObjetoDeContrato,
@@ -46,7 +46,7 @@ namespace ContratacionWebApi.Controllers {
                     FechaDeRecepcion = c.FechaDeRecepcion.ToString ("dd/MM/yyyy"),
                     FechaDeVencimiento = c.FechaDeVencimiento.ToString ("dd/MM/yyyy"),
                     FechaDeFirmado = c.FechaDeFirmado,
-                    TerminoDePago = c.TerminoDePago / 30 + " Meses y " + c.TerminoDePago % 30 + " Días",
+                    TerminoDePago = c.TerminoDePago / 30 + " Meses y ",
                     EstadoId = c.Estado,
                     Estado = c.Estado.ToString (),
                     AprobJuridico = c.AprobJuridico,
@@ -76,7 +76,7 @@ namespace ContratacionWebApi.Controllers {
 
         // POST contratos/Contratos
         [HttpPost]
-        public IActionResult POST ([FromForm] ContratoDto contratoDto, IFormFile file) {
+        public async Task<IActionResult> POST ([FromForm] ContratoDto contratoDto) {
             if (ModelState.IsValid) {
                 var contrato = new Contrato {
                     Id = contratoDto.Id,
@@ -114,15 +114,13 @@ namespace ContratacionWebApi.Controllers {
                 }
 
                 // Subir el Fichero del Contrato
-                var uploads = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
-                if (file != null) {
-                    var filePath = Path.Combine (uploads, file.FileName);
-                    using (var fileStream = new FileStream (filePath, FileMode.Create)) {
-                        file.CopyToAsync (fileStream);
-                    }
-                    contrato.FilePath = filePath;
-                    context.SaveChanges ();
-                }
+                // var uploads = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
+                // if (file != null) {
+                //     var filePath = Path.Combine (uploads, file.FileName);
+                //     using (var fileStream = new FileStream (filePath, FileMode.Create)) {
+                //        await file.CopyToAsync (fileStream);
+                //     }
+                // }
 
                 // Agregar Juridico y Económico como Dictaminador del contrato 
                 if (contratoDto.DictaminadoresId != null) {
@@ -227,7 +225,7 @@ namespace ContratacionWebApi.Controllers {
                 new { Id = Estado.Nuevo, Nombre = Estado.Nuevo.ToString () },
                 new { Id = Estado.Circulando, Nombre = Estado.Circulando.ToString () },
                 new { Id = Estado.Aprobado, Nombre = Estado.Aprobado.ToString () },
-                new { Id = Estado.NoAprobado, Nombre = "No Aprobado" },
+                new { Id = Estado.No_Aprobado, Nombre = "No Aprobado" },
                 new { Id = Estado.Vigente, Nombre = Estado.Vigente.ToString () },
                 new { Id = Estado.Cancelado, Nombre = Estado.Cancelado.ToString () },
                 new { Id = Estado.Vencido, Nombre = Estado.Vencido.ToString () },
@@ -239,14 +237,11 @@ namespace ContratacionWebApi.Controllers {
 
         //Post :contratacion/contratos/UploadFile
         [HttpPost ("/contratacion/contratos/UploadFile")]
-        public async Task<IActionResult> Upload (IFormFile file) {
+        public async Task<IActionResult> UploadFile (int ContratoId, IFormFile file) {
+            var contrato = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
             var uploads = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
             if (file != null) {
-                var filePath =  Path.Combine (uploads, file.FileName);
-                // if (File.Exists(filePath))
-                // {
-                //     File.Delete(filePath);
-                // }
+                var filePath = Path.Combine (uploads, file.FileName);
                 using (var fileStream = new FileStream (filePath, FileMode.Create)) {
                     await file.CopyToAsync (fileStream);
                 }

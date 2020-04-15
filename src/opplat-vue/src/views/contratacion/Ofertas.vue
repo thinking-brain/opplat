@@ -34,16 +34,11 @@
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs4 class="px-3">
-                    <v-text-field
-                      v-model="Oferta.nombre"
-                      label="Nombre"
-                      clearable
-                      required
-                    ></v-text-field>
+                    <v-text-field v-model="Oferta.Nombre" label="Nombre" clearable required></v-text-field>
                   </v-flex>
                   <v-flex xs4 class="px-3">
                     <v-autocomplete
-                      v-model="Oferta.tipo"
+                      v-model="Oferta.Tipo"
                       item-text="nombre"
                       item-value="id"
                       :items="tipos"
@@ -54,7 +49,7 @@
                   </v-flex>
                   <v-flex xs4 class="px-3">
                     <v-autocomplete
-                      v-model="Oferta.entidad"
+                      v-model="Oferta.EntidadId"
                       item-text="nombre"
                       item-value="id"
                       :items="entidades"
@@ -69,7 +64,7 @@
                 <v-layout row wrap>
                   <v-flex xs4 class="px-3">
                     <v-autocomplete
-                      v-model="Oferta.formaDePago"
+                      v-model="Oferta.FormasDePago"
                       item-text="nombre"
                       item-value="id"
                       :items="formasDePagos"
@@ -90,7 +85,7 @@
                   </v-flex>
                   <v-flex xs4 class="px-3">
                     <v-text-field
-                      v-model="Oferta.montoCup"
+                      v-model="Oferta.MontoCup"
                       label="Monto CUP"
                       clearable
                       required
@@ -99,7 +94,7 @@
                   </v-flex>
                   <v-flex xs4 class="px-3">
                     <v-text-field
-                      v-model="Oferta.montoCuc"
+                      v-model="Oferta.MontoCuc"
                       label="Monto CUC"
                       clearable
                       required
@@ -110,7 +105,7 @@
                 <v-layout row wrap>
                   <v-flex xs3 class="px-3">
                     <v-text-field
-                      v-model="Oferta.terminoDePago"
+                      v-model="Oferta.TerminoDePago"
                       label="Término de Pago en Meses"
                       clearable
                       required
@@ -128,19 +123,19 @@
                     >
                       <template v-slot:activator="{ on }">
                         <v-text-field
-                          v-model="Oferta.fechaDeRecepcion"
+                          v-model="Oferta.FechaDeRecepcion"
                           label="Fecha de Recepción "
                           readonly
                           clearable
                           v-on="on"
                         ></v-text-field>
                       </template>
-                      <v-date-picker v-model="Oferta.fechaDeRecepcion" @input="menu = false"></v-date-picker>
+                      <v-date-picker v-model="Oferta.FechaDeRecepcion" @input="menu = false"></v-date-picker>
                     </v-menu>
                   </v-flex>
                   <v-flex xs3 class="px-3">
                     <v-text-field
-                      v-model="Oferta.vigencia"
+                      v-model="Oferta.Vigencia"
                       label="Vigencia"
                       placeholder="Cantidad"
                       clearable
@@ -160,7 +155,7 @@
                 <v-layout row wrap>
                   <v-flex xs4 class="pa-3">
                     <v-text-field
-                      v-model="Oferta.objetoDeContrato"
+                      v-model="Oferta.ObjetoDeContrato"
                       label="Objeto"
                       clearable
                       required
@@ -168,7 +163,7 @@
                   </v-flex>
                   <v-flex xs4 class="pa-3">
                     <v-autocomplete
-                      v-model="Oferta.adminContratoId"
+                      v-model="Oferta.TrabajadorId"
                       item-text="id"
                       item-value="id"
                       :items="adminContratos"
@@ -181,7 +176,7 @@
                   </v-flex>
                   <v-flex xs4 class="pa-3">
                     <v-autocomplete
-                      v-model="Oferta.especialistaExterno"
+                      v-model="Oferta.EspExternoId"
                       item-text="nombre"
                       item-value="id"
                       :items="especialistasExternos"
@@ -195,7 +190,7 @@
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap>
-                  <v-flex xs6 class="px-3">
+                  <!-- <v-flex xs6 class="px-3">
                     <v-autocomplete
                       v-model="Oferta.estado"
                       item-text="nombre"
@@ -205,15 +200,7 @@
                       cache-items
                       label="Estado"
                     ></v-autocomplete>
-                  </v-flex>
-                  <v-flex xs6 class="px-3">
-                    <v-file-input
-                      v-model="file"
-                      show-size
-                      prepend-icon="mdi-note-multiple"
-                      label="Seleccionar Documento"
-                    ></v-file-input>
-                  </v-flex>
+                  </v-flex>-->
                 </v-layout>
               </v-container>
             </v-form>
@@ -250,12 +237,7 @@
                   <v-container>
                     <v-row>
                       <v-col cols="10" md="6">
-                        <v-text-field
-                          v-model="Oferta.nombre"
-                          label="Nombre"
-                          outlined
-                          readonly
-                        ></v-text-field>
+                        <v-text-field v-model="Oferta.nombre" label="Nombre" outlined readonly></v-text-field>
                       </v-col>
                       <v-col cols="3" md="4">
                         <v-text-field
@@ -408,6 +390,28 @@
         </v-dialog>
         <!-- /Delete Oferta -->
 
+        <!-- Subir Documento -->
+        <v-row justify="center">
+          <v-dialog v-model="dialog7" persistent max-width="300">
+            <v-card>
+              <v-flex xs12 class="px-3">
+                <v-file-input
+                  v-model="file"
+                  show-size
+                  prepend-icon="mdi-note-multiple"
+                  label="Seleccionar Documento"
+                ></v-file-input>
+              </v-flex>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+               <v-btn color="green darken-1" text @click="upload()">Aceptar</v-btn>
+              <v-btn color="blue darken-1" text @click=" close()">Cancelar</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-row>
+        <!-- /Subir Documento -->
+
         <!-- Agregar Entidad-->
         <v-dialog v-model="dialog3" persistent max-width="1000">
           <v-card>
@@ -459,19 +463,25 @@
     </template>
     <!-- Actions -->
     <template v-slot:item.action="{ item }">
-      <v-tooltip top>
+      <v-tooltip top color="primary">
         <template v-slot:activator="{ on }">
           <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
         </template>
         <span>Editar</span>
       </v-tooltip>
-      <v-tooltip top>
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on }">
+          <v-icon small class="mr-2" v-on="on" @click="confirmUpload(item)">mdi-upload</v-icon>
+        </template>
+        <span>Guardar Documento</span>
+      </v-tooltip>
+      <v-tooltip top color="green">
         <template v-slot:activator="{ on }">
           <v-icon small class="mr-2" v-on="on" @click="getDetalles(item)">mdi-file-document-box-plus</v-icon>
         </template>
         <span>Detalles</span>
       </v-tooltip>
-      <v-tooltip top>
+      <v-tooltip top color="red">
         <template v-slot:activator="{ on }">
           <v-icon small class="mr-2" v-on="on" @click="confirmDelete(item)">mdi-trash-can</v-icon>
         </template>
@@ -503,14 +513,28 @@ export default {
     dialog4: false,
     dialog5: false,
     dialog6: false,
+    dialog7: false,
     menu: false,
     menu1: false,
     search: "",
     editedIndex: -1,
     Ofertas: [],
     Oferta: {
+      Nombre: "",
+      Tipo: null,
+      TrabajadorId: null,
+      EntidadId: null,
+      ObjetoDeContrato: "",
+      MontoCup: null,
+      MontoCuc: null,
+      FechaDeRecepcion: null,
+      Vigencia: null,
+      FormasDePago: [],
+      TerminoDePago: null,
+      DictaminadoresId: [],
+      EspExternoId: []
     },
-          file: null,
+    file:null,
     entidades: [],
     especialistasExternos: [],
     adminContratos: [],
@@ -648,24 +672,17 @@ export default {
     },
     save(method) {
       if (method === "POST") {
-        const formData = new FormData();
-        formData.append("file", this.file);
-        formData.append("contratoDto", this.Oferta);
-        const url = api.getUrl("contratacion", "Contratos/UploadFile");
-        this.axios
-          .post(url, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data"
-            }
-          })
-          .then(
-            response => {
-              this.getResponse(response);
-            },
-            error => {
-              console.log(error);
-            }
-          );
+        const url = api.getUrl("contratacion", "Contratos");
+        this.axios.post(url, this.Oferta).then(
+          response => {
+            this.getResponse(response);
+            this.getContratosFromApi();
+            this.dialog = false;
+          },
+          error => {
+            console.log(error);
+          }
+        );
       }
       if (method === "PUT") {
         this.axios.put(`${url}/${this.Oferta.id}`, this.Oferta).then(
@@ -679,6 +696,31 @@ export default {
           }
         );
       }
+    },
+    confirmUpload(item) {
+      this.Oferta = Object.assign({}, item);
+      this.dialog7 = true;
+    },
+    upload() {
+      const formData = new FormData();
+      formData.append("file", this.file,);
+      const url = api.getUrl("contratacion", "contratos/UploadFile");
+      this.axios
+        .post(url,formData, this.Oferta.id, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          },
+        })
+        .then(
+          response => {
+            this.getResponse(response);
+            this.getContratosFromApi();
+            this.dialog = false;
+          },
+          error => {
+            console.log(error);
+          }
+        );
     },
     confirmDelete(item) {
       this.Oferta = Object.assign({}, item);
@@ -700,6 +742,7 @@ export default {
     close() {
       this.dialog = false;
       this.dialog2 = false;
+      this.dialog7 = false;
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);

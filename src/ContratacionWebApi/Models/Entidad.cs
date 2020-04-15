@@ -19,14 +19,15 @@ namespace ContratacionWebApi.Models {
         [RegularExpression ("[0-9]*", ErrorMessage = "Solo se admiten números")]
         public string Nit { get; set; }
 
+        public Sector Sector { get; set; }
+
         [DataType (DataType.PhoneNumber)]
         public string Fax { get; set; }
 
         [DataType (DataType.EmailAddress, ErrorMessage = "El dirección de correo no tiene el formato correcto")]
         [Display (Name = "Correo electrónico")]
         public string Correo { get; set; }
-
-        [NotMapped]
+        public List<Telefono> Telefonos { get; set; }
         public ICollection<CuentaBancaria> CuentasBancarias { get; set; }
     }
 }
