@@ -38,7 +38,7 @@ namespace ContratacionWebApi.Controllers {
                     TrabajadorId = c.TrabajadorId,
                     // AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.TrabajadorId),
                     EntidadId = c.EntidadId,
-                    Entidad = c.Entidad.Nombre,
+                    Entidad = c.Entidad,
                     ObjetoDeContrato = c.ObjetoDeContrato,
                     Numero = c.Numero,
                     MontoCup = c.MontoCup,
