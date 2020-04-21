@@ -7,8 +7,8 @@
             <v-toolbar flat>
               <v-tabs slot="extension" v-model="tabs" centered>
                 <v-tab>Administradores</v-tab>
-                <v-tab>Especialistas Externos</v-tab>
                 <v-tab>Proveedores</v-tab>
+                <v-tab>Especialistas Externos</v-tab>
               </v-tabs>
             </v-toolbar>
             <v-tabs-items v-model="tabs" py-6>
@@ -22,14 +22,14 @@
               <v-tab-item>
                 <v-card flat>
                   <v-card-text>
-                    <EspExternos></EspExternos>
+                    <Entidades></Entidades>
                   </v-card-text>
                 </v-card>
               </v-tab-item>
               <v-tab-item>
                 <v-card flat>
                   <v-card-text>
-                    <Entidades></Entidades>
+                    <EspExternos></EspExternos>
                   </v-card-text>
                 </v-card>
               </v-tab-item>

@@ -43,18 +43,21 @@ namespace ContratacionWebApi.Controllers {
                     Numero = c.Numero,
                     MontoCup = c.MontoCup,
                     MontoCuc = c.MontoCuc,
-                    FechaDeRecepcion = c.FechaDeRecepcion.ToString ("dd/MM/yyyy"),
-                    FechaDeVencimiento = c.FechaDeVencimiento.ToString ("dd/MM/yyyy"),
+                    FechaDeRecepcion = c.FechaDeRecepcion.ToString(),
+                    FechaDeVenOferta = c.FechaDeVenOferta.ToString ("dd/MM/yyyy"),
+                    FechaVenContrato = c.FechaVenContrato.ToString ("dd/MM/yyyy"),
                     FechaDeFirmado = c.FechaDeFirmado,
                     TerminoDePago = c.TerminoDePago / 30 + " Meses y ",
+                    TerminoDePagoNu=c.TerminoDePago,
                     EstadoId = c.Estado,
                     Estado = c.Estado.ToString (),
                     AprobJuridico = c.AprobJuridico,
                     AprobEconomico = c.AprobEconomico,
                     AprobComitContratacion = c.AprobComitContratacion,
-                    VenceEn = (c.FechaDeVencimiento - DateTime.Now).Days,
+                    OfertVence = (c.FechaDeVenOferta - DateTime.Now).Days,
+                    ContVence = (c.FechaVenContrato - DateTime.Now).Days,
             });
-            if (tipoTramite == "Oferta") {
+            if (tipoTramite == "oferta") {
                 contratos = contratos.Where (c => c.FechaDeFirmado == null && c.AprobComitContratacion == false && c.EstadoId != Estado.Aprobado);
             }
             if (tipoTramite == "contrato") {
@@ -96,10 +99,10 @@ namespace ContratacionWebApi.Controllers {
                 } else {
                     contrato.FechaDeRecepcion = DateTime.Now;
                 }
-                if (contratoDto.FechaDeVencimiento != null) {
-                    contrato.FechaDeVencimiento = contratoDto.FechaDeVencimiento;
+                if (contratoDto.FechaVenContrato != null) {
+                    contrato.FechaVenContrato = contratoDto.FechaVenContrato;
                 } else {
-                    contrato.FechaDeVencimiento = DateTime.Now.AddDays (contratoDto.TerminoDePago);
+                    contrato.FechaVenContrato = DateTime.Now.AddDays (contratoDto.TerminoDePago);
                 }
 
                 context.Contratos.Add (contrato);
@@ -235,28 +238,28 @@ namespace ContratacionWebApi.Controllers {
             };
             return Ok (estadosContratos);
         }
-        // GET: contratacion/contratos/CantSegunFecha 
-        [HttpGet ("/contratacion/contratos/CantSegunFecha")]
-        public IActionResult GetCantSegunFecha () {
+        // GET: contratacion/contratos/VigenciaOferta 
+        [HttpGet ("/contratacion/contratos/VencimientoOferta")]
+        public IActionResult GetVencimientoOferta () {
             List<int> cantSegunFecha = new List<int> ();
             // Contratos vencidos
-            var contratos = context.Contratos.Where (c => (c.FechaDeVencimiento - DateTime.Now).Days < 0);
-            var cant = contratos.Count ();
+            var ofertas = context.Contratos.Where (c => (c.FechaDeVenOferta - DateTime.Now).Days < 0);
+            var cant = ofertas.Count ();
             cantSegunFecha.Add (cant);
             // Contratos Casi Vencidas
-            contratos = context.Contratos
-                .Where (c => (c.FechaDeVencimiento - DateTime.Now).Days >= 0 && (c.FechaDeVencimiento - DateTime.Now).Days <= 6);
-            cant = contratos.Count ();
+            ofertas = context.Contratos
+                .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days >= 0 && (c.FechaDeVenOferta - DateTime.Now).Days <= 6);
+            cant = ofertas.Count ();
             cantSegunFecha.Add (cant);
             // Contratos Próximos a Vencer
-            contratos = context.Contratos
-                .Where (c => (c.FechaDeVencimiento - DateTime.Now).Days > 7 && (c.FechaDeVencimiento - DateTime.Now).Days <= 23);
-            cant = contratos.Count ();
+            ofertas = context.Contratos
+                .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days > 7 && (c.FechaDeVenOferta - DateTime.Now).Days <= 23);
+            cant = ofertas.Count ();
             cantSegunFecha.Add (cant);
             // Contratos OK
-            contratos = context.Contratos
-                .Where (c => (c.FechaDeVencimiento - DateTime.Now).Days > 23);
-            cant = contratos.Count ();
+            ofertas = context.Contratos
+                .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days > 23);
+            cant = ofertas.Count ();
             cantSegunFecha.Add (cant);
 
             return Ok (cantSegunFecha);

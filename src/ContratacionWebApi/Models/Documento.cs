@@ -33,7 +33,7 @@ namespace ContratacionWebApi.Models {
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Vencimiento")]
-        public DateTime? FechaDeVencimiento { get; set; }
+        public DateTime? FechaVenContrato { get; set; }
 
         [Display (Name = "Administrador")]
         public int AdminContratoId { get; set; }
