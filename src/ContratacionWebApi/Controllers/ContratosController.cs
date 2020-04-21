@@ -38,7 +38,7 @@ namespace ContratacionWebApi.Controllers {
                     TrabajadorId = c.TrabajadorId,
                     // AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.TrabajadorId),
                     EntidadId = c.EntidadId,
-                    Entidad = c.Entidad.Nombre,
+                    Entidad = c.Entidad,
                     ObjetoDeContrato = c.ObjetoDeContrato,
                     Numero = c.Numero,
                     MontoCup = c.MontoCup,
@@ -51,7 +51,8 @@ namespace ContratacionWebApi.Controllers {
                     Estado = c.Estado.ToString (),
                     AprobJuridico = c.AprobJuridico,
                     AprobEconomico = c.AprobEconomico,
-                    AprobComitContratacion = c.AprobComitContratacion
+                    AprobComitContratacion = c.AprobComitContratacion,
+                    VenceEn = (c.FechaDeVencimiento - DateTime.Now).Days,
             });
             if (tipoTramite == "Oferta") {
                 contratos = contratos.Where (c => c.FechaDeFirmado == null && c.AprobComitContratacion == false && c.EstadoId != Estado.Aprobado);
@@ -76,7 +77,7 @@ namespace ContratacionWebApi.Controllers {
 
         // POST contratos/Contratos
         [HttpPost]
-        public async Task<IActionResult> POST ([FromForm] ContratoDto contratoDto) {
+        public async Task<IActionResult> POST (ContratoDto contratoDto) {
             if (ModelState.IsValid) {
                 var contrato = new Contrato {
                     Id = contratoDto.Id,
@@ -233,6 +234,32 @@ namespace ContratacionWebApi.Controllers {
                 new { Id = Estado.SinEstado, Nombre = "Sin Estado" },
             };
             return Ok (estadosContratos);
+        }
+        // GET: contratacion/contratos/CantSegunFecha 
+        [HttpGet ("/contratacion/contratos/CantSegunFecha")]
+        public IActionResult GetCantSegunFecha () {
+            List<int> cantSegunFecha = new List<int> ();
+            // Contratos vencidos
+            var contratos = context.Contratos.Where (c => (c.FechaDeVencimiento - DateTime.Now).Days < 0);
+            var cant = contratos.Count ();
+            cantSegunFecha.Add (cant);
+            // Contratos Casi Vencidas
+            contratos = context.Contratos
+                .Where (c => (c.FechaDeVencimiento - DateTime.Now).Days >= 0 && (c.FechaDeVencimiento - DateTime.Now).Days <= 6);
+            cant = contratos.Count ();
+            cantSegunFecha.Add (cant);
+            // Contratos Próximos a Vencer
+            contratos = context.Contratos
+                .Where (c => (c.FechaDeVencimiento - DateTime.Now).Days > 7 && (c.FechaDeVencimiento - DateTime.Now).Days <= 23);
+            cant = contratos.Count ();
+            cantSegunFecha.Add (cant);
+            // Contratos OK
+            contratos = context.Contratos
+                .Where (c => (c.FechaDeVencimiento - DateTime.Now).Days > 23);
+            cant = contratos.Count ();
+            cantSegunFecha.Add (cant);
+
+            return Ok (cantSegunFecha);
         }
 
         //Post :contratacion/contratos/UploadFile

@@ -63,9 +63,9 @@
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap>
-                  <v-flex xs3 class="px-2">
+                  <v-flex xs2 class="px-1">
                     <v-autocomplete
-                      v-model="entidad.sectorId"
+                      v-model="entidad.sector"
                       item-text="nombre"
                       item-value="id"
                       :items="sectores"
@@ -73,16 +73,19 @@
                       label="Sector"
                     ></v-autocomplete>
                   </v-flex>
-                  <v-flex xs3 class="px-2">
+                  <v-flex xs3 class="px-1">
                     <v-text-field v-model="entidad.fax" label="Fax" clearable></v-text-field>
                   </v-flex>
-                  <v-flex xs6 class="px-2">
+                  <v-flex xs4 class="px-1">
                     <v-text-field
                       v-model="entidad.correo"
                       label="Correo"
                       clearable
                       :rules="emailRules"
                     ></v-text-field>
+                  </v-flex>
+                  <v-flex xs3 class="px-1">
+                    <v-text-field v-model="entidad.objetoSocial" label="Objeto Social" clearable></v-text-field>
                   </v-flex>
                 </v-layout>
                 <!-- Agregar Número de Teléfono del Proveedor  -->
@@ -466,7 +469,7 @@
           persistent
           transition="dialog-bottom-transition"
           flat
-          max-width="1100"
+          max-width="1000"
         >
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
@@ -481,60 +484,52 @@
             <v-container fluid>
               <v-row dense>
                 <v-col cols="8">
-                  <v-row>
-                    <v-col cols="6" class="px-1">
-                      <v-text-field
-                        v-model="entidad.nombre"
-                        label="Nombre del Proveedor"
-                        outlined
-                        readonly
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="6" class="px-1">
-                      <v-text-field v-model="entidad.nit" label="NIT" outlined readonly></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="9" class="px-1">
-                      <v-text-field v-model="entidad.direccion" label="Dirección" outlined readonly></v-text-field>
-                    </v-col>
-                    <v-col cols="3" class="px-1">
-                      <v-text-field v-model="entidad.sector" label="Sector" outlined readonly></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row
-                    class="mt-1"
-                    v-for="item in entidad.cuentasBancarias"
-                    :key="item.numeroCuenta"
-                  >
-                    <v-flex md4 class="px-1">
-                      <v-text-field
-                        v-model="item.numeroCuenta"
-                        label="Número de cuenta"
-                        outlined
-                        readonly
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex md3 class="px-1">
-                      <v-text-field
-                        v-model="item.numeroSucursal"
-                        label="Número Sucursal"
-                        outlined
-                        readonly
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex md3 class="px-1">
-                      <v-text-field
-                        v-model="item.nombreSucursal"
-                        label="Nombre Sucursal"
-                        outlined
-                        readonly
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex md2 class="px-1">
-                      <v-text-field v-model="item.moneda" label="Moneda" outlined readonly></v-text-field>
-                    </v-flex>
-                  </v-row>
+                  <v-card flat>
+                    <v-row no-gutters justify="start">
+                      <v-col cols="12" md="4" class="pa-2">
+                        <v-list-item-title>
+                          <strong>Nombre del Proveedor</strong>
+                        </v-list-item-title>
+                        <v-list-item-subtitle>{{entidad.nombre}}</v-list-item-subtitle>
+                      </v-col>
+                      <v-col cols="12" md="4" class="pa-2">
+                        <v-list-item-title>
+                          <strong>NIT</strong>
+                        </v-list-item-title>
+                        <v-list-item-subtitle>{{entidad.nit}}</v-list-item-subtitle>
+                      </v-col>
+                      <v-col cols="12" md="4" class="pa-2">
+                        <v-list-item-title>
+                          <strong>Sector</strong>
+                        </v-list-item-title>
+                        <v-list-item-subtitle>{{entidad.sector}}</v-list-item-subtitle>
+                      </v-col>
+                    </v-row>
+                    <v-row no-gutters justify="start">
+                      <v-col cols="12" md="4" class="pa-2">
+                        <v-list-item-title>
+                          <strong>Objeto Social</strong>
+                        </v-list-item-title>
+                        <v-list-item-subtitle>{{entidad.objetoSocial}}</v-list-item-subtitle>
+                      </v-col>
+                      <v-col cols="12" md="8" class="pa-2">
+                        <v-list-item-title>
+                          <strong>Dirección</strong>
+                        </v-list-item-title>
+                        <v-list-item-subtitle>{{entidad.direccion}}</v-list-item-subtitle>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col cols="sm" class="pa-2">
+                        <v-data-table
+                          :headers="headersCuentas"
+                          :items="entidad.cuentasBancarias"
+                          hide-default-footer
+                          fixed-header
+                        ></v-data-table>
+                      </v-col>
+                    </v-row>
+                  </v-card>
                 </v-col>
                 <!-- Contactos de la Entidad -->
                 <v-col cols="4" class="pt-4 pl-3">
@@ -622,11 +617,6 @@ export default {
     monedas: [],
     sectores: [],
     entidad: {
-      nombre: null,
-      direccion: null,
-      nit: null,
-      correo: null,
-      sector: null,
       cuentasBancarias: [
         {
           numeroCuenta: null,
@@ -696,6 +686,17 @@ export default {
       { text: "Correo", value: "correo" },
       { text: "Sector", value: "sector" },
       { text: "Acciones", value: "action", sortable: false }
+    ],
+    headersCuentas: [
+      {
+        text: "Número de Cuenta",
+        align: "left",
+        sortable: true,
+        value: "numeroCuenta"
+      },
+      { text: "Número Sucursal", value: "numeroSucursal" },
+      { text: "Nombre Sucursal", value: "nombreSucursal" },
+      { text: "Moneda", value: "moneda" }
     ],
     date: null
   }),

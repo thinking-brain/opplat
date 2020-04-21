@@ -27,6 +27,7 @@ namespace ContratacionWebApi.Models {
         [DataType (DataType.EmailAddress, ErrorMessage = "El dirección de correo no tiene el formato correcto")]
         [Display (Name = "Correo electrónico")]
         public string Correo { get; set; }
+        public string ObjetoSocial { get; set; }
         public List<Telefono> Telefonos { get; set; }
         public ICollection<CuentaBancaria> CuentasBancarias { get; set; }
     }

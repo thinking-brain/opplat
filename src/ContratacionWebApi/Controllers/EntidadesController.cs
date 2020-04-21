@@ -26,6 +26,7 @@ namespace ContratacionWebApi.Controllers {
                     SectorId = e.Sector,
                     Sector = e.Sector.ToString (),
                     Correo = e.Correo,
+                    ObjetoSocial = e.ObjetoSocial,
                     Telefonos = context.Telefonos.Where (t => t.EntidadId == e.Id),
                     CantTelefonos = context.Telefonos.Where (t => t.EntidadId == e.Id).Count (),
                     CuentasBancarias = context.CuentasBancarias.Where (c => c.EntidadId == e.Id).Select (
@@ -67,7 +68,8 @@ namespace ContratacionWebApi.Controllers {
                     Nit = entidad.Nit,
                     Fax = entidad.Fax,
                     Sector = entidad.Sector,
-                    Correo = entidad.Correo
+                    Correo = entidad.Correo,
+                    ObjetoSocial = entidad.ObjetoSocial
                 };
                 context.Entidades.Add (ent);
 
@@ -120,6 +122,7 @@ namespace ContratacionWebApi.Controllers {
             ent.Sector = entidad.Sector;
             ent.Fax = entidad.Fax;
             ent.Correo = entidad.Correo;
+            ent.ObjetoSocial = entidad.ObjetoSocial;
             context.Entry (ent).State = EntityState.Modified;
 
             var telefonos = context.Telefonos.Where (t => t.EntidadId == ent.Id);
