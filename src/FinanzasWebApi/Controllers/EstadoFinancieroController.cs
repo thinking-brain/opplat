@@ -265,6 +265,40 @@ namespace FinanzasWebApi.Controllers {
                     }
                 }
             }
+
+            if (tipo.Equals ("5925")) {
+                decimal real279 = 0;
+                var cache279 = _context.Set<CacheCuentaPeriodo> ().SingleOrDefault (c => c.Cuenta == "279" && c.Mes == meses && c.Year == años);
+                if (cache279 != null) {
+                    real279 = real279 + cache279.Saldo;
+                }
+                var restOne = result.SingleOrDefault (s => s.Celda.Equals ("L20"));
+                restOne.Real = real279 - restOne.Real;
+
+                decimal real290 = 0;
+                var cache290 = _context.Set<CacheCuentaPeriodo> ().SingleOrDefault (c => c.Cuenta == "290" && c.Mes == meses && c.Year == años);
+                if (cache290 != null) {
+                    real290 = real290 + cache290.Saldo;
+                }
+                var restTwo = result.SingleOrDefault (s => s.Celda.Equals ("L21"));
+                restTwo.Real = real290 - restTwo.Real;
+
+                decimal real291 = 0;
+                var cache291 = _context.Set<CacheCuentaPeriodo> ().SingleOrDefault (c => c.Cuenta == "291" && c.Mes == meses && c.Year == años);
+                if (cache291 != null) {
+                    real291 = real291 + cache291.Saldo;
+                }
+                var restThree = result.SingleOrDefault (s => s.Celda.Equals ("L22"));
+                restThree.Real = real291 - restThree.Real;
+
+                decimal real292 = 0;
+                var cache292 = _context.Set<CacheCuentaPeriodo> ().SingleOrDefault (c => c.Cuenta == "292" && c.Mes == meses && c.Year == años);
+                if (cache292 != null) {
+                    real292 = real292 + cache292.Saldo;
+                }
+                var restFour = result.SingleOrDefault (s => s.Celda.Equals ("L23"));
+                restFour.Real = real292 - restFour.Real;
+            }
             return result;
         }
 
