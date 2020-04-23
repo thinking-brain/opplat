@@ -127,6 +127,29 @@
                     </v-menu>
                   </v-flex>
                   <v-flex xs3 class="px-3">
+                    <v-menu
+                      v-model="menu"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      full-width
+                      min-width="290px"
+                    >
+                      <template v-slot:activator="{ on }">
+                        <v-text-field
+                          v-model="oferta.fechaDeRecepcion"
+                          label="Fecha de Recepción "
+                          readonly
+                          clearable
+                          v-on="on"
+                          required
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker v-model="oferta.fechaDeRecepcion" @input="menu = false"></v-date-picker>
+                    </v-menu>
+                  </v-flex>
+                  <v-flex xs3 class="px-3">
                     <v-text-field
                       v-model="oferta.vigencia"
                       label="vigencia"
@@ -206,6 +229,7 @@
           </v-card>
         </v-dialog>
         <!-- /Agregar y Editar oferta -->
+        <!-- Buscar -->
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -216,9 +240,11 @@
           clearable
           dense
         ></v-text-field>
+        <!-- /Buscar -->
+
         <v-spacer></v-spacer>
         <!-- Cantidad de Ofertas Ok -->
-        <v-badge color="green" overlap class="mt-4">
+        <v-badge :content="enTiempo" :value="enTiempo" color="green" overlap class="mt-4">
           <template v-slot:badge>
             <span v-if="enTiempo > 0">{{ enTiempo }}</span>
           </template>
@@ -231,21 +257,42 @@
         </v-badge>
         <!-- /Cantidad de Ofertas Ok -->
 
-        <!-- Cantidad de Ofertas proxVencer -->
-        <v-badge color="red lighten-3" overlap class="mt-4 ml-4">
+        <!-- Cantidad de Ofertas Casi Vencidos -->
+        <v-badge :content="proxVencer" :value="proxVencer" color="orange" overlap class="mt-4 ml-4">
           <template v-slot:badge>
-            <span v-if="proxVencer > 0">{{ proxVencer }}</span>
+            <span v-if="proxVencer > 0">{{ proxVencer}}</span>
+          </template>
+          <v-tooltip top color="orange">
+            <template v-slot:activator="{ on }">
+              <v-icon medium v-on="on" color="orange">mdi-file-document-box-multiple-outline</v-icon>
+            </template>
+            <span>Ofertas Próximas a vencer</span>
+          </v-tooltip>
+        </v-badge>
+        <!-- /Cantidad de Ofertas Casi Vencidos -->
+
+        <!-- Cantidad de Ofertas proxVencer -->
+        <v-badge
+          :content="casiVenc"
+          :value="casiVenc"
+          color="red lighten-3"
+          overlap
+          class="mt-4 ml-4"
+        >
+          <template v-slot:badge>
+            <span v-if="casiVenc > 0">{{ casiVenc }}</span>
           </template>
           <v-tooltip top color="red lighten-3">
             <template v-slot:activator="{ on }">
               <v-icon medium v-on="on" color="red lighten-3">mdi-file-document-box-multiple-outline</v-icon>
             </template>
-            <span>Ofertas Próximas a Vencer</span>
+            <span>Ofertas casi vencidas</span>
           </v-tooltip>
         </v-badge>
         <!-- /Cantidad de Ofertas proxVencer -->
+
         <!-- Cantidad de Ofertas Vencidas -->
-        <v-badge color="red" overlap class="mt-4 ml-4">
+        <v-badge :content="vencidos" :value="vencidos" color="red" overlap class="mt-4 ml-4">
           <template v-slot:badge>
             <span v-if="vencidos > 0">{{ vencidos }}</span>
           </template>
@@ -589,8 +636,11 @@ export default {
     formasDePagos: [],
     formaDePago: {},
     enTiempo: 0,
+    casiVenc: 0,
     proxVencer: 0,
     vencidos: 0,
+    cantSegunFechas: [],
+    show: false,
     tabs: null,
     errors: [],
     items: ["Días", "Meses", "Años"],
@@ -810,17 +860,30 @@ export default {
       }
     },
     getColor(venceEn) {
+      this.GetCantSegunFecha();
       if (venceEn < 0) {
-        this.vencidos = +1;
         return "red";
-      } else if (venceEn > 0 && venceEn <= 6) {
-        this.proxVencer = +1;
+      } else if (venceEn >= 0 && venceEn <= 6) {
         return "red lighten-3";
       } else if (venceEn > 7 && venceEn <= 23) return "orange";
       else {
-        this.enTiempo = +1;
         return "green";
       }
+    },
+    GetCantSegunFecha() {
+      const url = api.getUrl("contratacion", "contratos/CantSegunFecha");
+      this.axios.get(url).then(
+        response => {
+          this.cantSegunFechas = response.data;
+          this.vencidos = this.cantSegunFechas[0];
+          this.casiVenc = this.cantSegunFechas[1];
+          this.proxVencer = this.cantSegunFechas[2];
+          this.enTiempo = this.cantSegunFechas[3];
+        },
+        error => {
+          console.log(error);
+        }
+      );
     }
   }
 };
