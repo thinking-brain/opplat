@@ -1,7 +1,7 @@
 <template>
   <v-data-table :headers="headers" :items="ofertas" :search="search" class="elevation-1 pa-5">
-    <template v-slot:item.venceEn="{ item }">
-      <v-chip :color="getColor(item.venceEn)" dark>{{ item.venceEn }} días</v-chip>
+    <template v-slot:item.ofertVence="{ item }">
+      <v-chip :color="getColor(item.ofertVence)" dark>{{ item.ofertVence }} días</v-chip>
     </template>
     <template v-slot:top>
       <v-toolbar flat color="white">
@@ -84,7 +84,7 @@
                       prefix="$"
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-3">
+                  <v-flex xs4 class="pl-3">
                     <v-text-field
                       v-model="oferta.montoCuc"
                       label="Monto CUC"
@@ -95,15 +95,16 @@
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap>
-                  <v-flex xs3 class="px-3">
+                  <v-flex xs3 class="pl-3">
                     <v-text-field
                       v-model="oferta.terminoDePago"
-                      label="Término de Pago en Meses"
+                      label="Término "
+                      placeholder="de Pago en Meses"
                       clearable
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-3">
+                  <v-flex xs2 class="pl-3">
                     <v-menu
                       v-model="menu"
                       :close-on-content-click="false"
@@ -116,7 +117,8 @@
                       <template v-slot:activator="{ on }">
                         <v-text-field
                           v-model="oferta.fechaDeRecepcion"
-                          label="Fecha de Recepción "
+                          label="Fecha "
+                          placeholder="de Recepción"
                           readonly
                           clearable
                           v-on="on"
@@ -126,9 +128,9 @@
                       <v-date-picker v-model="oferta.fechaDeRecepcion" @input="menu = false"></v-date-picker>
                     </v-menu>
                   </v-flex>
-                  <v-flex xs3 class="px-3">
+                  <v-flex xs2 class="pl-3">
                     <v-menu
-                      v-model="menu"
+                      v-model="menu1"
                       :close-on-content-click="false"
                       :nudge-right="40"
                       transition="scale-transition"
@@ -138,18 +140,19 @@
                     >
                       <template v-slot:activator="{ on }">
                         <v-text-field
-                          v-model="oferta.fechaDeRecepcion"
-                          label="Fecha de Recepción "
+                          v-model="oferta.FechaVenContrato"
+                          label="Fecha "
+                          placeholder="de Vencimiento"
                           readonly
                           clearable
                           v-on="on"
                           required
                         ></v-text-field>
                       </template>
-                      <v-date-picker v-model="oferta.fechaDeRecepcion" @input="menu = false"></v-date-picker>
+                      <v-date-picker v-model="oferta.FechaVenContrato" @input="menu1 = false"></v-date-picker>
                     </v-menu>
                   </v-flex>
-                  <v-flex xs3 class="px-3">
+                  <v-flex xs2 class="pl-3">
                     <v-text-field
                       v-model="oferta.vigencia"
                       label="vigencia"
@@ -403,7 +406,7 @@
                     </v-timeline-item>
                     <v-timeline-item :color="'red'" :right="true" small>
                       <template v-slot:opposite>
-                        <span :class="`subtitle-2 red--text`" v-text="oferta.fechaDeVencimiento"></span>
+                        <span :class="`subtitle-2 red--text`" v-text="oferta.FechaVenContrato"></span>
                       </template>
                       <v-card class="elevation-2">
                         <v-card-text
@@ -639,7 +642,7 @@ export default {
     casiVenc: 0,
     proxVencer: 0,
     vencidos: 0,
-    cantSegunFechas: [],
+    vencimientoOfertas: [],
     show: false,
     tabs: null,
     errors: [],
@@ -651,7 +654,7 @@ export default {
       { text: "Entidad", value: "entidad.nombre" },
       { text: "Monto Cup", value: "montoCup" },
       { text: "Monto Cuc", value: "montoCuc" },
-      { text: "Vence", value: "venceEn" },
+      { text: "Vence", value: "ofertVence" },
       { text: "Estado", value: "estado" },
       { text: "Acciones", value: "action", sortable: false }
     ]
@@ -859,26 +862,26 @@ export default {
         vm.$snotify.success("Exito al realizar la operación");
       }
     },
-    getColor(venceEn) {
-      this.GetCantSegunFecha();
-      if (venceEn < 0) {
+    getColor(ofertVence) {
+      this.GetVencimientoOferta();
+      if (ofertVence < 0) {
         return "red";
-      } else if (venceEn >= 0 && venceEn <= 6) {
+      } else if (ofertVence >= 0 && ofertVence <= 6) {
         return "red lighten-3";
-      } else if (venceEn > 7 && venceEn <= 23) return "orange";
+      } else if (ofertVence > 7 && ofertVence <= 23) return "orange";
       else {
         return "green";
       }
     },
-    GetCantSegunFecha() {
-      const url = api.getUrl("contratacion", "contratos/CantSegunFecha");
+    GetVencimientoOferta() {
+      const url = api.getUrl("contratacion", "contratos/VencimientoOferta");
       this.axios.get(url).then(
         response => {
-          this.cantSegunFechas = response.data;
-          this.vencidos = this.cantSegunFechas[0];
-          this.casiVenc = this.cantSegunFechas[1];
-          this.proxVencer = this.cantSegunFechas[2];
-          this.enTiempo = this.cantSegunFechas[3];
+          this.vencimientoOfertas = response.data;
+          this.vencidos = this.vencimientoOfertas[0];
+          this.casiVenc = this.vencimientoOfertas[1];
+          this.proxVencer = this.vencimientoOfertas[2];
+          this.enTiempo = this.vencimientoOfertas[3];
         },
         error => {
           console.log(error);

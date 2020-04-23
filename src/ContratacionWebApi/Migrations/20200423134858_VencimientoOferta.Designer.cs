@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    [Migration("20200413031701_ArrayCuentas")]
-    partial class ArrayCuentas
+    [Migration("20200423134858_VencimientoOferta")]
+    partial class VencimientoOferta
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -51,6 +51,8 @@ namespace ContratacionWebApi.Migrations
                     b.Property<DateTime?>("FechaDeFirmado");
 
                     b.Property<DateTime>("FechaDeRecepcion");
+
+                    b.Property<DateTime>("FechaDeVenOferta");
 
                     b.Property<DateTime>("FechaVenContrato");
 
@@ -132,11 +134,9 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("NombreSucursal");
 
-                    b.Property<string>("NumeroCuenta")
-                        .IsRequired();
+                    b.Property<string>("NumeroCuenta");
 
-                    b.Property<string>("NumeroSucursal")
-                        .IsRequired();
+                    b.Property<string>("NumeroSucursal");
 
                     b.HasKey("Id");
 
@@ -238,6 +238,10 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired();
+
+                    b.Property<string>("ObjetoSocial");
+
+                    b.Property<int>("Sector");
 
                     b.HasKey("Id");
 

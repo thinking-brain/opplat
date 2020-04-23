@@ -35,7 +35,8 @@ namespace ContratacionWebApi.Models {
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Vencimiento")]
-        public DateTime FechaDeVencimiento { get; set; }
+        public DateTime FechaVenContrato { get; set; }
+        public DateTime FechaDeVenOferta { get; set; }
         public int Vigencia { get; set; }
         public string FilePath  { get; set; }
 
