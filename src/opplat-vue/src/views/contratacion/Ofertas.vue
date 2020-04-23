@@ -1,20 +1,12 @@
 <template>
   <v-data-table :headers="headers" :items="ofertas" :search="search" class="elevation-1 pa-5">
+    <template v-slot:item.venceEn="{ item }">
+      <v-chip :color="getColor(item.venceEn)" dark>{{ item.venceEn }} días</v-chip>
+    </template>
     <template v-slot:top>
       <v-toolbar flat color="white">
         <v-toolbar-title>Ofertas</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-spacer></v-spacer>
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Buscar"
-          single-line
-          hide-details
-          clearable
-          dense
-        ></v-text-field>
-        <v-spacer></v-spacer>
         <!-- Agregar y Editar oferta -->
         <v-dialog v-model="dialog" persistent max-width="1100">
           <template v-slot:activator="{ on }">
@@ -128,6 +120,7 @@
                           readonly
                           clearable
                           v-on="on"
+                          required
                         ></v-text-field>
                       </template>
                       <v-date-picker v-model="oferta.fechaDeRecepcion" @input="menu = false"></v-date-picker>
@@ -184,6 +177,7 @@
                       cache-items
                       label="Especialista Externo"
                       placeholder="Dictaminador Externo"
+                      multiple
                     >
                       <v-icon @click="dialog5=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
@@ -212,6 +206,57 @@
           </v-card>
         </v-dialog>
         <!-- /Agregar y Editar oferta -->
+        <v-spacer></v-spacer>
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Buscar"
+          single-line
+          hide-details
+          clearable
+          dense
+        ></v-text-field>
+        <v-spacer></v-spacer>
+        <!-- Cantidad de Ofertas Ok -->
+        <v-badge color="green" overlap class="mt-4">
+          <template v-slot:badge>
+            <span v-if="enTiempo > 0">{{ enTiempo }}</span>
+          </template>
+          <v-tooltip top color="green">
+            <template v-slot:activator="{ on }">
+              <v-icon medium v-on="on" color="green">mdi-file-document-box-multiple-outline</v-icon>
+            </template>
+            <span>Ofertas en Tiempo</span>
+          </v-tooltip>
+        </v-badge>
+        <!-- /Cantidad de Ofertas Ok -->
+
+        <!-- Cantidad de Ofertas proxVencer -->
+        <v-badge color="red lighten-3" overlap class="mt-4 ml-4">
+          <template v-slot:badge>
+            <span v-if="proxVencer > 0">{{ proxVencer }}</span>
+          </template>
+          <v-tooltip top color="red lighten-3">
+            <template v-slot:activator="{ on }">
+              <v-icon medium v-on="on" color="red lighten-3">mdi-file-document-box-multiple-outline</v-icon>
+            </template>
+            <span>Ofertas Próximas a Vencer</span>
+          </v-tooltip>
+        </v-badge>
+        <!-- /Cantidad de Ofertas proxVencer -->
+        <!-- Cantidad de Ofertas Vencidas -->
+        <v-badge color="red" overlap class="mt-4 ml-4">
+          <template v-slot:badge>
+            <span v-if="vencidos > 0">{{ vencidos }}</span>
+          </template>
+          <v-tooltip top color="red">
+            <template v-slot:activator="{ on }">
+              <v-icon medium v-on="on" color="red">mdi-file-document-box-multiple-outline</v-icon>
+            </template>
+            <span>Ofertas Vencidas</span>
+          </v-tooltip>
+        </v-badge>
+        <!-- /Cantidad de Ofertas Vencidas -->
 
         <!-- Detalles de la oferta -->
         <v-dialog
@@ -404,8 +449,8 @@
               </v-flex>
               <v-card-actions>
                 <v-spacer></v-spacer>
-               <v-btn color="green darken-1" text @click="upload()">Aceptar</v-btn>
-              <v-btn color="blue darken-1" text @click=" close()">Cancelar</v-btn>
+                <v-btn color="green darken-1" text @click="upload()">Aceptar</v-btn>
+                <v-btn color="blue darken-1" text @click=" close()">Cancelar</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -529,12 +574,13 @@ export default {
       montoCuc: null,
       fechaDeRecepcion: null,
       vigencia: null,
+      vigenciaDMA: "",
       formasDePago: [],
       terminoDePago: null,
       dictaminadoresId: [],
       espExternoId: []
     },
-    file:null,
+    file: null,
     entidades: [],
     especialistasExternos: [],
     adminContratos: [],
@@ -542,6 +588,9 @@ export default {
     tipos: [],
     formasDePagos: [],
     formaDePago: {},
+    enTiempo: 0,
+    proxVencer: 0,
+    vencidos: 0,
     tabs: null,
     errors: [],
     items: ["Días", "Meses", "Años"],
@@ -549,10 +598,10 @@ export default {
       { text: "Número", sortable: true, value: "numero" },
       { text: "Nombre", align: "left", sortable: true, value: "nombre" },
       { text: "Tipo", value: "tipo" },
-      { text: "Entidad", value: "entidad" },
+      { text: "Entidad", value: "entidad.nombre" },
       { text: "Monto Cup", value: "montoCup" },
       { text: "Monto Cuc", value: "montoCuc" },
-      { text: "Fecha de Llegada", value: "fechaDeRecepcion" },
+      { text: "Vence", value: "venceEn" },
       { text: "Estado", value: "estado" },
       { text: "Acciones", value: "action", sortable: false }
     ]
@@ -703,13 +752,13 @@ export default {
     },
     upload() {
       const formData = new FormData();
-      formData.append("file", this.file,);
+      formData.append("file", this.file);
       const url = api.getUrl("contratacion", "contratos/UploadFile");
       this.axios
-        .post(url,formData, this.oferta.id, {
+        .post(url, formData, this.oferta.id, {
           headers: {
             "Content-Type": "multipart/form-data"
-          },
+          }
         })
         .then(
           response => {
@@ -758,6 +807,19 @@ export default {
     getResponse(response) {
       if (response.status === 200 || response.status === 201) {
         vm.$snotify.success("Exito al realizar la operación");
+      }
+    },
+    getColor(venceEn) {
+      if (venceEn < 0) {
+        this.vencidos = +1;
+        return "red";
+      } else if (venceEn > 0 && venceEn <= 6) {
+        this.proxVencer = +1;
+        return "red lighten-3";
+      } else if (venceEn > 7 && venceEn <= 23) return "orange";
+      else {
+        this.enTiempo = +1;
+        return "green";
       }
     }
   }
