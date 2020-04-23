@@ -1,9 +1,8 @@
 using ContratacionWebApi.Models;
 
-namespace ContratacionWebApi.Models
-{
-    public class DetalleDeSolicitud
-    {
+namespace ContratacionWebApi.Models {
+    public class DetalleDeSolicitud {
+        public int Id { get; set; }
         public int SolicitudDePagoId { get; set; }
 
         public virtual SolicitudDePago SolicitudDePago { get; set; }

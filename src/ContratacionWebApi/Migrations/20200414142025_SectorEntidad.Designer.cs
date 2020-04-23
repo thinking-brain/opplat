@@ -3,15 +3,17 @@ using System;
 using ContratacionWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    partial class ContratacionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200414142025_SectorEntidad")]
+    partial class SectorEntidad
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -130,9 +132,11 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("NombreSucursal");
 
-                    b.Property<string>("NumeroCuenta");
+                    b.Property<string>("NumeroCuenta")
+                        .IsRequired();
 
-                    b.Property<string>("NumeroSucursal");
+                    b.Property<string>("NumeroSucursal")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -234,8 +238,6 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired();
-
-                    b.Property<string>("ObjetoSocial");
 
                     b.Property<int>("Sector");
 

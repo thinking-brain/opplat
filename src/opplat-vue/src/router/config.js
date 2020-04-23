@@ -486,13 +486,13 @@ export const protectedRoute = [
         component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Contratos.vue'),
       },
       {
-        path: '/contratacion/Proformas',
-        name: 'Proformas',
+        path: '/contratacion/Ofertas',
+        name: 'Ofertas',
         meta: {
-          title: 'Proformas',
+          title: 'Ofertas',
           requiresAuth: true,
         },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Proformas.vue'),
+        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Ofertas.vue'),
       },
       {
         path: '/contratacion/Config',

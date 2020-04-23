@@ -11,11 +11,11 @@
         ]
     },
     {
-        "title": "Proformas",
+        "title": "Ofertas",
         "group": "contratacion",
         "icon": "mdi-note-multiple",
-        "component": "Proformas",
-        "name": "Proformas",
+        "component": "Ofertas",
+        "name": "Ofertas",
         "roles": [
             "administrador",
             "contratacion"

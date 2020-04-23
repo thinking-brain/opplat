@@ -6,8 +6,8 @@ using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RhWebApi.Data;
-using RhWebApi.Models;
 using RhWebApi.Dtos;
+using RhWebApi.Models;
 
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
@@ -49,7 +49,7 @@ namespace RhWebApi.Controllers {
             };
             return Ok (colorDeOjos);
         }
-         // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
+        // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
         [HttpGet ("/recursos_humanos/CaracteristicasTrab/TallaDeCamisa")]
         public IActionResult GetAllTallaDeCamisa () {
             var tallaDeCamisa = new List<dynamic> () {
@@ -71,8 +71,8 @@ namespace RhWebApi.Controllers {
                 new { Id = Estados.Baja, Nombre = Estados.Baja.ToString () },
                 new { Id = Estados.Interrupto, Nombre = Estados.Interrupto.ToString () },
                 new { Id = Estados.Disponible, Nombre = Estados.Disponible.ToString () },
-                new { Id = Estados.Licencia_Maternidad, Nombre = Estados.Licencia_Maternidad.ToString () },
-                new { Id = Estados.Licencia_Sin_Sueldo, Nombre = Estados.Licencia_Sin_Sueldo.ToString () },
+                new { Id = Estados.Licencia_Maternidad, Nombre = "Licencia de Maternidad" },
+                new { Id = Estados.Licencia_Sin_Sueldo, Nombre = "Licencia sin Sueldo" },
                 new { Id = Estados.Certificado, Nombre = Estados.Certificado.ToString () },
                 new { Id = Estados.Bolsa, Nombre = Estados.Bolsa.ToString () },
                 new { Id = Estados.Descartado, Nombre = Estados.Descartado.ToString () },
@@ -83,12 +83,12 @@ namespace RhWebApi.Controllers {
         [HttpGet ("/recursos_humanos/CaracteristicasTrab/NivelEscolaridad")]
         public IActionResult GetAllEscolaridad () {
             var nivelEscolaridad = new List<dynamic> () {
-                new { Id = NivelDeEscolaridad.TecnicoMedio, Nombre = NivelDeEscolaridad.TecnicoMedio.ToString () },
-                new { Id = NivelDeEscolaridad.NivelSuperior, Nombre = NivelDeEscolaridad.NivelSuperior.ToString () },
-                new { Id = NivelDeEscolaridad.DoceGrado, Nombre = NivelDeEscolaridad.DoceGrado.ToString () },
-                new { Id = NivelDeEscolaridad.NovenoGrado, Nombre = NivelDeEscolaridad.NovenoGrado.ToString () },
-                new { Id = NivelDeEscolaridad.SextoGrado, Nombre = NivelDeEscolaridad.SextoGrado.ToString () },
-                new { Id = NivelDeEscolaridad.MenosDeSextoGrado, Nombre = NivelDeEscolaridad.MenosDeSextoGrado.ToString () },
+                new { Id = NivelDeEscolaridad.TecnicoMedio, Nombre = "Técnico Medio" },
+                new { Id = NivelDeEscolaridad.NivelSuperior, Nombre = "Nivel Superior" },
+                new { Id = NivelDeEscolaridad.DoceGrado, Nombre = "Doce Grado" },
+                new { Id = NivelDeEscolaridad.NovenoGrado, Nombre = "Noveno Grado" },
+                new { Id = NivelDeEscolaridad.SextoGrado, Nombre = "Sexto Grado" },
+                new { Id = NivelDeEscolaridad.MenosDeSextoGrado, Nombre = "Menos de Sexto Grado" },
             };
             return Ok (nivelEscolaridad);
         }

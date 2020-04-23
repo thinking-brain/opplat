@@ -14,11 +14,11 @@ namespace ContratacionWebApi.Models {
         public virtual ICollection<Especialista> Especialistas { get; set; }
 
         [NotMapped]
-        public virtual ICollection<DocumentoDeContrato> Documentos { get; set; }
+        public virtual ICollection<Documento> Documentos { get; set; }
 
         public Especialidad () {
             Especialistas = new HashSet<Especialista> ();
-            Documentos = new HashSet<DocumentoDeContrato> ();
+            Documentos = new HashSet<Documento> ();
         }
 
     }

@@ -7,7 +7,7 @@
   >
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>Listado de Especialistas</v-toolbar-title>
+        <v-toolbar-title>Especialistas Externos</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field
@@ -21,7 +21,7 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <!-- Agregar y Editar Especialista -->
-        <v-dialog v-model="dialog" persistent max-width="500">
+        <v-dialog v-model="dialog" persistent max-width="700">
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark v-on="on">Nuevo Especialista</v-btn>
           </template>
@@ -41,7 +41,17 @@
                   <v-flex xs6 class="px-3">
                     <v-text-field
                       label="Nombre"
-                      v-model="EspecialistaExterno.nombre"
+                      v-model="especialistaExterno.nombre"
+                      :rules="NombreRules"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs6 class="px-3">
+                    <v-text-field
+                      label="Apellidos"
+                      v-model="especialistaExterno.apellidos"
+                      :rules="ApellidosRules"
                       clearable
                       required
                     ></v-text-field>
@@ -49,7 +59,37 @@
                   <v-flex xs6 class="px-3">
                     <v-text-field
                       label="Cargo"
-                      v-model="EspecialistaExterno.cargo"
+                      v-model="especialistaExterno.cargo"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs6 class="px-3">
+                    <v-autocomplete
+                      v-model="especialistaExterno.entidadId"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="entidades"
+                      :filter="activeFilter"
+                      :rules="EntidadRules"
+                      cache-items
+                      label="Entidad Proveedora a la Pertenece"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs6 class="px-3">
+                    <v-text-field
+                      label="Área"
+                      v-model="especialistaExterno.area"
+                      :rules="AreaRules"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs6 class="px-3">
+                    <v-text-field
+                      label="Departamento"
+                      v-model="especialistaExterno.departamento"
+                      :rules="DepartamentoRules"
                       clearable
                       required
                     ></v-text-field>
@@ -76,11 +116,13 @@
             </v-toolbar-items>
           </v-toolbar>
           <v-card>
-            <v-card-title class="headline text-center">Seguro que deseas eliminar al Especialista Externo</v-card-title>
-            <v-card-text class="text-center">{{EspecialistaExterno.nombre}}</v-card-text>
+            <v-card-title
+              class="headline text-center"
+            >Seguro que deseas eliminar al Especialista Externo</v-card-title>
+            <v-card-text class="text-center">{{especialistaExterno.nombre}}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red" dark @click="deleteItem(EspecialistaExterno)">Aceptar</v-btn>
+              <v-btn color="red" dark @click="deleteItem(especialistaExterno)">Aceptar</v-btn>
               <v-btn color="primary" @click="close()">Cancelar</v-btn>
             </v-card-actions>
           </v-card>
@@ -115,16 +157,25 @@ export default {
     search: "",
     editedIndex: -1,
     EspecialistasExternos: [],
-    EspecialistaExterno: {},
+    especialistaExterno: {},
     tabs: null,
+    entidades: [],
     errors: [],
+    NombreRules: [v => !!v || "El Nombre es Requerido"],
+    ApellidosRules: [v => !!v || "Los Apellidos son Requeridos"],
+    EntidadRules: [v => !!v || "El Proveedor es Requerido"],
+    AreaRules: [v => !!v || "El Área es Requerida"],
+    DepartamentoRules: [v => !!v || "El Departamento es Requerido"],
     headers: [
       {
         text: "Nombre",
         align: "left",
         sortable: true,
-        value: "nombre"
+        value: "nombreCompleto"
       },
+      { text: "Entidad Proveedora a la Pertenece", value: "entidad" },
+      { text: "Departamento", value: "departamento" },
+      { text: "Área", value: "area" },
       { text: "Cargo", value: "cargo" },
       { text: "Acciones", value: "action", sortable: false }
     ]
@@ -149,6 +200,7 @@ export default {
 
   created() {
     this.getEspecialistasExternosFromApi();
+    this.getEntidadesFromApi();
   },
 
   methods: {
@@ -163,9 +215,20 @@ export default {
         }
       );
     },
+    getEntidadesFromApi() {
+      const url = api.getUrl("contratacion", "Entidades");
+      this.axios.get(url).then(
+        response => {
+          this.entidades = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     editItem(item) {
       this.editedIndex = this.EspecialistasExternos.indexOf(item);
-      this.EspecialistaExterno = Object.assign({}, item);
+      this.especialistaExterno = Object.assign({}, item);
       this.dialog = true;
     },
 
@@ -173,10 +236,25 @@ export default {
       const url = api.getUrl("contratacion", "EspecialistasExternos");
       if (method === "POST") {
         if (this.$refs.form.validate()) {
-          this.axios.post(url, this.EspecialistaExterno).then(
+          this.snackbar = true;
+        }
+        if (
+          this.especialistaExterno.nombre == null ||
+          this.especialistaExterno.apellidos == null ||
+          this.especialistaExterno.entidadId == null
+        ) {
+          vm.$snotify.error("Faltan campos por llenar que son obligatorios");
+        } else if (
+          this.especialistaExterno.area == null &&
+          this.especialistaExterno.departamento == null
+        ) {
+          vm.$snotify.error("Debe llenar Área o Departamento");
+        } else {
+          this.axios.post(url, this.especialistaExterno).then(
             response => {
               this.getResponse(response);
               this.getEspecialistasExternosFromApi();
+              this.especialistaExterno = {};
               this.dialog = false;
             },
             error => {
@@ -188,13 +266,14 @@ export default {
       if (method === "PUT") {
         this.axios
           .put(
-            `${url}/${this.EspecialistaExterno.id}`,
-            this.EspecialistaExterno
+            `${url}/${this.especialistaExterno.id}`,
+            this.especialistaExterno
           )
           .then(
             response => {
               this.getResponse(response);
               this.getEspecialistasExternosFromApi();
+              this.especialistaExterno = {};
               this.dialog = false;
             },
             error => {
@@ -204,12 +283,12 @@ export default {
       }
     },
     confirmDelete(item) {
-      this.EspecialistaExterno = Object.assign({}, item);
+      this.especialistaExterno = Object.assign({}, item);
       this.dialog2 = true;
     },
-    deleteItem(EspecialistaExterno) {
+    deleteItem(especialistaExterno) {
       const url = api.getUrl("contratacion", "EspecialistasExternos");
-      this.axios.delete(`${url}/${EspecialistaExterno.id}`).then(
+      this.axios.delete(`${url}/${especialistaExterno.id}`).then(
         response => {
           this.getResponse(response);
           this.getEspecialistasExternosFromApi();

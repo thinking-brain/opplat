@@ -1,7 +1,7 @@
 
 namespace ContratacionWebApi.Models
 {
-    public class Suplemento: DocumentoDeContrato
+    public class Suplemento: Documento
     {
        public int ContratoId { get; set; }
 

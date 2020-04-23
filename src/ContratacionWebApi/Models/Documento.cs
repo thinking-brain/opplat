@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace ContratacionWebApi.Models {
-    public class DocumentoDeContrato {
+    public class Documento {
         public int Id { get; set; }
 
         [Display (Name = "Número")]
@@ -46,50 +46,10 @@ namespace ContratacionWebApi.Models {
 
         public virtual ICollection<HistoricoDeDocumento> Historicos { get; set; }
 
-        public DocumentoDeContrato () {
-            ObjetosDeContrato = new HashSet<ObjetoDeContrato> ();
-            Especialidades = new HashSet<Especialidad> ();
-            Historicos = new HashSet<HistoricoDeDocumento> ();
-        }
-
-        //     [NotMapped]
-        //     public bool SeDictamino
-        //     {
-        //         get
-        //         {
-        //             if (Versiones.Count == 0)
-        //             {
-        //                 return false;
-        //             }
-        //             return Versiones.Last().Revisiones.Count == Especialidades.Count && Especialidades.Count > 0;
-        //         }
-        //     }
-
-        //     [NotMapped]
-        //     public string FechaAprobado
-        //     {
-        //         get
-        //         {
-        //             return Versiones.Last().Aprobaciones.Aggregate("", (current, aprob) => current + (aprob.Fecha.ToShortDateString() + " "));
-        //         }
-        //     }
-
-        //     [NotMapped]
-        //     public VersionDocumento UltimaRevision
-        //     {
-        //         get
-        //         {
-        //             return Versiones.Last();
-        //         }
-        //     }
-
-        //     [NotMapped]
-        //     public VersionDocumento VersionInicial
-        //     {
-        //         get
-        //         {
-        //             return Versiones.First();
-        //         }
-        //     }
+        // public Documento () {
+        //     ObjetosDeContrato = new HashSet<ObjetoDeContrato> ();
+        //     Especialidades = new HashSet<Especialidad> ();
+        //     Historicos = new HashSet<HistoricoDeDocumento> ();
+        // }
     }
 }

@@ -17,18 +17,18 @@ namespace ContratacionWebApi.Controllers
             this.context = context;
         }
 
-        // GET DictaminadorContrato/DictaminadorContrato
+        // GET Dictaminador/Dictaminador
         [HttpGet]
-        public IEnumerable<DictaminadorContrato> GetAll()
+        public IEnumerable<Dictaminador> GetAll()
         {
-            return context.DictaminadoresContrato.ToList();
+            return context.Dictaminadores.ToList();
         }
 
-        // GET: DictaminadorContrato/DictaminadorContrato/Id
+        // GET: Dictaminador/Dictaminador/Id
         [HttpGet("{id}", Name = "Getdictaminador")]
         public IActionResult GetbyId(int id)
         {
-            var dictaminador = context.DictaminadoresContrato.FirstOrDefault(s => s.Id == id);
+            var dictaminador = context.Dictaminadores.FirstOrDefault(s => s.Id == id);
 
             if (dictaminador == null)
             {
@@ -37,22 +37,22 @@ namespace ContratacionWebApi.Controllers
             return Ok(dictaminador);
         }
 
-        // POST DictaminadorContrato/DictaminadorContrato
+        // POST Dictaminador/Dictaminador
         [HttpPost]
-        public IActionResult POST([FromBody] DictaminadorContrato dictaminador)
+        public IActionResult POST([FromBody] Dictaminador dictaminador)
         {
             if (ModelState.IsValid)
             {
-                context.DictaminadoresContrato.Add(dictaminador);
+                context.Dictaminadores.Add(dictaminador);
                 context.SaveChanges();
                 return new CreatedAtRouteResult("Getdictaminador", new { id = dictaminador.Id });
             }
             return BadRequest(ModelState);
         }
 
-        // PUT DictaminadorContrato/dictaminador/id
+        // PUT Dictaminador/dictaminador/id
         [HttpPut("{id}")]
-        public IActionResult PUT([FromBody] DictaminadorContrato dictaminador, int id)
+        public IActionResult PUT([FromBody] Dictaminador dictaminador, int id)
         {
             if (dictaminador.Id != id)
             {
@@ -64,17 +64,17 @@ namespace ContratacionWebApi.Controllers
             return Ok();
         }
 
-        // DELETE DictaminadorContrato/dictaminador/id
+        // DELETE Dictaminador/dictaminador/id
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var dictaminador = context.DictaminadoresContrato.FirstOrDefault(s => s.Id == id);
+            var dictaminador = context.Dictaminadores.FirstOrDefault(s => s.Id == id);
 
             if (dictaminador.Id != id)
             {
                 return NotFound();
             }
-            context.DictaminadoresContrato.Remove(dictaminador);
+            context.Dictaminadores.Remove(dictaminador);
             context.SaveChanges();
             return Ok(dictaminador);
         }

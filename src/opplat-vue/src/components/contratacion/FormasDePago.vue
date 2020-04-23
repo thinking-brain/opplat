@@ -2,7 +2,7 @@
   <v-data-table :headers="headers" :items="formasDePagos" :search="search" class="elevation-1 pa-5">
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>Listado de Formas de Pago</v-toolbar-title>
+        <v-toolbar-title>Formas de Pago</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field

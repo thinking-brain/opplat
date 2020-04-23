@@ -3,15 +3,17 @@ using System;
 using ContratacionWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    partial class ContratacionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200409213454_telefonoModels")]
+    partial class telefonoModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -130,9 +132,9 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("NombreSucursal");
 
-                    b.Property<string>("NumeroCuenta");
+                    b.Property<int>("NumeroCuenta");
 
-                    b.Property<string>("NumeroSucursal");
+                    b.Property<int>("NumeroSucursal");
 
                     b.HasKey("Id");
 
@@ -234,10 +236,6 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired();
-
-                    b.Property<string>("ObjetoSocial");
-
-                    b.Property<int>("Sector");
 
                     b.HasKey("Id");
 
@@ -391,9 +389,9 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int?>("EntidadId");
 
-                    b.Property<string>("Extension");
+                    b.Property<int>("Extension");
 
-                    b.Property<string>("Numero");
+                    b.Property<int>("Numero");
 
                     b.HasKey("Id");
 
@@ -449,7 +447,7 @@ namespace ContratacionWebApi.Migrations
             modelBuilder.Entity("ContratacionWebApi.Models.CuentaBancaria", b =>
                 {
                     b.HasOne("ContratacionWebApi.Models.Entidad", "Entidad")
-                        .WithMany("CuentasBancarias")
+                        .WithMany()
                         .HasForeignKey("EntidadId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -531,7 +529,7 @@ namespace ContratacionWebApi.Migrations
 
             modelBuilder.Entity("ContratacionWebApi.Models.Telefono", b =>
                 {
-                    b.HasOne("ContratacionWebApi.Models.Entidad", "Entidad")
+                    b.HasOne("ContratacionWebApi.Models.Entidad")
                         .WithMany("Telefonos")
                         .HasForeignKey("EntidadId");
                 });

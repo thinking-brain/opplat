@@ -10,7 +10,7 @@ namespace ContratacionWebApi.Models {
         public int Id { get; set; }
         public string Nombre { get; set; }
         public Tipo Tipo { get; set; }
-        public int AdminContratoId { get; set; }
+        public int TrabajadorId { get; set; }
         public int EntidadId { get; set; }
         public string ObjetoDeContrato { get; set; }
         public string Numero { get; set; }
@@ -25,11 +25,12 @@ namespace ContratacionWebApi.Models {
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Llegada")]
-        public DateTime FechaDeLlegada { get; set; }
+        public DateTime FechaDeRecepcion { get; set; }
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Vencimiento")]
         public DateTime FechaDeVencimiento { get; set; }
+        public int Vigencia { get; set; }
         public DateTime FechaDeFirmado { get; set; }
 
         [Display (Name = "Formas de Pago")]
@@ -37,7 +38,7 @@ namespace ContratacionWebApi.Models {
 
         //Término de pago en días
         [Display (Name = "Término de Pago")]
-        public int TerminoDePago { get; set; }
+        public double TerminoDePago { get; set; }
         public string Usuario { get; set; }
         public List<int> DictaminadoresId { get; set; }
         public List<int> EspExternoId { get; set; }
