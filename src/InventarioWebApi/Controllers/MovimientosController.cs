@@ -42,7 +42,7 @@ namespace InventarioWebApi.Controllers
         /// <param name="productoId"></param>
         /// <returns>Listado con todos los movimientos de un producto</returns>
 
-        [HttpGet("producto/{productoId}")]
+        [HttpGet("{productoId}")]
         public async Task<IActionResult> PorProducto([FromRoute] int productoId)
         {
             var movimientos = await _context.MovimientosDeProductos.Where(m => m.ProductoId == productoId)
@@ -78,7 +78,7 @@ namespace InventarioWebApi.Controllers
             return Ok(movimientos);
         }
 
-         [HttpGet("almacen/{almacenId}/producto/{productoId}")]
+        [HttpGet("almacen/{almacenId}/producto/{productoId}")]
         public async Task<IActionResult> PorAlmacenProducto([FromRoute] int almacenId, int productoId)
         {
             var movimientos = await _context.MovimientosDeProductos.Where(m => m.AlmacenId == almacenId && m.ProductoId == productoId)
