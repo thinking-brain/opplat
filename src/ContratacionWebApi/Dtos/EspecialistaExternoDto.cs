@@ -1,22 +1,18 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using ContratacionWebApi.Models;
 
-namespace ContratacionWebApi.Models
-{
-    public class EspecialistaExterno {
+namespace ContratacionWebApi.Models {
+    public class EspecialistaExternoDto {
         public int Id { get; set; }
 
         [Required]
         public string Nombre { get; set; }
-
-        [Required]
         public string Apellidos { get; set; }
-
         public int EntidadId { get; set; }
-
-        [Required]
-        public Entidad Entidad { get; set; }
-
         public string Area { get; set; }
         public string Departamento { get; set; }
         public string Cargo { get; set; }
@@ -29,5 +25,6 @@ namespace ContratacionWebApi.Models
             get { return Nombre + " " + Apellidos; }
             set { nombreCompleto = value; }
         }
+
     }
 }

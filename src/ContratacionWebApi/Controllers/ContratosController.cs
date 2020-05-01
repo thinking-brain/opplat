@@ -1,25 +1,31 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ContratacionWebApi.Data;
 using ContratacionWebApi.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 // using RhWebApi.Data;
 
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
     [ApiController]
     public class ContratosController : Controller {
+        private IHostingEnvironment _hostingEnvironment;
         private readonly ContratacionDbContext context;
         // private readonly RhWebApiDbContext context_rh;
-        public ContratosController (ContratacionDbContext context) {
+        public ContratosController (ContratacionDbContext context, IHostingEnvironment environment) {
             this.context = context;
+            _hostingEnvironment = environment;
             // this.context_rh = context_rh;
         }
 
-        // GET contratos/Contratos/tipoTramite(proforma o contrato)
+        // GET contratos/Contratos/tipoTramite(Oferta o contrato)
         [HttpGet]
         public ActionResult GetAll (string tipoTramite) {
             // var trabajadores = context_rh.Trabajador.ToList ();
@@ -29,25 +35,25 @@ namespace ContratacionWebApi.Controllers {
                     Nombre = c.Nombre,
                     TipoId = c.Tipo,
                     Tipo = c.Tipo.ToString (),
-                    AdminContratoId = c.AdminContratoId,
-                    // AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.AdminContratoId),
+                    TrabajadorId = c.TrabajadorId,
+                    // AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.TrabajadorId),
                     EntidadId = c.EntidadId,
-                    Entidad = c.Entidad.Nombre,
+                    Entidad = c.Entidad,
                     ObjetoDeContrato = c.ObjetoDeContrato,
                     Numero = c.Numero,
                     MontoCup = c.MontoCup,
                     MontoCuc = c.MontoCuc,
-                    FechaDeLlegada = c.FechaDeLlegada.ToString ("dd/MM/yyyy"),
+                    FechaDeRecepcion = c.FechaDeRecepcion.ToString ("dd/MM/yyyy"),
                     FechaDeVencimiento = c.FechaDeVencimiento.ToString ("dd/MM/yyyy"),
                     FechaDeFirmado = c.FechaDeFirmado,
-                    TerminoDePago = c.TerminoDePago / 30 + " Meses y " + c.TerminoDePago % 30 + " Días",
+                    TerminoDePago = c.TerminoDePago / 30 + " Meses y ",
                     EstadoId = c.Estado,
                     Estado = c.Estado.ToString (),
                     AprobJuridico = c.AprobJuridico,
                     AprobEconomico = c.AprobEconomico,
                     AprobComitContratacion = c.AprobComitContratacion
             });
-            if (tipoTramite == "proforma") {
+            if (tipoTramite == "Oferta") {
                 contratos = contratos.Where (c => c.FechaDeFirmado == null && c.AprobComitContratacion == false && c.EstadoId != Estado.Aprobado);
             }
             if (tipoTramite == "contrato") {
@@ -70,30 +76,29 @@ namespace ContratacionWebApi.Controllers {
 
         // POST contratos/Contratos
         [HttpPost]
-        public IActionResult POST ([FromBody] ContratoDto contratoDto) {
+        public async Task<IActionResult> POST ([FromForm] ContratoDto contratoDto) {
             if (ModelState.IsValid) {
                 var contrato = new Contrato {
                     Id = contratoDto.Id,
                     Nombre = contratoDto.Nombre,
                     Tipo = contratoDto.Tipo,
-                    AdminContratoId = contratoDto.AdminContratoId,
+                    TrabajadorId = contratoDto.TrabajadorId,
                     EntidadId = contratoDto.EntidadId,
                     ObjetoDeContrato = contratoDto.ObjetoDeContrato,
                     Numero = contratoDto.Numero,
                     MontoCup = contratoDto.MontoCup,
                     MontoCuc = contratoDto.MontoCuc,
-                    FechaDeFirmado = contratoDto.FechaDeFirmado,
                     TerminoDePago = contratoDto.TerminoDePago,
                 };
-                if (contratoDto.FechaDeLlegada != null) {
-                    contrato.FechaDeLlegada = contratoDto.FechaDeLlegada;
+                if (contratoDto.FechaDeRecepcion != null) {
+                    contrato.FechaDeRecepcion = contratoDto.FechaDeRecepcion;
                 } else {
-                    contrato.FechaDeLlegada = DateTime.Now;
+                    contrato.FechaDeRecepcion = DateTime.Now;
                 }
                 if (contratoDto.FechaDeVencimiento != null) {
                     contrato.FechaDeVencimiento = contratoDto.FechaDeVencimiento;
                 } else {
-                    contrato.FechaDeVencimiento = DateTime.Now;
+                    contrato.FechaDeVencimiento = DateTime.Now.AddDays (contratoDto.TerminoDePago);
                 }
 
                 context.Contratos.Add (contrato);
@@ -103,13 +108,21 @@ namespace ContratacionWebApi.Controllers {
                     var contratoId_FormaPagoId = new ContratoId_FormaPagoId {
                         ContratoId = contrato.Id,
                         FormaDePagoId = item
-
                     };
                     context.ContratoId_FormaPagoId.Add (contratoId_FormaPagoId);
                     context.SaveChanges ();
                 }
 
-                //Agregar Juridico y Económico como Dictaminador del contrato 
+                // Subir el Fichero del Contrato
+                // var uploads = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
+                // if (file != null) {
+                //     var filePath = Path.Combine (uploads, file.FileName);
+                //     using (var fileStream = new FileStream (filePath, FileMode.Create)) {
+                //        await file.CopyToAsync (fileStream);
+                //     }
+                // }
+
+                // Agregar Juridico y Económico como Dictaminador del contrato 
                 if (contratoDto.DictaminadoresId != null) {
                     foreach (var item in contratoDto.DictaminadoresId) {
                     var contratoId_DictaminadorId = new ContratoId_DictaminadorId {
@@ -142,7 +155,7 @@ namespace ContratacionWebApi.Controllers {
                 };
                 context.Add (HistoricoEstadoContrato);
                 context.SaveChanges ();
-                return new CreatedAtRouteResult ("GetContrato", new { id = contratoDto.Id });
+                return new CreatedAtRouteResult ("GetContrato", new { id = contrato.Id });
             }
             return BadRequest (ModelState);
         }
@@ -193,6 +206,7 @@ namespace ContratacionWebApi.Controllers {
             }
             return NotFound ();
         }
+
         // GET: contratacion/contratos/Tipos
         [HttpGet ("/contratacion/contratos/Tipos")]
         public IActionResult GetAllTiposContratos () {
@@ -207,18 +221,32 @@ namespace ContratacionWebApi.Controllers {
         // GET: contratacion/contratos/Tipos
         [HttpGet ("/contratacion/contratos/Estados")]
         public IActionResult GetAllEstadosContratos () {
-            var tipo = new List<dynamic> () {
+            var estadosContratos = new List<dynamic> () {
                 new { Id = Estado.Nuevo, Nombre = Estado.Nuevo.ToString () },
                 new { Id = Estado.Circulando, Nombre = Estado.Circulando.ToString () },
                 new { Id = Estado.Aprobado, Nombre = Estado.Aprobado.ToString () },
-                new { Id = Estado.NoAprobado, Nombre = Estado.NoAprobado.ToString () },
+                new { Id = Estado.No_Aprobado, Nombre = "No Aprobado" },
                 new { Id = Estado.Vigente, Nombre = Estado.Vigente.ToString () },
                 new { Id = Estado.Cancelado, Nombre = Estado.Cancelado.ToString () },
                 new { Id = Estado.Vencido, Nombre = Estado.Vencido.ToString () },
                 new { Id = Estado.Revision, Nombre = Estado.Revision.ToString () },
-                new { Id = Estado.SinEstado, Nombre = Estado.SinEstado.ToString () },
+                new { Id = Estado.SinEstado, Nombre = "Sin Estado" },
             };
-            return Ok (tipo);
+            return Ok (estadosContratos);
+        }
+
+        //Post :contratacion/contratos/UploadFile
+        [HttpPost ("/contratacion/contratos/UploadFile")]
+        public async Task<IActionResult> UploadFile (int ContratoId, IFormFile file) {
+            var contrato = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
+            var uploads = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
+            if (file != null) {
+                var filePath = Path.Combine (uploads, file.FileName);
+                using (var fileStream = new FileStream (filePath, FileMode.Create)) {
+                    await file.CopyToAsync (fileStream);
+                }
+            }
+            return Ok ();
         }
     }
 }

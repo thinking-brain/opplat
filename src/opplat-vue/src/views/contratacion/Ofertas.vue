@@ -1,8 +1,8 @@
 <template>
-  <v-data-table :headers="headers" :items="proformas" :search="search" class="elevation-1 pa-5">
+  <v-data-table :headers="headers" :items="ofertas" :search="search" class="elevation-1 pa-5">
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>Listado de Proformas</v-toolbar-title>
+        <v-toolbar-title>Ofertas</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field
@@ -15,10 +15,10 @@
           dense
         ></v-text-field>
         <v-spacer></v-spacer>
-        <!-- Agregar y Editar Proforma -->
+        <!-- Agregar y Editar oferta -->
         <v-dialog v-model="dialog" persistent max-width="1100">
           <template v-slot:activator="{ on }">
-            <v-btn color="primary" dark v-on="on">Nueva Proforma</v-btn>
+            <v-btn color="primary" dark v-on="on">Nueva Oferta</v-btn>
           </template>
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
@@ -34,46 +34,37 @@
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs4 class="px-3">
-                    <v-text-field
-                      v-model="proforma.nombre"
-                      label="Nombre de la Proforma"
-                      clearable
-                      required
-                    ></v-text-field>
+                    <v-text-field v-model="oferta.nombre" label="Nombre" clearable required></v-text-field>
                   </v-flex>
                   <v-flex xs4 class="px-3">
                     <v-autocomplete
-                      v-model="proforma.tipo"
+                      v-model="oferta.tipo"
                       item-text="nombre"
                       item-value="id"
                       :items="tipos"
                       :filter="activeFilter"
                       cache-items
-                      label="Tipo de Proforma"
+                      label="tipo"
                     ></v-autocomplete>
                   </v-flex>
                   <v-flex xs4 class="px-3">
-                    <v-text-field
-                      v-model="proforma.objetoDeContrato"
-                      label="Objeto de la Proforma"
-                      clearable
-                      required
-                    ></v-text-field>
+                    <v-autocomplete
+                      v-model="oferta.entidadId"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="entidades"
+                      :filter="activeFilter"
+                      cache-items
+                      label="Prestador"
+                    >
+                      <v-icon @click="dialog3=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
+                    </v-autocomplete>
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap>
-                  <v-flex xs2 class="px-3">
-                    <v-text-field
-                      v-model="proforma.numero"
-                      label="Número"
-                      clearable
-                      required
-                      prefix="#"
-                    ></v-text-field>
-                  </v-flex>
                   <v-flex xs4 class="px-3">
                     <v-autocomplete
-                      v-model="proforma.formaDePago"
+                      v-model="oferta.formasDePago"
                       item-text="nombre"
                       item-value="id"
                       :items="formasDePagos"
@@ -88,22 +79,22 @@
                         <span
                           v-if="index > 2"
                           class="grey--text caption"
-                        >( y {{ proforma.formaDePago.length - 3 }} más)</span>
+                        >( y {{ oferta.formaDePago.length - 3 }} más)</span>
                       </template>
                     </v-autocomplete>
                   </v-flex>
-                  <v-flex xs3 class="px-3">
+                  <v-flex xs4 class="px-3">
                     <v-text-field
-                      v-model="proforma.montoCup"
+                      v-model="oferta.montoCup"
                       label="Monto CUP"
                       clearable
                       required
                       prefix="$"
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-3">
+                  <v-flex xs4 class="px-3">
                     <v-text-field
-                      v-model="proforma.montoCuc"
+                      v-model="oferta.montoCuc"
                       label="Monto CUC"
                       clearable
                       required
@@ -114,7 +105,7 @@
                 <v-layout row wrap>
                   <v-flex xs3 class="px-3">
                     <v-text-field
-                      v-model="proforma.terminoDePago"
+                      v-model="oferta.terminoDePago"
                       label="Término de Pago en Meses"
                       clearable
                       required
@@ -132,20 +123,20 @@
                     >
                       <template v-slot:activator="{ on }">
                         <v-text-field
-                          v-model="proforma.fechaDeLlegada"
-                          label="Fecha de Llegada"
+                          v-model="oferta.fechaDeRecepcion"
+                          label="Fecha de Recepción "
                           readonly
                           clearable
                           v-on="on"
                         ></v-text-field>
                       </template>
-                      <v-date-picker v-model="proforma.fechaDeLlegada" @input="menu = false"></v-date-picker>
+                      <v-date-picker v-model="oferta.fechaDeRecepcion" @input="menu = false"></v-date-picker>
                     </v-menu>
                   </v-flex>
                   <v-flex xs3 class="px-3">
                     <v-text-field
-                      v-model="proforma.vigencia"
-                      label="Vigencia de la Proforma"
+                      v-model="oferta.vigencia"
+                      label="vigencia"
                       placeholder="Cantidad"
                       clearable
                       required
@@ -153,9 +144,9 @@
                   </v-flex>
                   <v-flex xs3 class="px-3">
                     <v-select
-                      v-model="proforma.vigenciaAMD"
+                      v-model="oferta.vigenciaDMA"
                       :items="items"
-                      label="Vigencia en"
+                      label="vigencia en"
                       placeholder="Días, Meses o Años"
                       clearable
                     ></v-select>
@@ -163,50 +154,45 @@
                 </v-layout>
                 <v-layout row wrap>
                   <v-flex xs4 class="pa-3">
-                    <v-autocomplete
-                      v-model="proforma.entidad"
-                      item-text="nombre"
-                      item-value="id"
-                      :items="entidades"
-                      :filter="activeFilter"
-                      cache-items
-                      label="Prestador del Servicio"
-                    >
-                      <v-icon @click="dialog3=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
-                    </v-autocomplete>
+                    <v-text-field
+                      v-model="oferta.objetoDeContrato"
+                      label="Objeto"
+                      clearable
+                      required
+                    ></v-text-field>
                   </v-flex>
                   <v-flex xs4 class="pa-3">
                     <v-autocomplete
-                      v-model="proforma.adminContrato"
-                      item-text="nombre"
+                      v-model="oferta.trabajadorId"
+                      item-text="id"
                       item-value="id"
                       :items="adminContratos"
                       :filter="activeFilter"
                       cache-items
-                      label="Administrador de la Proforma"
+                      label="Administrador"
                     >
                       <v-icon @click="dialog4=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
                   </v-flex>
                   <v-flex xs4 class="pa-3">
                     <v-autocomplete
-                      v-model="proforma.especialistaExterno"
+                      v-model="oferta.espExternoId"
                       item-text="nombre"
                       item-value="id"
                       :items="especialistasExternos"
                       :filter="activeFilter"
                       cache-items
                       label="Especialista Externo"
-                      placeholder="Dictaminador Externo del Proforma"
+                      placeholder="Dictaminador Externo"
                     >
                       <v-icon @click="dialog5=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap>
-                  <v-flex xs6 class="px-3">
+                  <!-- <v-flex xs6 class="px-3">
                     <v-autocomplete
-                      v-model="proforma.estado"
+                      v-model="oferta.estado"
                       item-text="nombre"
                       item-value="id"
                       :items="estados"
@@ -214,15 +200,7 @@
                       cache-items
                       label="Estado"
                     ></v-autocomplete>
-                  </v-flex>
-                  <v-flex xs6 class="px-3">
-                    <v-file-input
-                    v-model="proforma.file"
-                      show-size
-                      prepend-icon="mdi-note-multiple"
-                      label="Seleccionar Documento de la Proforma"
-                    ></v-file-input>
-                  </v-flex>
+                  </v-flex>-->
                 </v-layout>
               </v-container>
             </v-form>
@@ -233,9 +211,9 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <!-- /Agregar y Editar Proforma -->
+        <!-- /Agregar y Editar oferta -->
 
-        <!-- Detalles de la Proforma -->
+        <!-- Detalles de la oferta -->
         <v-dialog
           v-model="dialog6"
           persistent
@@ -245,7 +223,7 @@
         >
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
-              <v-flex xs12 sm10 md6 lg4>Detalles de la Proforma</v-flex>
+              <v-flex xs12 sm10 md6 lg4>Detalles</v-flex>
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-btn icon dark @click="dialog6 = false">
@@ -259,24 +237,19 @@
                   <v-container>
                     <v-row>
                       <v-col cols="10" md="6">
-                        <v-text-field
-                          v-model="proforma.nombre"
-                          label="Nombre de la Proforma"
-                          outlined
-                          readonly
-                        ></v-text-field>
+                        <v-text-field v-model="oferta.nombre" label="Nombre" outlined readonly></v-text-field>
                       </v-col>
                       <v-col cols="3" md="4">
                         <v-text-field
-                          v-model="proforma.objetoDeContrato"
-                          label="Objeto de Contrato"
+                          v-model="oferta.objetoDeContrato"
+                          label="Objeto"
                           outlined
                           readonly
                         ></v-text-field>
                       </v-col>
                       <v-col cols="3" md="2">
                         <v-text-field
-                          v-model="proforma.numero"
+                          v-model="oferta.numero"
                           label="Número"
                           outlined
                           readonly
@@ -286,11 +259,11 @@
                     </v-row>
                     <v-row>
                       <v-col cols="6" md="4">
-                        <v-text-field v-model="proforma.entidad" label="Entidad" outlined readonly></v-text-field>
+                        <v-text-field v-model="oferta.entidad" label="Entidad" outlined readonly></v-text-field>
                       </v-col>
                       <v-col cols="6" md="4">
                         <v-text-field
-                          v-model="proforma.montoCup"
+                          v-model="oferta.montoCup"
                           label="Monto en CUP"
                           outlined
                           readonly
@@ -299,7 +272,7 @@
                       </v-col>
                       <v-col cols="6" md="4">
                         <v-text-field
-                          v-model="proforma.montoCuc"
+                          v-model="oferta.montoCuc"
                           label="Monto en CUC"
                           outlined
                           readonly
@@ -311,14 +284,14 @@
                     <v-row>
                       <v-col cols="6" md="6">
                         <v-text-field
-                          v-model="proforma.terminoDePago"
-                          label="Término de Pago"
+                          v-model="oferta.terminoDePago"
+                          label="Término"
                           outlined
                           readonly
                         ></v-text-field>
                       </v-col>
                       <v-col cols="6" md="6">
-                        <v-text-field v-model="proforma.estado" label="Estado" outlined readonly></v-text-field>
+                        <v-text-field v-model="oferta.estado" label="Estado" outlined readonly></v-text-field>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -328,22 +301,22 @@
                   <v-timeline>
                     <v-timeline-item :color="'blue'" :right="true" small>
                       <template v-slot:opposite>
-                        <h5 :class="`subtitle-2 blue--text`" v-text="proforma.fechaDeLlegada"></h5>
+                        <h5 :class="`subtitle-2 blue--text`" v-text="oferta.fechaDeRecepcion"></h5>
                       </template>
                       <v-card class="elevation-2">
                         <v-card-text
                           :class="`subtitle-2 blue--text`"
-                        >Fecha en que se Recibió la Proforma</v-card-text>
+                        >Fecha en que se Recibió la Oferta</v-card-text>
                       </v-card>
                     </v-timeline-item>
                     <v-timeline-item :color="'red'" :right="true" small>
                       <template v-slot:opposite>
-                        <span :class="`subtitle-2 red--text`" v-text="proforma.fechaDeVencimiento"></span>
+                        <span :class="`subtitle-2 red--text`" v-text="oferta.fechaDeVencimiento"></span>
                       </template>
                       <v-card class="elevation-2">
                         <v-card-text
                           :class="`subtitle-2 red--text`"
-                        >Fecha en que se Vence la Validez de la Proforma</v-card-text>
+                        >Fecha en que se Vence la Validez de la Oferta</v-card-text>
                       </v-card>
                     </v-timeline-item>
                   </v-timeline>
@@ -353,7 +326,7 @@
                 <v-col>
                   <v-card class="pa-2" outlined tile>
                     <v-text>Aprobado por el Jurídico :</v-text>
-                    <span v-if="proforma.aprobJuridico">
+                    <span v-if="oferta.aprobJuridico">
                       <v-icon color="success">mdi-check-underline</v-icon>
                       <v-text :class="`success--text`">Sí</v-text>
                     </span>
@@ -366,7 +339,7 @@
                 <v-col>
                   <v-card class="pa-2" outlined tile>
                     <v-text>Aprobado por el Económico :</v-text>
-                    <span v-if="proforma.aprobEconomico">
+                    <span v-if="oferta.aprobEconomico">
                       <v-icon color="success">mdi-check-underline</v-icon>
                       <v-text :class="`success--text`">Sí</v-text>
                     </span>
@@ -379,7 +352,7 @@
                 <v-col>
                   <v-card class="pa-2" outlined tile>
                     <v-text>Aprobado por el Comité Contratación:</v-text>
-                    <span v-if="proforma.aprobComitContratacion">
+                    <span v-if="oferta.aprobComitContratacion">
                       <v-text :class="`success--text`">Sí</v-text>
                       <v-icon color="success">mdi-check-underline</v-icon>
                     </span>
@@ -393,9 +366,9 @@
             </v-container>
           </v-card>
         </v-dialog>
-        <!-- /Detalles de la Proforma -->
+        <!-- /Detalles de la oferta -->
 
-        <!-- Delete proforma -->
+        <!-- Delete oferta -->
         <v-dialog v-model="dialog2" persistent max-width="350px">
           <v-toolbar dark fadeOnScroll color="red">
             <v-spacer></v-spacer>
@@ -406,16 +379,38 @@
             </v-toolbar-items>
           </v-toolbar>
           <v-card>
-            <v-card-title class="headline text-center">Seguro que deseas eliminar la Proforma</v-card-title>
-            <v-card-text class="text-center">{{proforma.nombre}}</v-card-text>
+            <v-card-title class="headline text-center">Seguro que deseas eliminar la Oferta</v-card-title>
+            <v-card-text class="text-center">{{oferta.nombre}}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red" dark @click="deleteItem(proforma)">Aceptar</v-btn>
+              <v-btn color="red" dark @click="deleteItem(oferta)">Aceptar</v-btn>
               <v-btn color="primary" @click="close()">Cancelar</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <!-- /Delete proforma -->
+        <!-- /Delete oferta -->
+
+        <!-- Subir Documento -->
+        <v-row justify="center">
+          <v-dialog v-model="dialog7" persistent max-width="300">
+            <v-card>
+              <v-flex xs12 class="px-3">
+                <v-file-input
+                  v-model="file"
+                  show-size
+                  prepend-icon="mdi-note-multiple"
+                  label="Seleccionar Documento"
+                ></v-file-input>
+              </v-flex>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+               <v-btn color="green darken-1" text @click="upload()">Aceptar</v-btn>
+              <v-btn color="blue darken-1" text @click=" close()">Cancelar</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-row>
+        <!-- /Subir Documento -->
 
         <!-- Agregar Entidad-->
         <v-dialog v-model="dialog3" persistent max-width="1000">
@@ -468,19 +463,25 @@
     </template>
     <!-- Actions -->
     <template v-slot:item.action="{ item }">
-      <v-tooltip top>
+      <v-tooltip top color="primary">
         <template v-slot:activator="{ on }">
           <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
         </template>
         <span>Editar</span>
       </v-tooltip>
-      <v-tooltip top>
+      <v-tooltip top color="primary">
         <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="getDetalles(item)">mdi-account-plus</v-icon>
+          <v-icon small class="mr-2" v-on="on" @click="confirmUpload(item)">mdi-upload</v-icon>
+        </template>
+        <span>Guardar Documento</span>
+      </v-tooltip>
+      <v-tooltip top color="green">
+        <template v-slot:activator="{ on }">
+          <v-icon small class="mr-2" v-on="on" @click="getDetalles(item)">mdi-file-document-box-plus</v-icon>
         </template>
         <span>Detalles</span>
       </v-tooltip>
-      <v-tooltip top>
+      <v-tooltip top color="red">
         <template v-slot:activator="{ on }">
           <v-icon small class="mr-2" v-on="on" @click="confirmDelete(item)">mdi-trash-can</v-icon>
         </template>
@@ -512,12 +513,28 @@ export default {
     dialog4: false,
     dialog5: false,
     dialog6: false,
+    dialog7: false,
     menu: false,
     menu1: false,
     search: "",
     editedIndex: -1,
-    proformas: [],
-    proforma: {},
+    ofertas: [],
+    oferta: {
+      nombre: "",
+      tipo: null,
+      trabajadorId: null,
+      entidadId: null,
+      objetoDeContrato: "",
+      montoCup: null,
+      montoCuc: null,
+      fechaDeRecepcion: null,
+      vigencia: null,
+      formasDePago: [],
+      terminoDePago: null,
+      dictaminadoresId: [],
+      espExternoId: []
+    },
+    file:null,
     entidades: [],
     especialistasExternos: [],
     adminContratos: [],
@@ -535,7 +552,7 @@ export default {
       { text: "Entidad", value: "entidad" },
       { text: "Monto Cup", value: "montoCup" },
       { text: "Monto Cuc", value: "montoCuc" },
-      { text: "Fecha de Llegada", value: "fechaDeLlegada" },
+      { text: "Fecha de Llegada", value: "fechaDeRecepcion" },
       { text: "Estado", value: "estado" },
       { text: "Acciones", value: "action", sortable: false }
     ]
@@ -543,7 +560,7 @@ export default {
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "Nueva Proforma" : "Editar Proforma";
+      return this.editedIndex === -1 ? "Nueva Oferta" : "Editar Oferta";
     },
     method() {
       return this.editedIndex === -1 ? "POST" : "PUT";
@@ -568,10 +585,10 @@ export default {
 
   methods: {
     getContratosFromApi() {
-      const url = api.getUrl("contratacion", "Contratos?tipoTramite=proforma");
+      const url = api.getUrl("contratacion", "Contratos?tipoTramite=oferta");
       this.axios.get(url).then(
         response => {
-          this.proformas = response.data;
+          this.ofertas = response.data;
         },
         error => {
           console.log(error);
@@ -645,33 +662,30 @@ export default {
       );
     },
     getDetalles(item) {
-      this.proforma = Object.assign({}, item);
+      this.oferta = Object.assign({}, item);
       this.dialog6 = true;
     },
     editItem(item) {
-      this.editedIndex = this.proformas.indexOf(item);
-      this.proforma = Object.assign({}, item);
+      this.editedIndex = this.ofertas.indexOf(item);
+      this.oferta = Object.assign({}, item);
       this.dialog = true;
     },
-
     save(method) {
-      const url = api.getUrl("contratacion", "Contratos");
       if (method === "POST") {
-        if (this.$refs.form.validate()) {
-          this.axios.post(url, this.proforma).then(
-            response => {
-              this.getResponse(response);
-              this.getContratosFromApi();
-              this.dialog = false;
-            },
-            error => {
-              console.log(error);
-            }
-          );
-        }
+        const url = api.getUrl("contratacion", "Contratos");
+        this.axios.post(url, this.oferta).then(
+          response => {
+            this.getResponse(response);
+            this.getContratosFromApi();
+            this.dialog = false;
+          },
+          error => {
+            console.log(error);
+          }
+        );
       }
       if (method === "PUT") {
-        this.axios.put(`${url}/${this.proforma.id}`, this.proforma).then(
+        this.axios.put(`${url}/${this.oferta.id}`, this.oferta).then(
           response => {
             this.getResponse(response);
             this.getContratosFromApi();
@@ -683,13 +697,38 @@ export default {
         );
       }
     },
+    confirmUpload(item) {
+      this.oferta = Object.assign({}, item);
+      this.dialog7 = true;
+    },
+    upload() {
+      const formData = new FormData();
+      formData.append("file", this.file,);
+      const url = api.getUrl("contratacion", "contratos/UploadFile");
+      this.axios
+        .post(url,formData, this.oferta.id, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          },
+        })
+        .then(
+          response => {
+            this.getResponse(response);
+            this.getContratosFromApi();
+            this.dialog = false;
+          },
+          error => {
+            console.log(error);
+          }
+        );
+    },
     confirmDelete(item) {
-      this.proforma = Object.assign({}, item);
+      this.oferta = Object.assign({}, item);
       this.dialog2 = true;
     },
-    deleteItem(proforma) {
+    deleteItem(oferta) {
       const url = api.getUrl("contratacion", "Contratos");
-      this.axios.delete(`${url}/${proforma.id}`).then(
+      this.axios.delete(`${url}/${oferta.id}`).then(
         response => {
           this.getResponse(response);
           this.getContratosFromApi();
@@ -703,6 +742,7 @@ export default {
     close() {
       this.dialog = false;
       this.dialog2 = false;
+      this.dialog7 = false;
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);

@@ -12,11 +12,11 @@ namespace ContratacionWebApi.Models
         [Required]
         public string Nombre { get; set; }
         [NotMapped]
-        public virtual ICollection<DocumentoDeContrato> Documentos { get; set; }
+        public virtual ICollection<Documento> Documentos { get; set; }
 
         public ObjetoDeContrato()
         {
-            Documentos = new HashSet<DocumentoDeContrato>();
+            Documentos = new HashSet<Documento>();
         }
     }
 }
