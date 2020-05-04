@@ -1,9 +1,9 @@
 <template>
   <v-container>
-    <v-form v-model="valid" class="d-print-none">
+    <v-form v-model="valid" ref="form" class="d-print-none">
       <v-row>
         <v-col cols="12" md="4">
-          <v-text-field v-model="year" :counter="4" :rules="nameRules" label="AÑO" required></v-text-field>
+          <v-text-field v-model="year" :counter="4" :rules="yearRules" label="AÑO" required></v-text-field>
         </v-col>
         <v-col cols="12" md="4">
           <v-btn color="success" class="mr-4" @click="GenerarReporte">Generar Reporte</v-btn>
@@ -16,36 +16,29 @@
   </v-container>
 </template>
 <script>
-import RazonesFinancierasTabla from '@/components/finanzas/reportes/RazonesFinancierasTabla';
+import RazonesFinancierasTabla from "@/components/finanzas/reportes/RazonesFinancierasTabla";
 
 export default {
   components: { RazonesFinancierasTabla },
   data: () => ({
     data: null,
     valid: true,
-    year: '',
-    nameRules: [
-      v => !!v || 'Este campo es requerido',
-      v => (v && v.length <= 4) || 'El año debe tener 4 caracteres.',
+    year: "",
+    yearRules: [
+      v => !!v || "Este campo es requerido",
+      v => /^[0-9]+$/.test(v) || "Solo números",
+      v => (v && v.length == 4) || "El año debe tener 4 caracteres."
     ],
-    lazy: false,
+    lazy: false
   }),
 
   methods: {
-    validate() {
+    GenerarReporte() {
       if (this.$refs.form.validate()) {
         this.snackbar = true;
+        this.$refs.tabla.loadReporte(this.year);
       }
-    },
-    reset() {
-      this.$refs.form.reset();
-    },
-    resetValidation() {
-      this.$refs.form.resetValidation();
-    },
-    GenerarReporte() {
-      this.$refs.tabla.loadReporte(this.year);
-    },
-  },
+    }
+  }
 };
 </script>
