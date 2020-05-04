@@ -19,6 +19,12 @@ namespace ContratacionWebApi.Models {
         [RegularExpression ("[0-9]*", ErrorMessage = "Solo se admiten números")]
         public string Nit { get; set; }
 
+        [RegularExpression ("[0-9]*", ErrorMessage = "Solo se admiten números")]
+        public string CI { get; set; }
+
+        [RegularExpression ("[0-9]*", ErrorMessage = "Solo se admiten números")]
+        public string CarnetTCP { get; set; }
+
         public Sector Sector { get; set; }
 
         [DataType (DataType.PhoneNumber)]

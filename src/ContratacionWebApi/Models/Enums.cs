@@ -3,7 +3,16 @@ namespace ContratacionWebApi.Models {
         Marco,
         Compra,
         Venta,
-        Servicio,
+        Donación,
+        Suministro,
+        Deposito,
+        Prestación_de_Servicio,
+        Agencia,
+        Comisión,
+        Consignación,
+        Arrendamiento,
+        Transporte,
+
     }
 
     public enum Estado {
