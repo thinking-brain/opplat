@@ -21,6 +21,7 @@ namespace opplatApplication.Models
         public string Name { get; set; }
         public string Target { get; set; }
         public string Icon { get; set; }
+        public string Cant { get; set; }
         public string Component { get; set; }
         public List<SubMenu> Items { get; set; }
 

@@ -52,7 +52,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<DateTime>("FechaDeRecepcion");
 
-                    b.Property<DateTime>("FechaDeVencimiento");
+                    b.Property<DateTime>("FechaVenContrato");
 
                     b.Property<string>("FilePath");
 
@@ -198,7 +198,7 @@ namespace ContratacionWebApi.Migrations
                     b.Property<string>("Discriminator")
                         .IsRequired();
 
-                    b.Property<DateTime?>("FechaDeVencimiento");
+                    b.Property<DateTime?>("FechaVenContrato");
 
                     b.Property<DateTime?>("FechaFirmado");
 

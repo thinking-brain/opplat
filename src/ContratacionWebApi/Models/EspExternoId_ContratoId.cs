@@ -9,6 +9,5 @@ namespace ContratacionWebApi.Models {
         public EspecialistaExterno EspecialistaExterno { get; set; }
         public int ContratoId { get; set; }
         public Contrato Contrato { get; set; }
-        public Estado Estado { get; set; }
     }
 }
