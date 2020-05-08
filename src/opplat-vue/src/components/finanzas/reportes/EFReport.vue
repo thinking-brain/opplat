@@ -164,7 +164,7 @@ export default {
       if (this.$refs.form.validate()) {
         const url = api.getUrl(
           "finanzas",
-          `EstadoFinanciero/estadoFinancieroReportok/${this.year}/${this.mes.id}/${this.tipo_plan_selected}`
+          `EstadoFinanciero/estadoFinancieroReport/${this.year}/${this.mes.id}/${this.tipo_plan_selected}`
         );
         console.log(url);
         this.axios
