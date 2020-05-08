@@ -34,7 +34,7 @@ namespace ContratacionWebApi.Controllers {
                 Id = c.Id,
                     Nombre = c.Nombre,
                     Tipo = c.Tipo,
-                    TipoNombre = c.Tipo.ToString(),
+                    TipoNombre = c.Tipo.ToString (),
                     TrabajadorId = c.TrabajadorId,
                     // AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.TrabajadorId),
                     ObjetoDeContrato = c.ObjetoDeContrato,
@@ -46,10 +46,13 @@ namespace ContratacionWebApi.Controllers {
                     FechaDeVenOferta = c.FechaDeVenOferta,
                     FechaVenContrato = c.FechaVenContrato,
                     FechaDeFirmado = c.FechaDeFirmado,
+                    FechaDeRece = c.FechaDeRecepcion.ToString("dd/MM/yyyy"),
+                    FechaDeVenOfer = c.FechaDeVenOferta.ToString("dd/MM/yyyy"),
+                    FechaVenCont = c.FechaVenContrato.ToString("dd/MM/yyyy"),
                     TerminoDePago = c.TerminoDePago,
                     TerminoDePagoDet = c.TerminoDePago / 30 + " Meses y " + c.TerminoDePago % 30 + " Días",
                     Estado = c.Estado,
-                    EstadoNombre = c.Estado.ToString(),
+                    EstadoNombre = c.Estado.ToString (),
                     AprobJuridico = c.AprobJuridico,
                     AprobEconomico = c.AprobEconomico,
                     AprobComitContratacion = c.AprobComitContratacion,
@@ -62,32 +65,23 @@ namespace ContratacionWebApi.Controllers {
                     EspecialistasExternos = context.EspExternoId_ContratoId.Where (s => s.ContratoId == c.Id).Select (e => new {
                         EspecialistaExterno = context.EspecialistasExternos.FirstOrDefault (p => p.Id == e.EspecialistaExternoId),
                     }),
-                    EntidadNomnbre=c.Entidad.Nombre,
-                    Entidad = context.Entidades.Where(s=>s.Id==c.Entidad.Id).Select (e => new {
-                        Id = e.Id,
-                            Nombre = e.Nombre,
-                            Direccion = e.Direccion,
-                            Nit = e.Nit,
-                            Fax = e.Fax,
-                            Sector = e.Sector,
-                            SectorNombre = e.Sector.ToString (),
-                            Correo = e.Correo,
-                            ObjetoSocial = e.ObjetoSocial,
-                            Telefonos = context.Telefonos.Where (t => t.EntidadId == e.Id),
-                            CuentasBancarias = context.CuentasBancarias.Where (s => s.EntidadId == e.Id).Select (
-                                b => new {
-                                    Id = b.Id,
-                                        NumeroCuenta = b.NumeroCuenta,
-                                        NumeroSucursal = b.NumeroSucursal,
-                                        NombreSucursalId = b.NombreSucursal,
-                                        NombreSucursal = b.NombreSucursal.ToString (),
-                                        MonedaId = b.Moneda,
-                                        Moneda = b.Moneda.ToString (),
-                                        EntidadId = b.EntidadId
-                                }
-                            ),
-                    })
+                    Entidad = c.Entidad,
+                    SectorEntidad = c.Entidad.Sector.ToString(),
+                    TelefonosEntidad = context.Telefonos.Where (t => t.EntidadId == c.Entidad.Id),
+                    CuentasBancEntidad = context.CuentasBancarias.Where (s => s.EntidadId == c.Entidad.Id).Select (
+                        b => new {
+                            Id = b.Id,
+                                NumeroCuenta = b.NumeroCuenta,
+                                NumeroSucursal = b.NumeroSucursal,
+                                NombreSucursalId = b.NombreSucursal,
+                                NombreSucursal = b.NombreSucursal.ToString (),
+                                MonedaId = b.Moneda,
+                                Moneda = b.Moneda.ToString (),
+                                EntidadId = b.EntidadId
+                        }),
+
             });
+
             if (tipoTramite == "oferta") {
                 contratos = contratos.Where (c => c.FechaDeFirmado == null && c.AprobComitContratacion == false && c.Estado != Estado.Aprobado);
             }
@@ -118,7 +112,7 @@ namespace ContratacionWebApi.Controllers {
                     Nombre = contratoDto.Nombre,
                     Tipo = contratoDto.Tipo,
                     TrabajadorId = contratoDto.TrabajadorId,
-                    EntidadId = contratoDto.EntidadId,
+                    EntidadId = contratoDto.Entidad,
                     ObjetoDeContrato = contratoDto.ObjetoDeContrato,
                     Numero = contratoDto.Numero,
                     MontoCup = contratoDto.MontoCup,
@@ -159,8 +153,8 @@ namespace ContratacionWebApi.Controllers {
                 // }
 
                 // Agregar Juridico y Económico como Dictaminador del contrato 
-                if (contratoDto.DictaminadoresId != null) {
-                    foreach (var item in contratoDto.DictaminadoresId) {
+                if (contratoDto.Dictaminadores != null) {
+                    foreach (var item in contratoDto.Dictaminadores) {
                     var contratoId_DictaminadorId = new ContratoId_DictaminadorId {
                     ContratoId = contrato.Id,
                     DictaminadorContratoId = item
@@ -173,8 +167,8 @@ namespace ContratacionWebApi.Controllers {
                 }
 
                 //Agregar Especialistas externos como Dictaminador/es del contrato 
-                if (contratoDto.EspExternoId != null) {
-                    foreach (var item in contratoDto.EspExternoId) {
+                if (contratoDto.EspExterno != null) {
+                    foreach (var item in contratoDto.EspExterno) {
                     var espExternoId_ContratoId = new EspExternoId_ContratoId {
                     ContratoId = contrato.Id,
                     EspecialistaExternoId = item
@@ -212,8 +206,7 @@ namespace ContratacionWebApi.Controllers {
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var contrato = context.Contratos.FirstOrDefault (s => s.Id == id);
-
-            if (contrato.Id != id) {
+            if (contrato == null) {
                 return NotFound ();
             }
             context.Contratos.Remove (contrato);
@@ -317,6 +310,44 @@ namespace ContratacionWebApi.Controllers {
                 }
             }
             return Ok ();
+        }
+        // GET: contratacion/contratos/Dashboard 
+        [HttpGet ("/contratacion/contratos/Dashboard")]
+        public async Task<IActionResult> Dashboard () {
+            var dashboard = new Dashboard ();
+            var contratos = context.Contratos.ToList ();
+
+            var cantContratos_x_Mes = new int[12];
+            var cantContVen_x_Mes = new int[12];
+            var cantOfertas_x_Mes = new int[12];
+            var cantOfertVen_x_Mes = new int[12];
+
+            contratos = contratos.Where (c => c.FechaDeFirmado == null &&
+                c.AprobComitContratacion == false && c.Estado != Estado.Aprobado).ToList ();
+            if (contratos != null) {
+                // cantOfertas = contratos.Count ();
+                for (int i = 0; i < 12; i++) {
+                    cantOfertas_x_Mes[i] = contratos.Where (c => c.FechaDeRecepcion.Month == i + 1).Count ();
+                    cantOfertVen_x_Mes[i] = contratos
+                        .Where (c => c.FechaDeRecepcion.Month == i + 1 &&
+                            (c.FechaDeVenOferta - DateTime.Now).Days < 0).Count ();
+                }
+                // for (int i = 0; i < 12; i++) {
+                //     cantContratos_x_Mes[i] = contratos.Where (c => c.FechaDeRecepcion.Month == i + 1 &&
+                //         c.FechaDeFirmado != null && c.AprobComitContratacion == true &&
+                //         c.Estado == Estado.Aprobado).Count ();
+
+                //     cantContVen_x_Mes[i] = contratos
+                //         .Where (c => c.FechaDeRecepcion.Month == i + 1 &&
+                //             (c.FechaVenContrato - DateTime.Now).Days < 0).Count ();
+                // }
+                dashboard.OfertasProceso = cantOfertas_x_Mes;
+                dashboard.OfertasVencidas = cantOfertVen_x_Mes;
+                dashboard.ContratosProceso = cantContratos_x_Mes;
+                dashboard.ContratosVencidas = cantContVen_x_Mes;
+            }
+
+            return Ok (dashboard);
         }
     }
 }

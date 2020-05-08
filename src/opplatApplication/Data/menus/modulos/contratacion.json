@@ -15,7 +15,7 @@
         "title": "Ofertas",
         "group": "contratacion",
         "icon": "mdi-note-multiple",
-        "cant": 2,
+        "cant": 0,
         "component": "Ofertas",
         "name": "Ofertas",
         "roles": [

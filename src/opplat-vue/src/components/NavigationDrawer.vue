@@ -55,7 +55,7 @@
         </div>
         <v-subheader>
           Modulo Actual
-          <span class="text-uppercase pl-4"> {{nombreModuloActual}}</span>
+          <span class="text-uppercase pl-4">{{nombreModuloActual}}</span>
         </v-subheader>
         <template v-for="item in menus_modulo_actual">
           <!--group with subitems-->
@@ -109,7 +109,12 @@
         </template>
         <v-subheader>Modulos</v-subheader>
         <template v-for="item in modulos">
-          <v-list-item :key="item.title" ripple="ripple" @click="getMenusDeModulo(item.name)">
+          <v-list-item
+            link
+            :to="'/'+item.name"
+            :key="item.title"
+            @click="getMenusDeModulo(item.name)"
+          >
             <v-list-item-icon>
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-icon>
@@ -207,7 +212,7 @@ export default {
           this.errors.push(e);
           vm.$snotify.error(`Error cargando los menus. ${e}`);
         });
-    },
+    }
   }
 };
 </script>

@@ -61,7 +61,7 @@
                       :items="entidades"
                       :filter="activeFilter"
                       cache-items
-                      label="Prestador"
+                      label="Proveedor"
                     >
                       <v-icon @click="dialog3=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
@@ -78,9 +78,7 @@
                   <v-flex xs7 class="px-3">
                     <v-autocomplete
                       v-model="oferta.formasDePago"
-                      :disabled="isUpdating"
                       :items="formasDePagos"
-                      chips
                       label="Formas de Pago"
                       item-text="nombre"
                       item-value="id"
@@ -92,7 +90,7 @@
                           :input-value="data.selected"
                           close
                           @click="data.select"
-                          @click:close="remove(data.item)"
+                          @click:close="removeformasDePago(data.item)"
                           outlined
                           class="ma-2"
                         >{{ data.item.nombre }}</v-chip>
@@ -179,16 +177,50 @@
                       <v-icon @click="dialog4=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
                   </v-flex>
+                  <v-flex xs8 class="px-3">
+                    <v-autocomplete
+                      v-model="oferta.dictaminadores"
+                      item-text="nombre_Completo"
+                      item-value="id"
+                      :items="trabajadores"
+                      :filter="activeFilter"
+                      label="Especialistas Internos"
+                      placeholder="Dictaminadores Internos"
+                      multiple
+                    >
+                      <template v-slot:selection="data">
+                        <v-chip
+                          v-bind="data.attrs"
+                          :input-value="data.selected"
+                          close
+                          @click="data.select"
+                          @click:close="removeDictaminadores(data.item)"
+                          outlined
+                          class="ma-2"
+                        >{{ data.item.nombre_Completo }}</v-chip>
+                      </template>
+                      <template v-slot:item="data">
+                        <template v-if="typeof data.item !== 'object'">
+                          <v-list-item-content v-text="data.item"></v-list-item-content>
+                        </template>
+                        <template v-else>
+                          <v-list-item-content>
+                            <v-list-item-title v-html="data.item.nombre_Completo"></v-list-item-title>
+                          </v-list-item-content>
+                        </template>
+                      </template>
+                    </v-autocomplete>
+                  </v-flex>
                   <v-flex xs4 class="px-3">
                     <v-autocomplete
-                      v-model="oferta.EspExternoId"
+                      v-model="oferta.espExterno"
                       item-text="nombre"
                       item-value="id"
                       :items="especialistasExternos"
                       :filter="activeFilter"
                       cache-items
-                      label="Especialista Externo"
-                      placeholder="Dictaminador Externo"
+                      label="Especialistas Externos"
+                      placeholder="Dictaminadores Externos"
                       multiple
                     >
                       <v-icon @click="dialog5=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
@@ -197,8 +229,6 @@
                   <!-- <v-flex xs4 class="px-3">
                     <v-file-input v-model="oferta.file" show-size label="Seleccionar Documento"></v-file-input>
                   </v-flex>-->
-                </v-layout>
-                <v-layout row wrap>
                   <v-flex xs4 class="px-3">
                     <v-autocomplete
                       v-model="oferta.estado"
@@ -303,7 +333,7 @@
           persistent
           transition="dialog-bottom-transition"
           flat
-          max-width="1100"
+          max-width="1200"
         >
           <v-card>
             <v-toolbar dark fadeOnScroll :color="getColor(oferta.ofertVence)">
@@ -338,19 +368,21 @@
                           <strong>Número :</strong>
                           <u class="pl-2">{{oferta.numero}}</u>
                         </v-col>
+                        <v-col cols="12" md="12" class="pa-2">
+                          <strong>Administrador del Contrato :</strong>
+                          <u class="pl-2">{{oferta.trabajadorId}}</u>
+                        </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Fecha de Recepción:</strong>
-                          <v-spacer></v-spacer>
-                          <u class="pl-2">{{oferta.fechaDeRecepcion}}</u>
+                          <u class="pl-2">{{oferta.fechaDeRece}}</u>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>La Oferta Vence el:</strong>
-                          <v-spacer></v-spacer>
-                          <u class="pl-2">{{oferta.fechaDeVenOferta}}</u>
+                          <u class="pl-2">{{oferta.fechaDeVenOfer}}</u>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Objeto Social :</strong>
-                          <u class="pl-2">{{oferta.objetoDeContrato}}</u>
+                          <u class="pl-2">{{oferta.fechaVenCont}}</u>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Término de Pago :</strong>
@@ -373,7 +405,8 @@
                           <u class="pl-2">{{oferta.estadoNombre}}</u>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
-                          <strong>Formas de Pago:</strong>
+                          <strong>Formas e Pago :</strong>
+                          <v-spacer></v-spacer>
                           <span v-for="item in oferta.formasDePago" :key="item.nombre">
                             <v-spacer></v-spacer>-
                             <u class="pl-2">{{item.nombre}}</u>
@@ -390,6 +423,39 @@
                             <u class="pl-2">{{item.especialistaExterno.nombreCompleto}}</u>
                           </span>
                         </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Aprobado por el Jurídico :</strong>
+                          <span v-if="oferta.aprobJuridico">
+                            <v-icon color="success">mdi-check-underline</v-icon>
+                            <v-text :class="`success--text`">Sí</v-text>
+                          </span>
+                          <span v-else>
+                            <v-icon color="red">mdi-close-outline</v-icon>
+                            <v-text :class="`red--text`">No</v-text>
+                          </span>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Aprobado por el Económico :</strong>
+                          <span v-if="oferta.aprobEconomico">
+                            <v-icon color="success">mdi-check-underline</v-icon>
+                            <v-text :class="`success--text`">Sí</v-text>
+                          </span>
+                          <span v-else>
+                            <v-icon color="red">mdi-close-outline</v-icon>
+                            <v-text :class="`red--text`">No</v-text>
+                          </span>
+                        </v-col>
+                        <v-col cols="12" md="12" class="pa-2">
+                          <strong>Aprobado por el Comité Contratación:</strong>
+                          <span v-if="oferta.aprobComitContratacion">
+                            <v-text :class="`success--text`">Sí</v-text>
+                            <v-icon color="success">mdi-check-underline</v-icon>
+                          </span>
+                          <span v-else>
+                            <v-icon color="red">mdi-close-outline</v-icon>
+                            <v-text :class="`red--text`">No</v-text>
+                          </span>
+                        </v-col>
                       </v-row>
                     </v-card-text>
                   </v-card>
@@ -401,38 +467,62 @@
                   <v-card :elevation="2" flat>
                     <v-card-text>
                       <v-row>
-                        <div class="headline">Entidad Proveedora</div>
-                        <v-col cols="12" md="12" class="pa-2" v-if="oferta.montoCup!=null">
+                        <v-col cols="12" md="12" class="pa-2">
+                          <div class="headline">Entidad Proveedora</div>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
                           <strong>Nombre :</strong>
-                          <u class="pl-2">{{oferta.entidad[0].nombre}}</u>
+                          <u class="pl-2">{{oferta.entidad.nombre}}</u>
                         </v-col>
-                        <v-col cols="12" md="6" class="pa-2" v-if="oferta.montoCup!=null">
+                        <v-col cols="12" md="6" class="pa-2">
                           <strong>Dirección :</strong>
-                          <u class="pl-2">{{oferta.entidad[0].direccion}}</u>
+                          <u class="pl-2">{{oferta.entidad.direccion}}</u>
                         </v-col>
-                        <v-col cols="12" md="6" class="pa-2" v-if="oferta.montoCup!=null">
+                        <v-col cols="12" md="6" class="pa-2">
                           <strong>NIT :</strong>
-                          <u class="pl-2">{{oferta.entidad[0].nit}}</u>
+                          <u class="pl-2">{{oferta.entidad.nit}}</u>
                         </v-col>
-                        <v-col cols="12" md="6" class="pa-2" v-if="oferta.montoCup!=null">
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Sector :</strong>
+                          <u class="pl-2">{{oferta.sectorEntidad}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Sector :</strong>
+                          <u class="pl-2">{{oferta.sectorEntidad}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
                           <strong>Fax :</strong>
-                          <u class="pl-2">{{oferta.entidad[0].fax}}</u>
+                          <u class="pl-2">{{oferta.entidad.fax}}</u>
                         </v-col>
-                        <v-col cols="12" md="6" class="pa-2" v-if="oferta.montoCup!=null">
+                        <v-col cols="12" md="6" class="pa-2">
                           <strong>Correo :</strong>
-                          <u class="pl-2">{{oferta.entidad[0].correo}}</u>
+                          <u class="pl-2">{{oferta.entidad.correo}}</u>
                         </v-col>
-                        <v-col cols="12" md="6" class="pa-2" v-if="oferta.montoCup!=null">
+                        <v-col cols="12" md="6" class="pa-2">
                           <strong>Objeto Social :</strong>
-                          <u class="pl-2">{{oferta.entidad[0].objetoSocial}}</u>
+                          <u class="pl-2">{{oferta.entidad.objetoSocial}}</u>
                         </v-col>
-                        <v-col cols="12" class="pa-2">
+                        <v-col cols="8" md="8" class="pa-2">
+                          <strong>Teléfonos :</strong>
+                          <v-spacer></v-spacer>
+                          <span v-for="item in oferta.telefonosEntidad" :key="item.numero">
+                            <strong class="pl-4">Número:</strong>
+                            {{item.numero}}
+                            <strong
+                              class="pl-12"
+                            >Extensión:</strong>
+                            {{item.extension}}
+                            <v-divider></v-divider>
+                          </span>
+                        </v-col>
+                        <v-col cols="12" md="12" class="pa-2">
                           <strong>Cuentas Bancarias :</strong>
                           <v-data-table
                             :headers="headersCuentas"
-                            :items="cuentasBancarias"
+                            :items="oferta.cuentasBancEntidad"
                             hide-default-footer
                             fixed-header
+                            class="pt-3"
                           ></v-data-table>
                         </v-col>
                       </v-row>
@@ -441,48 +531,6 @@
                 </v-col>
               </v-row>
               <!-- /DATOS DE LA ENTIDAD PROVEEDORA -->
-
-              <v-row no-gutters class="px-3">
-                <v-col>
-                  <v-card class="pa-2" tile flat>
-                    <v-text>Aprobado por el Jurídico :</v-text>
-                    <span v-if="oferta.aprobJuridico">
-                      <v-icon color="success">mdi-check-underline</v-icon>
-                      <v-text :class="`success--text`">Sí</v-text>
-                    </span>
-                    <span v-else>
-                      <v-icon color="red">mdi-close-outline</v-icon>
-                      <v-text :class="`red--text`">No</v-text>
-                    </span>
-                  </v-card>
-                </v-col>
-                <v-col>
-                  <v-card class="pa-2" tile flat>
-                    <v-text>Aprobado por el Económico :</v-text>
-                    <span v-if="oferta.aprobEconomico">
-                      <v-icon color="success">mdi-check-underline</v-icon>
-                      <v-text :class="`success--text`">Sí</v-text>
-                    </span>
-                    <span v-else>
-                      <v-icon color="red">mdi-close-outline</v-icon>
-                      <v-text :class="`red--text`">No</v-text>
-                    </span>
-                  </v-card>
-                </v-col>
-                <v-col>
-                  <v-card class="pa-2" tile flat>
-                    <v-text>Aprobado por el Comité Contratación:</v-text>
-                    <span v-if="oferta.aprobComitContratacion">
-                      <v-text :class="`success--text`">Sí</v-text>
-                      <v-icon color="success">mdi-check-underline</v-icon>
-                    </span>
-                    <span v-else>
-                      <v-icon color="red">mdi-close-outline</v-icon>
-                      <v-text :class="`red--text`">No</v-text>
-                    </span>
-                  </v-card>
-                </v-col>
-              </v-row>
             </v-container>
           </v-card>
         </v-dialog>
@@ -641,20 +689,7 @@ export default {
     ofertas: [],
     cantOfertas: null,
     oferta: {
-      nombre: "",
-      tipo: null,
-      trabajadorId: null,
-      entidadId: null,
-      entidad: {},
-      objetoDeContrato: "",
-      montoCup: null,
-      montoCuc: null,
-      montoUsd: null,
-      fechaDeRecepcion: null,
-      formasDePago: [],
-      terminoDePago: null,
-      dictaminadoresId: [],
-      espExternoId: []
+      entidad: {}
     },
     file: null,
     entidades: [],
@@ -663,7 +698,6 @@ export default {
     estados: [],
     tipos: [],
     formasDePagos: [],
-    cuentasBancarias: [],
     enTiempo: 0,
     casiVenc: 0,
     proxVencer: 0,
@@ -671,19 +705,18 @@ export default {
     vencimientoOfertas: [],
     show: false,
     tabs: null,
-    autoUpdate: true,
-    isUpdating: false,
     textOfertaVence: {
       text: null,
       class: null
     },
+    trabajadores: [],
     errors: [],
     headers: [
       { text: "Número", sortable: true, value: "numero" },
       { text: "Nombre", align: "left", sortable: true, value: "nombre" },
       { text: "Tipo", value: "tipoNombre" },
       { text: "Entidad", value: "entidadNomnbre" },
-      { text: "Vence", value: "ofertVence" },
+      { text: "Vence en", value: "ofertVence" },
       { text: "Estado", value: "estadoNombre" },
       { text: "Acciones", value: "action", sortable: false }
     ],
@@ -697,6 +730,15 @@ export default {
       { text: "Número Sucursal", value: "numeroSucursal" },
       { text: "Nombre Sucursal", value: "nombreSucursal" },
       { text: "Moneda", value: "moneda" }
+    ],
+    headersTelefonos: [
+      {
+        text: "Número",
+        align: "left",
+        sortable: true,
+        value: "numero"
+      },
+      { text: "Extensión", value: "extension" }
     ]
   }),
 
@@ -707,21 +749,11 @@ export default {
     method() {
       return this.editedIndex === -1 ? "POST" : "PUT";
     }
-    // fechaDeRecepcionFormatted() {
-    //   return this.oferta.fechaDeRecepcion
-    //     ? moment(this.oferta.fechaDeRecepcion).format("dddd, MMMM Do YYYY")
-    //     : "";
-    // }
   },
 
   watch: {
     dialog(val) {
       val || this.close();
-    },
-    isUpdating(val) {
-      if (val) {
-        setTimeout(() => (this.isUpdating = false), 3000);
-      }
     }
   },
 
@@ -733,6 +765,7 @@ export default {
     this.getEspecialistasExternosFromApi();
     this.getAdminContratosFromApi();
     this.getFormasDePagosFromApi();
+    this.getTrabajadoresFromApi();
   },
 
   methods: {
@@ -815,7 +848,6 @@ export default {
     },
     getDetalles(item) {
       this.oferta = Object.assign({}, item);
-      this.cuentasBancarias = this.oferta.entidad[0].cuentasBancarias;
       this.dialog6 = true;
       if (this.oferta.ofertVence < 0) {
         this.textOfertaVence.text = "La Oferta ya se Venció Tiene";
@@ -838,6 +870,17 @@ export default {
         this.textOfertaVence.text = "La Oferta Vence en";
         this.textOfertaVence.class = "pa-2 pt-3 green--text";
       }
+    },
+    getTrabajadoresFromApi() {
+      const url = api.getUrl("recursos_humanos", "Trabajadores");
+      this.axios.get(url).then(
+        response => {
+          this.trabajadores = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
     },
     editItem(item) {
       this.editedIndex = this.ofertas.indexOf(item);
@@ -918,34 +961,12 @@ export default {
       this.dialog2 = false;
       this.dialog6 = false;
       this.dialog7 = false;
-      this.oferta = {
-        nombre: "",
-        tipo: null,
-        trabajadorId: null,
-        entidad: {
-          nombre: "",
-          direccion: "",
-          nit: "",
-          fax: "",
-          correo: "",
-          objetoSocial: "",
-          telefonos: null,
-          cuentasBancarias: null
-        },
-        objetoDeContrato: "",
-        montoCup: null,
-        montoCuc: null,
-        fechaDeRecepcion: null,
-        vigencia: null,
-        vigenciaDMA: "",
-        formasDePago: [],
-        terminoDePago: null,
-        dictaminadoresId: [],
-        espExternoId: []
-      };
-      setTimeout(() => {
-        this.editedIndex = -1;
-      }, 300);
+      (this.oferta = {
+        entidad: {}
+      }),
+        setTimeout(() => {
+          this.editedIndex = -1;
+        }, 300);
     },
     closeAdd() {
       this.getEntidadesFromApi();
@@ -986,9 +1007,13 @@ export default {
         }
       );
     },
-    remove(item) {
+    removeformasDePago(item) {
       const index = this.oferta.formasDePago.indexOf(item.id);
       if (index >= 0) this.oferta.formasDePago.splice(index, 1);
+    },
+    removeDictaminadores(item) {
+      const index = this.oferta.dictaminadores.indexOf(item.id);
+      if (index >= 0) this.oferta.dictaminadores.splice(index, 1);
     }
   }
 };
