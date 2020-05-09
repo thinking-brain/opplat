@@ -1,56 +1,56 @@
 [
     {
         "title": "Listado de Trabajadores",
-        "group": "recursos_humanos",
+        "group": "recursos humanos",
         "icon": "mdi-worker",
         "name": "Trabajadores",
         "component": "Trabajadores",
         "roles": [
             "administrador",
-            "recursos_humanos"
+            "recursos humanos"
         ]
     },
     {
         "title": "Trabajadores en la Bolsa",
-        "group": "recursos_humanos",
+        "group": "recursos humanos",
         "icon": "mdi-clipboard-account",
         "component": "Bolsa",
         "name": "Bolsa",
         "roles": [
             "administrador",
-            "recursos_humanos"
+            "recursos humanos"
         ]
     },
     {
         "title": "Apertura de Socios",
-        "group": "recursos_humanos",
+        "group": "recursos humanos",
         "icon": "mdi-account-tie",
         "name": "Apertura",
         "roles": [
             "administrador",
-            "recursos_humanos"
+            "recursos humanos"
         ],
         "items": [
             {
                 "title": "Listado de Aperturas",
-                "group": "recursos_humanos",
+                "group": "recursos humanos",
                 "icon": "mdi-account-tie",
                 "component": "Apertura",
                 "name": "ListadoAperturas",
                 "roles": [
                     "administrador",
-                    "recursos_humanos"
+                    "recursos humanos"
                 ]
             },
             {
                 "title": "Nueva Apertura",
-                "group": "recursos_humanos",
+                "group": "recursos humanos",
                 "icon": "mdi-account-tie",
                 "component": "Apertura",
                 "name": "Apertura",
                 "roles": [
                     "administrador",
-                    "recursos_humanos"
+                    "recursos humanos"
                 ]
             }
         ]

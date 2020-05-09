@@ -15,22 +15,6 @@
             label="MES"
             required
           ></v-select>
-          <v-select v-model="selectedMonths" :items="meses" item-text="nombre" label="MES" return-object multiple>
-            <template v-slot:prepend-item>
-              <v-list-item ripple @click="toggle">
-                <v-list-item-action>
-                  <v-icon :color="selectedMonths.length > 0 ? 'indigo darken-4' : ''">{{ icon }}</v-icon>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title>Todos</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider class="mt-2"></v-divider>
-            </template>
-            <template v-slot:append-item>
-              <v-divider class="mb-2"></v-divider>
-            </template>
-          </v-select>
         </v-col>
 
         <v-col cols="12" md="2">

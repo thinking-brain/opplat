@@ -19,7 +19,7 @@ namespace ContratacionWebApi.Controllers {
             var formasDePagos = new List<dynamic> () {
                 new { Id = FormaDePago.Transferencia_Bancaria, Nombre = "Transferencia Bancaria" },
                 new { Id = FormaDePago.Cheque_Bancario, Nombre = "Cheque Bancario" },
-                new { Id = FormaDePago.Efectivo, Nombre = FormaDePago.Efectivo.ToString () },
+                new { Id = FormaDePago.Efectivo, Nombre = "Efectivo"},
             };
             return Ok (formasDePagos);
         }

@@ -3,6 +3,7 @@
         "title": "Contratos",
         "group": "contratacion",
         "icon": "mdi-note-multiple-outline",
+        "cant": 0,
         "name": "Contratos",
         "component": "Contratos",
         "roles": [
@@ -14,6 +15,7 @@
         "title": "Ofertas",
         "group": "contratacion",
         "icon": "mdi-note-multiple",
+        "cant": 0,
         "component": "Ofertas",
         "name": "Ofertas",
         "roles": [
@@ -25,6 +27,7 @@
         "title": "Configuraciones",
         "group": "contratacion",
         "icon": "mdi-cogs",
+        "cant": 0,
         "component": "Config",
         "name": "Config",
         "roles": [

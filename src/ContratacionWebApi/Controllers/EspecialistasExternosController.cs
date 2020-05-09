@@ -23,7 +23,7 @@ namespace ContratacionWebApi.Controllers {
                             Apellidos = e.Apellidos,
                             NombreCompleto=e.NombreCompleto,
                             EntidadId = e.EntidadId,
-                            Entidad = e.Entidad.Nombre,
+                            Entidad = e.Entidad,
                             Area = e.Area,
                             Departamento = e.Departamento,
                             Cargo = e.Cargo,

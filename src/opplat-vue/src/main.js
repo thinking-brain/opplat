@@ -12,6 +12,8 @@ import store from './store/index';
 import './registerServiceWorker';
 import App from './App.vue';
 import notificationsHub from './notificationsHub';
+import Vuelidate from 'vuelidate';
+import moment from 'moment';
 
 const options = {
   toast: {
@@ -27,6 +29,8 @@ Vue.use(snotify, options);
 Vue.config.productionTip = false;
 Vue.use(VueAxios, axios);
 Vue.use(notificationsHub);
+Vue.use(Vuelidate);
+Vue.use(moment);
 
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 const token = sessionStorage.getItem('token');

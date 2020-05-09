@@ -433,7 +433,7 @@ namespace FinanzasWebApi.Helper
             decimal ingresos = _obtenetPlan.ObtenerTotalIngresos(años, meses);
             decimal egresos = _obtenetPlan.ObtenerTotalEgresos(años, meses);
             decimal solvenciaFinanciera = egresos != 0 ? ingresos / egresos : 0;
-            return solvenciaFinanciera;
+            return Math.Round(solvenciaFinanciera, 2);
         }
 
         //Capital de Trabajo
@@ -442,7 +442,7 @@ namespace FinanzasWebApi.Helper
             decimal ac = activoCirculante(años, meses);
             decimal pc = pasivoCirculante(años, meses);
             decimal capitalDeTrabajo = ac - pc;
-            return capitalDeTrabajo;
+            return Math.Round(capitalDeTrabajo, 2);
         }
 
         //Indice de Disponibilidad
@@ -453,7 +453,7 @@ namespace FinanzasWebApi.Helper
             decimal ec = efectivoEnCaja(años, meses);
             decimal eb = efectivoEnBanco(años, meses);
             decimal indiceDeDisponibilidad = ac != 0 ? (ec + eb) / ac : 0;
-            return indiceDeDisponibilidad;
+            return Math.Round(indiceDeDisponibilidad, 2);
         }
 
         //Indice de Liquidez General
@@ -462,7 +462,7 @@ namespace FinanzasWebApi.Helper
             decimal ac = activoCirculante(años, meses);
             decimal pc = pasivoCirculante(años, meses);
             decimal indiceDeLiquidezGneral = pc != 0 ? ac / pc : 0;
-            return indiceDeLiquidezGneral;
+            return Math.Round(indiceDeLiquidezGneral);
         }
 
         //Liquidez de Tesorería
@@ -474,7 +474,7 @@ namespace FinanzasWebApi.Helper
             decimal pc = pasivoCirculante(años, meses);
             decimal al = ec + eb;
             decimal liquidezDeTesoreria = pc != 0 ? al / pc : 0;
-            return liquidezDeTesoreria;
+            return Math.Round(liquidezDeTesoreria, 2);
         }
 
         //Indice de Deuda o Razon de Endeudamiento
@@ -494,7 +494,7 @@ namespace FinanzasWebApi.Helper
             decimal ta = ac + ad + af + alp + oa;
 
             decimal indiceDeDeudaORazonDeEndeudamiento = ta != 0 ? tp / ta : 0;
-            return indiceDeDeudaORazonDeEndeudamiento;
+            return Math.Round(indiceDeDeudaORazonDeEndeudamiento, 2);
         }
 
         //Margen de utilidad 
@@ -505,7 +505,7 @@ namespace FinanzasWebApi.Helper
             decimal utilidadAntesDeImpuesto = ingresos - egresos;
             decimal ventas = ObtenerVentas(años, meses);
             decimal margenDeUtilidad = ventas != 0 ? utilidadAntesDeImpuesto / ventas : 0;
-            return margenDeUtilidad;
+            return Math.Round(margenDeUtilidad, 2);
         }
         //Rentabilidad Económica"
         public decimal ObtenerRentabilidadEconomica(int años, int meses)
@@ -520,7 +520,7 @@ namespace FinanzasWebApi.Helper
             decimal utilidadAntesDeImpuesto = ingresos - egresos;
             decimal totalDeActivosPromedio = ((af + ac + ad + alp + oa) / 1);
             decimal rentabilidadEconomica = totalDeActivosPromedio != 0 ? utilidadAntesDeImpuesto / totalDeActivosPromedio : 0;
-            return rentabilidadEconomica;
+            return Math.Round(rentabilidadEconomica, 2);
         }
 
         //Rentabilidad Financiera
@@ -531,7 +531,7 @@ namespace FinanzasWebApi.Helper
             decimal egresos = _obtenetPlan.ObtenerTotalEgresos(años, meses);
             decimal utilidadAntesDeImpuesto = ingresos - egresos;
             decimal rentabilidadFinanciera = patrimonioNeto != 0 ? utilidadAntesDeImpuesto / patrimonioNeto : 0;
-            return rentabilidadFinanciera;
+            return Math.Round(rentabilidadFinanciera, 2);
         }
     }
 }
