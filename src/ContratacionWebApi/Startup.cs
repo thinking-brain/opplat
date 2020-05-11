@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
-// using RhWebApi.Data;
+using RhWebApi.Data;
 
 [assembly : HostingStartup (typeof (ContratacionWebApi.Startup))]
 namespace ContratacionWebApi {
@@ -43,8 +43,8 @@ namespace ContratacionWebApi {
             services.AddDbContext<ContratacionDbContext> (options =>
                 options.UseNpgsql (context.Configuration.GetConnectionString ("ContratacionDbContext"), b => b.MigrationsAssembly ("ContratacionWebApi")));
 
-            // services.AddDbContext<RhWebApiDbContext> (options =>
-            //     options.UseNpgsql (context.Configuration.GetConnectionString ("RhWebApiDbContext")));
+            services.AddDbContext<RhWebApiDbContext> (options =>
+                options.UseNpgsql (context.Configuration.GetConnectionString ("RhWebApiDbContext")));
 
             services.AddScoped<ContratacionDbContext> ();
 

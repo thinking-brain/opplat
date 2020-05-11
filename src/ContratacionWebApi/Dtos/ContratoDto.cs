@@ -10,7 +10,7 @@ namespace ContratacionWebApi.Models {
         public int Id { get; set; }
         public string Nombre { get; set; }
         public Tipo Tipo { get; set; }
-        public int TrabajadorId { get; set; }
+        public int AdminContratoId { get; set; }
         public int Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
         public string Numero { get; set; }

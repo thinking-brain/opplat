@@ -7,6 +7,7 @@
             <v-toolbar flat>
               <v-tabs slot="extension" v-model="tabs" centered>
                 <v-tab>Administradores</v-tab>
+                <v-tab>Dictaminadores</v-tab>
                 <v-tab>Proveedores</v-tab>
                 <v-tab>Especialistas Externos</v-tab>
               </v-tabs>
@@ -16,6 +17,13 @@
                 <v-card flat>
                   <v-card-text>
                     <AdminContratos></AdminContratos>
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item>
+                <v-card flat>
+                  <v-card-text>
+                    <DictContratos></DictContratos>
                   </v-card-text>
                 </v-card>
               </v-tab-item>
@@ -44,6 +52,7 @@
 <script>
 import api from "@/api";
 import AdminContratos from "@/components/contratacion/AdminContratos.vue";
+import DictContratos from "@/components/contratacion/DictContratos.vue";
 import EspExternos from "@/components/contratacion/EspExternos.vue";
 import FormasDePago from "@/components/contratacion/FormasDePago.vue";
 import Entidades from "@/components/contratacion/Entidades.vue";
@@ -51,6 +60,7 @@ import Entidades from "@/components/contratacion/Entidades.vue";
 export default {
   components: {
     AdminContratos,
+    DictContratos,
     EspExternos,
     FormasDePago,
     Entidades

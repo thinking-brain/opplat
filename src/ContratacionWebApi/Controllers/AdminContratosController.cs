@@ -4,32 +4,32 @@ using ContratacionWebApi.Data;
 using ContratacionWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-// using RhWebApi.Data;
-// using RhWebApi.Models;
+using RhWebApi.Data;
+using RhWebApi.Models;
 
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
     [ApiController]
     public class AdminContratosController : Controller {
         private readonly ContratacionDbContext context;
-        // private readonly RhWebApiDbContext context_rh;
+        private readonly RhWebApiDbContext context_rh;
 
-        public AdminContratosController (ContratacionDbContext context) {
+        public AdminContratosController (ContratacionDbContext context, RhWebApiDbContext context_rh) {
             this.context = context;
-            // this.context_rh = context_rh;
+            this.context_rh = context_rh;
         }
 
         // GET entidades/AdminContratos
         [HttpGet]
         public IActionResult GetAll () {
-            // var trabajadores = context_rh.Trabajador.ToList ();
+            var trabajadores = context_rh.Trabajador.ToList ();
             var adminCont = context.AdminContratos.ToList ();
-            // var adminContratos = new List<Trabajador> ();
+            var adminContratos = new List<Trabajador> ();
 
-            // foreach (var item in adminCont) {
-            //     adminContratos.Add (trabajadores.FirstOrDefault (s => s.Id == item.TrabajadorId));
-            // }
-            return Ok (adminCont);
+            foreach (var item in adminCont) {
+                adminContratos.Add (trabajadores.FirstOrDefault (s => s.Id == item.TrabajadorId));
+            }
+            return Ok (adminContratos);
         }
 
         // GET: entidades/AdminContratos/Id

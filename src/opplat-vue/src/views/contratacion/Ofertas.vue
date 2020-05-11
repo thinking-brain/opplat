@@ -166,8 +166,8 @@
                   </v-flex>
                   <v-flex xs4 class="px-3">
                     <v-autocomplete
-                      v-model="oferta.trabajadorId"
-                      item-text="id"
+                      v-model="oferta.adminContrato"
+                      item-text="nombreCompleto"
                       item-value="id"
                       :items="adminContratos"
                       :filter="activeFilter"
@@ -182,7 +182,7 @@
                       v-model="oferta.dictaminadores"
                       item-text="nombre_Completo"
                       item-value="id"
-                      :items="trabajadores"
+                      :items="dictaminadoresContratos"
                       :filter="activeFilter"
                       label="Especialistas Internos"
                       placeholder="Dictaminadores Internos"
@@ -370,7 +370,7 @@
                         </v-col>
                         <v-col cols="12" md="12" class="pa-2">
                           <strong>Administrador del Contrato :</strong>
-                          <u class="pl-2">{{oferta.trabajadorId}}</u>
+                          <u class="pl-2">{{oferta.adminContrato}}</u>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Fecha de Recepción:</strong>
@@ -414,6 +414,17 @@
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Especialistas Externos:</strong>
+                          <span
+                            v-for="item in oferta.especialistasExternos"
+                            :key="item.especialistaExterno"
+                            class="pl-2"
+                          >
+                            <v-spacer></v-spacer>-
+                            <u class="pl-2">{{item.especialistaExterno.nombreCompleto}}</u>
+                          </span>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Especialistas Internos:</strong>
                           <span
                             v-for="item in oferta.especialistasExternos"
                             :key="item.especialistaExterno"
@@ -694,6 +705,7 @@ export default {
     file: null,
     entidades: [],
     especialistasExternos: [],
+    dictaminadoresContratos: [],
     adminContratos: [],
     estados: [],
     tipos: [],
@@ -764,6 +776,7 @@ export default {
     this.getEntidadesFromApi();
     this.getEspecialistasExternosFromApi();
     this.getAdminContratosFromApi();
+    this.getDictContratosFromApi();
     this.getFormasDePagosFromApi();
     this.getTrabajadoresFromApi();
   },
@@ -840,6 +853,17 @@ export default {
       this.axios.get(url).then(
         response => {
           this.adminContratos = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    getDictContratosFromApi() {
+      const url = api.getUrl("contratacion", "DictContratos");
+      this.axios.get(url).then(
+        response => {
+          this.dictaminadoresContratos = response.data;
         },
         error => {
           console.log(error);

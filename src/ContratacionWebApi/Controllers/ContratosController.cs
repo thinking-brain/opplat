@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-// using RhWebApi.Data;
+using RhWebApi.Data;
+using RhWebApi.Models;
 
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
@@ -18,25 +18,25 @@ namespace ContratacionWebApi.Controllers {
     public class ContratosController : Controller {
         private IHostingEnvironment _hostingEnvironment;
         private readonly ContratacionDbContext context;
-        // private readonly RhWebApiDbContext context_rh;
-        public ContratosController (ContratacionDbContext context, IHostingEnvironment environment) {
+        private readonly RhWebApiDbContext context_rh;
+        public ContratosController (ContratacionDbContext context, IHostingEnvironment environment, RhWebApiDbContext context_rh) {
+
             this.context = context;
+            this.context_rh = context_rh;
             _hostingEnvironment = environment;
-            // this.context_rh = context_rh;
         }
 
         // GET contratos/Contratos/tipoTramite(Oferta o contrato)
         [HttpGet]
         public ActionResult GetAll (string tipoTramite) {
-            // var trabajadores = context_rh.Trabajador.ToList ();
 
             var contratos = context.Contratos.Select (c => new {
                 Id = c.Id,
                     Nombre = c.Nombre,
                     Tipo = c.Tipo,
                     TipoNombre = c.Tipo.ToString (),
-                    TrabajadorId = c.TrabajadorId,
-                    // AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.TrabajadorId),
+                    AdminContrato = c.AdminContratoId,
+                    Dictaminador = c.Dictaminadores,
                     ObjetoDeContrato = c.ObjetoDeContrato,
                     Numero = c.Numero,
                     MontoCup = c.MontoCup,
@@ -46,9 +46,9 @@ namespace ContratacionWebApi.Controllers {
                     FechaDeVenOferta = c.FechaDeVenOferta,
                     FechaVenContrato = c.FechaVenContrato,
                     FechaDeFirmado = c.FechaDeFirmado,
-                    FechaDeRece = c.FechaDeRecepcion.ToString("dd/MM/yyyy"),
-                    FechaDeVenOfer = c.FechaDeVenOferta.ToString("dd/MM/yyyy"),
-                    FechaVenCont = c.FechaVenContrato.ToString("dd/MM/yyyy"),
+                    FechaDeRece = c.FechaDeRecepcion.ToString ("dd/MM/yyyy"),
+                    FechaDeVenOfer = c.FechaDeVenOferta.ToString ("dd/MM/yyyy"),
+                    FechaVenCont = c.FechaVenContrato.ToString ("dd/MM/yyyy"),
                     TerminoDePago = c.TerminoDePago,
                     TerminoDePagoDet = c.TerminoDePago / 30 + " Meses y " + c.TerminoDePago % 30 + " Días",
                     Estado = c.Estado,
@@ -66,7 +66,7 @@ namespace ContratacionWebApi.Controllers {
                         EspecialistaExterno = context.EspecialistasExternos.FirstOrDefault (p => p.Id == e.EspecialistaExternoId),
                     }),
                     Entidad = c.Entidad,
-                    SectorEntidad = c.Entidad.Sector.ToString(),
+                    SectorEntidad = c.Entidad.Sector.ToString (),
                     TelefonosEntidad = context.Telefonos.Where (t => t.EntidadId == c.Entidad.Id),
                     CuentasBancEntidad = context.CuentasBancarias.Where (s => s.EntidadId == c.Entidad.Id).Select (
                         b => new {
@@ -111,7 +111,7 @@ namespace ContratacionWebApi.Controllers {
                     Id = contratoDto.Id,
                     Nombre = contratoDto.Nombre,
                     Tipo = contratoDto.Tipo,
-                    TrabajadorId = contratoDto.TrabajadorId,
+                    AdminContratoId = contratoDto.AdminContratoId,
                     EntidadId = contratoDto.Entidad,
                     ObjetoDeContrato = contratoDto.ObjetoDeContrato,
                     Numero = contratoDto.Numero,
