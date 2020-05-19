@@ -52,6 +52,13 @@
                       required
                     ></v-text-field>
                   </v-flex>
+                  <v-flex xs2 class="px-2" v-if="editedIndex!=-1">
+                    <v-text-field
+                      v-model="entidad.codigo"
+                      label="Código"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
                   <v-flex xs3 class="px-2">
                     <v-text-field
                       v-model="entidad.nit"
@@ -495,6 +502,12 @@
                       </v-col>
                       <v-col cols="12" md="4" class="pa-2">
                         <v-list-item-title>
+                          <strong>Código</strong>
+                        </v-list-item-title>
+                        <v-list-item-subtitle>{{entidad.codigo}}</v-list-item-subtitle>
+                      </v-col>
+                      <v-col cols="12" md="4" class="pa-2">
+                        <v-list-item-title>
                           <strong>NIT</strong>
                         </v-list-item-title>
                         <v-list-item-subtitle>{{entidad.nit}}</v-list-item-subtitle>
@@ -505,8 +518,6 @@
                         </v-list-item-title>
                         <v-list-item-subtitle>{{entidad.sectorNombre}}</v-list-item-subtitle>
                       </v-col>
-                    </v-row>
-                    <v-row no-gutters justify="start">
                       <v-col cols="12" md="4" class="pa-2">
                         <v-list-item-title>
                           <strong>Objeto Social</strong>
@@ -618,6 +629,7 @@ export default {
     monedas: [],
     sectores: [],
     entidad: {
+      codigo:null,
       cuentasBancarias: [
         {
           numeroCuenta: null,

@@ -12,7 +12,7 @@ namespace ContratacionWebApi.Data {
         }
         public DbSet<Contrato> Contratos { get; set; }
         public DbSet<ContratoId_DictaminadorId> ContratoId_DictaminadorId { get; set; }
-        public DbSet<Dictaminador> Dictaminadores { get; set; }
+        public DbSet<DictaminadorContrato> DictaminadoresContratos { get; set; }
         public DbSet<Entidad> Entidades { get; set; }
         public DbSet<CuentaBancaria> CuentasBancarias { get; set; }
         public DbSet<EspecialistaExterno> EspecialistasExternos { get; set; }

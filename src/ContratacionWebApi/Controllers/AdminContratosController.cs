@@ -4,32 +4,32 @@ using ContratacionWebApi.Data;
 using ContratacionWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-// using RhWebApi.Data;
-// using RhWebApi.Models;
+using RhWebApi.Data;
+using RhWebApi.Models;
 
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
     [ApiController]
     public class AdminContratosController : Controller {
         private readonly ContratacionDbContext context;
-        // private readonly RhWebApiDbContext context_rh;
+        private readonly RhWebApiDbContext context_rh;
 
-        public AdminContratosController (ContratacionDbContext context) {
+        public AdminContratosController (ContratacionDbContext context, RhWebApiDbContext context_rh) {
             this.context = context;
-            // this.context_rh = context_rh;
+            this.context_rh = context_rh;
         }
 
         // GET entidades/AdminContratos
         [HttpGet]
         public IActionResult GetAll () {
-            // var trabajadores = context_rh.Trabajador.ToList ();
+            var trabajadores = context_rh.Trabajador.ToList ();
             var adminCont = context.AdminContratos.ToList ();
-            // var adminContratos = new List<Trabajador> ();
+            var adminContratos = new List<Trabajador> ();
 
-            // foreach (var item in adminCont) {
-            //     adminContratos.Add (trabajadores.FirstOrDefault (s => s.Id == item.TrabajadorId));
-            // }
-            return Ok (adminCont);
+            foreach (var item in adminCont) {
+                adminContratos.Add (trabajadores.FirstOrDefault (s => s.Id == item.AdminContratoId));
+            }
+            return Ok (adminContratos);
         }
 
         // GET: entidades/AdminContratos/Id
@@ -45,16 +45,18 @@ namespace ContratacionWebApi.Controllers {
 
         // POST entidades/AdminContratos
         [HttpPost]
-        public IActionResult POST ([FromBody] AdminContrato adminContrato) {
+        public IActionResult POST ([FromBody] List<int> AdminContratos) {
             if (ModelState.IsValid) {
-                var adminCont = context.AdminContratos.FirstOrDefault (s => s.TrabajadorId == adminContrato.TrabajadorId);
-                if (adminCont != null) {
-                    return BadRequest ($"El Trabajador ya es Administrador de Contrato");
-                } else {
-                    context.AdminContratos.Add (adminContrato);
-                    context.SaveChanges ();
-                    return new CreatedAtRouteResult ("GetAdminContrato", new { id = adminContrato.Id });
+                foreach (var item in AdminContratos) {
+                    if (context.AdminContratos.FirstOrDefault (s => s.AdminContratoId == item) == null) {
+                        var adminContrato = new AdminContrato {
+                        AdminContratoId = item
+                        };
+                        context.AdminContratos.Add (adminContrato);
+                        context.SaveChanges ();
+                    }
                 }
+                return Ok ();
             }
             return BadRequest (ModelState);
         }
@@ -73,9 +75,9 @@ namespace ContratacionWebApi.Controllers {
         // DELETE entidades/adminContrato/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
-            var adminContrato = context.AdminContratos.FirstOrDefault (s => s.Id == id);
+            var adminContrato = context.AdminContratos.FirstOrDefault (s => s.AdminContratoId == id);
 
-            if (adminContrato.Id != id) {
+            if (adminContrato == null) {
                 return NotFound ();
             }
             context.AdminContratos.Remove (adminContrato);

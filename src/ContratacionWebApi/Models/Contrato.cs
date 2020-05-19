@@ -10,8 +10,7 @@ namespace ContratacionWebApi.Models {
         public string Nombre { get; set; }
         public Tipo Tipo { get; set; }
         //Trabajador
-        public int TrabajadorId { get; set; }
-        public virtual AdminContrato Trabajador { get; set; }
+        public int AdminContratoId { get; set; }
         public int EntidadId { get; set; }
         public virtual Entidad Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
@@ -50,7 +49,7 @@ namespace ContratacionWebApi.Models {
         public virtual ICollection<FormaDePago> FormasDePago { get; set; }
 
         [NotMapped]
-        public ICollection<Dictaminador> Dictaminadores { get; set; }
+        public ICollection<DictaminadorContrato> Dictaminadores { get; set; }
 
         [NotMapped]
         public ICollection<EspecialistaExterno> EspExterno { get; set; }

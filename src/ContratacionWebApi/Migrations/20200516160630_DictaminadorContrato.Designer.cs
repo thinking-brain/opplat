@@ -3,15 +3,17 @@ using System;
 using ContratacionWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    partial class ContratacionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200516160630_DictaminadorContrato")]
+    partial class DictaminadorContrato
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,6 +77,8 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("Tipo");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AdminContratoId");
 
                     b.HasIndex("EntidadId");
 
@@ -219,8 +223,6 @@ namespace ContratacionWebApi.Migrations
                     b.Property<string>("CI");
 
                     b.Property<string>("CarnetTCP");
-
-                    b.Property<string>("Codigo");
 
                     b.Property<string>("Correo");
 
@@ -413,6 +415,11 @@ namespace ContratacionWebApi.Migrations
 
             modelBuilder.Entity("ContratacionWebApi.Models.Contrato", b =>
                 {
+                    b.HasOne("ContratacionWebApi.Models.AdminContrato", "AdminContrato")
+                        .WithMany()
+                        .HasForeignKey("AdminContratoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("ContratacionWebApi.Models.Entidad", "Entidad")
                         .WithMany()
                         .HasForeignKey("EntidadId")

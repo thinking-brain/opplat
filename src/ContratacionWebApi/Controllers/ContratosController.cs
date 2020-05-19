@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-// using RhWebApi.Data;
+using RhWebApi.Data;
+using RhWebApi.Models;
 
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
@@ -18,25 +18,28 @@ namespace ContratacionWebApi.Controllers {
     public class ContratosController : Controller {
         private IHostingEnvironment _hostingEnvironment;
         private readonly ContratacionDbContext context;
-        // private readonly RhWebApiDbContext context_rh;
-        public ContratosController (ContratacionDbContext context, IHostingEnvironment environment) {
+        private readonly RhWebApiDbContext context_rh;
+        public ContratosController (ContratacionDbContext context, IHostingEnvironment environment, RhWebApiDbContext context_rh) {
+
             this.context = context;
+            this.context_rh = context_rh;
             _hostingEnvironment = environment;
-            // this.context_rh = context_rh;
         }
 
         // GET contratos/Contratos/tipoTramite(Oferta o contrato)
         [HttpGet]
-        public ActionResult GetAll (string tipoTramite) {
-            // var trabajadores = context_rh.Trabajador.ToList ();
-
+        public ActionResult GetAll (string tipoTramite, string filtro) {
+            var trabajadores = context_rh.Trabajador.ToList ();
+            var contratoId_DictaminadorId = context.ContratoId_DictaminadorId.ToList ();
             var contratos = context.Contratos.Select (c => new {
                 Id = c.Id,
                     Nombre = c.Nombre,
                     Tipo = c.Tipo,
                     TipoNombre = c.Tipo.ToString (),
-                    TrabajadorId = c.TrabajadorId,
-                    // AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.TrabajadorId),
+                    AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.AdminContratoId),
+                    Dictaminadores = contratoId_DictaminadorId.Where (s => s.ContratoId == c.Id).Select (e => new {
+                        Dictaminador = trabajadores.FirstOrDefault (d => d.Id == e.DictaminadorContratoId),
+                    }),
                     ObjetoDeContrato = c.ObjetoDeContrato,
                     Numero = c.Numero,
                     MontoCup = c.MontoCup,
@@ -46,9 +49,9 @@ namespace ContratacionWebApi.Controllers {
                     FechaDeVenOferta = c.FechaDeVenOferta,
                     FechaVenContrato = c.FechaVenContrato,
                     FechaDeFirmado = c.FechaDeFirmado,
-                    FechaDeRece = c.FechaDeRecepcion.ToString("dd/MM/yyyy"),
-                    FechaDeVenOfer = c.FechaDeVenOferta.ToString("dd/MM/yyyy"),
-                    FechaVenCont = c.FechaVenContrato.ToString("dd/MM/yyyy"),
+                    FechaDeRece = c.FechaDeRecepcion.ToString ("dd/MM/yyyy"),
+                    FechaDeVenOfer = c.FechaDeVenOferta.ToString ("dd/MM/yyyy"),
+                    FechaVenCont = c.FechaVenContrato.ToString ("dd/MM/yyyy"),
                     TerminoDePago = c.TerminoDePago,
                     TerminoDePagoDet = c.TerminoDePago / 30 + " Meses y " + c.TerminoDePago % 30 + " Días",
                     Estado = c.Estado,
@@ -65,8 +68,8 @@ namespace ContratacionWebApi.Controllers {
                     EspecialistasExternos = context.EspExternoId_ContratoId.Where (s => s.ContratoId == c.Id).Select (e => new {
                         EspecialistaExterno = context.EspecialistasExternos.FirstOrDefault (p => p.Id == e.EspecialistaExternoId),
                     }),
-                    Entidad = c.Entidad,
-                    SectorEntidad = c.Entidad.Sector.ToString(),
+                    EntidadId = c.EntidadId,
+                    SectorEntidad = c.Entidad.Sector.ToString (),
                     TelefonosEntidad = context.Telefonos.Where (t => t.EntidadId == c.Entidad.Id),
                     CuentasBancEntidad = context.CuentasBancarias.Where (s => s.EntidadId == c.Entidad.Id).Select (
                         b => new {
@@ -84,10 +87,25 @@ namespace ContratacionWebApi.Controllers {
 
             if (tipoTramite == "oferta") {
                 contratos = contratos.Where (c => c.FechaDeFirmado == null && c.AprobComitContratacion == false && c.Estado != Estado.Aprobado);
+                if (filtro != null) {
+                    if (filtro == "ofertaTiempo") {
+                        contratos = contratos.Where (c => c.OfertVence > 23);
+                    }
+                    if (filtro == "ofertasProxVencer") {
+                        contratos = contratos.Where (c => c.OfertVence > 7 && c.OfertVence <= 23);
+                    }
+                    if (filtro == "ofertasCasiVenc") {
+                        contratos = contratos.Where (c => c.OfertVence >= 0 && c.OfertVence <= 6);
+                    }
+                    if (filtro == "ofertasVenc") {
+                        contratos = contratos.Where (c => c.OfertVence < 0);
+                    }
+                }
             }
             if (tipoTramite == "contrato") {
                 contratos = contratos.Where (c => c.FechaDeFirmado != null && c.AprobComitContratacion == true && c.Estado == Estado.Aprobado);
             }
+
             return Ok (contratos);
         }
 
@@ -111,7 +129,7 @@ namespace ContratacionWebApi.Controllers {
                     Id = contratoDto.Id,
                     Nombre = contratoDto.Nombre,
                     Tipo = contratoDto.Tipo,
-                    TrabajadorId = contratoDto.TrabajadorId,
+                    AdminContratoId = contratoDto.AdminContratoId,
                     EntidadId = contratoDto.Entidad,
                     ObjetoDeContrato = contratoDto.ObjetoDeContrato,
                     Numero = contratoDto.Numero,
@@ -152,7 +170,7 @@ namespace ContratacionWebApi.Controllers {
                 //     contrato.FilePath=filePath;
                 // }
 
-                // Agregar Juridico y Económico como Dictaminador del contrato 
+                // Agregar Dictaminadores del contrato 
                 if (contratoDto.Dictaminadores != null) {
                     foreach (var item in contratoDto.Dictaminadores) {
                     var contratoId_DictaminadorId = new ContratoId_DictaminadorId {
@@ -192,12 +210,91 @@ namespace ContratacionWebApi.Controllers {
 
         // PUT contratos/contrato/id
         [HttpPut ("{id}")]
-        public IActionResult PUT ([FromBody] Contrato contrato, int id) {
+        public IActionResult PUT ([FromBody] ContratoDto contrato, int id) {
+
             if (contrato.Id != id) {
                 return BadRequest (ModelState);
-
             }
-            context.Entry (contrato).State = EntityState.Modified;
+            var c = context.Contratos.FirstOrDefault (s => s.Id == id);
+            c.Id = contrato.Id;
+            c.Nombre = contrato.Nombre;
+            c.Tipo = contrato.Tipo;
+            c.AdminContratoId = contrato.AdminContratoId;
+            c.EntidadId = contrato.Entidad;
+            c.ObjetoDeContrato = contrato.ObjetoDeContrato;
+            c.Numero = contrato.Numero;
+            c.MontoCup = contrato.MontoCup;
+            c.MontoCuc = contrato.MontoCuc;
+            c.MontoUsd = contrato.MontoUsd;
+            c.TerminoDePago = contrato.TerminoDePago;
+
+            if (contrato.FechaDeRecepcion != null) {
+                c.FechaDeRecepcion = contrato.FechaDeRecepcion;
+            } else {
+                c.FechaDeRecepcion = DateTime.Now;
+            }
+            if (contrato.FechaDeVenOferta != null) {
+                c.FechaDeVenOferta = contrato.FechaDeVenOferta;
+            } else {
+                c.FechaDeVenOferta = DateTime.Now.AddDays (20);
+            }
+            context.Entry (c).State = EntityState.Modified;
+
+            if (contrato.FormasDePago != null) {
+                var formasDePago = context.ContratoId_FormaPagoId.Where (s => s.ContratoId == contrato.Id);
+                foreach (var item in formasDePago) {
+                    context.ContratoId_FormaPagoId.Remove (item);
+                }
+            }
+            foreach (var item in contrato.FormasDePago) {
+                var contratoId_FormaPagoId = new ContratoId_FormaPagoId {
+                    ContratoId = contrato.Id,
+                    FormaDePago = item
+                };
+                context.ContratoId_FormaPagoId.Add (contratoId_FormaPagoId);
+                context.SaveChanges ();
+            }
+
+            // Agregar Dictaminadores del contrato 
+            if (contrato.Dictaminadores != null) {
+                var dictaminadores = context.ContratoId_DictaminadorId.Where (s => s.ContratoId == contrato.Id);
+                foreach (var item in dictaminadores) {
+                    context.ContratoId_DictaminadorId.Remove (item);
+                }
+                foreach (var item in contrato.Dictaminadores) {
+                    var contratoId_DictaminadorId = new ContratoId_DictaminadorId {
+                        ContratoId = contrato.Id,
+                        DictaminadorContratoId = item
+                    };
+                    context.ContratoId_DictaminadorId.Add (contratoId_DictaminadorId);
+                    context.SaveChanges ();
+                }
+            } else {
+                return BadRequest ($"Tienen que dictaminar el contrato el económico y el jurídico");
+            }
+
+            //Agregar Especialistas externos como Dictaminador/es del contrato 
+            if (contrato.EspExterno != null) {
+                var espExternos = context.EspExternoId_ContratoId.Where (s => s.ContratoId == contrato.Id);
+                foreach (var item in espExternos) {
+                    context.EspExternoId_ContratoId.Remove (item);
+                }
+                foreach (var item in contrato.EspExterno) {
+                    var espExternoId_ContratoId = new EspExternoId_ContratoId {
+                        ContratoId = contrato.Id,
+                        EspecialistaExternoId = item
+                    };
+                    context.EspExternoId_ContratoId.Add (espExternoId_ContratoId);
+                    context.SaveChanges ();
+                }
+            }
+            var HistoricoEstadoContrato = new HistoricoEstadoContrato {
+                ContratoId = contrato.Id,
+                Estado = Estado.Circulando,
+                Fecha = DateTime.Now,
+                Usuario = contrato.Usuario,
+            };
+            context.Add (HistoricoEstadoContrato);
             context.SaveChanges ();
             return Ok ();
         }

@@ -20,11 +20,12 @@ namespace ContratacionWebApi.Controllers {
             var entidades = context.Entidades.Select (e => new {
                 Id = e.Id,
                     Nombre = e.Nombre,
+                    Codigo = e.Codigo,
                     Direccion = e.Direccion,
                     Nit = e.Nit,
                     Fax = e.Fax,
                     Sector = e.Sector,
-                    SectorNombre = e.Sector.ToString(),
+                    SectorNombre = e.Sector.ToString (),
                     Correo = e.Correo,
                     ObjetoSocial = e.ObjetoSocial,
                     Telefonos = context.Telefonos.Where (t => t.EntidadId == e.Id),
@@ -43,7 +44,7 @@ namespace ContratacionWebApi.Controllers {
                     ),
                     CantCuentasBancarias = context.CuentasBancarias.Where (c => c.EntidadId == e.Id).Count (),
             });
-            
+
             return Ok (entidades);
         }
 
@@ -69,6 +70,7 @@ namespace ContratacionWebApi.Controllers {
                     var ent = new Entidad {
                         Id = entidad.Id,
                         Nombre = entidad.Nombre,
+                        Codigo = entidad.Codigo,
                         Direccion = entidad.Direccion,
                         Nit = entidad.Nit,
                         Fax = entidad.Fax,
@@ -122,6 +124,7 @@ namespace ContratacionWebApi.Controllers {
                 return BadRequest (ModelState);
             }
             ent.Nombre = entidad.Nombre;
+            ent.Codigo = entidad.Codigo;
             ent.Direccion = entidad.Direccion;
             ent.Nit = entidad.Nit;
             ent.Sector = entidad.Sector;
