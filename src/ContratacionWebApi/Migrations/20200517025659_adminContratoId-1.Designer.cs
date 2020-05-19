@@ -3,15 +3,17 @@ using System;
 using ContratacionWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    partial class ContratacionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200517025659_adminContratoId-1")]
+    partial class adminContratoId1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -220,8 +222,6 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("CarnetTCP");
 
-                    b.Property<string>("Codigo");
-
                     b.Property<string>("Correo");
 
                     b.Property<string>("Direccion")
@@ -238,6 +238,8 @@ namespace ContratacionWebApi.Migrations
                     b.Property<string>("ObjetoSocial");
 
                     b.Property<int>("Sector");
+
+                    b.Property<string>("codigo");
 
                     b.HasKey("Id");
 

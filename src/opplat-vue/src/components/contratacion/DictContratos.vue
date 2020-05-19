@@ -1,7 +1,7 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="dictaminadoresContratos"
+    :items="dictaminadoresCont"
     :search="search"
     class="elevation-1 pa-5"
   >
@@ -21,7 +21,7 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <!-- Agregar y Editar Dictaminador de Contratos -->
-        <v-dialog v-model="dialog" persistent max-width="400">
+        <v-dialog v-model="dialog" persistent max-width="600">
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark v-on="on" class="mx-1">Nuevo Dictaminador</v-btn>
           </template>
@@ -40,14 +40,37 @@
                 <v-layout row wrap>
                   <v-flex xs12 class="px-3">
                     <v-autocomplete
-                      v-model="dictaminadorContrato.trabajadorId"
+                      v-model="dictaminadoresContratos"
                       item-text="nombre_Completo"
                       item-value="id"
                       :items="trabajadores"
                       :filter="activeFilter"
-                      :rules="trabajadorIdRules"
-                      label="Dictaminador"
-                    ></v-autocomplete>
+                      :rules="dictaminadoresRules"
+                      cache-items
+                      label="Administradores"
+                      multiple
+                    >
+                      <template v-slot:selection="data">
+                        <v-chip
+                          v-bind="data.attrs"
+                          :input-value="data.selected"
+                          close
+                          @click="data.select"
+                          @click:close="removeDictaminadoresContratos(data.item)"
+                          outlined
+                        >{{ data.item.nombre_Completo }}</v-chip>
+                      </template>
+                      <template v-slot:item="data">
+                        <template v-if="typeof data.item !== 'object'">
+                          <v-list-item-content v-text="data.item"></v-list-item-content>
+                        </template>
+                        <template v-else>
+                          <v-list-item-content>
+                            <v-list-item-title v-html="data.item.nombre_Completo"></v-list-item-title>
+                          </v-list-item-content>
+                        </template>
+                      </template>
+                    </v-autocomplete>
                   </v-flex>
                 </v-layout>
               </v-container>
@@ -213,7 +236,7 @@
         <!-- Detalles del Dictaminador -->
 
         <!-- Delete Dictaminador de Contratos -->
-        <v-dialog v-model="dialog2" persistent max-width="400px">
+        <v-dialog v-model="dialog2" persistent max-width="500px">
           <v-toolbar dark fadeOnScroll color="red">
             <v-spacer></v-spacer>
             <v-toolbar-items>
@@ -225,7 +248,7 @@
           <v-card>
             <v-card-title
               class="headline text-center"
-            >Seguro de Eliminar a {{dictaminadorContrato.trabajadorId}} como Dictaminador de Contratros</v-card-title>
+            >Seguro de Eliminar a {{dictaminadorContrato.nombreCompleto}} como Dictaminador de Contratros</v-card-title>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="red" dark @click="deleteItem(dictaminadorContrato)">Aceptar</v-btn>
@@ -264,11 +287,12 @@ export default {
     search: "",
     editedIndex: -1,
     dictaminadoresContratos: [],
+    dictaminadoresCont: [],
     dictaminadorContrato: {},
     trabajador: {},
     trabajadores: [],
     tabs: null,
-    trabajadorIdRules: [v => !!v || "El Nombre del Trabajador es Requerido"],
+    dictaminadoresRules: [v => !!v || "El Nombre del Trabajador es Requerido"],
     errors: [],
     headers: [
       {
@@ -309,7 +333,7 @@ export default {
       const url = api.getUrl("contratacion", "DictContratos");
       this.axios.get(url).then(
         response => {
-          this.dictaminadoresContratos = response.data;
+          this.dictaminadoresCont = response.data;
         },
         error => {
           console.log(error);
@@ -342,14 +366,14 @@ export default {
         if (this.$refs.form.validate()) {
           this.snackbar = true;
         }
-        if (this.dictaminadorContrato.trabajadorId == null) {
+        if (this.dictaminadoresContratos == null) {
           vm.$snotify.error("Faltan campos por llenar que son obligatorios");
         } else {
-          this.axios.post(url, this.dictaminadorContrato).then(
+          this.axios.post(url, this.dictaminadoresContratos).then(
             response => {
               this.getResponse(response);
               this.getDictContratosFromApi();
-              this.dictaminadorContrato = {};
+              this.dictaminadoresContratos = [];
               this.dialog = false;
             },
             error => {
@@ -406,6 +430,10 @@ export default {
       if (response.status === 200 || response.status === 201) {
         vm.$snotify.success("Exito al realizar la operación");
       }
+    },
+    removeDictaminadoresContratos(item) {
+      const index = this.dictaminadoresContratos.indexOf(item.id);
+      if (index >= 0) this.dictaminadoresContratos.splice(index, 1);
     }
   }
 };

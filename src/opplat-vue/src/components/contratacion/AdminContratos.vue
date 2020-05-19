@@ -21,7 +21,7 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <!-- Agregar y Editar Administrador de Contratos -->
-        <v-dialog v-model="dialog" persistent max-width="400">
+        <v-dialog v-model="dialog" persistent max-width="500">
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark v-on="on" class="mx-1">Nuevo Administrador</v-btn>
           </template>
@@ -40,15 +40,37 @@
                 <v-layout row wrap>
                   <v-flex xs12 class="px-3">
                     <v-autocomplete
-                      v-model="adminContrato.trabajadorId"
+                      v-model="administradoresContratos"
                       item-text="nombre_Completo"
                       item-value="id"
                       :items="trabajadores"
                       :filter="activeFilter"
                       :rules="trabajadorIdRules"
                       cache-items
-                      label="Administrador"
-                    ></v-autocomplete>
+                      label="Administradores"
+                      multiple
+                    >
+                      <template v-slot:selection="data">
+                        <v-chip
+                          v-bind="data.attrs"
+                          :input-value="data.selected"
+                          close
+                          @click="data.select"
+                          @click:close="removeAdministradoresContratos(data.item)"
+                          outlined
+                        >{{ data.item.nombre_Completo }}</v-chip>
+                      </template>
+                      <template v-slot:item="data">
+                        <template v-if="typeof data.item !== 'object'">
+                          <v-list-item-content v-text="data.item"></v-list-item-content>
+                        </template>
+                        <template v-else>
+                          <v-list-item-content>
+                            <v-list-item-title v-html="data.item.nombre_Completo"></v-list-item-title>
+                          </v-list-item-content>
+                        </template>
+                      </template>
+                    </v-autocomplete>
                   </v-flex>
                 </v-layout>
               </v-container>
@@ -212,7 +234,7 @@
         <!-- Detalles del Administrador -->
 
         <!-- Delete Administrador de Contratos -->
-        <v-dialog v-model="dialog2" persistent max-width="400px">
+        <v-dialog v-model="dialog2" persistent max-width="600px">
           <v-toolbar dark fadeOnScroll color="red">
             <v-spacer></v-spacer>
             <v-toolbar-items>
@@ -222,9 +244,14 @@
             </v-toolbar-items>
           </v-toolbar>
           <v-card>
-            <v-card-title
-              class="headline text-center"
-            >Seguro de Eliminar a {{adminContrato.nombre_Completo}} como Administrador de Contratros</v-card-title>
+            <p class="text-center pt-5">
+              Seguro de Eliminar a
+              <strong>
+                <b>
+                  <u>{{adminContrato.nombreCompleto}}</u>
+                </b>
+              </strong> como Administrador de Contratos
+            </p>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="red" dark @click="deleteItem(adminContrato)">Aceptar</v-btn>
@@ -262,6 +289,7 @@ export default {
     dialog3: false,
     search: "",
     editedIndex: -1,
+    administradoresContratos: [],
     adminContratos: [],
     adminContrato: {},
     trabajadores: [],
@@ -340,14 +368,14 @@ export default {
         if (this.$refs.form.validate()) {
           this.snackbar = true;
         }
-        if (this.adminContrato.trabajadorId == null) {
+        if (this.administradoresContratos == null) {
           vm.$snotify.error("Faltan campos por llenar que son obligatorios");
         } else {
-          this.axios.post(url, this.adminContrato).then(
+          this.axios.post(url, this.administradoresContratos).then(
             response => {
               this.getResponse(response);
               this.getAdminContratosFromApi();
-              this.adminContrato = {};
+              this.administradoresContratos = [];
               this.dialog = false;
             },
             error => {
@@ -401,6 +429,10 @@ export default {
       if (response.status === 200 || response.status === 201) {
         vm.$snotify.success("Exito al realizar la operación");
       }
+    },
+    removeAdministradoresContratos(item) {
+      const index = this.administradoresContratos.indexOf(item.id);
+      if (index >= 0) this.administradoresContratos.splice(index, 1);
     }
   }
 };

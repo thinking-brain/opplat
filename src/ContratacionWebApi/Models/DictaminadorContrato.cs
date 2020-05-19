@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContratacionWebApi.Models {
-    public class Dictaminador {
+    public class DictaminadorContrato {
         public int Id { get; set; }
-        public int TrabajadorId { get; set; }
+        public int DictaminadorId { get; set; }
     }
 }

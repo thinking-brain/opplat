@@ -27,7 +27,7 @@ namespace ContratacionWebApi.Controllers {
             var adminContratos = new List<Trabajador> ();
 
             foreach (var item in adminCont) {
-                adminContratos.Add (trabajadores.FirstOrDefault (s => s.Id == item.TrabajadorId));
+                adminContratos.Add (trabajadores.FirstOrDefault (s => s.Id == item.AdminContratoId));
             }
             return Ok (adminContratos);
         }
@@ -45,16 +45,18 @@ namespace ContratacionWebApi.Controllers {
 
         // POST entidades/AdminContratos
         [HttpPost]
-        public IActionResult POST ([FromBody] AdminContrato adminContrato) {
+        public IActionResult POST ([FromBody] List<int> AdminContratos) {
             if (ModelState.IsValid) {
-                var adminCont = context.AdminContratos.FirstOrDefault (s => s.TrabajadorId == adminContrato.TrabajadorId);
-                if (adminCont != null) {
-                    return BadRequest ($"El Trabajador ya es Administrador de Contrato");
-                } else {
-                    context.AdminContratos.Add (adminContrato);
-                    context.SaveChanges ();
-                    return new CreatedAtRouteResult ("GetAdminContrato", new { id = adminContrato.Id });
+                foreach (var item in AdminContratos) {
+                    if (context.AdminContratos.FirstOrDefault (s => s.AdminContratoId == item) == null) {
+                        var adminContrato = new AdminContrato {
+                        AdminContratoId = item
+                        };
+                        context.AdminContratos.Add (adminContrato);
+                        context.SaveChanges ();
+                    }
                 }
+                return Ok ();
             }
             return BadRequest (ModelState);
         }
@@ -73,9 +75,9 @@ namespace ContratacionWebApi.Controllers {
         // DELETE entidades/adminContrato/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
-            var adminContrato = context.AdminContratos.FirstOrDefault (s => s.Id == id);
+            var adminContrato = context.AdminContratos.FirstOrDefault (s => s.AdminContratoId == id);
 
-            if (adminContrato.Id != id) {
+            if (adminContrato == null) {
                 return NotFound ();
             }
             context.AdminContratos.Remove (adminContrato);

@@ -19,7 +19,7 @@ namespace opplatApplication.Utils {
             var cantidad = "";
 
             if (tipoTramite == "Ofertas") {
-                cantidad = "2";
+                cantidad = "0";
             }
             if (tipoTramite == "Contratos") {
                 cantidad = "0";

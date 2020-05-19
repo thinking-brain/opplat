@@ -7,10 +7,10 @@ using System.Linq;
 namespace ContratacionWebApi.Models {
     public class Entidad {
         public int Id { get; set; }
-
+        public string Codigo { get; set; }
         [Required]
         public string Nombre { get; set; }
-
+        
         [Required]
         [Display (Name = "Dirección")]
         public string Direccion { get; set; }

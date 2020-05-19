@@ -3,15 +3,17 @@ using System;
 using ContratacionWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    partial class ContratacionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200517024559_codigoEntidad")]
+    partial class codigoEntidad
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,6 +77,8 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("Tipo");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AdminContratoId");
 
                     b.HasIndex("EntidadId");
 
@@ -220,8 +224,6 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("CarnetTCP");
 
-                    b.Property<string>("Codigo");
-
                     b.Property<string>("Correo");
 
                     b.Property<string>("Direccion")
@@ -238,6 +240,8 @@ namespace ContratacionWebApi.Migrations
                     b.Property<string>("ObjetoSocial");
 
                     b.Property<int>("Sector");
+
+                    b.Property<string>("codigo");
 
                     b.HasKey("Id");
 
@@ -413,6 +417,11 @@ namespace ContratacionWebApi.Migrations
 
             modelBuilder.Entity("ContratacionWebApi.Models.Contrato", b =>
                 {
+                    b.HasOne("ContratacionWebApi.Models.AdminContrato", "AdminContrato")
+                        .WithMany()
+                        .HasForeignKey("AdminContratoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("ContratacionWebApi.Models.Entidad", "Entidad")
                         .WithMany()
                         .HasForeignKey("EntidadId")
