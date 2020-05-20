@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
-    public partial class telefonoModels : Migration
+    public partial class importadorCondigoTipoInt : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,7 +14,7 @@ namespace ContratacionWebApi.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TrabajadorId = table.Column<int>(nullable: false)
+                    AdminContratoId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -22,16 +22,30 @@ namespace ContratacionWebApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Dictaminadores",
+                name: "ContratoId_DictaminadorId",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TrabajadorId = table.Column<int>(nullable: false)
+                    ContratoId = table.Column<int>(nullable: false),
+                    DictaminadorContratoId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Dictaminadores", x => x.Id);
+                    table.PrimaryKey("PK_ContratoId_DictaminadorId", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DictaminadoresContratos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    DictaminadorId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DictaminadoresContratos", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -40,11 +54,16 @@ namespace ContratacionWebApi.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Codigo = table.Column<int>(nullable: false),
                     Nombre = table.Column<string>(nullable: false),
                     Direccion = table.Column<string>(nullable: false),
                     Nit = table.Column<string>(nullable: false),
+                    CI = table.Column<string>(nullable: true),
+                    CarnetTCP = table.Column<string>(nullable: true),
+                    Sector = table.Column<int>(nullable: false),
                     Fax = table.Column<string>(nullable: true),
-                    Correo = table.Column<string>(nullable: true)
+                    Correo = table.Column<string>(nullable: true),
+                    ObjetoSocial = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -59,18 +78,19 @@ namespace ContratacionWebApi.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Nombre = table.Column<string>(nullable: true),
                     Tipo = table.Column<int>(nullable: false),
-                    TrabajadorId = table.Column<int>(nullable: false),
+                    AdminContratoId = table.Column<int>(nullable: false),
                     EntidadId = table.Column<int>(nullable: false),
                     ObjetoDeContrato = table.Column<string>(nullable: true),
                     Numero = table.Column<string>(nullable: true),
                     MontoCup = table.Column<decimal>(nullable: true),
                     MontoCuc = table.Column<decimal>(nullable: true),
+                    MontoUsd = table.Column<decimal>(nullable: true),
                     FechaDeRecepcion = table.Column<DateTime>(nullable: false),
                     FechaDeFirmado = table.Column<DateTime>(nullable: true),
                     FechaVenContrato = table.Column<DateTime>(nullable: false),
-                    Vigencia = table.Column<int>(nullable: false),
+                    FechaDeVenOferta = table.Column<DateTime>(nullable: false),
                     FilePath = table.Column<string>(nullable: true),
-                    TerminoDePago = table.Column<double>(nullable: false),
+                    TerminoDePago = table.Column<int>(nullable: false),
                     AprobEconomico = table.Column<bool>(nullable: false),
                     AprobJuridico = table.Column<bool>(nullable: false),
                     AprobComitContratacion = table.Column<bool>(nullable: false),
@@ -85,12 +105,6 @@ namespace ContratacionWebApi.Migrations
                         principalTable: "Entidades",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Contratos_AdminContratos_TrabajadorId",
-                        column: x => x.TrabajadorId,
-                        principalTable: "AdminContratos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -99,8 +113,8 @@ namespace ContratacionWebApi.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    NumeroCuenta = table.Column<int>(nullable: false),
-                    NumeroSucursal = table.Column<int>(nullable: false),
+                    NumeroCuenta = table.Column<string>(nullable: true),
+                    NumeroSucursal = table.Column<string>(nullable: true),
                     NombreSucursal = table.Column<int>(nullable: false),
                     Moneda = table.Column<int>(nullable: false),
                     EntidadId = table.Column<int>(nullable: false)
@@ -146,8 +160,8 @@ namespace ContratacionWebApi.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Numero = table.Column<int>(nullable: false),
-                    Extension = table.Column<int>(nullable: false),
+                    Numero = table.Column<string>(nullable: true),
+                    Extension = table.Column<string>(nullable: true),
                     EntidadId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -157,33 +171,6 @@ namespace ContratacionWebApi.Migrations
                         name: "FK_Telefonos_Entidades_EntidadId",
                         column: x => x.EntidadId,
                         principalTable: "Entidades",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ContratoId_DictaminadorId",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ContratoId = table.Column<int>(nullable: false),
-                    DictaminadorContratoId = table.Column<int>(nullable: false),
-                    DictaminadorId = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ContratoId_DictaminadorId", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ContratoId_DictaminadorId_Contratos_ContratoId",
-                        column: x => x.ContratoId,
-                        principalTable: "Contratos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ContratoId_DictaminadorId_Dictaminadores_DictaminadorId",
-                        column: x => x.DictaminadorId,
-                        principalTable: "Dictaminadores",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -273,8 +260,7 @@ namespace ContratacionWebApi.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     EspecialistaExternoId = table.Column<int>(nullable: false),
-                    ContratoId = table.Column<int>(nullable: false),
-                    Estado = table.Column<int>(nullable: false)
+                    ContratoId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -414,16 +400,6 @@ namespace ContratacionWebApi.Migrations
                 column: "DocumentoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ContratoId_DictaminadorId_ContratoId",
-                table: "ContratoId_DictaminadorId",
-                column: "ContratoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ContratoId_DictaminadorId_DictaminadorId",
-                table: "ContratoId_DictaminadorId",
-                column: "DictaminadorId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ContratoId_FormaPagoId_ContratoId",
                 table: "ContratoId_FormaPagoId",
                 column: "ContratoId");
@@ -432,11 +408,6 @@ namespace ContratacionWebApi.Migrations
                 name: "IX_Contratos_EntidadId",
                 table: "Contratos",
                 column: "EntidadId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Contratos_TrabajadorId",
-                table: "Contratos",
-                column: "TrabajadorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CuentasBancarias_EntidadId",
@@ -512,6 +483,9 @@ namespace ContratacionWebApi.Migrations
                 name: "Dictamen");
 
             migrationBuilder.DropTable(
+                name: "DictaminadoresContratos");
+
+            migrationBuilder.DropTable(
                 name: "EspecialistaExternoId_ContratoId");
 
             migrationBuilder.DropTable(
@@ -522,9 +496,6 @@ namespace ContratacionWebApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "Telefonos");
-
-            migrationBuilder.DropTable(
-                name: "Dictaminadores");
 
             migrationBuilder.DropTable(
                 name: "Especialista");
@@ -539,13 +510,13 @@ namespace ContratacionWebApi.Migrations
                 name: "Documentos");
 
             migrationBuilder.DropTable(
+                name: "AdminContratos");
+
+            migrationBuilder.DropTable(
                 name: "Contratos");
 
             migrationBuilder.DropTable(
                 name: "Entidades");
-
-            migrationBuilder.DropTable(
-                name: "AdminContratos");
         }
     }
 }

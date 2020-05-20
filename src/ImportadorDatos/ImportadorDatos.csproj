@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ContabilidadWebApi\ContabilidadWebApi.csproj" />
     <ProjectReference Include="..\RhWebApi\RhWebApi.csproj" />
+    <ProjectReference Include="..\ContratacionWebApi\ContratacionWebApi.csproj" />
   </ItemGroup>
 
 </Project>

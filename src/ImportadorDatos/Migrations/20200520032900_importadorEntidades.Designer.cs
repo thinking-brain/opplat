@@ -10,15 +10,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ImportadorDatos.Migrations
 {
     [DbContext(typeof(EnlaceVersatDbContext))]
-    [Migration("20200212051407_AddRegistrosDeGastos")]
-    partial class AddRegistrosDeGastos
+    [Migration("20200520032900_importadorEntidades")]
+    partial class importadorEntidades
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Asientos", b =>
@@ -83,6 +83,24 @@ namespace ImportadorDatos.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ElementoDeGastos");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Entidad", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("Codigo");
+
+                    b.Property<int>("EntidadId");
+
+                    b.Property<int>("EntidadVersatId");
+
+                    b.Property<string>("NIT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Entidades");
                 });
 
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.PartidaDeGasto", b =>

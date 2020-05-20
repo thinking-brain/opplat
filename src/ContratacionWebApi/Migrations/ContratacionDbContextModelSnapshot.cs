@@ -220,7 +220,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("CarnetTCP");
 
-                    b.Property<string>("Codigo");
+                    b.Property<int>("Codigo");
 
                     b.Property<string>("Correo");
 

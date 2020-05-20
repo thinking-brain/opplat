@@ -38,6 +38,7 @@ namespace ImportadorDatos.Models.Versat
         public virtual DbSet<ConComprobante> ConComprobante { get; set; }
         public virtual DbSet<ConComprobanteoperacion> ConComprobanteoperacion { get; set; }
         public virtual DbSet<GenTrabajador> GenTrabajador { get; set; }
+        public virtual DbSet<GenEntidad> GenEntidad { get; set; }
 
         //gastos
         public virtual DbSet<ConRegistroanexo> ConRegistroanexo { get; set; }
