@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ImportadorDatos.Migrations
 {
-    public partial class importadorEntidades : Migration
+    public partial class Identidadint : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -74,7 +74,7 @@ namespace ImportadorDatos.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Codigo = table.Column<int>(nullable: false),
+                    Codigo = table.Column<string>(nullable: true),
                     NIT = table.Column<string>(nullable: true),
                     EntidadVersatId = table.Column<int>(nullable: false),
                     EntidadId = table.Column<int>(nullable: false)

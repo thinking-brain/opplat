@@ -53,11 +53,7 @@
                     ></v-text-field>
                   </v-flex>
                   <v-flex xs2 class="px-2" v-if="editedIndex!=-1">
-                    <v-text-field
-                      v-model="entidad.codigo"
-                      label="Código"
-                      clearable
-                    ></v-text-field>
+                    <v-text-field v-model="entidad.codigo" label="Código" clearable></v-text-field>
                   </v-flex>
                   <v-flex xs3 class="px-2">
                     <v-text-field
@@ -494,13 +490,13 @@
                 <v-col cols="8">
                   <v-card flat>
                     <v-row no-gutters justify="start">
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="9" class="pa-2">
                         <v-list-item-title>
                           <strong>Nombre del Proveedor</strong>
                         </v-list-item-title>
-                        <v-list-item-subtitle>{{entidad.nombre}}</v-list-item-subtitle>
+                        <v-list-item-subtitle>{{oferta.entidad.nombre}}</v-list-item-subtitle>
                       </v-col>
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="3" class="pa-2">
                         <v-list-item-title>
                           <strong>Código</strong>
                         </v-list-item-title>
@@ -531,7 +527,7 @@
                         <v-list-item-subtitle>{{entidad.direccion}}</v-list-item-subtitle>
                       </v-col>
                     </v-row>
-                    <v-row>
+                    <!-- <v-row>
                       <v-col cols="sm" class="pa-2">
                         <v-data-table
                           :headers="headersCuentas"
@@ -540,7 +536,7 @@
                           fixed-header
                         ></v-data-table>
                       </v-col>
-                    </v-row>
+                    </v-row>-->
                   </v-card>
                 </v-col>
                 <!-- Contactos de la Entidad -->
@@ -629,7 +625,7 @@ export default {
     monedas: [],
     sectores: [],
     entidad: {
-      codigo:null,
+      codigo: null,
       cuentasBancarias: [
         {
           numeroCuenta: null,
@@ -1314,8 +1310,18 @@ export default {
       }
     },
     getDetalles(item) {
-      this.entidad = Object.assign({}, item);
-      this.cantTelefonos = item.cantTelefonos;
+      // this.entidad = Object.assign({}, item);
+      this.entidad.nombre = item.nombre;
+      this.entidad.codigo = item.codigo;
+      this.entidad.direccion = item.direccion;
+      this.entidad.nit = item.nit;
+      this.entidad.fax = item.fax;
+      this.entidad.sectorNombre = item.sectorNombre;
+      this.entidad.correo = item.correo;
+      this.entidad.objetoSocial = item.objetoSocial;
+      if (item.telefonos[0] != null) {
+        this.entidad.telefonos = item.telefonos;
+      } else this.entidad.telefonos = [{ numero: null, extension: null }];
       this.dialog3 = true;
     },
     confirmDelete(item) {

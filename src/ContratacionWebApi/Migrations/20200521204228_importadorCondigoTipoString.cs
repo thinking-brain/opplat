@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
-    public partial class importadorCondigoTipoInt : Migration
+    public partial class importadorCondigoTipoString : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -54,7 +54,7 @@ namespace ContratacionWebApi.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Codigo = table.Column<int>(nullable: false),
+                    Codigo = table.Column<string>(nullable: true),
                     Nombre = table.Column<string>(nullable: false),
                     Direccion = table.Column<string>(nullable: false),
                     Nit = table.Column<string>(nullable: false),

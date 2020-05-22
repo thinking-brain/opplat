@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ImportadorDatos.Migrations
 {
     [DbContext(typeof(EnlaceVersatDbContext))]
-    [Migration("20200520032900_importadorEntidades")]
-    partial class importadorEntidades
+    [Migration("20200521200007_Identidad-int")]
+    partial class Identidadint
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -90,7 +90,7 @@ namespace ImportadorDatos.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("Codigo");
+                    b.Property<string>("Codigo");
 
                     b.Property<int>("EntidadId");
 

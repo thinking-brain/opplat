@@ -426,12 +426,14 @@ namespace ImportadorDatos.Jobs {
                 .Select (c => c.EntidadVersatId).ToList ();
 
             foreach (var entidad in entidadesVersat) {
-                if (!entidadesImportadas.Contains (entidad.Codigo) && entidad.Codigo != null) {
+                if (!entidadesImportadas.Contains (entidad.Identidad)) {
                     var estado = Estados.Activo;
                     if (entidad.Activo == null || !entidad.Activo.Value) {
                         estado = Estados.Baja;
                     }
-
+                    if (entidad.NIT == null) {
+                        entidad.NIT = "Sin Definir";
+                    }
                     var nuevaEntidad = new ContratacionWebApi.Models.Entidad {
                         Nit = entidad.NIT,
                         Codigo = entidad.Codigo,
@@ -441,11 +443,24 @@ namespace ImportadorDatos.Jobs {
                     };
 
                     _contratacionContext.Add (nuevaEntidad);
+                    if (entidad.Telefono != null) {
+                        var telefonos = entidad.Telefono.Split (" ");
+                        foreach (var item in telefonos) {
+                            if (item != "" && item != "Y") {
+                                var telefonoEntidad = new ContratacionWebApi.Models.Telefono {
+                                Numero = item,
+                                EntidadId = nuevaEntidad.Id,
+                                };
+                                _contratacionContext.Add (telefonoEntidad);
+                            }
+                        }
+                    }
+
                     _contratacionContext.SaveChanges ();
 
                     _enlaceContext.Add (new ImportadorDatos.Models.EnlaceVersat.Entidad {
                         EntidadId = nuevaEntidad.Id,
-                            EntidadVersatId = entidad.Id,
+                            EntidadVersatId = entidad.Identidad,
                             Codigo = entidad.Codigo,
                             NIT = entidad.NIT,
                     });

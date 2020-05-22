@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace ImportadorDatos.Models.Versat {
     public partial class GenEntidad {
-        public int Id { get; set; }
-        public int Codigo { get; set; }
+        public int Identidad { get; set; }
+        public string Codigo { get; set; }
         public string Codigoreu { get; set; }
         public string Nombre { get; set; }
         public string Abreviatura { get; set; }

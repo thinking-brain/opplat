@@ -88,7 +88,7 @@ namespace ImportadorDatos.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("Codigo");
+                    b.Property<string>("Codigo");
 
                     b.Property<int>("EntidadId");
 

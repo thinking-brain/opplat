@@ -69,6 +69,7 @@ namespace ContratacionWebApi.Controllers {
                         EspecialistaExterno = context.EspecialistasExternos.FirstOrDefault (p => p.Id == e.EspecialistaExternoId),
                     }),
                     EntidadId = c.EntidadId,
+                    Entidad = c.Entidad,
                     SectorEntidad = c.Entidad.Sector.ToString (),
                     TelefonosEntidad = context.Telefonos.Where (t => t.EntidadId == c.Entidad.Id),
                     CuentasBancEntidad = context.CuentasBancarias.Where (s => s.EntidadId == c.Entidad.Id).Select (

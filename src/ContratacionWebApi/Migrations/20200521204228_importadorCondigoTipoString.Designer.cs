@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    [Migration("20200520032503_importadorCondigoTipoInt")]
-    partial class importadorCondigoTipoInt
+    [Migration("20200521204228_importadorCondigoTipoString")]
+    partial class importadorCondigoTipoString
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -222,7 +222,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("CarnetTCP");
 
-                    b.Property<int>("Codigo");
+                    b.Property<string>("Codigo");
 
                     b.Property<string>("Correo");
 
