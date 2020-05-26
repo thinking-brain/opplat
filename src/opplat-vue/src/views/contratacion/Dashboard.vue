@@ -1,21 +1,29 @@
 <template>
   <v-container>
     <h1>{{text}}</h1>
-    <v-layout row wrap>
-      <Ofertas></Ofertas>
-      <Contratos></Contratos>
-    </v-layout>
+    <v-row>
+      <v-col cols="12">
+        <Ofertas></Ofertas>
+      </v-col>
+      <v-col cols="12">
+        <Contratos></Contratos>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 <script>
 import api from "@/api";
-import Ofertas from "@/components/dashboard/Ofertas.vue";
-import Contratos from "@/components/dashboard/Contratos.vue";
+import Ofertas from "@/components/dashboard/contratacion/Ofertas.vue";
+import OfertasTotal from "@/components/dashboard/contratacion/OfertasTotal.vue";
+import Contratos from "@/components/dashboard/contratacion/Contratos.vue";
+import ContratosTipo from "@/components/dashboard/contratacion/ContratosTipo.vue";
 
 export default {
   components: {
     Ofertas,
-    Contratos
+    OfertasTotal,
+    Contratos,
+    ContratosTipo
   },
   data: () => ({
     text: "Contratación Dashboard"

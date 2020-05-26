@@ -444,9 +444,9 @@ namespace ImportadorDatos.Jobs {
 
                     _contratacionContext.Add (nuevaEntidad);
                     if (entidad.Telefono != null) {
-                        var telefonos = entidad.Telefono.Split (" ");
+                        var telefonos = entidad.Telefono.Split ("Y");
                         foreach (var item in telefonos) {
-                            if (item != "" && item != "Y") {
+                            if (item != "") {
                                 var telefonoEntidad = new ContratacionWebApi.Models.Telefono {
                                 Numero = item,
                                 EntidadId = nuevaEntidad.Id,

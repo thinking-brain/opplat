@@ -34,7 +34,7 @@ namespace ContratacionWebApi.Models {
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Firmado")]
-        public DateTime? FechaDeFirmado { get; set; }
+        public DateTime FechaDeFirmado { get; set; }
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Vencimiento")]

@@ -1,7 +1,7 @@
 <template>
   <v-flex md6 lg6 xs12 pa-2>
     <v-card :elevation="4">
-      <VueApexCharts type="line" :options="ofertasOptions" :series="ofertas" />
+      <VueApexCharts type="bar" :options="contratosOptions" :series="contratos" />
     </v-card>
   </v-flex>
 </template>
@@ -16,19 +16,19 @@ export default {
   },
   data() {
     return {
-      ofertas: [
+      contratos: [
         {
-          name: "Ofertas vencidas",
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          name: "Contratos vencidos",
+          data: [2, 3, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0]
         },
         {
-          name: "Ofertas en proceso",
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          name: "Contratos en proceso  ",
+          data: [2, 0, 1, 0, 10, 0, 0, 0, 0, 0, 0, 0]
         }
       ],
-      ofertasOptions: {
+      contratosOptions: {
         title: {
-          text: "Ofertas",
+          text: "Contratos",
           align: "center",
           margin: 10,
           offsetX: 0,
@@ -76,36 +76,12 @@ export default {
           forceNiceScale: true
         }
       },
-      ofertas: [],
       errors: []
     };
   },
   created() {
     const d = new Date();
     const year = d.getFullYear();
-    this.getOfertasFromApi();
-  },
-  methods: {
-    getOfertasFromApi() {
-      const url = api.getUrl("contratacion", "contratos/Dashboard");
-      this.axios.get(url).then(
-        response => {
-          this.ofertas = [
-            {
-              name: "Ofertas Vencidas",
-              data: response.data.ofertasVencidas
-            },
-            {
-              name: "Ofertas en Proceso",
-              data: response.data.ofertasProceso
-            }
-          ];
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    }
   }
 };
 </script>

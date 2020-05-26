@@ -50,10 +50,10 @@
                       label="tipo"
                     ></v-autocomplete>
                   </v-flex>
-                  <v-flex xs2 class="px-1" v-if="editedIndex!=-1">
+                  <v-flex xs3 class="px-1" v-if="editedIndex!=-1">
                     <v-text-field v-model="oferta.numero" label="Número" prefix="#"></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-1">
+                  <v-flex xs4 class="px-1">
                     <v-autocomplete
                       v-model="oferta.entidad"
                       item-text="nombre"
@@ -427,7 +427,7 @@
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Objeto Social :</strong>
-                          <u class="pl-2">{{oferta.fechaVenCont}}</u>
+                          <u class="pl-2">{{oferta.objetoDeContrato}}</u>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Término de Pago :</strong>
@@ -764,7 +764,7 @@ export default {
     oferta: {
       entidad: {},
       adminContrato: {},
-      dictaminadores: []
+      dictaminadores: [],
     },
     file: null,
     entidades: [],
@@ -962,7 +962,7 @@ export default {
     },
     getDetalles(item) {
       this.oferta = Object.assign({}, item);
-      this.oferta.entidad = item.entidadId;
+      this.oferta.entidad = item.entidad;
       this.dialog6 = true;
       if (this.oferta.ofertVence < 0) {
         this.textOfertaVence.text = "La Oferta ya se Venció Tiene";
