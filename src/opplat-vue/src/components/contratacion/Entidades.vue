@@ -494,7 +494,7 @@
                         <v-list-item-title>
                           <strong>Nombre del Proveedor</strong>
                         </v-list-item-title>
-                        <v-list-item-subtitle>{{oferta.entidad.nombre}}</v-list-item-subtitle>
+                        <v-list-item-subtitle>{{entidad.nombre}}</v-list-item-subtitle>
                       </v-col>
                       <v-col cols="12" md="3" class="pa-2">
                         <v-list-item-title>
@@ -527,7 +527,7 @@
                         <v-list-item-subtitle>{{entidad.direccion}}</v-list-item-subtitle>
                       </v-col>
                     </v-row>
-                    <!-- <v-row>
+                    <v-row>
                       <v-col cols="sm" class="pa-2">
                         <v-data-table
                           :headers="headersCuentas"
@@ -536,7 +536,7 @@
                           fixed-header
                         ></v-data-table>
                       </v-col>
-                    </v-row>-->
+                    </v-row>
                   </v-card>
                 </v-col>
                 <!-- Contactos de la Entidad -->
@@ -556,7 +556,7 @@
                     </v-card-text>
                   </v-card>
                 </v-col>
-                <!-- Contactos de la Entidad -->
+                <!-- /Contactos de la Entidad -->
               </v-row>
             </v-container>
           </v-card>
@@ -1319,6 +1319,17 @@ export default {
       this.entidad.sectorNombre = item.sectorNombre;
       this.entidad.correo = item.correo;
       this.entidad.objetoSocial = item.objetoSocial;
+      if (item.cuentasBancarias.length != 0) {
+        this.entidad.cuentasBancarias = item.cuentasBancarias;
+      } else
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          }
+        ];
       if (item.telefonos[0] != null) {
         this.entidad.telefonos = item.telefonos;
       } else this.entidad.telefonos = [{ numero: null, extension: null }];

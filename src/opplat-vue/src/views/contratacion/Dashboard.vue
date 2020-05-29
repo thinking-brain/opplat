@@ -6,7 +6,7 @@
         <Ofertas></Ofertas>
       </v-col>
       <v-col cols="12">
-        <Contratos></Contratos>
+        <ContratosProxVen></ContratosProxVen>
       </v-col>
     </v-row>
   </v-container>
@@ -15,14 +15,14 @@
 import api from "@/api";
 import Ofertas from "@/components/dashboard/contratacion/Ofertas.vue";
 import OfertasTotal from "@/components/dashboard/contratacion/OfertasTotal.vue";
-import Contratos from "@/components/dashboard/contratacion/Contratos.vue";
+import ContratosProxVen from "@/components/dashboard/contratacion/ContratosProxVen.vue";
 import ContratosTipo from "@/components/dashboard/contratacion/ContratosTipo.vue";
 
 export default {
   components: {
     Ofertas,
     OfertasTotal,
-    Contratos,
+    ContratosProxVen,
     ContratosTipo
   },
   data: () => ({

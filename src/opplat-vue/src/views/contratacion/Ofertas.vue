@@ -53,7 +53,7 @@
                   <v-flex xs3 class="px-1" v-if="editedIndex!=-1">
                     <v-text-field v-model="oferta.numero" label="Número" prefix="#"></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-1">
+                  <v-flex xs6 class="px-1">
                     <v-autocomplete
                       v-model="oferta.entidad"
                       item-text="nombre"
@@ -66,16 +66,16 @@
                       <v-icon @click="dialog3=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
                   </v-flex>
-                  <v-flex xs4 class="px-1">
+                  <v-flex xs3 class="px-1">
                     <v-text-field v-model="oferta.montoCup" label="Monto CUP" clearable prefix="$"></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-1">
+                  <v-flex xs3 class="px-1">
                     <v-text-field v-model="oferta.montoCuc" label="Monto CUC" clearable prefix="$"></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-1">
+                  <v-flex xs3 class="px-1">
                     <v-text-field v-model="oferta.montoUsd" label="Monto USD" clearable prefix="$"></v-text-field>
                   </v-flex>
-                  <v-flex xs5 class="px-1">
+                  <v-flex xs6 class="px-1">
                     <v-autocomplete
                       v-model="oferta.formasDePago"
                       :items="formasDePagos"
@@ -267,14 +267,14 @@
 
         <!-- Todas las Ofertas -->
         <v-badge
-          :content="ofertas.length"
-          :value="ofertas.length"
+          :content="cantOfertas"
+          :value="cantOfertas"
           color="primary"
           overlap
           class="mt-4"
         >
           <template v-slot:badge>
-            <span v-if="enTiempo > 0">{{ ofertas.length }}</span>
+            <span v-if="enTiempo > 0">{{ cantOfertas }}</span>
           </template>
           <v-tooltip top color="primary">
             <template v-slot:activator="{ on }">
@@ -760,11 +760,11 @@ export default {
     search: "",
     editedIndex: -1,
     ofertas: [],
-    cantOfertas: null,
+    cantOfertas: 0,
     oferta: {
       entidad: {},
       adminContrato: {},
-      dictaminadores: [],
+      dictaminadores: []
     },
     file: null,
     entidades: [],
@@ -859,6 +859,7 @@ export default {
         response => {
           this.textByfiltro = "Ofertas";
           this.ofertas = response.data;
+          this.cantOfertas = this.ofertas.length;
         },
         error => {
           console.log(error);

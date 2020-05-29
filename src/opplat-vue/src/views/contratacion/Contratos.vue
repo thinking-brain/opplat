@@ -1,8 +1,11 @@
 <template>
   <v-data-table :headers="headers" :items="contratos" :search="search" class="elevation-1 pa-5">
+    <template v-slot:item.contVence="{ item }">
+      <v-chip :color="getColor(item.contVence)" dark>{{ item.contVence }} días</v-chip>
+    </template>
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>Listado de Contratos</v-toolbar-title>
+        <v-toolbar-title>{{textByfiltro}}</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field
@@ -15,6 +18,113 @@
           dense
         ></v-text-field>
         <v-spacer></v-spacer>
+
+        <!-- Todos los Contratos -->
+        <v-badge
+          :content="cantContratos"
+          :value="cantContratos"
+          color="primary"
+          overlap
+          class="mt-4"
+        >
+          <template v-slot:badge>
+            <span v-if="enTiempo > 0">{{ cantContratos }}</span>
+          </template>
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on }">
+              <v-icon
+                medium
+                v-on="on"
+                color="primary"
+                @click="getContratosFromApi()"
+              >mdi-file-document-box-multiple-outline</v-icon>
+            </template>
+            <span>Todos los Contratos</span>
+          </v-tooltip>
+        </v-badge>
+        <!-- /Todos los Contratos -->
+
+        <!-- Cantidad de Contratos Ok -->
+        <v-badge :content="enTiempo" :value="enTiempo" color="green" overlap class="mt-4 ml-4">
+          <template v-slot:badge>
+            <span v-if="enTiempo > 0">{{ enTiempo }}</span>
+          </template>
+          <v-tooltip top color="green">
+            <template v-slot:activator="{ on }">
+              <v-icon
+                medium
+                v-on="on"
+                color="green"
+                @click="filtro(contratoTiempo)"
+              >mdi-file-document-box-multiple-outline</v-icon>
+            </template>
+            <span>Contratos en Tiempo</span>
+          </v-tooltip>
+        </v-badge>
+        <!-- /Cantidad de Contratos Ok -->
+
+        <!-- Cantidad de Contratos Casi Vencidos -->
+        <v-badge :content="proxVencer" :value="proxVencer" color="orange" overlap class="mt-4 ml-4">
+          <template v-slot:badge>
+            <span v-if="proxVencer > 0">{{ proxVencer}}</span>
+          </template>
+          <v-tooltip top color="orange">
+            <template v-slot:activator="{ on }">
+              <v-icon
+                medium
+                v-on="on"
+                color="orange"
+                @click="filtro(contratosProxVencer)"
+              >mdi-file-document-box-multiple-outline</v-icon>
+            </template>
+            <span>Contratos Próximos a vencer</span>
+          </v-tooltip>
+        </v-badge>
+        <!-- /Cantidad de Contratos Casi Vencidos -->
+
+        <!-- Cantidad de Contratos proxVencer -->
+        <v-badge
+          :content="casiVenc"
+          :value="casiVenc"
+          color="deep-orange"
+          overlap
+          class="mt-4 ml-4"
+        >
+          <template v-slot:badge>
+            <span v-if="casiVenc > 0">{{ casiVenc }}</span>
+          </template>
+          <v-tooltip top color="deep-orange">
+            <template v-slot:activator="{ on }">
+              <v-icon
+                medium
+                v-on="on"
+                color="deep-orange"
+                @click="filtro(contratosCasiVenc)"
+              >mdi-file-document-box-multiple-outline</v-icon>
+            </template>
+            <span>Contratos casi vencidas</span>
+          </v-tooltip>
+        </v-badge>
+        <!-- /Cantidad de Contratos proxVencer -->
+
+        <!-- Cantidad de Contratos Vencidos -->
+        <v-badge :content="vencidos" :value="vencidos" color="red" overlap class="mt-4 ml-4">
+          <template v-slot:badge>
+            <span v-if="vencidos > 0">{{ vencidos }}</span>
+          </template>
+          <v-tooltip top color="red">
+            <template v-slot:activator="{ on }">
+              <v-icon
+                medium
+                v-on="on"
+                color="red"
+                @click="filtro(contratosVenc)"
+              >mdi-file-document-box-multiple-outline</v-icon>
+            </template>
+            <span>Contratos Vencidos</span>
+          </v-tooltip>
+        </v-badge>
+        <!-- /Cantidad de Contratos Vencidos -->
 
         <!-- Detalles del Contrato -->
         <v-dialog
@@ -203,16 +313,32 @@ export default {
     tabs: null,
     contratos: [],
     contrato: {},
+    cantContratos: 0,
+    enTiempo: 0,
+    casiVenc: 0,
+    proxVencer: 0,
+    vencidos: 0,
+    todosLosContratos: false,
+    vencimientoContratos: [],
+    contratoTiempo: "contratoTiempo",
+    contratosProxVencer: "contratosProxVencer",
+    contratosCasiVenc: "contratosCasiVenc",
+    contratosVenc: "contratosVenc",
+    urlByfiltro: "",
+    textByfiltro: "",
+    show: false,
+    tabs: null,
+    textContratoVence: {
+      text: null,
+      class: null
+    },
     errors: [],
     headers: [
       { text: "Número", align: "left", sortable: true, value: "numero" },
       { text: "Nombre", sortable: true, value: "nombre" },
       { text: "Tipo", value: "tipo" },
-      { text: "Entidad", value: "entidad" },
-      { text: "Monto Cup", value: "montoCup" },
-      { text: "Monto Cuc", value: "montoCuc" },
-      { text: "Fecha de Llegada", value: "fechaDeRecepcion" },
-      { text: "Estado", value: "estado" },
+      { text: "Entidad", value: "entidad.nombre" },
+      { text: "Vence", value: "contVence" },
       { text: "Acciones", value: "action", sortable: false }
     ]
   }),
@@ -241,7 +367,9 @@ export default {
       const url = api.getUrl("contratacion", "Contratos?tipoTramite=contrato");
       this.axios.get(url).then(
         response => {
+          this.textByfiltro = "Contratos";
           this.contratos = response.data;
+          this.cantContratos = this.contratos.length;
         },
         error => {
           console.log(error);
@@ -323,6 +451,72 @@ export default {
       if (response.status === 200 || response.status === 201) {
         vm.$snotify.success("Exito al realizar la operación");
       }
+    },
+    getColor(contratoVence) {
+      this.GetVencimientoContrato();
+      if (contratoVence < 0) {
+        return "red";
+      } else if (contratoVence >= 0 && contratoVence <= 6) {
+        return "deep-orange";
+      } else if (contratoVence > 7 && contratoVence <= 23) return "orange";
+      else {
+        return "green";
+      }
+    },
+    GetVencimientoContrato() {
+      const url = api.getUrl("contratacion", "contratos/VencimientoContrato");
+      this.axios.get(url).then(
+        response => {
+          this.vencimientoContratos = response.data;
+          this.vencidos = this.vencimientoContratos[0];
+          this.casiVenc = this.vencimientoContratos[1];
+          this.proxVencer = this.vencimientoContratos[2];
+          this.enTiempo = this.vencimientoContratos[3];
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    filtro(filtro) {
+      if (filtro == "contratoTiempo") {
+        this.urlByfiltro = api.getUrl(
+          "contratacion",
+          "Contratos?tipoTramite=contrato&filtro=contratoTiempo"
+        );
+        this.textByfiltro = "Contratos en Tiempo";
+      }
+      if (filtro == "contratosProxVencer") {
+        this.urlByfiltro = api.getUrl(
+          "contratacion",
+          "Contratos?tipoTramite=contrato&filtro=contratosProxVencer"
+        );
+        this.textByfiltro = "Contratos Próximos a Vencer";
+      }
+      if (filtro == "contratosCasiVenc") {
+        this.urlByfiltro = api.getUrl(
+          "contratacion",
+          "Contratos?tipoTramite=contrato&filtro=contratosCasiVenc"
+        );
+        this.textByfiltro = "Contratos Casi Vencidos";
+      }
+      if (filtro == "contratosVenc") {
+        this.urlByfiltro = api.getUrl(
+          "contratacion",
+          "Contratos?tipoTramite=contrato&filtro=contratosVenc"
+        );
+        this.textByfiltro = "Contratos Vencidos";
+      }
+      this.axios.get(this.urlByfiltro).then(
+        response => {
+          this.contratos = response.data;
+          vm.$snotify.success(this.textByfiltro);
+          this.todosLosContratos = true;
+        },
+        error => {
+          console.log(error);
+        }
+      );
     }
   }
 };

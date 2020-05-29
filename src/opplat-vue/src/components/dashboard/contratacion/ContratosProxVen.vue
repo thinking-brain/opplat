@@ -2,42 +2,34 @@
   <v-card :elevation="4">
     <v-row>
       <v-col cols="6">
-        <VueApexCharts type="line" :options="ofertasOptions" :series="ofertas" />
+        <VueApexCharts type="bar" :options="contratosOptions" :series="contratosProximosVencer" />
       </v-col>
-      <v-col cols="6">
+        <v-col cols="6">
         <v-card flat class="mr-3">
           <table>
             <thead>
               <tr>
                 <th colspan="11" class="blue darken-2 white--text">
-                  <h2>Circulación de Ofertas del Año {{new Date().getFullYear()}}</h2>
+                  <h2>Contratos Próximos a Vencer en el Año {{new Date().getFullYear()}}</h2>
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <th class="text-left">Total de ofertas procesadas hasta la fecha</th>
-                <th class="text-center">{{ofertasTabla.ofertasProcesadas}}</th>
+                <th class="text-left">Este Mes</th>
+                <th class="text-center">{{contratosProximosVencer[0].data[0]}}</th>
               </tr>
               <tr>
-                <td class="text-left negrita">Ofertas en Proceso</td>
-                <td class="text-center">{{ofertasTabla.ofertasEnProceso}}</td>
+                <td class="text-left negrita">En 3 Meses</td>
+                <td class="text-center">{{contratosProximosVencer[0].data[1]}}</td>
               </tr>
               <tr>
-                <th class="text-left">Total de ofertas vencidas hasta la fecha</th>
-                <th class="text-center">{{ofertasTabla.ofertasVenHastaFecha}}</th>
+                <th class="text-left">En 6 Meses</th>
+                <th class="text-center">{{contratosProximosVencer[0].data[2]}}</th>
               </tr>
               <tr>
-                <td class="text-left negrita">Ofertas vencidas este Mes</td>
-                <td class="text-center">{{ofertasTabla.ofertasVenEsteMes}}</td>
-              </tr>
-              <tr>
-                <th class="text-left">Tiempo promedio de circulación de ofertas hasta la fecha</th>
-                <th class="text-center">{{ofertasTabla.promCircuOferta}} Días</th>
-              </tr>
-              <tr>
-                <td class="text-left">Tiempo promedio de circulación de ofertas este mes</td>
-                <td class="text-center">{{ofertasTabla.promCircuOfertaMes}} Días</td>
+                <td class="text-left negrita">Este Año</td>
+                <td class="text-center">{{contratosProximosVencer[0].data[3]}}</td>
               </tr>
             </tbody>
           </table>
@@ -90,20 +82,15 @@ export default {
   },
   data() {
     return {
-      ofertas: [
+      contratosProximosVencer: [
         {
-          name: "Ofertas vencidas",
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          name: "Contratos Próximos a Vencer",
+          data: [0, 0, 0, 0,]
         },
-        {
-          name: "Ofertas en proceso",
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        }
       ],
-      ofertasTabla: [],
-      ofertasOptions: {
+      contratosOptions: {
         title: {
-          text: "Circulación de Ofertas",
+          text: "Contratos Próximos a Vencer",
           align: "center",
           margin: 10,
           offsetX: 0,
@@ -130,18 +117,10 @@ export default {
           },
           // labels para mostrar en eje x
           categories: [
-            "Enero",
-            "Febrero",
-            "Marzo",
-            "Abril",
-            "Mayo",
-            "Junio",
-            "Julio",
-            "Agosto",
-            "Septiembre",
-            "Octubre",
-            "Noviembre",
-            "Diciembre"
+            "Este Mes",
+            "En 3 Meses",
+            "En 6 Meses",
+            "Este Año",
           ]
         },
         yaxis: {
@@ -151,37 +130,30 @@ export default {
           forceNiceScale: true
         }
       },
-      ofertas: [],
       errors: []
     };
   },
   created() {
     const d = new Date();
     const year = d.getFullYear();
-    this.getDashboardFromApi();
+        this.getDashboardFromApi();
   },
-  methods: {
+ methods: {
     getDashboardFromApi() {
       const url = api.getUrl("contratacion", "contratos/Dashboard");
       this.axios.get(url).then(
         response => {
-          this.ofertas = [
+          this.contratosProximosVencer = [
             {
-              name: "Ofertas Vencidas",
-              data: response.data.ofertasVencidas
+              name: "Contratos Próximos a Vencer",
+              data: response.data.contratosProximosVencer
             },
-            {
-              name: "Ofertas en Proceso",
-              data: response.data.ofertasProceso
-            }
           ];
-          this.ofertasTabla = response.data;
         },
         error => {
           console.log(error);
         }
       );
     }
-  }
-};
+  }};
 </script>
