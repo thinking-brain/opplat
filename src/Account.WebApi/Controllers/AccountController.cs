@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Account.WebApi.Data;
 using Account.WebApi.Dtos;
 using Account.WebApi.Models;
+using LdapForNet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using static LdapForNet.Native.Native;
 
 namespace Account.WebApi.Controllers
 {
@@ -58,6 +60,89 @@ namespace Account.WebApi.Controllers
                 Roles = (_userManager.GetRolesAsync(u)).Result.ToList()
             }).ToListAsync();
             return new JsonResult(result);
+        }
+
+        [HttpPost]
+        [Route("importarusuarios")]
+        public async Task<IActionResult> ImportarUsuarios([FromBody] LdapFormViewModel model)
+        {
+            int usuarios_importados = 0;
+
+            if (ModelState.IsValid)
+            {
+                LdapConnection cn = new LdapConnection();
+                cn.Connect(model.Host, 389);
+
+                cn.Timeout = new TimeSpan(0, 0, 10); // seconds
+                try
+                {
+                    cn.Bind(LdapAuthType.Digest, new LdapCredential
+                    {
+                        UserName = model.UserName,
+                        Password = model.Password,
+                    });
+                }
+                catch (Exception e)
+                {
+                    return Ok(new { status = 400, mensaje = e.Message });
+                }
+                string[] attr = { "cn", "sAMAccountName" };
+                string @base = cn.GetRootDse().Attributes["rootDomainNamingContext"][0].ToString();
+                if (model.UnidadOrganizativa.Length > 1)
+                {
+                    @base = "OU=" + model.UnidadOrganizativa.ToLower() + "," + @base;
+                }
+                try
+                {
+                    var entries = cn.Search(@base, "(objectClass=user)", attr, LdapSearchScope.LDAP_SCOPE_SUB);
+                    foreach (var entry in entries)
+                    {
+                        var full_domain_name = entry.Attributes["cn"][0].Split(" ");
+                        var userName = entry.Attributes["sAMAccountName"][0];
+                        var nombre = full_domain_name[0];
+                        string apellidos = "null";
+                        if (full_domain_name.Count() > 1)
+                        {
+                            apellidos = full_domain_name[1];
+                        };
+                        var password = "Aa123456-";
+                        var user = new Usuario { Nombres = nombre, Apellidos = apellidos, UserName = userName };
+                        try
+                        {
+                            var result = await _userManager.CreateAsync(user, password);
+                            if (result.Succeeded)
+                            {
+                                usuarios_importados += 1;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            var error = e.Message;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    var error = "Ha ocurrido un error";
+                    //-2146233088
+                    if (e.HResult == -2146233088)
+                    {
+                        error = "No existe la unidad organizativa";
+                    }
+                    return Ok(new { status = 400, mensaje = error });
+                }
+                cn.Dispose();
+            }
+            string mensaje;
+            if (usuarios_importados > 0)
+            {
+                mensaje = "Se han importado " + usuarios_importados + " usuarios";
+            }
+            else
+            {
+                mensaje = "No se encontraron usuarios nuevos para importar";
+            }
+            return Ok(new { status = 200, mensaje = mensaje });
         }
 
         /// <summary>
@@ -235,7 +320,7 @@ namespace Account.WebApi.Controllers
         /// <returns>Un objeto con {Resultado: bool, Mensaje:string}</returns>
         [HttpPost]
         [Route("cambiar-roles")]
-        public async Task<IActionResult> CambiarRoles([FromBody]CambiarRolesDto rolesDto)
+        public async Task<IActionResult> CambiarRoles([FromBody] CambiarRolesDto rolesDto)
         {
             var usuario = await _userManager.FindByIdAsync(rolesDto.idUsuario);
             if (usuario == null)
