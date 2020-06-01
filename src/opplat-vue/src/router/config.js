@@ -85,16 +85,16 @@ export const protectedRoute = [
   // usuarios
   {
     name: 'Administracion',
-    path: '/admin',
+    path: '/administracion',
     component: DefaultLayout,
-    redirect: '/admin/usuarios',
+    redirect: '/administracion/usuarios',
     meta: {
       title: 'Admin',
       icon: 'view_compact',
       group: 'admin',
     },
     children: [{
-      path: '/admin/usuarios',
+      path: '/administracion/usuarios',
       name: 'Usuarios',
       meta: {
         title: 'Usuarios',

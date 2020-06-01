@@ -7,10 +7,10 @@ using System.Linq;
 namespace ContratacionWebApi.Models {
     public class Entidad {
         public int Id { get; set; }
-
+        public string Codigo { get; set; }
         [Required]
         public string Nombre { get; set; }
-
+        
         [Required]
         [Display (Name = "Dirección")]
         public string Direccion { get; set; }
@@ -18,6 +18,12 @@ namespace ContratacionWebApi.Models {
         [Required]
         [RegularExpression ("[0-9]*", ErrorMessage = "Solo se admiten números")]
         public string Nit { get; set; }
+
+        [RegularExpression ("[0-9]*", ErrorMessage = "Solo se admiten números")]
+        public string CI { get; set; }
+
+        [RegularExpression ("[0-9]*", ErrorMessage = "Solo se admiten números")]
+        public string CarnetTCP { get; set; }
 
         public Sector Sector { get; set; }
 

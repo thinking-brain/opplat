@@ -10,8 +10,7 @@ namespace ContratacionWebApi.Models {
         public string Nombre { get; set; }
         public Tipo Tipo { get; set; }
         //Trabajador
-        public int TrabajadorId { get; set; }
-        public virtual AdminContrato Trabajador { get; set; }
+        public int AdminContratoId { get; set; }
         public int EntidadId { get; set; }
         public virtual Entidad Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
@@ -25,6 +24,10 @@ namespace ContratacionWebApi.Models {
         [DataType (DataType.Currency)]
         public decimal? MontoCuc { get; set; }
 
+        [Display (Name = "Monto USD")]
+        [DataType (DataType.Currency)]
+        public decimal? MontoUsd { get; set; }
+
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Llegada")]
         public DateTime FechaDeRecepcion { get; set; }
@@ -35,22 +38,24 @@ namespace ContratacionWebApi.Models {
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Vencimiento")]
-        public DateTime FechaDeVencimiento { get; set; }
-        public int Vigencia { get; set; }
-        public string FilePath  { get; set; }
+        public DateTime FechaVenContrato { get; set; }
+
+        [DataType (DataType.Date)]
+        public DateTime FechaDeVenOferta { get; set; }
+        public string FilePath { get; set; }
 
         [NotMapped]
         [Display (Name = "Formas de Pago")]
         public virtual ICollection<FormaDePago> FormasDePago { get; set; }
 
         [NotMapped]
-        public ICollection<Dictaminador> DictaminadoresId { get; set; }
+        public ICollection<DictaminadorContrato> Dictaminadores { get; set; }
 
         [NotMapped]
-        public ICollection<EspecialistaExterno> EspExternoId { get; set; }
+        public ICollection<EspecialistaExterno> EspExterno { get; set; }
         //Término de pago en días
         [Display (Name = "Término de Pago")]
-        public double TerminoDePago { get; set; }
+        public int TerminoDePago { get; set; }
 
         [NotMapped]
         public virtual ICollection<HistoricoEstadoContrato> Estados { get; set; }

@@ -24,7 +24,7 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("TrabajadorId");
+                    b.Property<int>("AdminContratoId");
 
                     b.HasKey("Id");
 
@@ -35,6 +35,8 @@ namespace ContratacionWebApi.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AdminContratoId");
 
                     b.Property<bool>("AprobComitContratacion");
 
@@ -50,7 +52,9 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<DateTime>("FechaDeRecepcion");
 
-                    b.Property<DateTime>("FechaDeVencimiento");
+                    b.Property<DateTime>("FechaDeVenOferta");
+
+                    b.Property<DateTime>("FechaVenContrato");
 
                     b.Property<string>("FilePath");
 
@@ -58,25 +62,21 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<decimal?>("MontoCup");
 
+                    b.Property<decimal?>("MontoUsd");
+
                     b.Property<string>("Nombre");
 
                     b.Property<string>("Numero");
 
                     b.Property<string>("ObjetoDeContrato");
 
-                    b.Property<double>("TerminoDePago");
+                    b.Property<int>("TerminoDePago");
 
                     b.Property<int>("Tipo");
-
-                    b.Property<int>("TrabajadorId");
-
-                    b.Property<int>("Vigencia");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EntidadId");
-
-                    b.HasIndex("TrabajadorId");
 
                     b.ToTable("Contratos");
                 });
@@ -90,13 +90,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("DictaminadorContratoId");
 
-                    b.Property<int?>("DictaminadorId");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ContratoId");
-
-                    b.HasIndex("DictaminadorId");
 
                     b.ToTable("ContratoId_DictaminadorId");
                 });
@@ -170,16 +164,16 @@ namespace ContratacionWebApi.Migrations
                     b.ToTable("Dictamen");
                 });
 
-            modelBuilder.Entity("ContratacionWebApi.Models.Dictaminador", b =>
+            modelBuilder.Entity("ContratacionWebApi.Models.DictaminadorContrato", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("TrabajadorId");
+                    b.Property<int>("DictaminadorId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Dictaminadores");
+                    b.ToTable("DictaminadoresContratos");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.Documento", b =>
@@ -194,9 +188,9 @@ namespace ContratacionWebApi.Migrations
                     b.Property<string>("Discriminator")
                         .IsRequired();
 
-                    b.Property<DateTime?>("FechaDeVencimiento");
-
                     b.Property<DateTime?>("FechaFirmado");
+
+                    b.Property<DateTime?>("FechaVenContrato");
 
                     b.Property<decimal?>("MontoCuc");
 
@@ -221,6 +215,12 @@ namespace ContratacionWebApi.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("CI");
+
+                    b.Property<string>("CarnetTCP");
+
+                    b.Property<string>("Codigo");
 
                     b.Property<string>("Correo");
 
@@ -252,8 +252,6 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("ContratoId");
 
                     b.Property<int>("EspecialistaExternoId");
-
-                    b.Property<int>("Estado");
 
                     b.HasKey("Id");
 
@@ -419,23 +417,6 @@ namespace ContratacionWebApi.Migrations
                         .WithMany()
                         .HasForeignKey("EntidadId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ContratacionWebApi.Models.AdminContrato", "Trabajador")
-                        .WithMany()
-                        .HasForeignKey("TrabajadorId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("ContratacionWebApi.Models.ContratoId_DictaminadorId", b =>
-                {
-                    b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
-                        .WithMany()
-                        .HasForeignKey("ContratoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ContratacionWebApi.Models.Dictaminador", "Dictaminador")
-                        .WithMany()
-                        .HasForeignKey("DictaminadorId");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.ContratoId_FormaPagoId", b =>

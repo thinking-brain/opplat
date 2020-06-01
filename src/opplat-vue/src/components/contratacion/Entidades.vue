@@ -52,10 +52,18 @@
                       required
                     ></v-text-field>
                   </v-flex>
+                  <v-flex xs2 class="px-2" v-if="editedIndex!=-1">
+                    <v-text-field
+                      v-model="entidad.codigo"
+                      label="Código"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
                   <v-flex xs3 class="px-2">
                     <v-text-field
                       v-model="entidad.nit"
                       label="NIT"
+                      :error-messages="textNit"
                       :rules="NitRules"
                       clearable
                       required
@@ -63,15 +71,15 @@
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap>
-                  <v-flex xs2 class="px-1">
-                    <v-autocomplete
+                  <v-flex xs2 class="pr-1 pl-2">
+                    <v-select
                       v-model="entidad.sector"
                       item-text="nombre"
                       item-value="id"
                       :items="sectores"
                       :filter="activeFilter"
                       label="Sector"
-                    ></v-autocomplete>
+                    ></v-select>
                   </v-flex>
                   <v-flex xs3 class="px-1">
                     <v-text-field v-model="entidad.fax" label="Fax" clearable></v-text-field>
@@ -88,7 +96,7 @@
                     <v-text-field v-model="entidad.objetoSocial" label="Objeto Social" clearable></v-text-field>
                   </v-flex>
                 </v-layout>
-                <!-- Agregar Número de Teléfono del Proveedor  -->
+                <!-- Agregar y Editar Número de Teléfono del Proveedor  -->
                 <v-row class="pl-3" justify="start">
                   <v-flex cols="2" class="pt-2">
                     <v-card tile flat>
@@ -205,9 +213,9 @@
                     ></v-text-field>
                   </v-flex>
                 </v-row>
-                <!--/Agregar Número de Teléfono del Proveedor  -->
+                <!--/Agregar y Editar Número de Teléfono del Proveedor  -->
 
-                <!-- Agregar Cuenta Bancaria del Proveedor -->
+                <!-- Agregar y Editar Cuenta Bancaria del Proveedor -->
                 <v-flex>
                   <v-row class="pl-3 pr-3">
                     <v-flex cols="2" class="pt-2">
@@ -451,7 +459,7 @@
                     </v-flex>
                   </v-row>
                 </v-flex>
-                <!-- /Agregar Cuenta Bancaria del Proveedor -->
+                <!-- /Agregar y Editar Cuenta Bancaria del Proveedor -->
               </v-container>
             </v-form>
             <v-card-actions>
@@ -494,6 +502,12 @@
                       </v-col>
                       <v-col cols="12" md="4" class="pa-2">
                         <v-list-item-title>
+                          <strong>Código</strong>
+                        </v-list-item-title>
+                        <v-list-item-subtitle>{{entidad.codigo}}</v-list-item-subtitle>
+                      </v-col>
+                      <v-col cols="12" md="4" class="pa-2">
+                        <v-list-item-title>
                           <strong>NIT</strong>
                         </v-list-item-title>
                         <v-list-item-subtitle>{{entidad.nit}}</v-list-item-subtitle>
@@ -502,10 +516,8 @@
                         <v-list-item-title>
                           <strong>Sector</strong>
                         </v-list-item-title>
-                        <v-list-item-subtitle>{{entidad.sector}}</v-list-item-subtitle>
+                        <v-list-item-subtitle>{{entidad.sectorNombre}}</v-list-item-subtitle>
                       </v-col>
-                    </v-row>
-                    <v-row no-gutters justify="start">
                       <v-col cols="12" md="4" class="pa-2">
                         <v-list-item-title>
                           <strong>Objeto Social</strong>
@@ -617,6 +629,7 @@ export default {
     monedas: [],
     sectores: [],
     entidad: {
+      codigo:null,
       cuentasBancarias: [
         {
           numeroCuenta: null,
@@ -673,6 +686,7 @@ export default {
     NombreRules: [v => !!v || "El Nombre es Requerido"],
     DireccionRules: [v => !!v || "La Dirección es Requerida"],
     NitRules: [v => !!v || "El NIT es Requerido"],
+    textNit: "",
     errors: [],
     headers: [
       {
@@ -684,7 +698,7 @@ export default {
       { text: "Dirección", value: "direccion" },
       { text: "NIT", value: "nit" },
       { text: "Correo", value: "correo" },
-      { text: "Sector", value: "sector" },
+      { text: "Sector", value: "sectorNombre" },
       { text: "Acciones", value: "action", sortable: false }
     ],
     headersCuentas: [
@@ -774,6 +788,7 @@ export default {
       this.cantTelefonos = item.cantTelefonos;
       this.cantCuentas = item.cantCuentasBancarias;
       this.dialog = true;
+      // Asinar los 6 valores del arreglo en dependecia de lo que venga del controller
       if (this.cantTelefonos == 0) {
         this.cantTelefonos = 1;
         this.entidad.telefonos = [
@@ -814,6 +829,383 @@ export default {
           { numero: null, extension: null }
         ];
       }
+      if (this.cantTelefonos == 3) {
+        this.entidad.telefonos = [
+          {
+            numero: item.telefonos[0].numero,
+            extension: item.telefonos[0].extension
+          },
+          {
+            numero: item.telefonos[1].numero,
+            extension: item.telefonos[1].extension
+          },
+          {
+            numero: item.telefonos[2].numero,
+            extension: item.telefonos[2].extension
+          },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null }
+        ];
+      }
+      if (this.cantTelefonos == 4) {
+        this.entidad.telefonos = [
+          {
+            numero: item.telefonos[0].numero,
+            extension: item.telefonos[0].extension
+          },
+          {
+            numero: item.telefonos[1].numero,
+            extension: item.telefonos[1].extension
+          },
+          {
+            numero: item.telefonos[2].numero,
+            extension: item.telefonos[2].extension
+          },
+          {
+            numero: item.telefonos[3].numero,
+            extension: item.telefonos[3].extension
+          },
+          { numero: null, extension: null },
+          { numero: null, extension: null }
+        ];
+      }
+      if (this.cantTelefonos == 5) {
+        this.entidad.telefonos = [
+          {
+            numero: item.telefonos[0].numero,
+            extension: item.telefonos[0].extension
+          },
+          {
+            numero: item.telefonos[1].numero,
+            extension: item.telefonos[1].extension
+          },
+          {
+            numero: item.telefonos[2].numero,
+            extension: item.telefonos[2].extension
+          },
+          {
+            numero: item.telefonos[3].numero,
+            extension: item.telefonos[3].extension
+          },
+          {
+            numero: item.telefonos[4].numero,
+            extension: item.telefonos[4].extension
+          },
+          { numero: null, extension: null }
+        ];
+      }
+      if (this.cantTelefonos == 6) {
+        this.entidad.telefonos = [
+          {
+            numero: item.telefonos[0].numero,
+            extension: item.telefonos[0].extension
+          },
+          {
+            numero: item.telefonos[1].numero,
+            extension: item.telefonos[1].extension
+          },
+          {
+            numero: item.telefonos[2].numero,
+            extension: item.telefonos[2].extension
+          },
+          {
+            numero: item.telefonos[3].numero,
+            extension: item.telefonos[3].extension
+          },
+          {
+            numero: item.telefonos[4].numero,
+            extension: item.telefonos[4].extension
+          },
+          {
+            numero: item.telefonos[5].numero,
+            extension: item.telefonos[5].extension
+          }
+        ];
+      }
+      if (this.cantCuentas == 0) {
+        this.cantCuentas = 1;
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          }
+        ];
+      }
+      if (this.cantCuentas == 1) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
+            monedaId: item.cuentasBancarias[0].monedaId
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          }
+        ];
+      }
+      if (this.cantCuentas == 2) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
+            monedaId: item.cuentasBancarias[0].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
+            monedaId: item.cuentasBancarias[1].monedaId
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          }
+        ];
+      }
+      if (this.cantCuentas == 3) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
+            monedaId: item.cuentasBancarias[0].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
+            monedaId: item.cuentasBancarias[1].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
+            monedaId: item.cuentasBancarias[2].monedaId
+          },
+
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          }
+        ];
+      }
+      if (this.cantCuentas == 4) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
+            monedaId: item.cuentasBancarias[0].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
+            monedaId: item.cuentasBancarias[1].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
+            monedaId: item.cuentasBancarias[2].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[3].nombreSucursalId,
+            monedaId: item.cuentasBancarias[3].monedaId
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          }
+        ];
+      }
+      if (this.cantCuentas == 5) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
+            monedaId: item.cuentasBancarias[0].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
+            monedaId: item.cuentasBancarias[1].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
+            monedaId: item.cuentasBancarias[2].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[3].nombreSucursalId,
+            monedaId: item.cuentasBancarias[3].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[4].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[4].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[4].nombreSucursalId,
+            monedaId: item.cuentasBancarias[4].monedaId
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursalId: null,
+            monedaId: null
+          }
+        ];
+      }
+      if (this.cantCuentas == 6) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
+            monedaId: item.cuentasBancarias[0].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
+            monedaId: item.cuentasBancarias[1].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
+            monedaId: item.cuentasBancarias[2].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[3].nombreSucursalId,
+            monedaId: item.cuentasBancarias[3].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[4].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[4].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[4].nombreSucursalId,
+            monedaId: item.cuentasBancarias[4].monedaId
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[5].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[5].numeroSucursal,
+            nombreSucursalId: item.cuentasBancarias[5].nombreSucursalId,
+            monedaId: item.cuentasBancarias[5].monedaId
+          }
+        ];
+      }
+      // --Asinar los 6 valores del arreglo en dependecia de lo que venga del controller
     },
     save(method) {
       const url = api.getUrl("contratacion", "entidades");
@@ -887,16 +1279,22 @@ export default {
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #6 por Llenar");
           } else {
-            this.axios.post(url, this.entidad).then(
-              response => {
-                this.getResponse(response);
-                this.resetDatos();
-                this.dialog = false;
-              },
-              error => {
-                console.log(error);
-              }
-            );
+            const errors = [];
+            if (this.entidades.find(x => x.nit === this.entidad.nit) != null) {
+              vm.$snotify.error("Ya hay un Proveedor con este NIT");
+              this.textNit = "Ya hay un Proveedor con este NIT";
+            } else {
+              this.axios.post(url, this.entidad).then(
+                response => {
+                  this.getResponse(response);
+                  this.resetDatos();
+                  this.dialog = false;
+                },
+                error => {
+                  console.log(error);
+                }
+              );
+            }
           }
         } else {
           vm.$snotify.error("Faltan campos por llenar que son obligatorios");
@@ -914,6 +1312,38 @@ export default {
           }
         );
       }
+    },
+    getDetalles(item) {
+      this.entidad = Object.assign({}, item);
+      this.cantTelefonos = item.cantTelefonos;
+      this.dialog3 = true;
+    },
+    confirmDelete(item) {
+      this.entidad = Object.assign({}, item);
+      this.cantTelefonos = item.cantTelefonos;
+      this.dialog2 = true;
+    },
+    deleteItem(entidad) {
+      const url = api.getUrl("contratacion", "entidades");
+      this.axios.delete(`${url}/${entidad.id}`).then(
+        response => {
+          this.getResponse(response);
+          this.getEntidadesFromApi();
+          this.dialog2 = false;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    close() {
+      this.dialog = false;
+      this.dialog2 = false;
+      this.dialog3 = false;
+      this.resetDatos();
+      setTimeout(() => {
+        this.editedIndex = -1;
+      }, 300);
     },
     resetDatos() {
       this.getEntidadesFromApi();
@@ -972,38 +1402,7 @@ export default {
           { numero: null, extension: null }
         ]
       };
-    },
-    getDetalles(item) {
-      this.entidad = Object.assign({}, item);
-      this.cantTelefonos = item.cantTelefonos;
-      this.dialog3 = true;
-    },
-    confirmDelete(item) {
-      this.entidad = Object.assign({}, item);
-      this.cantTelefonos = item.cantTelefonos;
-      this.dialog2 = true;
-    },
-    deleteItem(entidad) {
-      const url = api.getUrl("contratacion", "entidades");
-      this.axios.delete(`${url}/${entidad.id}`).then(
-        response => {
-          this.getResponse(response);
-          this.getEntidadesFromApi();
-          this.dialog2 = false;
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    },
-    close() {
-      this.dialog = false;
-      this.dialog2 = false;
-      this.dialog3 = false;
-      this.resetDatos();
-      setTimeout(() => {
-        this.editedIndex = -1;
-      }, 300);
+      this.textNit = "";
     },
     getResponse(response) {
       if (response.status === 200 || response.status === 201) {

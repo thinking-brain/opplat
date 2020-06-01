@@ -20,11 +20,11 @@
           dense
         ></v-text-field>
         <v-spacer></v-spacer>
+        <template>
+          <v-btn color="primary" @click="newEspecialista()">Nuevo Especialista</v-btn>
+        </template>
         <!-- Agregar y Editar Especialista -->
         <v-dialog v-model="dialog" persistent max-width="700">
-          <template v-slot:activator="{ on }">
-            <v-btn color="primary" dark v-on="on">Nuevo Especialista</v-btn>
-          </template>
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
               <v-flex xs12 sm10 md6 lg4>{{ formTitle }}</v-flex>
@@ -173,7 +173,7 @@ export default {
         sortable: true,
         value: "nombreCompleto"
       },
-      { text: "Entidad Proveedora a la Pertenece", value: "entidad" },
+      { text: "Entidad Proveedora a la Pertenece", value: "entidad.nombre" },
       { text: "Departamento", value: "departamento" },
       { text: "Área", value: "area" },
       { text: "Cargo", value: "cargo" },
@@ -231,7 +231,6 @@ export default {
       this.especialistaExterno = Object.assign({}, item);
       this.dialog = true;
     },
-
     save(method) {
       const url = api.getUrl("contratacion", "EspecialistasExternos");
       if (method === "POST") {
@@ -305,6 +304,10 @@ export default {
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);
+    },
+    newEspecialista() {
+      this.dialog = true;
+      this.getEntidadesFromApi();
     },
     getResponse(response) {
       if (response.status === 200 || response.status === 201) {
