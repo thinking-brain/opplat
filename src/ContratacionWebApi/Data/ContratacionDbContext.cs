@@ -22,5 +22,7 @@ namespace ContratacionWebApi.Data {
         public DbSet<AdminContrato> AdminContratos { get; set; }
         public DbSet<Documento> Documentos { get; set; }
         public DbSet<Telefono> Telefonos { get; set; }
+        public DbSet<TiempoVenOferta> TiempoVenOfertas { get; set; }
+        public DbSet<TiempoVenContrato> TiempoVenContratos { get; set; }
     }
 }

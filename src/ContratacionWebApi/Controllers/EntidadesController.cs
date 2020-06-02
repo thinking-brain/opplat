@@ -198,6 +198,7 @@ namespace ContratacionWebApi.Controllers {
                 new { Id = NombreSucursal.BPA, Nombre = "BPA" },
                 new { Id = NombreSucursal.Bandec, Nombre = "Bandec" },
                 new { Id = NombreSucursal.Banco_Metropolitano, Nombre = "Banco Metropolitano" },
+                new { Id = NombreSucursal.BFI, Nombre = "BFI" },
             };
             return Ok (tipo);
         }

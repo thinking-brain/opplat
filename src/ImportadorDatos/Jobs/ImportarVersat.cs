@@ -455,7 +455,6 @@ namespace ImportadorDatos.Jobs {
                             }
                         }
                     }
-
                     _contratacionContext.SaveChanges ();
 
                     _enlaceContext.Add (new ImportadorDatos.Models.EnlaceVersat.Entidad {

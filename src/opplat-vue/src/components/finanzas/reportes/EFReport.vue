@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-form v-model="valid" class="d-print-none" ref="form">
+    <v-form  class="d-print-none" ref="form">
       <v-row justify="center">
         <v-col cols="12" md="2">
           <v-text-field v-model="year_form" :counter="4" :rules="yearRules" label="AÑO" required></v-text-field>

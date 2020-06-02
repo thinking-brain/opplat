@@ -1453,7 +1453,7 @@ namespace ImportadorDatos.Models.Versat {
                 entity.HasKey (e => e.Identidad)
                     .ForSqlServerIsClustered (false);
 
-                entity.ToTable ("gen_entidad");            
+                entity.ToTable ("gen_entidad");
 
                 entity.HasIndex (e => e.Identidad)
                     .ForSqlServerIsClustered ();
@@ -1495,7 +1495,52 @@ namespace ImportadorDatos.Models.Versat {
                     .HasComputedColumnSql ("(rtrim(isnull([direccion],'')) + ' ' + rtrim(isnull([Provincia],'')) + ' ' + rtrim(isnull([Pais],'')))");
 
             });
+            modelBuilder.Entity<GenCtaBancoEntidad> (entity => {
+                entity.HasKey (e => e.Identidad).ForSqlServerIsClustered (false);
 
+                entity.ToTable ("gen_ctabancoentidad");
+
+                entity.HasIndex (e => e.Identidad).ForSqlServerIsClustered ();
+
+                entity.Property (e => e.Identidad).HasColumnName ("identidad");
+
+                entity.Property (e => e.NumeroCta).HasColumnName ("numerocta");
+
+                entity.Property (e => e.IdMoneda).HasColumnName ("idcuenta");
+
+                entity.Property (e => e.IdSucursal).HasColumnName ("idsucursal");
+
+            });
+            modelBuilder.Entity<GenSucursalBanco> (entity => {
+                entity.HasKey (e => e.IdSucursal)
+                    .ForSqlServerIsClustered (false);
+
+                entity.ToTable ("gen_sucursalbanco");
+
+                entity.HasIndex (e => e.IdSucursal).ForSqlServerIsClustered ();
+
+                entity.Property (e => e.IdSucursal).HasColumnName ("idsucursal");
+
+                entity.Property (e => e.Numero).HasColumnName ("numero");
+
+                entity.Property (e => e.Direccion).HasColumnName ("direccion");
+
+                entity.Property (e => e.IdClasifBanco).HasColumnName ("idclasifbanco");
+
+            });
+            modelBuilder.Entity<GenClasifBanco> (entity => {
+                entity.HasKey (e => e.IdClasifBanco).ForSqlServerIsClustered (false);
+
+                entity.ToTable ("gen_clasifbanco");
+
+                entity.HasIndex (e => e.IdClasifBanco).ForSqlServerIsClustered ();
+
+                entity.Property (e => e.IdClasifBanco).HasColumnName ("idclasifbanco");
+
+                entity.Property (e => e.Nombre).HasColumnName ("nombre");
+
+                entity.Property (e => e.Codigo).HasColumnName ("codigo");
+            });
         }
     }
 }

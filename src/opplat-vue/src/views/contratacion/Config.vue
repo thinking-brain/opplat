@@ -10,6 +10,7 @@
                 <v-tab>Dictaminadores</v-tab>
                 <v-tab>Proveedores</v-tab>
                 <v-tab>Especialistas Externos</v-tab>
+                <v-tab>Tiempo de Vencimiento</v-tab>
               </v-tabs>
             </v-toolbar>
             <v-tabs-items v-model="tabs" py-6>
@@ -41,6 +42,13 @@
                   </v-card-text>
                 </v-card>
               </v-tab-item>
+              <v-tab-item>
+                <v-card flat>
+                  <v-card-text>
+                    <TiempoVenContratos></TiempoVenContratos>
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
             </v-tabs-items>
           </v-card>
         </v-col>
@@ -56,6 +64,7 @@ import DictContratos from "@/components/contratacion/DictContratos.vue";
 import EspExternos from "@/components/contratacion/EspExternos.vue";
 import FormasDePago from "@/components/contratacion/FormasDePago.vue";
 import Entidades from "@/components/contratacion/Entidades.vue";
+import TiempoVenContratos from "@/components/contratacion/TiempoVenContratos.vue";
 
 export default {
   components: {
@@ -63,7 +72,8 @@ export default {
     DictContratos,
     EspExternos,
     FormasDePago,
-    Entidades
+    Entidades,
+    TiempoVenContratos
   },
   data: () => ({
     tabs: null,

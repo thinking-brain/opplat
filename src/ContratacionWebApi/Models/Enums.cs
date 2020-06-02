@@ -41,7 +41,8 @@ namespace ContratacionWebApi.Models {
     public enum NombreSucursal {
         Bandec,
         BPA,
-        Banco_Metropolitano
+        Banco_Metropolitano,
+        BFI
     }
     public enum Moneda {
         CUC,

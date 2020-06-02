@@ -336,7 +336,7 @@ export default {
     headers: [
       { text: "Número", align: "left", sortable: true, value: "numero" },
       { text: "Nombre", sortable: true, value: "nombre" },
-      { text: "Tipo", value: "tipo" },
+      { text: "Tipo", value: "tipoNombre" },
       { text: "Entidad", value: "entidad.nombre" },
       { text: "Vence", value: "contVence" },
       { text: "Acciones", value: "action", sortable: false }

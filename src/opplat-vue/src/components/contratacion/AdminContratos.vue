@@ -20,11 +20,11 @@
           dense
         ></v-text-field>
         <v-spacer></v-spacer>
+        <template>
+          <v-btn color="primary" dark @click="dialog=true" class="mx-1">Nuevo Administrador</v-btn>
+        </template>
         <!-- Agregar y Editar Administrador de Contratos -->
-        <v-dialog v-model="dialog" persistent max-width="500">
-          <template v-slot:activator="{ on }">
-            <v-btn color="primary" dark v-on="on" class="mx-1">Nuevo Administrador</v-btn>
-          </template>
+        <v-dialog v-model="dialog" persistent max-width="600">
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
               <v-flex>{{ formTitle }}</v-flex>
@@ -35,7 +35,10 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form>
+              <p
+                class="text-center title font-italic mt-12"
+              >Seleccione los Administradores de Contratos</p>
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs12 class="px-3">
@@ -44,7 +47,6 @@
                       item-text="nombre_Completo"
                       item-value="id"
                       :items="trabajadores"
-                      :filter="activeFilter"
                       :rules="trabajadorIdRules"
                       cache-items
                       label="Administradores"
@@ -365,24 +367,17 @@ export default {
     save(method) {
       const url = api.getUrl("contratacion", "AdminContratos");
       if (method === "POST") {
-        if (this.$refs.form.validate()) {
-          this.snackbar = true;
-        }
-        if (this.administradoresContratos == null) {
-          vm.$snotify.error("Faltan campos por llenar que son obligatorios");
-        } else {
-          this.axios.post(url, this.administradoresContratos).then(
-            response => {
-              this.getResponse(response);
-              this.getAdminContratosFromApi();
-              this.administradoresContratos = [];
-              this.dialog = false;
-            },
-            error => {
-              console.log(error);
-            }
-          );
-        }
+        this.axios.post(url, this.administradoresContratos).then(
+          response => {
+            this.getResponse(response);
+            this.getAdminContratosFromApi();
+            this.administradoresContratos = [];
+            this.dialog = false;
+          },
+          error => {
+            console.log(error);
+          }
+        );
       }
       if (method === "PUT") {
         this.axios
@@ -421,6 +416,7 @@ export default {
       this.dialog = false;
       this.dialog1 = false;
       this.dialog2 = false;
+      this.administradoresContratos = [];
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);

@@ -22,7 +22,7 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form ref="form">
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs6 class="px-1">
@@ -34,7 +34,6 @@
                       item-text="nombre"
                       item-value="id"
                       :items="tipos"
-                      :filter="activeFilter"
                       cache-items
                       label="tipo"
                     ></v-autocomplete>
@@ -45,7 +44,6 @@
                       item-text="nombre"
                       item-value="id"
                       :items="tipos"
-                      :filter="activeFilter"
                       cache-items
                       label="tipo"
                     ></v-autocomplete>
@@ -59,7 +57,6 @@
                       item-text="nombre"
                       item-value="id"
                       :items="entidades"
-                      :filter="activeFilter"
                       cache-items
                       label="Proveedor"
                     >
@@ -169,7 +166,6 @@
                       item-text="nombreCompleto"
                       item-value="id"
                       :items="adminContratos"
-                      :filter="activeFilter"
                       cache-items
                       label="Administrador"
                     >
@@ -182,7 +178,6 @@
                       item-text="nombreCompleto"
                       item-value="id"
                       :items="dictaminadoresContratos"
-                      :filter="activeFilter"
                       label="Especialistas Internos"
                       placeholder="Dictaminadores de Contratos"
                       multiple
@@ -216,7 +211,6 @@
                       item-text="nombreCompleto"
                       item-value="id"
                       :items="especialistasExternos"
-                      :filter="activeFilter"
                       cache-items
                       label="Especialistas Externos"
                       placeholder="Dictaminadores Externos"
@@ -234,7 +228,6 @@
                       item-text="nombre"
                       item-value="id"
                       :items="estados"
-                      :filter="activeFilter"
                       cache-items
                       label="Estado"
                     ></v-autocomplete>

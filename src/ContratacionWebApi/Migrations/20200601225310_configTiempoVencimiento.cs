@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
-    public partial class importadorCondigoTipoString : Migration
+    public partial class configTiempoVencimiento : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -71,6 +71,42 @@ namespace ContratacionWebApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TiempoVenContratos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ContratoTiempo = table.Column<int>(nullable: false),
+                    ContratosProxVencerDesde = table.Column<int>(nullable: false),
+                    ContratosProxVencerHasta = table.Column<int>(nullable: false),
+                    ContratosCasiVencDesde = table.Column<int>(nullable: false),
+                    ContratosCasiVencHasta = table.Column<int>(nullable: false),
+                    ContratosVencidos = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TiempoVenContratos", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TiempoVenOfertas",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OfertaTiempo = table.Column<int>(nullable: false),
+                    OfertasProxVencDesde = table.Column<int>(nullable: false),
+                    OfertasProxVencHasta = table.Column<int>(nullable: false),
+                    OfertasCasiVencDesde = table.Column<int>(nullable: false),
+                    OfertasCasiVencHasta = table.Column<int>(nullable: false),
+                    OfertasVencidas = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TiempoVenOfertas", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Contratos",
                 columns: table => new
                 {
@@ -86,7 +122,7 @@ namespace ContratacionWebApi.Migrations
                     MontoCuc = table.Column<decimal>(nullable: true),
                     MontoUsd = table.Column<decimal>(nullable: true),
                     FechaDeRecepcion = table.Column<DateTime>(nullable: false),
-                    FechaDeFirmado = table.Column<DateTime>(nullable: true),
+                    FechaDeFirmado = table.Column<DateTime>(nullable: false),
                     FechaVenContrato = table.Column<DateTime>(nullable: false),
                     FechaDeVenOferta = table.Column<DateTime>(nullable: false),
                     FilePath = table.Column<string>(nullable: true),
@@ -496,6 +532,12 @@ namespace ContratacionWebApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "Telefonos");
+
+            migrationBuilder.DropTable(
+                name: "TiempoVenContratos");
+
+            migrationBuilder.DropTable(
+                name: "TiempoVenOfertas");
 
             migrationBuilder.DropTable(
                 name: "Especialista");

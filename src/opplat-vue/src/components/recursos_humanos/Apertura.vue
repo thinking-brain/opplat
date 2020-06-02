@@ -55,7 +55,6 @@
                   v-model="sexo"
                   item-text="nombre"
                   :items="sexos"
-                  :filter="activeFilter"
                   cache-items
                   clearable
                   label="Sexo"
@@ -67,7 +66,6 @@
                   v-model="nivelEscolaridad"
                   item-text="nombre"
                   :items="nivelesEscolaridad"
-                  :filter="activeFilter"
                   cache-items
                   clearable
                   label="Nivel de Escolaridad"

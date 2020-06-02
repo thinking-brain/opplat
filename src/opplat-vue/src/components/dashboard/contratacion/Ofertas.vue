@@ -118,7 +118,20 @@ export default {
           id: "vuechart",
           // mostrar el boton de exportar
           toolbar: {
-            show: false
+            show: true,
+            offsetX:0,
+            offsetY:0,
+            tools:{
+              download:false,
+              selection:true,
+              zoom:true,
+              zoomin:true,
+              zoomout:true,
+              pan:true,
+              reset:true,
+              customIcons:[]
+            },
+            autoSelected:'zoom'
           },
           // definir color de fondo general
           background: ""

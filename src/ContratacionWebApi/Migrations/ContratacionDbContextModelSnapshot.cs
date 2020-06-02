@@ -48,7 +48,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("Estado");
 
-                    b.Property<DateTime?>("FechaDeFirmado");
+                    b.Property<DateTime>("FechaDeFirmado");
 
                     b.Property<DateTime>("FechaDeRecepcion");
 
@@ -398,6 +398,50 @@ namespace ContratacionWebApi.Migrations
                     b.HasIndex("EntidadId");
 
                     b.ToTable("Telefonos");
+                });
+
+            modelBuilder.Entity("TiempoVenContrato", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("ContratoTiempo");
+
+                    b.Property<int>("ContratosCasiVencDesde");
+
+                    b.Property<int>("ContratosCasiVencHasta");
+
+                    b.Property<int>("ContratosProxVencerDesde");
+
+                    b.Property<int>("ContratosProxVencerHasta");
+
+                    b.Property<int>("ContratosVencidos");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TiempoVenContratos");
+                });
+
+            modelBuilder.Entity("TiempoVenOferta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("OfertaTiempo");
+
+                    b.Property<int>("OfertasCasiVencDesde");
+
+                    b.Property<int>("OfertasCasiVencHasta");
+
+                    b.Property<int>("OfertasProxVencDesde");
+
+                    b.Property<int>("OfertasProxVencHasta");
+
+                    b.Property<int>("OfertasVencidas");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TiempoVenOfertas");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.Suplemento", b =>

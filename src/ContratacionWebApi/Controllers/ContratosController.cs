@@ -89,35 +89,42 @@ namespace ContratacionWebApi.Controllers {
 
             if (tipoTramite == "oferta") {
                 contratos = contratos.Where (c => c.FechaDeFirmado == FechaPorDefecto && c.AprobComitContratacion == false && c.Estado != Estado.Aprobado);
-                if (filtro != null) {
-                    if (filtro == "ofertaTiempo") {
-                        contratos = contratos.Where (c => c.OfertVence > 23);
+                var tiempoVenOfertas = context.TiempoVenOfertas.ToList ();
+                if (tiempoVenOfertas.Count () > 0) {
+                    var tiempoVenOferta = tiempoVenOfertas[0];
+                    if (filtro != null) {
+                        if (filtro == "ofertaTiempo") {
+                            contratos = contratos.Where (c => c.OfertVence > tiempoVenOferta.OfertaTiempo);
+                        }
+                        if (filtro == "ofertasProxVencer") {
+                            contratos = contratos.Where (c => c.OfertVence > tiempoVenOferta.OfertasProxVencDesde && c.OfertVence <= tiempoVenOferta.OfertasProxVencHasta);
+                        }
+                        if (filtro == "ofertasCasiVenc") {
+                            contratos = contratos.Where (c => c.OfertVence >= tiempoVenOferta.OfertasCasiVencDesde && c.OfertVence <= tiempoVenOferta.OfertasCasiVencHasta);
+                        }
+                        if (filtro == "ofertasVenc") {
+                            contratos = contratos.Where (c => c.OfertVence < tiempoVenOferta.OfertasVencidas);
+                        }
                     }
-                    if (filtro == "ofertasProxVencer") {
-                        contratos = contratos.Where (c => c.OfertVence > 7 && c.OfertVence <= 23);
-                    }
-                    if (filtro == "ofertasCasiVenc") {
-                        contratos = contratos.Where (c => c.OfertVence >= 0 && c.OfertVence <= 6);
-                    }
-                    if (filtro == "ofertasVenc") {
-                        contratos = contratos.Where (c => c.OfertVence < 0);
-                    }
+
                 }
             }
             if (tipoTramite == "contrato") {
+                var tiempoVenContratos = context.TiempoVenContratos.ToList ();
+                var tiempoVenContrato = tiempoVenContratos[0];
                 contratos = contratos.Where (c => c.FechaDeFirmado != FechaPorDefecto && c.AprobComitContratacion == true && c.Estado == Estado.Aprobado);
-                 if (filtro == "contratoTiempo") {
-                        contratos = contratos.Where (c => c.ContVence > 23);
-                    }
-                    if (filtro == "contratosProxVencer") {
-                        contratos = contratos.Where (c => c.ContVence > 7 && c.ContVence <= 23);
-                    }
-                    if (filtro == "contratosCasiVenc") {
-                        contratos = contratos.Where (c => c.ContVence >= 0 && c.ContVence <= 6);
-                    }
-                    if (filtro == "contratosVenc") {
-                        contratos = contratos.Where (c => c.ContVence < 0);
-                    }
+                if (filtro == "contratoTiempo") {
+                    contratos = contratos.Where (c => c.ContVence > tiempoVenContrato.ContratoTiempo);
+                }
+                if (filtro == "contratosProxVencer") {
+                    contratos = contratos.Where (c => c.ContVence > tiempoVenContrato.ContratosProxVencerDesde && c.ContVence <= tiempoVenContrato.ContratosProxVencerHasta);
+                }
+                if (filtro == "contratosCasiVenc") {
+                    contratos = contratos.Where (c => c.ContVence >= tiempoVenContrato.ContratosCasiVencDesde && c.ContVence <= tiempoVenContrato.ContratosCasiVencHasta);
+                }
+                if (filtro == "contratosVenc") {
+                    contratos = contratos.Where (c => c.ContVence < tiempoVenContrato.ContratosVencidos);
+                }
             }
 
             return Ok (contratos);
@@ -388,24 +395,26 @@ namespace ContratacionWebApi.Controllers {
         public IActionResult GetVencimientoContrato () {
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             List<int> cantSegunFecha = new List<int> ();
+            var tiempoVenContratos = context.TiempoVenContratos.ToList ();
+            var tiempoVenContrato = tiempoVenContratos[0];
             var contratos = context.Contratos
                 .Where (c => c.FechaDeFirmado != FechaPorDefecto &&
                     c.AprobComitContratacion == true && c.Estado == Estado.Aprobado);
 
             // Contratos vencidos           
             cantSegunFecha.Add (contratos
-                .Where (c => (c.FechaVenContrato - DateTime.Now).Days < 0).Count ());
+                .Where (c => (c.FechaVenContrato - DateTime.Now).Days < tiempoVenContrato.ContratosVencidos).Count ());
 
             // Contratos Casi Vencidas
             cantSegunFecha.Add (contratos
-                .Where (c => (c.FechaVenContrato - DateTime.Now).Days >= 0 && (c.FechaVenContrato - DateTime.Now).Days <= 6).Count ());
+                .Where (c => (c.FechaVenContrato - DateTime.Now).Days >= tiempoVenContrato.ContratosCasiVencDesde && (c.FechaVenContrato - DateTime.Now).Days <= tiempoVenContrato.ContratosCasiVencHasta).Count ());
 
             // Contratos Próximos a Vencer
             cantSegunFecha.Add (contratos
-                .Where (c => (c.FechaVenContrato - DateTime.Now).Days > 7 && (c.FechaVenContrato - DateTime.Now).Days <= 23).Count ());
+                .Where (c => (c.FechaVenContrato - DateTime.Now).Days > tiempoVenContrato.ContratosProxVencerDesde && (c.FechaVenContrato - DateTime.Now).Days <= tiempoVenContrato.ContratosProxVencerHasta).Count ());
 
             // Contratos OK
-            cantSegunFecha.Add (contratos.Where (c => (c.FechaVenContrato - DateTime.Now).Days > 23).Count ());
+            cantSegunFecha.Add (contratos.Where (c => (c.FechaVenContrato - DateTime.Now).Days > tiempoVenContrato.ContratoTiempo).Count ());
 
             return Ok (cantSegunFecha);
         }
@@ -415,24 +424,26 @@ namespace ContratacionWebApi.Controllers {
         public IActionResult GetVencimientoOferta () {
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             List<int> cantSegunFecha = new List<int> ();
+            var tiempoVenOfertas = context.TiempoVenOfertas.ToList ();
+            var tiempoVenOferta = tiempoVenOfertas[0];
             var ofertas = context.Contratos
                 .Where (c => c.FechaDeFirmado == FechaPorDefecto &&
                     c.AprobComitContratacion == false && c.Estado != Estado.Aprobado);
 
-            // Contratos vencidos           
+            // Ofertas vencidos           
             cantSegunFecha.Add (ofertas
-                .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days < 0).Count ());
+                .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days < tiempoVenOferta.OfertasVencidas).Count ());
 
-            // Contratos Casi Vencidas
+            // Ofertas Casi Vencidas
             cantSegunFecha.Add (ofertas
-                .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days >= 0 && (c.FechaDeVenOferta - DateTime.Now).Days <= 6).Count ());
+                .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days >= tiempoVenOferta.OfertasCasiVencDesde && (c.FechaDeVenOferta - DateTime.Now).Days <= tiempoVenOferta.OfertasCasiVencHasta).Count ());
 
-            // Contratos Próximos a Vencer
+            // Ofertas Próximos a Vencer
             cantSegunFecha.Add (ofertas
-                .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days > 7 && (c.FechaDeVenOferta - DateTime.Now).Days <= 23).Count ());
+                .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days > tiempoVenOferta.OfertasProxVencDesde && (c.FechaDeVenOferta - DateTime.Now).Days <= tiempoVenOferta.OfertasProxVencHasta).Count ());
 
-            // Contratos OK
-            cantSegunFecha.Add (ofertas.Where (c => (c.FechaDeVenOferta - DateTime.Now).Days > 23).Count ());
+            // Ofertas OK
+            cantSegunFecha.Add (ofertas.Where (c => (c.FechaDeVenOferta - DateTime.Now).Days > tiempoVenOferta.OfertaTiempo).Count ());
 
             return Ok (cantSegunFecha);
         }
@@ -458,6 +469,8 @@ namespace ContratacionWebApi.Controllers {
             var cantOfertas_x_Mes = new int[12];
             var cantOfertVen_x_Mes = new int[12];
             var contratosProximosVencer = new int[4];
+            var tiempoVenOfertas = context.TiempoVenOfertas.ToList ();
+            var tiempoVenOferta = tiempoVenOfertas[0];
 
             var ofertasContratos = context.Contratos.Where (c => c.FechaDeRecepcion.Year == DateTime.Now.Year);
             var contratos = context.Contratos.Where (c => c.FechaDeFirmado != FechaPorDefecto &&
@@ -473,7 +486,7 @@ namespace ContratacionWebApi.Controllers {
                         c.Estado != Estado.No_Aprobado && c.Estado != Estado.SinEstado && c.FechaDeRecepcion.Month == i + 1).Count ();
                     cantOfertVen_x_Mes[i] = ofertas
                         .Where (c => c.FechaDeRecepcion.Month == i + 1 &&
-                            (c.FechaDeVenOferta - DateTime.Now).Days < 0).Count ();
+                            (c.FechaDeVenOferta - DateTime.Now).Days < tiempoVenOferta.OfertasVencidas).Count ();
                 }
                 dashboard.OfertasProceso = cantOfertas_x_Mes;
                 dashboard.OfertasVencidas = cantOfertVen_x_Mes;
@@ -483,10 +496,10 @@ namespace ContratacionWebApi.Controllers {
                 dashboard.OfertasEnProceso = ofertas.Where (c => c.Estado != Estado.Cancelado &&
                     c.Estado != Estado.No_Aprobado && c.Estado != Estado.SinEstado).Count ();
 
-                dashboard.OfertasVenHastaFecha = ofertas.Where (c => (c.FechaDeVenOferta - DateTime.Now).Days < 0).Count ();
+                dashboard.OfertasVenHastaFecha = ofertas.Where (c => (c.FechaDeVenOferta - DateTime.Now).Days < tiempoVenOferta.OfertasVencidas).Count ();
 
                 dashboard.OfertasVenEsteMes = ofertas.Where (c => c.FechaDeVenOferta.Month == DateTime.Now.Month &&
-                    (c.FechaDeVenOferta - DateTime.Now).Days < 0).Count ();
+                    (c.FechaDeVenOferta - DateTime.Now).Days < tiempoVenOferta.OfertasVencidas).Count ();
             }
             dashboard.OfertasProcesadas = ofertasContratos.Where (c => c.FechaDeRecepcion.Year == DateTime.Now.Year).Count ();
             if (contratos != null) {
@@ -505,8 +518,8 @@ namespace ContratacionWebApi.Controllers {
 
                 // Contratos Próximos a Vencer //
                 contratosProximosVencer[0] = contratos.Where (c => c.FechaVenContrato.Month == DateTime.Now.Month).Count ();
-                contratosProximosVencer[1] = contratos.Where (c => c.FechaVenContrato.Month == (DateTime.Now.Month + 3)).Count ();
-                contratosProximosVencer[2] = contratos.Where (c => c.FechaVenContrato.Month == (DateTime.Now.Month + 6)).Count ();
+                contratosProximosVencer[1] = contratos.Where (c => c.FechaVenContrato.Month <= (DateTime.Now.Month + 3)).Count ();
+                contratosProximosVencer[2] = contratos.Where (c => c.FechaVenContrato.Month <= (DateTime.Now.Month + 6)).Count ();
                 contratosProximosVencer[3] = contratos.Where (c => c.FechaVenContrato.Year == DateTime.Now.Year).Count ();
                 dashboard.ContratosProximosVencer = contratosProximosVencer;
                 // Contratos Próximos a Vencer //

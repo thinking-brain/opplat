@@ -30,7 +30,7 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form ref="form" >
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs3 class="px-2">
@@ -73,7 +73,6 @@
                       item-text="nombre"
                       item-value="id"
                       :items="sectores"
-                      :filter="activeFilter"
                       label="Sector"
                     ></v-select>
                   </v-flex>
@@ -259,7 +258,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
@@ -269,7 +267,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>
@@ -295,7 +292,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
@@ -305,7 +301,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>
@@ -331,7 +326,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
@@ -341,7 +335,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>
@@ -367,7 +360,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
@@ -377,7 +369,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>
@@ -403,7 +394,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
@@ -413,7 +403,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>
@@ -439,7 +428,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
@@ -449,7 +437,6 @@
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>

@@ -77,7 +77,6 @@
                     item-text="nombre"
                     item-value="id"
                     :items="sexos"
-                    :filter="activeFilter"
                     cache-items
                     clearable
                     label="Sexo"
@@ -91,7 +90,6 @@
                     item-text="nombre"
                     item-value="id"
                     :items="NivelesEscolaridad"
-                    :filter="activeFilter"
                     cache-items
                     clearable
                     label="Nivel de Escolaridad"
@@ -125,7 +123,6 @@
                     item-text="nombre"
                     item-value="id"
                     :items="PerfilesOcupacionales"
-                    :filter="activeFilter"
                     cache-items
                     clearable
                     label="Perfil Ocupacional"
