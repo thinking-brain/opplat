@@ -162,7 +162,7 @@
                   </v-flex>
                   <v-flex xs4 class="px-1">
                     <v-autocomplete
-                      v-model="oferta.adminContratoId"
+                      v-model="oferta.adminContrato"
                       item-text="nombreCompleto"
                       item-value="id"
                       :items="adminContratos"
@@ -172,7 +172,7 @@
                       <v-icon @click="dialog4=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
                   </v-flex>
-                  <v-flex xs4 class="px-1">
+                  <v-flex xs5 class="px-1">
                     <v-autocomplete
                       v-model="oferta.dictaminadores"
                       item-text="nombreCompleto"
@@ -222,7 +222,7 @@
                   <!-- <v-flex xs4 class="px-1">
                     <v-file-input v-model="oferta.file" show-size label="Seleccionar Documento"></v-file-input>
                   </v-flex>-->
-                  <v-flex xs4 class="px-1">
+                  <v-flex x2 class="px-1">
                     <v-autocomplete
                       v-model="oferta.estado"
                       item-text="nombre"
@@ -259,13 +259,7 @@
         <v-spacer></v-spacer>
 
         <!-- Todas las Ofertas -->
-        <v-badge
-          :content="cantOfertas"
-          :value="cantOfertas"
-          color="primary"
-          overlap
-          class="mt-4"
-        >
+        <v-badge :content="cantOfertas" :value="cantOfertas" color="primary" overlap class="mt-4">
           <template v-slot:badge>
             <span v-if="enTiempo > 0">{{ cantOfertas }}</span>
           </template>
@@ -757,7 +751,8 @@ export default {
     oferta: {
       entidad: {},
       adminContrato: {},
-      dictaminadores: []
+      dictaminadores: [],
+      especialistasExternos: []
     },
     file: null,
     entidades: [],
@@ -777,6 +772,7 @@ export default {
     ofertasProxVencer: "ofertasProxVencer",
     ofertasCasiVenc: "ofertasCasiVenc",
     ofertasVenc: "ofertasVenc",
+    tiempoVenOfertas: {},
     urlByfiltro: "",
     textByfiltro: "",
     show: false,
@@ -843,6 +839,7 @@ export default {
     this.getDictContratosFromApi();
     this.getFormasDePagosFromApi();
     this.getTrabajadoresFromApi();
+    this.getTiempoVenOfertasFromApi();
   },
 
   methods: {
@@ -947,10 +944,30 @@ export default {
         }
       );
     },
+    getTiempoVenOfertasFromApi() {
+      const url = api.getUrl("contratacion", "TiempoVenOfertas");
+      this.axios.get(url).then(
+        response => {
+          this.tiempoVenOfertas = response.data[0];
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     editItem(item) {
       this.editedIndex = this.ofertas.indexOf(item);
       this.oferta = Object.assign({}, item);
-      this.oferta.dictaminadores = item.dictaminadores;
+      for (let index = 0; index < item.dictaminadores.length; index++) {
+        this.oferta.dictaminadores[index] =
+          item.dictaminadores[index].dictaminador;
+      }
+      for (let index = 0; index < item.especialistasExternos.length; index++) {
+        this.oferta.especialistasExternos[index] =
+          item.especialistasExternos[index].especialistaExterno;
+      }
+      vm.$snotify.success(this.oferta.especialistasExternos);
+
       this.oferta.entidad = item.entidadId;
       this.dialog = true;
     },
@@ -958,24 +975,30 @@ export default {
       this.oferta = Object.assign({}, item);
       this.oferta.entidad = item.entidad;
       this.dialog6 = true;
-      if (this.oferta.ofertVence < 0) {
+      if (this.oferta.ofertVence < this.tiempoVenOfertas.ofertasVencidas) {
         this.textOfertaVence.text = "La Oferta ya se Venció Tiene";
         this.textOfertaVence.class = "pa-2 pt-3 red--text";
       }
-      if (this.oferta.ofertVence == 0) {
+      if (this.oferta.ofertVence == this.tiempoVenOfertas.ofertasVencidas) {
         this.textOfertaVence.text = "La Oferta se Vence Hoy";
         this.textOfertaVence.class = "pa-2 pt-3 red--text";
       }
-      if (this.oferta.ofertVence > 0 && this.oferta.ofertVence <= 6) {
+      if (
+        this.oferta.ofertVence > this.tiempoVenOfertas.ofertasCasiVencDesde &&
+        this.oferta.ofertVence <= this.tiempoVenOfertas.ofertasCasiVencHasta
+      ) {
         this.textOfertaVence.text = "La Oferta está casi a vencida le quedan";
         this.textOfertaVence.class = "pa-2 pt-3 deep-orange--text";
       }
-      if (this.oferta.ofertVence > 6 && this.oferta.ofertVence <= 23) {
+      if (
+        this.oferta.ofertVence > this.tiempoVenOfertas.ofertasProxVencDesde &&
+        this.oferta.ofertVence <= this.tiempoVenOfertas.ofertasProxVencHasta
+      ) {
         this.textOfertaVence.text =
           "La Oferta está próxima a vencerce le quedan";
         this.textOfertaVence.class = "pa-2 pt-3 orange--text";
       }
-      if (this.oferta.ofertVence > 23) {
+      if (this.oferta.ofertVence > this.tiempoVenOfertas.ofertaTiempo) {
         this.textOfertaVence.text = "La Oferta Vence en";
         this.textOfertaVence.class = "pa-2 pt-3 green--text";
       }
@@ -1057,7 +1080,8 @@ export default {
       this.oferta = {
         entidad: {},
         adminContrato: {},
-        dictaminadores: []
+        dictaminadores: [],
+        especialistasExternos: []
       };
       setTimeout(() => {
         this.editedIndex = -1;
@@ -1080,11 +1104,18 @@ export default {
     },
     getColor(ofertVence) {
       this.GetVencimientoOferta();
-      if (ofertVence < 0) {
+      if (ofertVence < this.tiempoVenOfertas.ofertasVencidas) {
         return "red";
-      } else if (ofertVence >= 0 && ofertVence <= 6) {
+      } else if (
+        ofertVence >= this.tiempoVenOfertas.ofertasCasiVencDesde &&
+        ofertVence <= this.tiempoVenOfertas.ofertasCasiVencHasta
+      ) {
         return "deep-orange";
-      } else if (ofertVence > 7 && ofertVence <= 23) return "orange";
+      } else if (
+        ofertVence > this.tiempoVenOfertas.ofertasProxVencDesde &&
+        ofertVence <= this.tiempoVenOfertas.ofertasProxVencHasta
+      )
+        return "orange";
       else {
         return "green";
       }

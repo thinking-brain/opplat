@@ -26,7 +26,7 @@ namespace ContratacionWebApi.Controllers {
             _hostingEnvironment = environment;
         }
 
-        // GET contratos/Contratos/tipoTramite(Oferta o contrato)
+        // GET contratacion/Contratos/tipoTramite(Oferta o contrato)
         [HttpGet]
         public ActionResult GetAll (string tipoTramite, string filtro) {
             var trabajadores = context_rh.Trabajador.ToList ();
@@ -130,11 +130,10 @@ namespace ContratacionWebApi.Controllers {
             return Ok (contratos);
         }
 
-        // GET: contratos/Contratos/Id
+        // GET: contratacion/Contratos/Id
         [HttpGet ("{id}", Name = "GetContrato")]
         public IActionResult GetbyId (int id) {
-            var contrato = context.Contratos.FirstOrDefault (s => s.Id == id);
-
+            var contrato = context.Contratos.FirstOrDefault (c => c.Id == id);
             if (contrato == null) {
                 return NotFound ();
             }
@@ -142,7 +141,7 @@ namespace ContratacionWebApi.Controllers {
 
         }
 
-        // POST contratos/Contratos
+        // POST contratacion/Contratos
         [HttpPost]
         public async Task<IActionResult> POST (ContratoDto contratoDto) {
             if (ModelState.IsValid) {
@@ -229,7 +228,7 @@ namespace ContratacionWebApi.Controllers {
             return BadRequest (ModelState);
         }
 
-        // PUT contratos/contrato/id
+        // PUT contratacion/contrato/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] ContratoDto contrato, int id) {
 
@@ -320,7 +319,7 @@ namespace ContratacionWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE contratos/contrato/id
+        // DELETE contratacion/contrato/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var contrato = context.Contratos.FirstOrDefault (s => s.Id == id);
@@ -331,7 +330,7 @@ namespace ContratacionWebApi.Controllers {
             context.SaveChanges ();
             return Ok (contrato);
         }
-        // PUT contratos/contrato/AprobContrato/id
+        // PUT contratacion/contrato/AprobContrato/id
         [HttpPut ("/contratos/contrato/AprobContrato/id")]
         public IActionResult AprobContrato ([FromBody] AproContratoDto aproContratoDto, int id) {
             var c = context.Contratos.Find (id);

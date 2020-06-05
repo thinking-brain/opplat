@@ -17,7 +17,7 @@ namespace ContratacionWebApi.Controllers {
         // GET entidades/Entidades
         [HttpGet]
         public IActionResult GetAll () {
-            var entidades = context.Entidades.Select (e => new {
+            var entidades = context.Entidades.Include (e => e.CuentasBancarias).Include (e => e.Telefonos).Select (e => new {
                 Id = e.Id,
                     Nombre = e.Nombre,
                     Codigo = e.Codigo,
@@ -28,26 +28,19 @@ namespace ContratacionWebApi.Controllers {
                     SectorNombre = e.Sector.ToString (),
                     Correo = e.Correo,
                     ObjetoSocial = e.ObjetoSocial,
-                    Telefonos = context.Telefonos.Where (t => t.EntidadId == e.Id),
-                    CantTelefonos = context.Telefonos.Where (t => t.EntidadId == e.Id).Count (),
-                    CuentasBancarias = context.CuentasBancarias.Where (c => c.EntidadId == e.Id).Select (
-                        b => new {
-                            Id = b.Id,
-                                NumeroCuenta = b.NumeroCuenta,
-                                NumeroSucursal = b.NumeroSucursal,
-                                NombreSucursalId = b.NombreSucursal,
-                                NombreSucursal = b.NombreSucursal.ToString (),
-                                MonedaId = b.Moneda,
-                                Moneda = b.Moneda.ToString (),
-                                EntidadId = b.EntidadId
-                        }
-                    ),
-                    CantCuentasBancarias = context.CuentasBancarias.Where (c => c.EntidadId == e.Id).Count (),
+                    Telefonos = e.Telefonos,
+                    CantTelefonos = e.Telefonos.Count(),
+                    CuentasBancarias = e.CuentasBancarias.Select (c => new {
+                        NumeroCuenta = c.NumeroCuenta.ToString (),
+                            NumeroSucursal = c.NumeroSucursal.ToString (),
+                            NombreSucursal = c.NombreSucursal.ToString (),
+                            Moneda = c.Moneda.ToString ()
+                    }),
+                    CantCuentasBancarias = e.CuentasBancarias.Count ()
             });
 
             return Ok (entidades);
         }
-
         // GET: entidades/Entidades/Id
         [HttpGet ("{id}", Name = "GetEntidad")]
         public IActionResult GetbyId (int id) {

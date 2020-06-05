@@ -7,6 +7,8 @@ namespace ContratacionWebApi.Data {
 
         }
         protected override void OnModelCreating (ModelBuilder modelBuilder) {
+            modelBuilder.Entity<EspExternoId_ContratoId> ()
+                .HasKey (x => new { x.ContratoId, x.EspecialistaExternoId });
             modelBuilder.ForNpgsqlUseIdentityColumns ();
             base.OnModelCreating (modelBuilder);
         }

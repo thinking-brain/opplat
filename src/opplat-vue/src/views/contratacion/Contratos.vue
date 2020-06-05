@@ -324,6 +324,7 @@ export default {
     contratosProxVencer: "contratosProxVencer",
     contratosCasiVenc: "contratosCasiVenc",
     contratosVenc: "contratosVenc",
+    tiempoVenContratos: {},
     urlByfiltro: "",
     textByfiltro: "",
     show: false,
@@ -379,6 +380,17 @@ export default {
     getDetalles(item) {
       this.contrato = Object.assign({}, item);
       this.dialog6 = true;
+    },
+    getTiempoVenContratosFromApi() {
+      const url = api.getUrl("contratacion", "TiempoVenContratos");
+      this.axios.get(url).then(
+        response => {
+          this.tiempoVenContratos = response.data[0];
+        },
+        error => {
+          console.log(error);
+        }
+      );
     },
     editItem(item) {
       this.editedIndex = this.contratos.indexOf(item);
@@ -454,11 +466,18 @@ export default {
     },
     getColor(contratoVence) {
       this.GetVencimientoContrato();
-      if (contratoVence < 0) {
+      if (contratoVence < this.tiempoVenContratos.contratosVencidos) {
         return "red";
-      } else if (contratoVence >= 0 && contratoVence <= 6) {
+      } else if (
+        contratoVence >= this.tiempoVenContratos.contratosCasiVencDesde &&
+        contratoVence <= this.tiempoVenContratos.contratosCasiVencHasta
+      ) {
         return "deep-orange";
-      } else if (contratoVence > 7 && contratoVence <= 23) return "orange";
+      } else if (
+        contratoVence > this.tiempoVenContratos.contratosProxVencerDesde &&
+        contratoVence <= this.tiempoVenContratos.contratosProxVencerHasta
+      )
+        return "orange";
       else {
         return "green";
       }
