@@ -365,10 +365,10 @@ export default {
 
   methods: {
     getContratosFromApi() {
-      const url = api.getUrl("contratacion", "Contratos?tipoTramite=contrato");
+      const url = api.getUrl("contratacion", "Contratos?tipoTramite=contrato&cliente=true");
       this.axios.get(url).then(
         response => {
-          this.textByfiltro = "Contratos";
+          this.textByfiltro = "Contratos como Cliente";
           this.contratos = response.data;
           this.cantContratos = this.contratos.length;
         },
@@ -406,6 +406,7 @@ export default {
       }, 300);
     },
     save(method) {
+      this.Contrato.cliente = true;
       const url = api.getUrl("contratacion", "Contratos");
       if (method === "POST") {
         if (this.$refs.form.validate()) {
@@ -422,6 +423,7 @@ export default {
         }
       }
       if (method === "PUT") {
+        this.Contrato.cliente = true;
         this.axios.put(`${url}/${this.Contrato.id}`, this.Contrato).then(
           response => {
             this.getResponse(response);
@@ -483,7 +485,10 @@ export default {
       }
     },
     GetVencimientoContrato() {
-      const url = api.getUrl("contratacion", "contratos/VencimientoContrato");
+      const url = api.getUrl(
+        "contratacion",
+        "contratos/VencimientoContrato?cliente=true"
+      );
       this.axios.get(url).then(
         response => {
           this.vencimientoContratos = response.data;

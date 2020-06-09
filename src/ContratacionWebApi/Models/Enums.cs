@@ -37,17 +37,20 @@ namespace ContratacionWebApi.Models {
         Transferencia_Bancaria,
         Cheque_Bancario,
         Efectivo
+
     }
     public enum NombreSucursal {
+        Sin_Definir,
         Bandec,
         BPA,
         Banco_Metropolitano,
         BFI
     }
     public enum Moneda {
-        CUC,
-        MN,
-        USD
+        Sin_Definir,
+        USD,
+        CUP,
+        CUC
     }
     public enum Sector {
         Sin_Definir,

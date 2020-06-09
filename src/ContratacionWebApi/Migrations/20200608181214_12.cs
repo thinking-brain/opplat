@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
-    public partial class configTiempoVencimiento : Migration
+    public partial class _12 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -130,7 +130,8 @@ namespace ContratacionWebApi.Migrations
                     AprobEconomico = table.Column<bool>(nullable: false),
                     AprobJuridico = table.Column<bool>(nullable: false),
                     AprobComitContratacion = table.Column<bool>(nullable: false),
-                    Estado = table.Column<int>(nullable: false)
+                    Estado = table.Column<int>(nullable: false),
+                    Cliente = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -293,14 +294,13 @@ namespace ContratacionWebApi.Migrations
                 name: "EspecialistaExternoId_ContratoId",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     EspecialistaExternoId = table.Column<int>(nullable: false),
-                    ContratoId = table.Column<int>(nullable: false)
+                    ContratoId = table.Column<int>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EspecialistaExternoId_ContratoId", x => x.Id);
+                    table.PrimaryKey("PK_EspecialistaExternoId_ContratoId", x => new { x.ContratoId, x.EspecialistaExternoId });
                     table.ForeignKey(
                         name: "FK_EspecialistaExternoId_ContratoId_Contratos_ContratoId",
                         column: x => x.ContratoId,
@@ -469,11 +469,6 @@ namespace ContratacionWebApi.Migrations
                 name: "IX_Especialista_EspecialidadId",
                 table: "Especialista",
                 column: "EspecialidadId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EspecialistaExternoId_ContratoId_ContratoId",
-                table: "EspecialistaExternoId_ContratoId",
-                column: "ContratoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EspecialistaExternoId_ContratoId_EspecialistaExternoId",

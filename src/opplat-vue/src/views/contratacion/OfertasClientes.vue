@@ -178,7 +178,7 @@
                       item-text="nombreCompleto"
                       item-value="id"
                       :items="dictaminadoresContratos"
-                      label="Especialistas Internos"
+                      label="Dictaminadores Internos"
                       placeholder="Dictaminadores de Contratos"
                       multiple
                     >
@@ -210,7 +210,7 @@
                       v-model="oferta.especialistasExternos"
                       item-text="nombreCompleto"
                       item-value="id"
-                      :items="especialistasExternos"
+                      :items="especialistasExternosAll"
                       cache-items
                       label="Especialistas Externos"
                       placeholder="Dictaminadores Externos"
@@ -579,6 +579,27 @@
         </v-dialog>
         <!-- /Detalles de la oferta -->
 
+        <!-- Aprobar oferta -->
+        <v-dialog v-model="dialog9" persistent max-width="350px">
+          <v-toolbar dark fadeOnScroll color="red">
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn icon dark @click="close()">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+          <v-card>
+            <v-card-title class="headline text-center">Seguro que deseas aprobar la Oferta</v-card-title>
+            <v-card-text class="text-center">{{oferta.nombre}}</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="red" dark @click="aprobarOferta(oferta)">Aceptar</v-btn>
+              <v-btn color="primary" @click="close()">Cancelar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <!-- /Aprobar oferta -->
         <!-- Delete oferta -->
         <v-dialog v-model="dialog2" persistent max-width="350px">
           <v-toolbar dark fadeOnScroll color="red">
@@ -603,7 +624,7 @@
 
         <!-- Subir Documento -->
         <v-row justify="center">
-          <v-dialog v-model="dialog7" persistent max-width="300">
+          <v-dialog v-model="dialog7" persistent max-width="400">
             <v-card>
               <v-flex xs12 class="px-1">
                 <v-file-input
@@ -706,6 +727,17 @@
         </template>
         <span>Detalles</span>
       </v-tooltip>
+      <v-tooltip top color="green">
+        <template v-slot:activator="{ on }">
+          <v-icon
+            small
+            class="mr-2"
+            v-on="on"
+            @click="confirmAprobarOferta(item)"
+          >mdi-check-box-multiple-outline</v-icon>
+        </template>
+        <span>Aprobar la Oferta</span>
+      </v-tooltip>
       <v-tooltip top color="red">
         <template v-slot:activator="{ on }">
           <v-icon small class="mr-2" v-on="on" @click="confirmDelete(item)">mdi-trash-can</v-icon>
@@ -742,6 +774,7 @@ export default {
     dialog6: false,
     dialog7: false,
     dialog8: false,
+    dialog9: false,
     menu: false,
     menu1: false,
     search: "",
@@ -756,7 +789,7 @@ export default {
     },
     file: null,
     entidades: [],
-    especialistasExternos: [],
+    especialistasExternosAll: [],
     dictaminadoresContratos: [],
     adminContratos: [],
     estados: [],
@@ -844,10 +877,13 @@ export default {
 
   methods: {
     getOfertasFromApi() {
-      const url = api.getUrl("contratacion", "Contratos?tipoTramite=oferta");
+      const url = api.getUrl(
+        "contratacion",
+        "Contratos?tipoTramite=oferta&cliente=true"
+      );
       this.axios.get(url).then(
         response => {
-          this.textByfiltro = "Ofertas";
+          this.textByfiltro = "Ofertas de los Clientes";
           this.ofertas = response.data;
           this.cantOfertas = this.ofertas.length;
         },
@@ -893,7 +929,7 @@ export default {
       const url = api.getUrl("contratacion", "EspecialistasExternos");
       this.axios.get(url).then(
         response => {
-          this.especialistasExternos = response.data;
+          this.especialistasExternosAll = response.data;
         },
         error => {
           console.log(error);
@@ -957,18 +993,20 @@ export default {
     },
     editItem(item) {
       this.editedIndex = this.ofertas.indexOf(item);
+
       this.oferta = Object.assign({}, item);
+      this.oferta.entidad = item.entidadId;
       for (let index = 0; index < item.dictaminadores.length; index++) {
         this.oferta.dictaminadores[index] =
-          item.dictaminadores[index].dictaminador;
+          item.dictaminadores[index].dictaminador.id;
       }
-      for (let index = 0; index < item.especialistasExternos.length; index++) {
-        this.oferta.especialistasExternos[index] =
-          item.especialistasExternos[index].especialistaExterno;
-      }
-      vm.$snotify.success(this.oferta.especialistasExternos);
+      this.oferta.adminContrato = item.adminContrato.id;
 
-      this.oferta.entidad = item.entidadId;
+      for (let index = 0; index < this.oferta.formasDePago.length; index++) {
+        this.oferta.formasDePago[index] = item.formasDePago[index].id;
+      }
+      this.oferta.especialistasExternos = [];
+
       this.dialog = true;
     },
     getDetalles(item) {
@@ -1004,6 +1042,7 @@ export default {
       }
     },
     save(method) {
+      this.oferta.cliente = true;
       const url = api.getUrl("contratacion", "Contratos");
       if (method === "POST") {
         this.axios.post(url, this.oferta).then(
@@ -1018,6 +1057,7 @@ export default {
         );
       }
       if (method === "PUT") {
+        this.oferta.cliente = true;
         this.axios.put(`${url}/${this.oferta.id}`, this.oferta).then(
           response => {
             this.getResponse(response);
@@ -1077,6 +1117,7 @@ export default {
       this.dialog2 = false;
       this.dialog6 = false;
       this.dialog7 = false;
+      this.dialog9 = false;
       this.oferta = {
         entidad: {},
         adminContrato: {},
@@ -1121,7 +1162,7 @@ export default {
       }
     },
     GetVencimientoOferta() {
-      const url = api.getUrl("contratacion", "contratos/VencimientoOferta");
+      const url = api.getUrl("contratacion", "contratos/VencimientoOferta?cliente=true");
       this.axios.get(url).then(
         response => {
           this.vencimientoOfertas = response.data;
@@ -1182,7 +1223,12 @@ export default {
           console.log(error);
         }
       );
-    }
+    },
+    confirmAprobarOferta(item) {
+      this.oferta = Object.assign({}, item);
+      this.dialog9 = true;
+    },
+    aprobarOferta(item) {}
   }
 };
 </script>

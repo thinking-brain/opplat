@@ -5,7 +5,7 @@
         <VueApexCharts type="bar" :options="contratosOptions" :series="contratosProximosVencer" />
       </v-col>
         <v-col cols="6">
-        <v-card flat class="mr-3">
+        <v-card flat class="mr-3 mt-12">
           <table>
             <thead>
               <tr>
@@ -30,6 +30,10 @@
               <tr>
                 <td class="text-left negrita">Este Año</td>
                 <td class="text-center">{{contratosProximosVencer[0].data[3]}}</td>
+              </tr>
+              <tr>
+                <th class="text-left negrita">Próximo Año</th>
+                <th class="text-center">{{contratosProximosVencer[0].data[4]}}</th>
               </tr>
             </tbody>
           </table>
@@ -85,7 +89,7 @@ export default {
       contratosProximosVencer: [
         {
           name: "Contratos Próximos a Vencer",
-          data: [0, 0, 0, 0,]
+          data: [0, 0, 0, 0,0]
         },
       ],
       contratosOptions: {
@@ -121,6 +125,7 @@ export default {
             "En 3 Meses",
             "En 6 Meses",
             "Este Año",
+            "Próximo Año",
           ]
         },
         yaxis: {

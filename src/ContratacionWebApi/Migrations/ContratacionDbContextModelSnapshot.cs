@@ -44,6 +44,8 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<bool>("AprobJuridico");
 
+                    b.Property<bool>("Cliente");
+
                     b.Property<int>("EntidadId");
 
                     b.Property<int>("Estado");

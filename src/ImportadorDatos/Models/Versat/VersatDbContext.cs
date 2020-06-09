@@ -34,6 +34,9 @@ namespace ImportadorDatos.Models.Versat {
         public virtual DbSet<ConComprobanteoperacion> ConComprobanteoperacion { get; set; }
         public virtual DbSet<GenTrabajador> GenTrabajador { get; set; }
         public virtual DbSet<GenEntidad> GenEntidad { get; set; }
+        public virtual DbSet<GenCtaBancoEntidad> GenCtaBancoEntidad { get; set; }
+        public virtual DbSet<GenSucursalBanco> GenSucursalBanco { get; set; }
+        public virtual DbSet<GenClasifBanco> GenClasifBanco { get; set; }
 
         //gastos
         public virtual DbSet<ConRegistroanexo> ConRegistroanexo { get; set; }
@@ -1450,15 +1453,15 @@ namespace ImportadorDatos.Models.Versat {
             });
 
             modelBuilder.Entity<GenEntidad> (entity => {
-                entity.HasKey (e => e.Identidad)
+                entity.HasKey (e => e.IdEntidad)
                     .ForSqlServerIsClustered (false);
 
                 entity.ToTable ("gen_entidad");
 
-                entity.HasIndex (e => e.Identidad)
+                entity.HasIndex (e => e.IdEntidad)
                     .ForSqlServerIsClustered ();
 
-                entity.Property (e => e.Identidad).HasColumnName ("identidad");
+                entity.Property (e => e.IdEntidad).HasColumnName ("identidad");
 
                 entity.Property (e => e.NIT)
                     .HasColumnName ("NIT");
@@ -1496,46 +1499,45 @@ namespace ImportadorDatos.Models.Versat {
 
             });
             modelBuilder.Entity<GenCtaBancoEntidad> (entity => {
-                entity.HasKey (e => e.Identidad).ForSqlServerIsClustered (false);
-
+                entity.HasKey (e => e.NumeroCta)
+                    .ForSqlServerIsClustered (false);
                 entity.ToTable ("gen_ctabancoentidad");
-
-                entity.HasIndex (e => e.Identidad).ForSqlServerIsClustered ();
-
-                entity.Property (e => e.Identidad).HasColumnName ("identidad");
+                entity.HasIndex (e => e.NumeroCta).ForSqlServerIsClustered ();
 
                 entity.Property (e => e.NumeroCta).HasColumnName ("numerocta");
 
+                entity.Property (e => e.IdEntidad).HasColumnName ("identidad");
+
                 entity.Property (e => e.IdMoneda).HasColumnName ("idcuenta");
 
-                entity.Property (e => e.IdSucursal).HasColumnName ("idsucursal");
+                entity.Property (e => e.Idsucursal).HasColumnName ("idsucursal");
 
             });
             modelBuilder.Entity<GenSucursalBanco> (entity => {
-                entity.HasKey (e => e.IdSucursal)
+                entity.HasKey (e => e.Idsucursal)
                     .ForSqlServerIsClustered (false);
 
                 entity.ToTable ("gen_sucursalbanco");
 
-                entity.HasIndex (e => e.IdSucursal).ForSqlServerIsClustered ();
+                entity.HasIndex (e => e.Idsucursal).ForSqlServerIsClustered ();
 
-                entity.Property (e => e.IdSucursal).HasColumnName ("idsucursal");
+                entity.Property (e => e.Idsucursal).HasColumnName ("idsucursal");
 
                 entity.Property (e => e.Numero).HasColumnName ("numero");
 
                 entity.Property (e => e.Direccion).HasColumnName ("direccion");
 
-                entity.Property (e => e.IdClasifBanco).HasColumnName ("idclasifbanco");
+                entity.Property (e => e.Idclasifbanco).HasColumnName ("idclasifbanco");
 
             });
             modelBuilder.Entity<GenClasifBanco> (entity => {
-                entity.HasKey (e => e.IdClasifBanco).ForSqlServerIsClustered (false);
+                entity.HasKey (e => e.Idclasifbanco).ForSqlServerIsClustered (false);
 
                 entity.ToTable ("gen_clasifbanco");
 
-                entity.HasIndex (e => e.IdClasifBanco).ForSqlServerIsClustered ();
+                entity.HasIndex (e => e.Idclasifbanco).ForSqlServerIsClustered ();
 
-                entity.Property (e => e.IdClasifBanco).HasColumnName ("idclasifbanco");
+                entity.Property (e => e.Idclasifbanco).HasColumnName ("idclasifbanco");
 
                 entity.Property (e => e.Nombre).HasColumnName ("nombre");
 

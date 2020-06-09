@@ -3,15 +3,17 @@ using System;
 using ImportadorDatos.Models.EnlaceVersat;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ImportadorDatos.Migrations
 {
     [DbContext(typeof(EnlaceVersatDbContext))]
-    partial class EnlaceVersatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200608143902_New")]
+    partial class New
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

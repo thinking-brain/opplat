@@ -424,9 +424,14 @@ namespace ImportadorDatos.Jobs {
             var entidadesVersat = _vContext.Set<GenEntidad> ();
             var entidadesImportadas = _enlaceContext.Set<ImportadorDatos.Models.EnlaceVersat.Entidad> ()
                 .Select (c => c.EntidadVersatId).ToList ();
+            var ctaBancoEntidadVersat = _vContext.Set<GenCtaBancoEntidad> ();
+            var sucursalBancoVersat = _vContext.Set<GenSucursalBanco> ();
+            var monedaVersat = _vContext.Set<GenMoneda> ();
+            var clasifBancoVersat = _vContext.Set<GenClasifBanco> ();
+            var cuentasBancariasImportadas = _enlaceContext.Set<ImportadorDatos.Models.EnlaceVersat.CuentaBancaria> ();
 
             foreach (var entidad in entidadesVersat) {
-                if (!entidadesImportadas.Contains (entidad.Identidad)) {
+                if (!entidadesImportadas.Contains (entidad.IdEntidad)) {
                     var estado = Estados.Activo;
                     if (entidad.Activo == null || !entidad.Activo.Value) {
                         estado = Estados.Baja;
@@ -455,11 +460,29 @@ namespace ImportadorDatos.Jobs {
                             }
                         }
                     }
+                    // if (ctaBancoEntidadVersat != null) {
+                    //     foreach (var item in ctaBancoEntidadVersat) {
+                    //         if (item.IdEntidad == entidad.IdEntidad) {
+                    //             var Moneda = new ContratacionWebApi.Models.Moneda ();
+                    //             var sucursalBanco = sucursalBancoVersat.Where (s => s.Idsucursal == item.Idsucursal);
+                    //             var clasifBanco = clasifBancoVersat.Where (c => c.Idclasifbanco == sucursalBanco.Idclasifbanco);
+
+                    //             var nuevaCtaBancoEntidad = new ContratacionWebApi.Models.CuentaBancaria {
+                    //                 NumeroCuenta = item.NumeroCta,
+                    //                 NumeroSucursal = sucursalBanco.Numero,
+                    //                 NombreSucursal = clasifBanco.Nombre,
+                    //                 Moneda = Moneda.CUP,
+                    //                 EntidadId = entidad.IdEntidad
+                    //             };
+                    //         }
+                    //     }
+                    // }
+
                     _contratacionContext.SaveChanges ();
 
                     _enlaceContext.Add (new ImportadorDatos.Models.EnlaceVersat.Entidad {
                         EntidadId = nuevaEntidad.Id,
-                            EntidadVersatId = entidad.Identidad,
+                            EntidadVersatId = entidad.IdEntidad,
                             Codigo = entidad.Codigo,
                             NIT = entidad.NIT,
                     });

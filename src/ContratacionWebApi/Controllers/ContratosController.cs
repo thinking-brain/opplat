@@ -28,7 +28,7 @@ namespace ContratacionWebApi.Controllers {
 
         // GET contratacion/Contratos/tipoTramite(Oferta o contrato)
         [HttpGet]
-        public ActionResult GetAll (string tipoTramite, string filtro) {
+        public ActionResult GetAll (string tipoTramite, string filtro, bool cliente) {
             var trabajadores = context_rh.Trabajador.ToList ();
             var contratoId_DictaminadorId = context.ContratoId_DictaminadorId.ToList ();
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
@@ -59,6 +59,7 @@ namespace ContratacionWebApi.Controllers {
                     EstadoNombre = c.Estado.ToString (),
                     AprobJuridico = c.AprobJuridico,
                     AprobEconomico = c.AprobEconomico,
+                    Cliente = c.Cliente,
                     AprobComitContratacion = c.AprobComitContratacion,
                     OfertVence = (c.FechaDeVenOferta - DateTime.Now).Days,
                     ContVence = (c.FechaVenContrato - DateTime.Now).Days,
@@ -126,7 +127,11 @@ namespace ContratacionWebApi.Controllers {
                     contratos = contratos.Where (c => c.ContVence < tiempoVenContrato.ContratosVencidos);
                 }
             }
-
+            if (cliente == true) {
+                contratos = contratos.Where (c => c.Cliente == true);
+            } else {
+                contratos = contratos.Where (c => c.Cliente == false);
+            }
             return Ok (contratos);
         }
 
@@ -149,7 +154,7 @@ namespace ContratacionWebApi.Controllers {
                     Id = contratoDto.Id,
                     Nombre = contratoDto.Nombre,
                     Tipo = contratoDto.Tipo,
-                    AdminContratoId = contratoDto.AdminContratoId,
+                    AdminContratoId = contratoDto.AdminContrato,
                     EntidadId = contratoDto.Entidad,
                     ObjetoDeContrato = contratoDto.ObjetoDeContrato,
                     Numero = contratoDto.Numero,
@@ -157,6 +162,7 @@ namespace ContratacionWebApi.Controllers {
                     MontoCuc = contratoDto.MontoCuc,
                     MontoUsd = contratoDto.MontoUsd,
                     TerminoDePago = contratoDto.TerminoDePago,
+                    Cliente = contratoDto.Cliente
                 };
                 if (contratoDto.FechaDeRecepcion != null) {
                     contrato.FechaDeRecepcion = contratoDto.FechaDeRecepcion;
@@ -205,8 +211,8 @@ namespace ContratacionWebApi.Controllers {
                 }
 
                 //Agregar Especialistas externos como Dictaminador/es del contrato 
-                if (contratoDto.EspExterno != null) {
-                    foreach (var item in contratoDto.EspExterno) {
+                if (contratoDto.EspecialistasExternos != null) {
+                    foreach (var item in contratoDto.EspecialistasExternos) {
                     var espExternoId_ContratoId = new EspExternoId_ContratoId {
                     ContratoId = contrato.Id,
                     EspecialistaExternoId = item
@@ -239,7 +245,7 @@ namespace ContratacionWebApi.Controllers {
             c.Id = contrato.Id;
             c.Nombre = contrato.Nombre;
             c.Tipo = contrato.Tipo;
-            c.AdminContratoId = contrato.AdminContratoId;
+            c.AdminContratoId = contrato.AdminContrato;
             c.EntidadId = contrato.Entidad;
             c.ObjetoDeContrato = contrato.ObjetoDeContrato;
             c.Numero = contrato.Numero;
@@ -294,15 +300,15 @@ namespace ContratacionWebApi.Controllers {
             }
 
             //Agregar Especialistas externos como Dictaminador/es del contrato 
-            if (contrato.EspExterno != null) {
+            if (contrato.EspecialistasExternos != null) {
                 var espExternos = context.EspExternoId_ContratoId.Where (s => s.ContratoId == contrato.Id);
                 foreach (var item in espExternos) {
                     context.EspExternoId_ContratoId.Remove (item);
                 }
-                foreach (var item in contrato.EspExterno) {
+                foreach (var item in contrato.EspecialistasExternos) {
                     var espExternoId_ContratoId = new EspExternoId_ContratoId {
                         ContratoId = contrato.Id,
-                        EspecialistaExternoId = item
+                        EspecialistaExternoId = 1
                     };
                     context.EspExternoId_ContratoId.Add (espExternoId_ContratoId);
                     context.SaveChanges ();
@@ -391,7 +397,7 @@ namespace ContratacionWebApi.Controllers {
 
         // GET: contratacion/contratos/VencimientoContrato 
         [HttpGet ("/contratacion/contratos/VencimientoContrato")]
-        public IActionResult GetVencimientoContrato () {
+        public IActionResult GetVencimientoContrato (bool cliente) {
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             List<int> cantSegunFecha = new List<int> ();
             var tiempoVenContratos = context.TiempoVenContratos.ToList ();
@@ -399,7 +405,11 @@ namespace ContratacionWebApi.Controllers {
             var contratos = context.Contratos
                 .Where (c => c.FechaDeFirmado != FechaPorDefecto &&
                     c.AprobComitContratacion == true && c.Estado == Estado.Aprobado);
-
+            if (cliente == true) {
+                contratos = contratos.Where (c => c.Cliente == true);
+            } else {
+                contratos = contratos.Where (c => c.Cliente == false);
+            }
             // Contratos vencidos           
             cantSegunFecha.Add (contratos
                 .Where (c => (c.FechaVenContrato - DateTime.Now).Days < tiempoVenContrato.ContratosVencidos).Count ());
@@ -420,7 +430,7 @@ namespace ContratacionWebApi.Controllers {
 
         // GET: contratacion/contratos/VencimientoOferta 
         [HttpGet ("/contratacion/contratos/VencimientoOferta")]
-        public IActionResult GetVencimientoOferta () {
+        public IActionResult GetVencimientoOferta (bool cliente) {
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             List<int> cantSegunFecha = new List<int> ();
             var tiempoVenOfertas = context.TiempoVenOfertas.ToList ();
@@ -428,7 +438,11 @@ namespace ContratacionWebApi.Controllers {
             var ofertas = context.Contratos
                 .Where (c => c.FechaDeFirmado == FechaPorDefecto &&
                     c.AprobComitContratacion == false && c.Estado != Estado.Aprobado);
-
+            if (cliente == true) {
+                ofertas = ofertas.Where (c => c.Cliente == true);
+            } else {
+                ofertas = ofertas.Where (c => c.Cliente == false);
+            }
             // Ofertas vencidos           
             cantSegunFecha.Add (ofertas
                 .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days < tiempoVenOferta.OfertasVencidas).Count ());
@@ -467,7 +481,7 @@ namespace ContratacionWebApi.Controllers {
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             var cantOfertas_x_Mes = new int[12];
             var cantOfertVen_x_Mes = new int[12];
-            var contratosProximosVencer = new int[4];
+            var contratosProximosVencer = new int[5];
             var tiempoVenOfertas = context.TiempoVenOfertas.ToList ();
             var tiempoVenOferta = tiempoVenOfertas[0];
 
@@ -517,9 +531,17 @@ namespace ContratacionWebApi.Controllers {
 
                 // Contratos Próximos a Vencer //
                 contratosProximosVencer[0] = contratos.Where (c => c.FechaVenContrato.Month == DateTime.Now.Month).Count ();
-                contratosProximosVencer[1] = contratos.Where (c => c.FechaVenContrato.Month <= (DateTime.Now.Month + 3)).Count ();
-                contratosProximosVencer[2] = contratos.Where (c => c.FechaVenContrato.Month <= (DateTime.Now.Month + 6)).Count ();
+
+                contratosProximosVencer[1] = contratos.Where (c => c.FechaVenContrato.Month == (DateTime.Now.Month + 1) ||
+                    c.FechaVenContrato.Month == (DateTime.Now.Month + 2) || c.FechaVenContrato.Month == (DateTime.Now.Month + 3)).Count ();
+
+                contratosProximosVencer[2] = contratos.Where (c => c.FechaVenContrato.Month == (DateTime.Now.Month + 1) ||
+                    c.FechaVenContrato.Month == (DateTime.Now.Month + 2) || c.FechaVenContrato.Month == (DateTime.Now.Month + 3) ||
+                    c.FechaVenContrato.Month == (DateTime.Now.Month + 4) || c.FechaVenContrato.Month == (DateTime.Now.Month + 5) ||
+                    c.FechaVenContrato.Month == (DateTime.Now.Month + 6)).Count ();
+
                 contratosProximosVencer[3] = contratos.Where (c => c.FechaVenContrato.Year == DateTime.Now.Year).Count ();
+                contratosProximosVencer[4] = contratos.Where (c => c.FechaVenContrato.Year == DateTime.Now.Year + 1).Count ();
                 dashboard.ContratosProximosVencer = contratosProximosVencer;
                 // Contratos Próximos a Vencer //
             }

@@ -419,22 +419,40 @@ export const protectedRoute = [
         component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Dashboard.vue'),
       },
       {
-        path: '/contratacion/Contratos',
-        name: 'Contratos',
+        path: '/contratacion/ContratosCliente',
+        name: 'ContratosCliente',
         meta: {
-          title: 'Contratos',
+          title: 'ContratosCliente',
           requiresAuth: true,
         },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Contratos.vue'),
+        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/ContratosCliente.vue'),
       },
       {
-        path: '/contratacion/Ofertas',
-        name: 'Ofertas',
+        path: '/contratacion/ContratosPrestador',
+        name: 'ContratosPrestador',
         meta: {
-          title: 'Ofertas',
+          title: 'ContratosPrestador',
           requiresAuth: true,
         },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Ofertas.vue'),
+        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/ContratosPrestador.vue'),
+      },
+      {
+        path: '/contratacion/OfertasClientes',
+        name: 'OfertasClientes',
+        meta: {
+          title: 'OfertasClientes',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/OfertasClientes.vue'),
+      },
+      {
+        path: '/contratacion/OfertasPrestador',
+        name: 'OfertasPrestador',
+        meta: {
+          title: 'OfertasPrestador',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/OfertasPrestador.vue'),
       },
       {
         path: '/contratacion/Config',

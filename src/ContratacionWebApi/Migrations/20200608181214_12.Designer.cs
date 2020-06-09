@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    [Migration("20200605002231_modelBuilderEspExternoId_ContratoId")]
-    partial class modelBuilderEspExternoId_ContratoId
+    [Migration("20200608181214_12")]
+    partial class _12
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -45,6 +45,8 @@ namespace ContratacionWebApi.Migrations
                     b.Property<bool>("AprobEconomico");
 
                     b.Property<bool>("AprobJuridico");
+
+                    b.Property<bool>("Cliente");
 
                     b.Property<int>("EntidadId");
 

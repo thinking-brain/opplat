@@ -11,7 +11,7 @@ namespace ContratacionWebApi.Models {
         public string Nombre { get; set; }
         public string Codigo { get; set; }
         public Tipo Tipo { get; set; }
-        public int AdminContratoId { get; set; }
+        public int AdminContrato { get; set; }
         public int Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
         public string Numero { get; set; }
@@ -50,10 +50,10 @@ namespace ContratacionWebApi.Models {
         public int TerminoDePago { get; set; }
         public string Usuario { get; set; }
         public List<int> Dictaminadores { get; set; }
-        public List<int> EspExterno { get; set; }
+        public List<int> EspecialistasExternos { get; set; }
         public bool AprobJurico { get; set; }
         public bool AprobEconomico { get; set; }
         public bool AprobComitContratacion { get; set; }
-
+        public bool Cliente { get; set; }
     }
 }

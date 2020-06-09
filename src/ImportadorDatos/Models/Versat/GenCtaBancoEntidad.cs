@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace ImportadorDatos.Models.Versat {
     public partial class GenCtaBancoEntidad {
-        public int Identidad { get; set; }
+        public int IdEntidad { get; set; }
         public string NumeroCta { get; set; }
         public int IdMoneda { get; set; }
-        public int IdSucursal { get; set; }
+        public int Idsucursal { get; set; }
     }
 }
