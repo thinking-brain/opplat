@@ -35,7 +35,7 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form ref="form">
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs12 class="px-3">
@@ -44,7 +44,6 @@
                       item-text="nombre_Completo"
                       item-value="id"
                       :items="trabajadores"
-                      :filter="activeFilter"
                       :rules="dictaminadoresRules"
                       cache-items
                       label="Administradores"

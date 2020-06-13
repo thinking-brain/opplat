@@ -6,8 +6,6 @@ namespace ImportadorDatos.Models.Versat
 {
     public partial class GenMoneda
     {
-
-
         public int Idmoneda { get; set; }
         public string Nombre { get; set; }
         public string Sigla { get; set; }

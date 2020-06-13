@@ -84,5 +84,11 @@ namespace ImportadorDatos.Controllers
             importador.ImportarRegistrosDeGastos();
             return Ok("Registros de gastos importados correctamente.");
         }
+        [HttpGet("entidades")]
+        public async Task<IActionResult> GetEntidades()
+        {
+            importador.ImportarEntidades();
+            return Ok("Entidades importadas.");
+        }
     }
 }

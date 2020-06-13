@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+// using RhWebApi.Models;
 
 namespace ContratacionWebApi.Models {
     public class Contrato {
@@ -11,6 +12,7 @@ namespace ContratacionWebApi.Models {
         public Tipo Tipo { get; set; }
         //Trabajador
         public int AdminContratoId { get; set; }
+        // public Trabajador AdminContrato { get; set; }
         public int EntidadId { get; set; }
         public virtual Entidad Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
@@ -34,7 +36,7 @@ namespace ContratacionWebApi.Models {
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Firmado")]
-        public DateTime? FechaDeFirmado { get; set; }
+        public DateTime FechaDeFirmado { get; set; }
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Vencimiento")]
@@ -52,7 +54,7 @@ namespace ContratacionWebApi.Models {
         public ICollection<DictaminadorContrato> Dictaminadores { get; set; }
 
         [NotMapped]
-        public ICollection<EspecialistaExterno> EspExterno { get; set; }
+        public List<EspExternoId_ContratoId> EspExternoId_ContratoId { get; set; }
         //Término de pago en días
         [Display (Name = "Término de Pago")]
         public int TerminoDePago { get; set; }
@@ -63,21 +65,22 @@ namespace ContratacionWebApi.Models {
         public bool AprobJuridico { get; set; }
         public bool AprobComitContratacion { get; set; }
         public Estado Estado { get; set; }
+        public bool Cliente { get; set; }
         public virtual ICollection<Suplemento> Suplementos { get; set; }
 
-        [NotMapped]
-        public string Descripcion => $"{Entidad.Nombre}-{Tipo} ({Numero})";
+        // [NotMapped]
+        // public string Descripcion => $"{Entidad.Nombre}-{Tipo} ({Numero})";
 
-        [NotMapped]
-        public Estado EstadoActual {
-            get {
-                var estadoActual = Estados.OrderBy (e => e.Fecha).Last ();
-                if (estadoActual == null) {
-                    return Estado.SinEstado;
-                }
-                return estadoActual.Estado;
-            }
-        }
+        // [NotMapped]
+        // public Estado EstadoActual {
+        //     get {
+        //         var estadoActual = Estados.OrderBy (e => e.Fecha).Last ();
+        //         if (estadoActual == null) {
+        //             return Estado.SinEstado;
+        //         }
+        //         return estadoActual.Estado;
+        //     }
+        // }
 
         public Contrato () {
             Estados = new HashSet<HistoricoEstadoContrato> ();

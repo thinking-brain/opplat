@@ -1,8 +1,8 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ContratacionWebApi.Models
-{
+namespace ContratacionWebApi.Models {
     public class EspecialistaExterno {
         public int Id { get; set; }
 
@@ -20,6 +20,7 @@ namespace ContratacionWebApi.Models
         public string Area { get; set; }
         public string Departamento { get; set; }
         public string Cargo { get; set; }
+        public List<EspExternoId_ContratoId> EspExternoId_ContratoId { get; set; }
 
         [NotMapped]
         private string nombreCompleto;

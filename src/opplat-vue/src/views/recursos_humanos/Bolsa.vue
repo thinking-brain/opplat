@@ -42,7 +42,6 @@
                         v-model="sexo"
                         item-text="nombre"
                         :items="sexos"
-                        :filter="activeFilter"
                         cache-items
                         clearable
                         label="Sexo"
@@ -54,7 +53,6 @@
                         v-model="colordePiel"
                         item-text="nombre"
                         :items="coloresdePiel"
-                        :filter="activeFilter"
                         cache-items
                         clearable
                         label="Color de Piel"
@@ -66,7 +64,6 @@
                         v-model="nivelEscolaridad"
                         item-text="nombre"
                         :items="nivelesEscolaridad"
-                        :filter="activeFilter"
                         cache-items
                         clearable
                         label="Nivel de Escolaridad"
@@ -78,7 +75,6 @@
                         v-model="perfilOcupacional"
                         item-text="nombre"
                         :items="PerfilesOcupacionales"
-                        :filter="activeFilter"
                         cache-items
                         clearable
                         label="Perfil Ocupacional"
@@ -157,7 +153,7 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form ref="form">
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs3 class="px-3">
@@ -207,7 +203,6 @@
                       item-text="nombre"
                       item-value="id"
                       :items="Municipios"
-                      :filter="activeFilter"
                       label="Municipio"
                       required
                       clearable
@@ -229,7 +224,6 @@
                       item-text="nombre"
                       item-value="id"
                       :items="PerfilesOcupacionales"
-                      :filter="activeFilter"
                       cache-items
                       clearable
                       label="Perfil "
@@ -310,7 +304,6 @@
                       v-model="trabajador.nombre_Referencia"
                       item-text="nombre_Completo"
                       :items="trabajadoresReferencia"
-                      :filter="activeFilter"
                       clearable
                       label="Nombre de la Refencia"
                     ></v-autocomplete>
@@ -483,7 +476,6 @@
                                       item-text="nombre_Completo"
                                       item-value="id"
                                       :items="trabajadores"
-                                      :filter="activeFilter"
                                       label="Nombre del Trabajador"
                                       disabled
                                     ></v-autocomplete>

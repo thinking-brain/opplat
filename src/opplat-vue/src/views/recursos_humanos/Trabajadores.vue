@@ -33,7 +33,6 @@
                         v-model="unidadOrganizativa"
                         item-text="nombre"
                         :items="unidadesOrganizativas"
-                        :filter="activeFilter"
                         cache-items
                         clearable
                         label="Unidad Organizativa"
@@ -47,7 +46,6 @@
                         v-model="cargo"
                         item-text="nombre"
                         :items="cargos"
-                        :filter="activeFilter"
                         cache-items
                         clearable
                         label="Cargo"
@@ -59,7 +57,6 @@
                         v-model="sexo"
                         item-text="nombre"
                         :items="sexos"
-                        :filter="activeFilter"
                         cache-items
                         clearable
                         label="Sexo"
@@ -71,7 +68,6 @@
                         v-model="colordePiel"
                         item-text="nombre"
                         :items="coloresdePiel"
-                        :filter="activeFilter"
                         cache-items
                         clearable
                         label="Color de Piel"
@@ -83,7 +79,6 @@
                         v-model="nivelDeEscolaridad"
                         item-text="nombre"
                         :items="nivelesEscolaridad"
-                        :filter="activeFilter"
                         cache-items
                         clearable
                         label="Nivel de Escolaridad"
@@ -95,7 +90,6 @@
                         v-model="estado"
                         item-text="nombre"
                         :items="estados"
-                        :filter="activeFilter"
                         cache-items
                         clearable
                         label="Estado"
@@ -127,7 +121,6 @@
                         v-model="perfil"
                         item-text="nombre"
                         :items="PerfilesOcupacionales"
-                        :filter="activeFilter"
                         cache-items
                         clearable
                         label="Perfil Ocupacional"
@@ -139,7 +132,6 @@
                         v-model="municipio"
                         item-text="nombre"
                         :items="Municipios"
-                        :filter="activeFilter"
                         label="Municipio"
                         required
                         clearable
@@ -188,7 +180,7 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form ref="form">
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs3 class="px-3">
@@ -238,7 +230,6 @@
                       item-text="nombre"
                       item-value="id"
                       :items="Municipios"
-                      :filter="activeFilter"
                       label="Municipio"
                       required
                       clearable
@@ -259,7 +250,6 @@
                       v-model="trabajador.perfilOcupacional"
                       item-text="nombre"
                       :items="PerfilesOcupacionales"
-                      :filter="activeFilter"
                       cache-items
                       clearable
                       label="Perfil Ocupacional"
@@ -535,7 +525,6 @@
                                       item-text="nombre_Completo"
                                       item-value="id"
                                       :items="trabajadores"
-                                      :filter="activeFilter"
                                       cache-items
                                       label="Nombre del Trabajador"
                                       disabled
@@ -616,7 +605,6 @@
                                       item-text="nombre_Completo"
                                       item-value="id"
                                       :items="trabajadores"
-                                      :filter="activeFilter"
                                       cache-items
                                       label="Nombre del Trabajador"
                                       disabled
@@ -630,7 +618,6 @@
                                       item-text="nombre"
                                       item-value="id"
                                       :items="CausasDeBajas"
-                                      :filter="activeFilter"
                                       cache-items
                                       clearable
                                       label="Causa de Baja"

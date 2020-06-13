@@ -30,7 +30,7 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form ref="form" >
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs3 class="px-2">
@@ -53,11 +53,7 @@
                     ></v-text-field>
                   </v-flex>
                   <v-flex xs2 class="px-2" v-if="editedIndex!=-1">
-                    <v-text-field
-                      v-model="entidad.codigo"
-                      label="Código"
-                      clearable
-                    ></v-text-field>
+                    <v-text-field v-model="entidad.codigo" label="Código" clearable></v-text-field>
                   </v-flex>
                   <v-flex xs3 class="px-2">
                     <v-text-field
@@ -77,7 +73,6 @@
                       item-text="nombre"
                       item-value="id"
                       :items="sectores"
-                      :filter="activeFilter"
                       label="Sector"
                     ></v-select>
                   </v-flex>
@@ -259,21 +254,19 @@
                     </v-flex>
                     <v-flex cols="2" class="pr-3" v-if="cantCuentas>=1">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[0].nombreSucursalId"
+                        v-model="entidad.cuentasBancarias[0].nombreSucursal"
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
                     <v-flex cols="2" class="pr-3" v-if="cantCuentas>=1">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[0].monedaId"
+                        v-model="entidad.cuentasBancarias[0].moneda"
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>
@@ -295,21 +288,19 @@
                     </v-flex>
                     <v-flex cols="3" class="px-2">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[1].nombreSucursalId"
+                        v-model="entidad.cuentasBancarias[1].nombreSucursal"
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
                     <v-flex cols="3" class="px-2">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[1].monedaId"
+                        v-model="entidad.cuentasBancarias[1].moneda"
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>
@@ -331,21 +322,19 @@
                     </v-flex>
                     <v-flex cols="3" class="px-2">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[2].nombreSucursalId"
+                        v-model="entidad.cuentasBancarias[2].nombreSucursal"
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
                     <v-flex cols="3" class="px-2">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[2].monedaId"
+                        v-model="entidad.cuentasBancarias[2].moneda"
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>
@@ -367,21 +356,19 @@
                     </v-flex>
                     <v-flex cols="3" class="px-2">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[3].nombreSucursalId"
+                        v-model="entidad.cuentasBancarias[3].nombreSucursal"
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
                     <v-flex cols="3" class="px-2">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[3].monedaId"
+                        v-model="entidad.cuentasBancarias[3].moneda"
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>
@@ -403,21 +390,19 @@
                     </v-flex>
                     <v-flex cols="3" class="px-2">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[4].nombreSucursalId"
+                        v-model="entidad.cuentasBancarias[4].nombreSucursal"
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
                     <v-flex cols="3" class="px-2">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[4].monedaId"
+                        v-model="entidad.cuentasBancarias[4].moneda"
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>
@@ -439,21 +424,19 @@
                     </v-flex>
                     <v-flex cols="3" class="px-2">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[5].nombreSucursalId"
+                        v-model="entidad.cuentasBancarias[5].nombreSucursal"
                         item-text="nombre"
                         item-value="id"
                         :items="nombreSuces"
-                        :filter="activeFilter"
                         label="Nombre Sucursal"
                       ></v-autocomplete>
                     </v-flex>
                     <v-flex cols="3" class="px-2">
                       <v-autocomplete
-                        v-model="entidad.cuentasBancarias[5].monedaId"
+                        v-model="entidad.cuentasBancarias[5].moneda"
                         item-text="nombre"
                         item-value="id"
                         :items="monedas"
-                        :filter="activeFilter"
                         label="Moneda"
                       ></v-autocomplete>
                     </v-flex>
@@ -494,13 +477,13 @@
                 <v-col cols="8">
                   <v-card flat>
                     <v-row no-gutters justify="start">
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="9" class="pa-2">
                         <v-list-item-title>
                           <strong>Nombre del Proveedor</strong>
                         </v-list-item-title>
                         <v-list-item-subtitle>{{entidad.nombre}}</v-list-item-subtitle>
                       </v-col>
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="3" class="pa-2">
                         <v-list-item-title>
                           <strong>Código</strong>
                         </v-list-item-title>
@@ -560,7 +543,7 @@
                     </v-card-text>
                   </v-card>
                 </v-col>
-                <!-- Contactos de la Entidad -->
+                <!-- /Contactos de la Entidad -->
               </v-row>
             </v-container>
           </v-card>
@@ -629,43 +612,43 @@ export default {
     monedas: [],
     sectores: [],
     entidad: {
-      codigo:null,
+      codigo: null,
       cuentasBancarias: [
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         },
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         },
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         },
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         },
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         },
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         }
       ],
       telefonos: [
@@ -709,8 +692,8 @@ export default {
         value: "numeroCuenta"
       },
       { text: "Número Sucursal", value: "numeroSucursal" },
-      { text: "Nombre Sucursal", value: "nombreSucursal" },
-      { text: "Moneda", value: "moneda" }
+      { text: "Nombre Sucursal", value: "nombreSucursalString" },
+      { text: "Moneda", value: "monedaString" }
     ],
     date: null
   }),
@@ -929,38 +912,38 @@ export default {
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           }
         ];
       }
@@ -969,38 +952,38 @@ export default {
           {
             numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           }
         ];
       }
@@ -1009,38 +992,38 @@ export default {
           {
             numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
-            monedaId: item.cuentasBancarias[1].monedaId
+            nombreSucursal: item.cuentasBancarias[1].nombreSucursal,
+            moneda: item.cuentasBancarias[1].moneda
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           }
         ];
       }
@@ -1049,39 +1032,39 @@ export default {
           {
             numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
-            monedaId: item.cuentasBancarias[1].monedaId
+            nombreSucursal: item.cuentasBancarias[1].nombreSucursal,
+            moneda: item.cuentasBancarias[1].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
-            monedaId: item.cuentasBancarias[2].monedaId
+            nombreSucursal: item.cuentasBancarias[2].nombreSucursal,
+            moneda: item.cuentasBancarias[2].moneda
           },
 
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           }
         ];
       }
@@ -1090,38 +1073,38 @@ export default {
           {
             numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
-            monedaId: item.cuentasBancarias[1].monedaId
+            nombreSucursal: item.cuentasBancarias[1].nombreSucursal,
+            moneda: item.cuentasBancarias[1].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
-            monedaId: item.cuentasBancarias[2].monedaId
+            nombreSucursal: item.cuentasBancarias[2].nombreSucursal,
+            moneda: item.cuentasBancarias[2].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[3].nombreSucursalId,
-            monedaId: item.cuentasBancarias[3].monedaId
+            nombreSucursal: item.cuentasBancarias[3].nombreSucursal,
+            moneda: item.cuentasBancarias[3].moneda
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           }
         ];
       }
@@ -1130,38 +1113,38 @@ export default {
           {
             numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
-            monedaId: item.cuentasBancarias[1].monedaId
+            nombreSucursal: item.cuentasBancarias[1].nombreSucursal,
+            moneda: item.cuentasBancarias[1].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
-            monedaId: item.cuentasBancarias[2].monedaId
+            nombreSucursal: item.cuentasBancarias[2].nombreSucursal,
+            moneda: item.cuentasBancarias[2].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[3].nombreSucursalId,
-            monedaId: item.cuentasBancarias[3].monedaId
+            nombreSucursal: item.cuentasBancarias[3].nombreSucursal,
+            moneda: item.cuentasBancarias[3].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[4].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[4].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[4].nombreSucursalId,
-            monedaId: item.cuentasBancarias[4].monedaId
+            nombreSucursal: item.cuentasBancarias[4].nombreSucursal,
+            moneda: item.cuentasBancarias[4].moneda
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           }
         ];
       }
@@ -1170,38 +1153,38 @@ export default {
           {
             numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
-            monedaId: item.cuentasBancarias[1].monedaId
+            nombreSucursal: item.cuentasBancarias[1].nombreSucursal,
+            moneda: item.cuentasBancarias[1].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
-            monedaId: item.cuentasBancarias[2].monedaId
+            nombreSucursal: item.cuentasBancarias[2].nombreSucursal,
+            moneda: item.cuentasBancarias[2].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[3].nombreSucursalId,
-            monedaId: item.cuentasBancarias[3].monedaId
+            nombreSucursal: item.cuentasBancarias[3].nombreSucursal,
+            moneda: item.cuentasBancarias[3].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[4].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[4].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[4].nombreSucursalId,
-            monedaId: item.cuentasBancarias[4].monedaId
+            nombreSucursal: item.cuentasBancarias[4].nombreSucursal,
+            moneda: item.cuentasBancarias[4].moneda
           },
           {
             numeroCuenta: item.cuentasBancarias[5].numeroCuenta,
             numeroSucursal: item.cuentasBancarias[5].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[5].nombreSucursalId,
-            monedaId: item.cuentasBancarias[5].monedaId
+            nombreSucursal: item.cuentasBancarias[5].nombreSucursal,
+            moneda: item.cuentasBancarias[5].moneda
           }
         ];
       }
@@ -1214,8 +1197,8 @@ export default {
           if (
             this.entidad.cuentasBancarias[0].numeroCuenta == null ||
             this.entidad.cuentasBancarias[0].numeroSucursal == null ||
-            this.entidad.cuentasBancarias[0].nombreSucursalId == null ||
-            this.entidad.cuentasBancarias[0].monedaId == null
+            this.entidad.cuentasBancarias[0].nombreSucursal == null ||
+            this.entidad.cuentasBancarias[0].moneda == null
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #1 por Llenar");
           }
@@ -1225,9 +1208,9 @@ export default {
             (this.cantCuentas >= 2 &&
               this.entidad.cuentasBancarias[1].numeroSucursal == null) ||
             (this.cantCuentas >= 2 &&
-              this.entidad.cuentasBancarias[1].nombreSucursalId == null) ||
+              this.entidad.cuentasBancarias[1].nombreSucursal == null) ||
             (this.cantCuentas >= 2 &&
-              this.entidad.cuentasBancarias[1].monedaId == null)
+              this.entidad.cuentasBancarias[1].moneda == null)
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #2 por Llenar");
           }
@@ -1237,9 +1220,9 @@ export default {
             (this.cantCuentas >= 3 &&
               this.entidad.cuentasBancarias[2].numeroSucursal == null) ||
             (this.cantCuentas >= 3 &&
-              this.entidad.cuentasBancarias[2].nombreSucursalId == null) ||
+              this.entidad.cuentasBancarias[2].nombreSucursal == null) ||
             (this.cantCuentas >= 3 &&
-              this.entidad.cuentasBancarias[2].monedaId == null)
+              this.entidad.cuentasBancarias[2].moneda == null)
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #3 por Llenar");
           }
@@ -1249,9 +1232,9 @@ export default {
             (this.cantCuentas >= 4 &&
               this.entidad.cuentasBancarias[3].numeroSucursal == null) ||
             (this.cantCuentas >= 4 &&
-              this.entidad.cuentasBancarias[3].nombreSucursalId == null) ||
+              this.entidad.cuentasBancarias[3].nombreSucursal == null) ||
             (this.cantCuentas >= 4 &&
-              this.entidad.cuentasBancarias[3].monedaId == null)
+              this.entidad.cuentasBancarias[3].moneda == null)
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #4 por Llenar");
           }
@@ -1261,9 +1244,9 @@ export default {
             (this.cantCuentas >= 5 &&
               this.entidad.cuentasBancarias[4].numeroSucursal == null) ||
             (this.cantCuentas >= 5 &&
-              this.entidad.cuentasBancarias[4].nombreSucursalId == null) ||
+              this.entidad.cuentasBancarias[4].nombreSucursal == null) ||
             (this.cantCuentas >= 5 &&
-              this.entidad.cuentasBancarias[4].monedaId == null)
+              this.entidad.cuentasBancarias[4].moneda == null)
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #5 por Llenar");
           }
@@ -1273,9 +1256,9 @@ export default {
             (this.cantCuentas >= 6 &&
               this.entidad.cuentasBancarias[5].numeroSucursal == null) ||
             (this.cantCuentas >= 6 &&
-              this.entidad.cuentasBancarias[5].nombreSucursalId == null) ||
+              this.entidad.cuentasBancarias[5].nombreSucursal == null) ||
             (this.cantCuentas >= 6 &&
-              this.entidad.cuentasBancarias[5].monedaId == null)
+              this.entidad.cuentasBancarias[5].moneda == null)
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #6 por Llenar");
           } else {
@@ -1314,8 +1297,29 @@ export default {
       }
     },
     getDetalles(item) {
-      this.entidad = Object.assign({}, item);
-      this.cantTelefonos = item.cantTelefonos;
+      // this.entidad = Object.assign({}, item);
+      this.entidad.nombre = item.nombre;
+      this.entidad.codigo = item.codigo;
+      this.entidad.direccion = item.direccion;
+      this.entidad.nit = item.nit;
+      this.entidad.fax = item.fax;
+      this.entidad.sectorNombre = item.sectorNombre;
+      this.entidad.correo = item.correo;
+      this.entidad.objetoSocial = item.objetoSocial;
+      if (item.cuentasBancarias.length != 0) {
+        this.entidad.cuentasBancarias = item.cuentasBancarias;
+      } else
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          }
+        ];
+      if (item.telefonos[0] != null) {
+        this.entidad.telefonos = item.telefonos;
+      } else this.entidad.telefonos = [{ numero: null, extension: null }];
       this.dialog3 = true;
     },
     confirmDelete(item) {
@@ -1359,38 +1363,38 @@ export default {
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           }
         ],
         telefonos: [

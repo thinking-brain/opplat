@@ -3,15 +3,17 @@ using System;
 using ImportadorDatos.Models.EnlaceVersat;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ImportadorDatos.Migrations
 {
     [DbContext(typeof(EnlaceVersatDbContext))]
-    partial class EnlaceVersatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200521200007_Identidad-int")]
+    partial class Identidadint
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,22 +51,6 @@ namespace ImportadorDatos.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CentrosDeCostos");
-                });
-
-            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.CuentaBancaria", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("CtaBancoEntidadVersatId");
-
-                    b.Property<int>("CuentaBancariaId");
-
-                    b.Property<string>("NumeroCta");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CuentasBancarias");
                 });
 
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Cuentas", b =>

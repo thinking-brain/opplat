@@ -17,7 +17,7 @@ namespace ContratacionWebApi.Controllers {
         // GET entidades/Entidades
         [HttpGet]
         public IActionResult GetAll () {
-            var entidades = context.Entidades.Select (e => new {
+            var entidades = context.Entidades.Include (e => e.CuentasBancarias).Include (e => e.Telefonos).Select (e => new {
                 Id = e.Id,
                     Nombre = e.Nombre,
                     Codigo = e.Codigo,
@@ -28,26 +28,21 @@ namespace ContratacionWebApi.Controllers {
                     SectorNombre = e.Sector.ToString (),
                     Correo = e.Correo,
                     ObjetoSocial = e.ObjetoSocial,
-                    Telefonos = context.Telefonos.Where (t => t.EntidadId == e.Id),
-                    CantTelefonos = context.Telefonos.Where (t => t.EntidadId == e.Id).Count (),
-                    CuentasBancarias = context.CuentasBancarias.Where (c => c.EntidadId == e.Id).Select (
-                        b => new {
-                            Id = b.Id,
-                                NumeroCuenta = b.NumeroCuenta,
-                                NumeroSucursal = b.NumeroSucursal,
-                                NombreSucursalId = b.NombreSucursal,
-                                NombreSucursal = b.NombreSucursal.ToString (),
-                                MonedaId = b.Moneda,
-                                Moneda = b.Moneda.ToString (),
-                                EntidadId = b.EntidadId
-                        }
-                    ),
-                    CantCuentasBancarias = context.CuentasBancarias.Where (c => c.EntidadId == e.Id).Count (),
+                    Telefonos = e.Telefonos,
+                    CantTelefonos = e.Telefonos.Count (),
+                    CuentasBancarias = e.CuentasBancarias.Select (c => new {
+                        NumeroCuenta = c.NumeroCuenta,
+                            NumeroSucursal = c.NumeroSucursal,
+                            NombreSucursal = c.NombreSucursal,
+                            NombreSucursalString = c.NombreSucursal.ToString (),
+                            Moneda = c.Moneda,
+                            MonedaString = c.Moneda.ToString ()
+                    }),
+                    CantCuentasBancarias = e.CuentasBancarias.Count ()
             });
 
             return Ok (entidades);
         }
-
         // GET: entidades/Entidades/Id
         [HttpGet ("{id}", Name = "GetEntidad")]
         public IActionResult GetbyId (int id) {
@@ -120,58 +115,62 @@ namespace ContratacionWebApi.Controllers {
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] Entidad entidad, int id) {
             var ent = context.Entidades.FirstOrDefault (s => s.Id == id);
-            if (ent == null) {
-                return BadRequest (ModelState);
-            }
-            ent.Nombre = entidad.Nombre;
-            ent.Codigo = entidad.Codigo;
-            ent.Direccion = entidad.Direccion;
-            ent.Nit = entidad.Nit;
-            ent.Sector = entidad.Sector;
-            ent.Fax = entidad.Fax;
-            ent.Correo = entidad.Correo;
-            ent.ObjetoSocial = entidad.ObjetoSocial;
-            context.Entry (ent).State = EntityState.Modified;
 
-            var telefonos = context.Telefonos.Where (t => t.EntidadId == ent.Id);
-            if (telefonos != null) {
-                foreach (var item in telefonos) {
-                    var telef = context.Telefonos.FirstOrDefault (s => s.Id == item.Id);
-                    context.Telefonos.Remove (telef);
-                    context.SaveChanges ();
+            if (context.Entidades.FirstOrDefault (e => e.Nit == entidad.Nit) != null) {
+                return BadRequest ($"Ya hay un Proveedor con este NIT");
+            } else if (context.Entidades.FirstOrDefault (e => e.Codigo == entidad.Codigo) != null) {
+                return BadRequest ($"Ya hay un Proveedor con este Codigo");
+            } else {
+                ent.Nombre = entidad.Nombre;
+                ent.Codigo = entidad.Codigo;
+                ent.Direccion = entidad.Direccion;
+                ent.Nit = entidad.Nit;
+                ent.Sector = entidad.Sector;
+                ent.Fax = entidad.Fax;
+                ent.Correo = entidad.Correo;
+                ent.ObjetoSocial = entidad.ObjetoSocial;
+                context.Entry (ent).State = EntityState.Modified;
+
+                var telefonos = context.Telefonos.Where (t => t.EntidadId == ent.Id);
+                if (telefonos != null) {
+                    foreach (var item in telefonos) {
+                        var telef = context.Telefonos.FirstOrDefault (s => s.Id == item.Id);
+                        context.Telefonos.Remove (telef);
+                        context.SaveChanges ();
+                    }
                 }
-            }
-            foreach (var item in entidad.Telefonos) {
-                if (item.Numero != null) {
-                    var telefono = new Telefono {
-                    Id = item.Id,
-                    Numero = item.Numero,
-                    Extension = item.Extension,
-                    EntidadId = ent.Id
-                    };
-                    context.Telefonos.Add (telefono);
-                }
-            }
-            var cuentas = context.CuentasBancarias.Where (c => c.EntidadId == ent.Id);
-            if (cuentas != null) {
-                foreach (var item in cuentas) {
-                    var c = context.CuentasBancarias.FirstOrDefault (s => s.Id == item.Id);
-                    context.CuentasBancarias.Remove (c);
-                    context.SaveChanges ();
-                }
-            }
-            if (entidad.CuentasBancarias != null) {
-                foreach (var item in entidad.CuentasBancarias) {
-                if (item.NumeroCuenta != null) {
-                var cuenta = new CuentaBancaria {
-                Id = item.Id,
-                NumeroCuenta = item.NumeroCuenta,
-                NumeroSucursal = item.NumeroSucursal,
-                NombreSucursal = item.NombreSucursal,
-                Moneda = item.Moneda,
-                EntidadId = ent.Id
+                foreach (var item in entidad.Telefonos) {
+                    if (item.Numero != null) {
+                        var telefono = new Telefono {
+                        Id = item.Id,
+                        Numero = item.Numero,
+                        Extension = item.Extension,
+                        EntidadId = ent.Id
                         };
-                        context.CuentasBancarias.Add (cuenta);
+                        context.Telefonos.Add (telefono);
+                    }
+                }
+                var cuentas = context.CuentasBancarias.Where (c => c.EntidadId == ent.Id);
+                if (cuentas != null) {
+                    foreach (var item in cuentas) {
+                        var c = context.CuentasBancarias.FirstOrDefault (s => s.Id == item.Id);
+                        context.CuentasBancarias.Remove (c);
+                        context.SaveChanges ();
+                    }
+                }
+                if (entidad.CuentasBancarias != null) {
+                    foreach (var item in entidad.CuentasBancarias) {
+                    if (item.NumeroCuenta != null) {
+                    var cuenta = new CuentaBancaria {
+                    Id = item.Id,
+                    NumeroCuenta = item.NumeroCuenta,
+                    NumeroSucursal = item.NumeroSucursal,
+                    NombreSucursal = item.NombreSucursal,
+                    Moneda = item.Moneda,
+                    EntidadId = ent.Id
+                            };
+                            context.CuentasBancarias.Add (cuenta);
+                        }
                     }
                 }
             }
@@ -198,6 +197,7 @@ namespace ContratacionWebApi.Controllers {
                 new { Id = NombreSucursal.BPA, Nombre = "BPA" },
                 new { Id = NombreSucursal.Bandec, Nombre = "Bandec" },
                 new { Id = NombreSucursal.Banco_Metropolitano, Nombre = "Banco Metropolitano" },
+                new { Id = NombreSucursal.BFI, Nombre = "BFI" },
             };
             return Ok (tipo);
         }
@@ -205,7 +205,7 @@ namespace ContratacionWebApi.Controllers {
         [HttpGet ("/contratacion/Entidades/Monedas")]
         public IActionResult GetAllMonedas () {
             var tipo = new List<dynamic> () {
-                new { Id = Moneda.MN, Nombre = "MN" },
+                new { Id = Moneda.CUP, Nombre = "CUP" },
                 new { Id = Moneda.CUC, Nombre = "CUC" },
                 new { Id = Moneda.USD, Nombre = "USD" },
             };
