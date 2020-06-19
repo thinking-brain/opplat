@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
-    public partial class _12 : Migration
+    public partial class departamento : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -36,16 +36,16 @@ namespace ContratacionWebApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DictaminadoresContratos",
+                name: "Departamento",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    DictaminadorId = table.Column<int>(nullable: false)
+                    Nombre = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DictaminadoresContratos", x => x.Id);
+                    table.PrimaryKey("PK_Departamento", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -104,6 +104,26 @@ namespace ContratacionWebApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TiempoVenOfertas", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DictaminadoresContratos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    DictaminadorId = table.Column<int>(nullable: false),
+                    DepartamentoId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DictaminadoresContratos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DictaminadoresContratos_Departamento_DepartamentoId",
+                        column: x => x.DepartamentoId,
+                        principalTable: "Departamento",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -456,6 +476,11 @@ namespace ContratacionWebApi.Migrations
                 column: "EspecialistaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DictaminadoresContratos_DepartamentoId",
+                table: "DictaminadoresContratos",
+                column: "DepartamentoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Documentos_AdminContratoId",
                 table: "Documentos",
                 column: "AdminContratoId");
@@ -536,6 +561,9 @@ namespace ContratacionWebApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "Especialista");
+
+            migrationBuilder.DropTable(
+                name: "Departamento");
 
             migrationBuilder.DropTable(
                 name: "EspecialistasExternos");

@@ -2,13 +2,14 @@
   <v-row dense>
     <v-col>
       <v-card flat>
-        <v-toolbar flat class="v-toolbar__content" style="height: 70px;">
-          <v-tabs slot="extension" v-model="tabs" centered class="v-toolbar__content" style="height: 70px;">
-            <v-tab>Administradores</v-tab>
-            <v-tab>Dictaminadores</v-tab>
-            <v-tab>Proveedores</v-tab>
-            <v-tab>Especialistas Externos</v-tab>
-            <v-tab>Tiempo de Vencimiento</v-tab>
+        <v-toolbar flat class="v-toolbar__content">
+          <v-tabs slot="extension" v-model="tabs" centered class="v-toolbar__content">
+            <v-tab class="caption py-3">Administradores</v-tab>
+            <v-tab class="caption py-3">Dictaminadores</v-tab>
+            <v-tab class="caption py-3">Departamentos</v-tab>
+            <v-tab class="caption py-3">Proveedores</v-tab>
+            <v-tab class="caption py-3">Especialistas Externos</v-tab>
+            <v-tab class="caption py-3">Tiempo de Vencimiento</v-tab>
           </v-tabs>
         </v-toolbar>
         <v-tabs-items v-model="tabs" py-6>
@@ -23,6 +24,13 @@
             <v-card flat>
               <v-card-text>
                 <DictContratos></DictContratos>
+              </v-card-text>
+            </v-card>
+          </v-tab-item>
+          <v-tab-item>
+            <v-card flat>
+              <v-card-text>
+                <Departamentos></Departamentos>
               </v-card-text>
             </v-card>
           </v-tab-item>
@@ -60,6 +68,7 @@ import DictContratos from "@/components/contratacion/DictContratos.vue";
 import EspExternos from "@/components/contratacion/EspExternos.vue";
 import FormasDePago from "@/components/contratacion/FormasDePago.vue";
 import Entidades from "@/components/contratacion/Entidades.vue";
+import Departamentos from "@/components/contratacion/Departamentos.vue";
 import TiempoVenContratos from "@/components/contratacion/TiempoVenContratos.vue";
 
 export default {
@@ -69,6 +78,7 @@ export default {
     EspExternos,
     FormasDePago,
     Entidades,
+    Departamentos,
     TiempoVenContratos
   },
   data: () => ({
