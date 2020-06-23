@@ -163,8 +163,8 @@
                   <v-flex xs4 class="px-1">
                     <v-autocomplete
                       v-model="oferta.adminContrato"
-                      item-text="nombreCompleto"
-                      item-value="id"
+                      item-text="administrador.nombreCompleto"
+                      item-value="administrador.id"
                       :items="adminContratos"
                       cache-items
                       label="Administrador"
@@ -174,12 +174,12 @@
                   </v-flex>
                   <v-flex xs5 class="px-1">
                     <v-autocomplete
-                      v-model="oferta.dictaminadores"
-                      item-text="nombreCompleto"
+                      v-model="oferta.departamentos"
+                      item-text="nombre"
                       item-value="id"
-                      :items="dictaminadoresContratos"
-                      label="Dictaminadores Internos"
-                      placeholder="Dictaminadores de Contratos"
+                      :items="departamentos"
+                      cache-items
+                      label="Departamentos que van a dictaminar la oferta"
                       multiple
                     >
                       <template v-slot:selection="data">
@@ -190,7 +190,7 @@
                           @click="data.select"
                           @click:close="removeDictaminadores(data.item)"
                           outlined
-                        >{{ data.item.nombreCompleto }}</v-chip>
+                        >{{ data.item.nombre }}</v-chip>
                       </template>
                       <template v-slot:item="data">
                         <template v-if="typeof data.item !== 'object'">
@@ -198,7 +198,7 @@
                         </template>
                         <template v-else>
                           <v-list-item-content>
-                            <v-list-item-title v-html="data.item.nombreCompleto"></v-list-item-title>
+                            <v-list-item-title v-html="data.item.nombre"></v-list-item-title>
                           </v-list-item-content>
                         </template>
                       </template>
@@ -801,6 +801,7 @@ export default {
     vencidos: 0,
     todasLasOfertas: false,
     vencimientoOfertas: [],
+    departamentos: [],
     ofertaTiempo: "ofertaTiempo",
     ofertasProxVencer: "ofertasProxVencer",
     ofertasCasiVenc: "ofertasCasiVenc",
@@ -873,6 +874,7 @@ export default {
     this.getFormasDePagosFromApi();
     this.getTrabajadoresFromApi();
     this.getTiempoVenOfertasFromApi();
+    this.getDepartamentosFromApi();
   },
 
   methods: {
@@ -985,6 +987,17 @@ export default {
       this.axios.get(url).then(
         response => {
           this.tiempoVenOfertas = response.data[0];
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+     getDepartamentosFromApi() {
+      const url = api.getUrl("contratacion", "Departamentos");
+      this.axios.get(url).then(
+        response => {
+          this.departamentos = response.data;
         },
         error => {
           console.log(error);

@@ -49,7 +49,7 @@ namespace ContratacionWebApi.Models {
         [Display (Name = "Término de Pago")]
         public int TerminoDePago { get; set; }
         public string Usuario { get; set; }
-        public List<int> Dictaminadores { get; set; }
+        public List<int> Departamentos { get; set; }
         public List<int> EspecialistasExternos { get; set; }
         public bool AprobJurico { get; set; }
         public bool AprobEconomico { get; set; }

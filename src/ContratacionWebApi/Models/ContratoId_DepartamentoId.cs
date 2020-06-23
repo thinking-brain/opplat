@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContratacionWebApi.Models {
     public class ContratoId_DepartamentoId {
-        public int Id { get; set; }
+
         public int ContratoId { get; set; }
         public Contrato Contrato { get; set; }
         public int DepartamentoId { get; set; }

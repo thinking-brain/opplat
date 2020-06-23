@@ -573,25 +573,30 @@
         <!-- /Delete Entidad -->
       </v-toolbar>
     </template>
-    <template v-slot:item.action="{ item }">
-      <v-tooltip top color="success">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
-        </template>
-        <span>Editar</span>
-      </v-tooltip>
-      <v-tooltip top color="green darken-4">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="getDetalles(item)">mdi-file-document-box-plus</v-icon>
-        </template>
-        <span>Detalles</span>
-      </v-tooltip>
-      <v-tooltip top color="red darken-1">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="confirmDelete(item)">mdi-trash-can</v-icon>
-        </template>
-        <span>Eliminar</span>
-      </v-tooltip>
+      <template v-slot:item.action="{ item }">
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        small
+        @click="editItem(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+      </v-btn>
+
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        small
+        @click="getDetalles(item)"
+      >
+        <v-icon>mdi-format-list-bulleted</v-icon>
+      </v-btn>
+
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+        small
+        @click="confirmDelete(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+      </v-btn>
     </template>
   </v-data-table>
 </template>

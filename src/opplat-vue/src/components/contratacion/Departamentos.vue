@@ -2,7 +2,7 @@
   <v-data-table :headers="headers" :items="departamentos" :search="search" class="elevation-1 pa-5">
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>Deparatamentos</v-toolbar-title>
+        <v-toolbar-title>Departamentos</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field
@@ -19,7 +19,7 @@
           <v-btn color="primary" @click="newDepartamento()">Nuevo Departamento</v-btn>
         </template>
         <!-- Agregar y Editar Departamento -->
-        <v-dialog v-model="dialog" persistent max-width="700">
+        <v-dialog v-model="dialog" persistent max-width="450">
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
               <v-flex xs12 sm10 md6 lg4>{{ formTitle }}</v-flex>
@@ -33,7 +33,7 @@
             <v-form ref="form">
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
-                  <v-flex xs6 class="px-3">
+                  <v-flex xs12 class="px-3">
                     <v-text-field label="Nombre" v-model="departamento.nombre" clearable required></v-text-field>
                   </v-flex>
                 </v-layout>
@@ -52,7 +52,7 @@
           <v-toolbar dark fadeOnScroll color="red">
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn icon dark @click="dialog2 = false">
+              <v-btn icon dark @click="close()">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </v-toolbar-items>
@@ -71,18 +71,21 @@
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
-        </template>
-        <span>Editar</span>
-      </v-tooltip>
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="confirmDelete(item)">mdi-trash-can</v-icon>
-        </template>
-        <span>Eliminar</span>
-      </v-tooltip>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        small
+        @click="editItem(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+      </v-btn>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+        small
+        @click="confirmDelete(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+      </v-btn>
+   
     </template>
   </v-data-table>
 </template>
@@ -94,6 +97,7 @@ export default {
     dialog: false,
     departamentos: [],
     departamento: {},
+    editedIndex: -1,
     errors: [],
 
     headers: [
@@ -145,9 +149,6 @@ export default {
       this.departamento = Object.assign({}, item);
       this.dialog = true;
     },
-    getDetallesAdmin(item) {
-      this.dialog3 = true;
-    },
     save(method) {
       const url = api.getUrl("contratacion", "Departamentos");
       if (method === "POST") {
@@ -198,6 +199,7 @@ export default {
     },
     close() {
       this.dialog = false;
+      this.dialog2 = false;
       this.departamento = {};
       setTimeout(() => {
         this.editedIndex = -1;
