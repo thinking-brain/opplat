@@ -51,10 +51,10 @@ namespace ContratacionWebApi.Models {
         public virtual ICollection<FormaDePago> FormasDePago { get; set; }
 
         [NotMapped]
-        public ICollection<DictaminadorContrato> Dictaminadores { get; set; }
+        public ICollection<Departamento> Departamentos { get; set; }
 
         [NotMapped]
-        public List<EspExternoId_ContratoId> EspExternoId_ContratoId { get; set; }
+        public List<EspecialistaExterno> EspecialistasExternos { get; set; }
         //Término de pago en días
         [Display (Name = "Término de Pago")]
         public int TerminoDePago { get; set; }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ContratacionWebApi.Data;
 using ContratacionWebApi.Models;
+using ContratacionWebApi.Dtos;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +31,7 @@ namespace ContratacionWebApi.Controllers {
         [HttpGet]
         public ActionResult GetAll (string tipoTramite, string filtro, bool cliente) {
             var trabajadores = context_rh.Trabajador.ToList ();
-            var contratoId_DictaminadorId = context.ContratoId_DictaminadorId.ToList ();
+            var contratoId_DictaminadorId = context.ContratoId_DepartamentoId.ToList ();
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             var contratos = context.Contratos.Select (c => new {
                 Id = c.Id,
@@ -38,8 +39,8 @@ namespace ContratacionWebApi.Controllers {
                     Tipo = c.Tipo,
                     TipoNombre = c.Tipo.ToString (),
                     AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.AdminContratoId),
-                    Dictaminadores = contratoId_DictaminadorId.Where (s => s.ContratoId == c.Id).Select (e => new {
-                        Dictaminador = trabajadores.FirstOrDefault (d => d.Id == e.DictaminadorContratoId),
+                    Departamentos = contratoId_DictaminadorId.Where (s => s.ContratoId == c.Id).Select (e => new {
+                        Dictaminador = trabajadores.FirstOrDefault (d => d.Id == e.DepartamentoId),
                     }),
                     ObjetoDeContrato = c.ObjetoDeContrato,
                     Numero = c.Numero,
@@ -196,14 +197,14 @@ namespace ContratacionWebApi.Controllers {
                 //     contrato.FilePath=filePath;
                 // }
 
-                // Agregar Dictaminadores del contrato 
-                if (contratoDto.Dictaminadores != null) {
-                    foreach (var item in contratoDto.Dictaminadores) {
-                    var contratoId_DictaminadorId = new ContratoId_DictaminadorId {
+                // Agregar Departamentos de los Dictaminadores 
+                if (contratoDto.Departamentos != null) {
+                    foreach (var item in contratoDto.Departamentos) {
+                    var contratoId_DictaminadorId = new ContratoId_DepartamentoId {
                     ContratoId = contrato.Id,
-                    DictaminadorContratoId = item
+                    DepartamentoId = item
                         };
-                        context.ContratoId_DictaminadorId.Add (contratoId_DictaminadorId);
+                        context.ContratoId_DepartamentoId.Add (contratoId_DictaminadorId);
                         context.SaveChanges ();
                     }
                 } else {
@@ -281,18 +282,18 @@ namespace ContratacionWebApi.Controllers {
                 context.SaveChanges ();
             }
 
-            // Agregar Dictaminadores del contrato 
-            if (contrato.Dictaminadores != null) {
-                var dictaminadores = context.ContratoId_DictaminadorId.Where (s => s.ContratoId == contrato.Id);
+            // Agregar Departamentos del contrato 
+            if (contrato.Departamentos != null) {
+                var dictaminadores = context.ContratoId_DepartamentoId.Where (s => s.ContratoId == contrato.Id);
                 foreach (var item in dictaminadores) {
-                    context.ContratoId_DictaminadorId.Remove (item);
+                    context.ContratoId_DepartamentoId.Remove (item);
                 }
-                foreach (var item in contrato.Dictaminadores) {
-                    var contratoId_DictaminadorId = new ContratoId_DictaminadorId {
+                foreach (var item in contrato.Departamentos) {
+                    var contratoId_DictaminadorId = new ContratoId_DepartamentoId {
                         ContratoId = contrato.Id,
-                        DictaminadorContratoId = item
+                        DepartamentoId = item
                     };
-                    context.ContratoId_DictaminadorId.Add (contratoId_DictaminadorId);
+                    context.ContratoId_DepartamentoId.Add (contratoId_DictaminadorId);
                     context.SaveChanges ();
                 }
             } else {

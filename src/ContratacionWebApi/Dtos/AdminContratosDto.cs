@@ -6,9 +6,8 @@ using System.Linq;
 using ContratacionWebApi.Models;
 
 namespace ContratacionWebApi.Dtos {
-    public class AdminCont_Cant {
-        public AdminContrato AdminContrato{get;set;}
-        public int CantidadContratos{get;set;}
-        public int CantidadOfertas{get;set;}
+    public class AdminContratosDto {
+        public List<int> Administradores { get; set; }
+        public int DepartamentoId { get; set; }
     }
 }

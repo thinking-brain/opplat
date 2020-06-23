@@ -34,7 +34,7 @@ namespace ContratacionWebApi.Models {
         [Display (Name = "Correo electrónico")]
         public string Correo { get; set; }
         public string ObjetoSocial { get; set; }
-        public List<Telefono> Telefonos { get; set; }
+        public ICollection<Telefono> Telefonos { get; set; }
         public ICollection<CuentaBancaria> CuentasBancarias { get; set; }
     }
 }

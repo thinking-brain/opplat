@@ -3,15 +3,17 @@ using System;
 using ContratacionWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    partial class ContratacionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200618195957_ContratoId_DepartamentoId")]
+    partial class ContratoId_DepartamentoId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,15 +91,34 @@ namespace ContratacionWebApi.Migrations
 
             modelBuilder.Entity("ContratacionWebApi.Models.ContratoId_DepartamentoId", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
                     b.Property<int>("ContratoId");
 
                     b.Property<int>("DepartamentoId");
 
-                    b.HasKey("ContratoId", "DepartamentoId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContratoId");
 
                     b.HasIndex("DepartamentoId");
 
                     b.ToTable("ContratoId_DepartamentoId");
+                });
+
+            modelBuilder.Entity("ContratacionWebApi.Models.ContratoId_DictaminadorId", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("ContratoId");
+
+                    b.Property<int>("DictaminadorContratoId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ContratoId_DictaminadorId");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.ContratoId_FormaPagoId", b =>
