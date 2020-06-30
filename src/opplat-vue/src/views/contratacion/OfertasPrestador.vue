@@ -163,8 +163,8 @@
                   <v-flex xs4 class="px-1">
                     <v-autocomplete
                       v-model="oferta.adminContrato"
-                      item-text="nombreCompleto"
-                      item-value="id"
+                      item-text="administrador.nombreCompleto"
+                      item-value="administrador.id"
                       :items="adminContratos"
                       cache-items
                       label="Administrador"
@@ -174,12 +174,12 @@
                   </v-flex>
                   <v-flex xs5 class="px-1">
                     <v-autocomplete
-                      v-model="oferta.dictaminadores"
-                      item-text="nombreCompleto"
+                      v-model="oferta.departamentos"
+                      item-text="nombre"
                       item-value="id"
-                      :items="dictaminadoresContratos"
-                      label="Dictaminadores Internos"
-                      placeholder="Dictaminadores de Contratos"
+                      :items="departamentos"
+                      cache-items
+                      label="Departamentos que van a dictaminar la oferta"
                       multiple
                     >
                       <template v-slot:selection="data">
@@ -190,7 +190,7 @@
                           @click="data.select"
                           @click:close="removeDictaminadores(data.item)"
                           outlined
-                        >{{ data.item.nombreCompleto }}</v-chip>
+                        >{{ data.item.nombre }}</v-chip>
                       </template>
                       <template v-slot:item="data">
                         <template v-if="typeof data.item !== 'object'">
@@ -198,7 +198,7 @@
                         </template>
                         <template v-else>
                           <v-list-item-content>
-                            <v-list-item-title v-html="data.item.nombreCompleto"></v-list-item-title>
+                            <v-list-item-title v-html="data.item.nombre"></v-list-item-title>
                           </v-list-item-content>
                         </template>
                       </template>
@@ -448,22 +448,22 @@
                           <strong>Especialistas Externos:</strong>
                           <span
                             v-for="item in oferta.especialistasExternos"
-                            :key="item.especialistaExterno"
+                            :key="item.nombreCompleto"
                             class="pl-2"
                           >
                             <v-spacer></v-spacer>-
-                            <u class="pl-2">{{item.especialistaExterno.nombreCompleto}}</u>
+                            <u class="pl-2">{{item.nombreCompleto}}</u>
                           </span>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Especialistas Internos:</strong>
                           <span
                             v-for="item in oferta.especialistasExternos"
-                            :key="item.especialistaExterno"
+                            :key="item.nombreCompleto"
                             class="pl-2"
                           >
                             <v-spacer></v-spacer>-
-                            <u class="pl-2">{{item.especialistaExterno.nombreCompleto}}</u>
+                            <u class="pl-2">{{item.nombreCompleto}}</u>
                           </span>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
@@ -708,42 +708,44 @@
       </v-toolbar>
     </template>
     <!-- Actions -->
-    <template v-slot:item.action="{ item }">
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
-        </template>
-        <span>Editar</span>
-      </v-tooltip>
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="confirmUpload(item)">mdi-upload</v-icon>
-        </template>
-        <span>Guardar Documento</span>
-      </v-tooltip>
-      <v-tooltip top color="green">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="getDetalles(item)">mdi-file-document-box-plus</v-icon>
-        </template>
-        <span>Detalles</span>
-      </v-tooltip>
-      <v-tooltip top color="green">
-        <template v-slot:activator="{ on }">
-          <v-icon
-            small
-            class="mr-2"
-            v-on="on"
-            @click="confirmAprobarOferta(item)"
-          >mdi-check-box-multiple-outline</v-icon>
-        </template>
-        <span>Aprobar la Oferta</span>
-      </v-tooltip>
-      <v-tooltip top color="red">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="confirmDelete(item)">mdi-trash-can</v-icon>
-        </template>
-        <span>Eliminar</span>
-      </v-tooltip>
+   <template v-slot:item.action="{ item }">
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        small
+        @click="editItem(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+      </v-btn>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        small
+        @click="confirmAprobarOferta(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-check-box-multiple-outline theme--dark</v-icon>
+      </v-btn>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+        small
+        @click="confirmUpload(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
+      </v-btn>
+
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+        small
+        @click="getDetalles(item)"
+      >
+        <v-icon>mdi-format-list-bulleted</v-icon>
+      </v-btn>
+
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+        small
+        @click="confirmDelete(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+      </v-btn>
     </template>
     <!-- /Actions -->
   </v-data-table>
@@ -836,15 +838,6 @@ export default {
       { text: "Nombre Sucursal", value: "nombreSucursal" },
       { text: "Moneda", value: "moneda" }
     ],
-    headersTelefonos: [
-      {
-        text: "Número",
-        align: "left",
-        sortable: true,
-        value: "numero"
-      },
-      { text: "Extensión", value: "extension" }
-    ]
   }),
 
   computed: {
@@ -1118,8 +1111,6 @@ export default {
       this.oferta = {
         entidad: {},
         adminContrato: {},
-        dictaminadores: [],
-        especialistasExternos: []
       };
       setTimeout(() => {
         this.editedIndex = -1;

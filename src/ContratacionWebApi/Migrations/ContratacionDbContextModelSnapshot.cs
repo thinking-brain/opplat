@@ -271,8 +271,6 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("EspecialistaExternoId");
 
-                    b.Property<int>("Id");
-
                     b.HasKey("ContratoId", "EspecialistaExternoId");
 
                     b.HasIndex("EspecialistaExternoId");

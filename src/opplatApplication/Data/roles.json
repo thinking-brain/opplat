@@ -6,7 +6,8 @@
             "usuario",
             "auditor",
             "consultor",
-            "recursos_humanos"
+            "recursos humanos",
+            "contratacion"
         ]
     },
     {
@@ -14,6 +15,15 @@
         "Roles": [
             "economico",
             "contador"
+        ]
+    },
+    {
+        "Modulo": "Contratación",
+        "Roles": [
+            "economico",
+            "juridico",
+            "dictaminador",
+            "administrador de contratos"
         ]
     }
 ]
