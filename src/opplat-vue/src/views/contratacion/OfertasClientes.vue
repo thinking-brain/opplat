@@ -8,7 +8,7 @@
         <v-toolbar-title>{{textByfiltro }}</v-toolbar-title>
         <v-spacer></v-spacer>
 
-        <div>{{ roles }}</div>
+        <!-- <div>{{ roles }}</div> -->
 
         <v-divider class="mx-4" inset vertical></v-divider>
         <!-- Agregar y Editar oferta -->
@@ -558,7 +558,7 @@
                             <v-divider></v-divider>
                           </span>
                         </v-col>
-                       <v-col cols="12" md="12" class="pa-2">
+                        <v-col cols="12" md="12" class="pa-2">
                           <strong>Cuentas Bancarias :</strong>
                           <v-data-table
                             :headers="headersCuentas"
@@ -626,13 +626,24 @@
         <v-row justify="center">
           <v-dialog v-model="dialog7" persistent max-width="400">
             <v-card>
-              <v-flex xs12 class="px-1">
+              <v-toolbar dark fadeOnScroll color="blue darken-3">
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                  <v-btn icon dark @click=" close()">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </v-toolbar-items>
+              </v-toolbar>
+              <v-flex xs12 class="px-1 mt-10">
                 <v-file-input
                   v-model="file"
                   show-size
                   prepend-icon="mdi-note-multiple"
-                  label="Seleccionar Documento"
+                  label="Seleccione el Documento"
                 ></v-file-input>
+              </v-flex>
+              <v-flex xs12 class="px-1">
+                <v-alert v-if="message" border="left" color="red" dark>{{ message }}</v-alert>
               </v-flex>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -729,6 +740,13 @@
         @click="confirmUpload(item)"
       >
         <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
+      </v-btn>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+        small
+        @click="download(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
       </v-btn>
 
       <v-btn
@@ -837,7 +855,8 @@ export default {
       { text: "Nombre Sucursal", value: "nombreSucursalString" },
       { text: "Moneda", value: "monedaString" }
     ],
-    roles: null
+    roles: null,
+    message: ""
   }),
 
   computed: {
@@ -1077,11 +1096,16 @@ export default {
       this.dialog7 = true;
     },
     upload() {
+      if (!this.file) {
+        this.message = "Por favor seleccione un archivo!";
+        return;
+      }
+      this.message = "";
       const formData = new FormData();
       formData.append("file", this.file);
       const url = api.getUrl("contratacion", "contratos/UploadFile");
       this.axios
-        .post(url, formData, this.oferta.id, {
+        .post(`${url}/${this.oferta.id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -1089,13 +1113,24 @@ export default {
         .then(
           response => {
             this.getResponse(response);
+            this.close();
             this.getOfertasFromApi();
-            this.dialog = false;
           },
           error => {
             console.log(error);
           }
         );
+    },
+    download(item) {
+      const url = api.getUrl("contratacion", "contratos/DownloadFile");
+      this.axios.get(`${url}/${item.id}`).then(
+        response => {
+          window.open(url + "/" + item.id);
+        },
+        error => {
+          console.log(error);
+        }
+      );
     },
     confirmDelete(item) {
       this.oferta = Object.assign({}, item);
@@ -1124,6 +1159,7 @@ export default {
         entidad: {},
         adminContrato: {}
       };
+      this.message = "";
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);

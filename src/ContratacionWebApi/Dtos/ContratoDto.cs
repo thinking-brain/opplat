@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using ContratacionWebApi.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace ContratacionWebApi.Models {
     public class ContratoDto {
@@ -41,6 +42,7 @@ namespace ContratacionWebApi.Models {
         [Required]
         public DateTime FechaDeVenOferta { get; set; }
         public DateTime FechaDeFirmado { get; set; }
+        public IFormFile File;
 
         [Display (Name = "Formas de Pago")]
         public virtual List<FormaDePago> FormasDePago { get; set; }

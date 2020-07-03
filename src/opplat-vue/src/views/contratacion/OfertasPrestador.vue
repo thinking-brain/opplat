@@ -1069,7 +1069,7 @@ export default {
       formData.append("file", this.file);
       const url = api.getUrl("contratacion", "contratos/UploadFile");
       this.axios
-        .post(url, formData, this.oferta.id, {
+        .post(`${url}/${this.oferta.id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -1078,7 +1078,7 @@ export default {
           response => {
             this.getResponse(response);
             this.getOfertasFromApi();
-            this.dialog = false;
+            this.dialog7 = false;
           },
           error => {
             console.log(error);

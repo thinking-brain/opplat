@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using ContratacionWebApi.Data;
 using ContratacionWebApi.Dtos;
 using ContratacionWebApi.Models;
@@ -196,7 +197,6 @@ namespace ContratacionWebApi.Controllers {
                     context.ContratoId_FormaPagoId.Add (contratoId_FormaPagoId);
                     context.SaveChanges ();
                 }
-
                 // Subir el Fichero del Contrato
                 // var uploads = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
                 // if (file != null) {
@@ -471,18 +471,59 @@ namespace ContratacionWebApi.Controllers {
         }
 
         //Post :contratacion/contratos/UploadFile
-        [HttpPost ("/contratacion/contratos/UploadFile")]
-        public async Task<IActionResult> UploadFile (int ContratoId, IFormFile file) {
-            var contrato = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
-            var uploads = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
+        [HttpPost ("/contratacion/contratos/UploadFile/{id}")]
+        public async Task<IActionResult> UploadFile (IFormFile file, int id) {
+            var contrato = context.Contratos.FirstOrDefault (s => s.Id == id);
+            var adminContrato = context.AdminContratos.FirstOrDefault (c => c.AdminContratoId == contrato.AdminContratoId);
+            var departamento = context.Departamentos.FirstOrDefault (d => d.Id == adminContrato.DepartamentoId);
+            if (contrato == null) {
+                return NotFound ($"El Contrato no se encuentra");
+            }
             if (file != null) {
-                var filePath = Path.Combine (uploads, file.FileName);
+                string folderName = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
+                string subFolder = System.IO.Path.Combine (folderName, departamento.Nombre);
+                if (!Directory.Exists (subFolder)) {
+                    System.IO.Directory.CreateDirectory (subFolder);
+                }
+                var filePath = Path.Combine (subFolder, file.FileName);
                 using (var fileStream = new FileStream (filePath, FileMode.Create)) {
                     await file.CopyToAsync (fileStream);
                 }
+                contrato.FilePath = filePath;
+                context.SaveChanges ();
+                return Ok ();
+            } else {
+                return NotFound ($"El archivo es null");
             }
-            return Ok ();
         }
+
+        private Dictionary<string, string> GetMimeTypes () {
+            return new Dictionary<string, string> { { ".txt", "text/plain" },
+                { ".pdf", "application/pdf" },
+                { ".doc", "application/vnd.ms-word" },
+                { ".docx", "application/vnd.ms-word" },
+                { ".xls", "application/vnd.ms-excel" },
+                { ".xlsx", "application/vnd.openxmlformats officedocument.spreadsheetml.sheet" },
+                { ".png", "image/png" },
+                { ".jpg", "image/jpeg" },
+                { ".jpeg", "image/jpeg" },
+                { ".gif", "image/gif" },
+                { ".csv", "text/csv" }
+            };
+        }
+
+        //Post :contratacion/contratos/downloadFile
+        [HttpGet ("/contratacion/contratos/DownloadFile/{id}")]
+        public async Task<IActionResult> DownloadFile (int id) {
+            var contrato = context.Contratos.FirstOrDefault (c => c.Id == id);
+            var path = contrato.FilePath;
+            var memory = new MemoryStream ();
+            using (var stream = new FileStream (path, FileMode.Open)) { await stream.CopyToAsync (memory); }
+            memory.Position = 0;
+            var ext = Path.GetExtension (path).ToLowerInvariant ();
+            return File (memory, GetMimeTypes () [ext], Path.GetFileName (path));
+        }
+
         // GET: contratacion/contratos/Dashboard 
         [HttpGet ("/contratacion/contratos/Dashboard")]
         public async Task<IActionResult> Dashboard () {
