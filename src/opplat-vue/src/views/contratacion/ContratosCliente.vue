@@ -128,15 +128,15 @@
 
         <!-- Detalles del Contrato -->
         <v-dialog
-          v-model="dialog6"
+          v-model="dialog3"
           persistent
           transition="dialog-bottom-transition"
           flat
-          max-width="1100"
+          max-width="1250"
         >
           <v-card>
-            <v-toolbar dark fadeOnScroll color="blue darken-3">
-              <v-flex xs12 sm10 md6 lg4>Detalles del Contrato</v-flex>
+            <v-toolbar dark fadeOnScroll :color="getColor(contrato.contVence)">
+                <h2>Detalles del Contrato de {{contrato.tipoNombre}} de {{contrato.nombre}}.</h2>
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-btn icon dark @click="close()">
@@ -144,139 +144,186 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-
-            <v-container fluid>
-              <v-row dense no-gutters>
-                <v-col cols="7">
-                  <v-container>
-                    <v-row>
-                      <v-col cols="10" md="6">
-                        <v-text-field v-model="contrato.nombre" label="Nombre" outlined readonly></v-text-field>
-                      </v-col>
-                      <v-col cols="3" md="2">
-                        <v-text-field
-                          v-model="contrato.numero"
-                          label="Número"
-                          outlined
-                          readonly
-                          prefix="#"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="3" md="4">
-                        <v-text-field
-                          v-model="contrato.objetoDeContrato"
-                          label="Objeto de Contrato"
-                          outlined
-                          readonly
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col cols="6" md="4">
-                        <v-text-field v-model="contrato.entidad" label="Entidad" outlined readonly></v-text-field>
-                      </v-col>
-                      <v-col cols="6" md="4">
-                        <v-text-field
-                          v-model="contrato.montoCup"
-                          label="Monto en CUP"
-                          outlined
-                          readonly
-                          prefix="$"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="6" md="4">
-                        <v-text-field
-                          v-model="contrato.montoCuc"
-                          label="Monto en CUC"
-                          outlined
-                          readonly
-                          prefix="$"
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-
-                    <v-row>
-                      <v-col cols="6" md="6">
-                        <v-text-field
-                          v-model="contrato.terminoDePago"
-                          label="Término de Pago"
-                          outlined
-                          readonly
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="6" md="6">
-                        <v-text-field v-model="contrato.estado" label="Estado" outlined readonly></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-container>
+            <v-container>
+              <v-row>
+                <!-- DATOS DE El contrato -->
+                <v-col cols="6">
+                  <v-card :elevation="2" flat>
+                    <v-card-text>
+                      <v-row>
+                        <v-col cols="6" md="6" class="pa-2">
+                          <h2>Contrato número {{contrato.numero}}</h2>
+                        </v-col>
+                        <v-col cols="12" md="12" class="pa-2">
+                          <strong>Administrador del Contrato :</strong>
+                          <u class="pl-2">{{contrato.adminContrato.nombreCompleto}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Fecha de Recepción:</strong>
+                          <u class="pl-2">{{contrato.fechaDeRece}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>El contrato Vence el:</strong>
+                          <u class="pl-2">{{contrato.fechaDeVenOfer}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Objeto Social :</strong>
+                          <u class="pl-2">{{contrato.objetoDeContrato}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Término de Pago :</strong>
+                          <u class="pl-1">{{contrato.terminoDePagoDet}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2" v-if="contrato.montoCup!=null">
+                          <strong>Monto en CUP :</strong>
+                          <u class="pl-2">{{contrato.montoCup}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2" v-if="contrato.montoCuc!=null">
+                          <strong>Monto en CUC :</strong>
+                          <u class="pl-2">{{contrato.montoCuc}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2" v-if="contrato.montoUsd!=null">
+                          <strong>Monto en USD :</strong>
+                          <u class="pl-2">{{contrato.montoUsd}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Estado :</strong>
+                          <u class="pl-2">{{contrato.estadoNombre}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Formas e Pago :</strong>
+                          <v-spacer></v-spacer>
+                          <span v-for="item in contrato.formasDePago" :key="item.nombre">
+                            <v-spacer></v-spacer>-
+                            <u class="pl-2">{{item.nombre}}</u>
+                          </span>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Especialistas Externos:</strong>
+                          <span
+                            v-for="item in contrato.especialistasExternos"
+                            :key="item.nombreCompleto"
+                            class="pl-2"
+                          >
+                            <v-spacer></v-spacer>-
+                            <u class="pl-2">{{item.nombreCompleto}}</u>
+                          </span>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Especialistas Internos:</strong>
+                          <span
+                            v-for="item in contrato.especialistasExternos"
+                            :key="item.nombreCompleto"
+                            class="pl-2"
+                          >
+                            <v-spacer></v-spacer>-
+                            <u class="pl-2">{{item.nombreCompleto}}</u>
+                          </span>
+                        </v-col>
+                        <v-col cols="6" md="6" class="pa-2">
+                          <strong>Aprobado por el Jurídico :</strong>
+                          <span v-if="contrato.aprobJuridico">
+                            <v-icon color="success">mdi-check-underline</v-icon>
+                            <v-text :class="`success--text`">Sí</v-text>
+                          </span>
+                          <span v-else>
+                            <v-icon color="red">mdi-close-outline</v-icon>
+                            <v-text :class="`red--text`">No</v-text>
+                          </span>
+                        </v-col>
+                        <v-col cols="6" md="6" class="pa-2">
+                          <strong>Aprobado por el Económico :</strong>
+                          <span v-if="contrato.aprobEconomico">
+                            <v-icon color="success">mdi-check-underline</v-icon>
+                            <v-text :class="`success--text`">Sí</v-text>
+                          </span>
+                          <span v-else>
+                            <v-icon color="red">mdi-close-outline</v-icon>
+                            <v-text :class="`red--text`">No</v-text>
+                          </span>
+                        </v-col>
+                        <v-col cols="6" md="6" class="pa-2">
+                          <strong>Aprobado por el Comité Contratación:</strong>
+                          <span v-if="contrato.aprobComitContratacion">
+                            <v-text :class="`success--text`">Sí</v-text>
+                            <v-icon color="success">mdi-check-underline</v-icon>
+                          </span>
+                          <span v-else>
+                            <v-icon color="red">mdi-close-outline</v-icon>
+                            <v-text :class="`red--text`">No</v-text>
+                          </span>
+                        </v-col>
+                      </v-row>
+                    </v-card-text>
+                  </v-card>
                 </v-col>
+                <!-- /DATOS DE El contrato -->
 
-                <v-col cols="5">
-                  <v-timeline>
-                    <v-timeline-item :color="'blue'" :right="true" small>
-                      <template v-slot:opposite>
-                        <h5 :class="`subtitle-2 blue--text`" v-text="contrato.fechaDeRecepcion"></h5>
-                      </template>
-                      <v-card class="elevation-2">
-                        <v-card-text
-                          :class="`subtitle-2 blue--text`"
-                        >Fecha en que se Recibió el Contrato</v-card-text>
-                      </v-card>
-                    </v-timeline-item>
-                    <v-timeline-item :color="'success'" :right="true" small>
-                      <template v-slot:opposite>
-                        <span :class="`subtitle-2 success--text`" v-text="contrato.fechaDeFirmado"></span>
-                      </template>
-                      <v-card class="elevation-2">
-                        <v-card-text
-                          :class="`subtitle-2 success--text`"
-                        >Fecha en que se Firmó el Contrato</v-card-text>
-                      </v-card>
-                    </v-timeline-item>
-                  </v-timeline>
+                <!-- DATOS DE LA ENTIDAD PROVEEDORA -->
+                <v-col cols="6">
+                  <v-card :elevation="2" flat>
+                    <v-card-text>
+                      <v-row>
+                        <v-col cols="12" md="12" class="pa-2">
+                          <h2>Entidad Proveedora</h2>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Nombre :</strong>
+                          <u class="pl-2">{{contrato.entidad.nombre}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Dirección :</strong>
+                          <u class="pl-2">{{contrato.entidad.direccion}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>NIT :</strong>
+                          <u class="pl-2">{{contrato.entidad.nit}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Sector :</strong>
+                          <u class="pl-2">{{contrato.entidad.sectorNombre}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Fax :</strong>
+                          <u class="pl-2">{{contrato.entidad.fax}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Correo :</strong>
+                          <u class="pl-2">{{contrato.entidad.correo}}</u>
+                        </v-col>
+                        <v-col cols="12" md="6" class="pa-2">
+                          <strong>Objeto Social :</strong>
+                          <u class="pl-2">{{contrato.entidad.objetoSocial}}</u>
+                        </v-col>
+                        <v-col cols="8" md="8" class="pa-2">
+                          <strong>Teléfonos :</strong>
+                          <v-spacer></v-spacer>
+                          <span v-for="item in contrato.entidad.telefonos" :key="item.numero">
+                            <strong class="pl-4">Número:</strong>
+                            {{item.numero}}
+                            <strong
+                              class="pl-12"
+                            >Extensión:</strong>
+                            {{item.extension}}
+                            <v-divider></v-divider>
+                          </span>
+                        </v-col>
+                        <v-col cols="12" md="12" class="pa-2">
+                          <strong>Cuentas Bancarias :</strong>
+                          <v-data-table
+                            :headers="headersCuentas"
+                            :items="contrato.entidad.cuentasBancarias"
+                            hide-default-footer
+                            fixed-header
+                            class="pt-3"
+                          ></v-data-table>
+                        </v-col>
+                      </v-row>
+                    </v-card-text>
+                  </v-card>
                 </v-col>
               </v-row>
-              <v-row no-gutters class="px-3">
-                <v-col>
-                  <v-card class="pa-2" outlined tile>
-                    <v-text>Aprobado por el Jurídico :</v-text>
-                    <span v-if="contrato.aprobJuridico">
-                      <v-icon color="success">mdi-check-underline</v-icon>
-                      <v-text :class="`success--text`">Sí</v-text>
-                    </span>
-                    <span v-else>
-                      <v-icon color="red">mdi-close-outline</v-icon>
-                      <v-text :class="`red--text`">No</v-text>
-                    </span>
-                  </v-card>
-                </v-col>
-                <v-col>
-                  <v-card class="pa-2" outlined tile>
-                    <v-text>Aprobado por el Económico :</v-text>
-                    <span v-if="contrato.aprobEconomico">
-                      <v-icon color="success">mdi-check-underline</v-icon>
-                      <v-text :class="`success--text`">Sí</v-text>
-                    </span>
-                    <span v-else>
-                      <v-icon color="red">mdi-close-outline</v-icon>
-                      <v-text :class="`red--text`">No</v-text>
-                    </span>
-                  </v-card>
-                </v-col>
-                <v-col>
-                  <v-card class="pa-2" outlined tile>
-                    <v-text>Aprobado por el Comité Contratación:</v-text>
-                    <span v-if="contrato.aprobComitContratacion">
-                      <v-icon color="success">mdi-check-underline</v-icon>
-                      <v-text :class="`success--text`">Sí</v-text>
-                    </span>
-                    <span v-else>
-                      <v-icon color="red">mdi-close-outline</v-icon>
-                      <v-text :class="`red--text`">No</v-text>
-                    </span>
-                  </v-card>
-                </v-col>
-              </v-row>
+              <!-- /DATOS DE LA ENTIDAD PROVEEDORA -->
             </v-container>
           </v-card>
         </v-dialog>
@@ -284,17 +331,13 @@
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-icon
-            medium
-            class="mr-2"
-            v-on="on"
-            @click="getDetalles(item)"
-          >mdi-file-document-box-plus</v-icon>
-        </template>
-        <span>Detalles</span>
-      </v-tooltip>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+        small
+        @click="getDetalles(item)"
+      >
+        <v-icon>mdi-format-list-bulleted</v-icon>
+      </v-btn>
     </template>
   </v-data-table>
 </template>
@@ -306,13 +349,18 @@ export default {
     dialog: false,
     dialog1: false,
     dialog2: false,
-    dialog6: false,
+    dialog3: false,
     menu: false,
     search: "",
     editedIndex: -1,
     tabs: null,
     contratos: [],
-    contrato: {},
+    contrato: {
+      entidad: {},
+      adminContrato: {},
+      dictaminadores: [],
+      especialistasExternos: []
+    },
     cantContratos: 0,
     enTiempo: 0,
     casiVenc: 0,
@@ -341,6 +389,17 @@ export default {
       { text: "Entidad", value: "entidad.nombre" },
       { text: "Vence", value: "contVence" },
       { text: "Acciones", value: "action", sortable: false }
+    ],
+    headersCuentas: [
+      {
+        text: "Número de Cuenta",
+        align: "left",
+        sortable: true,
+        value: "numeroCuenta"
+      },
+      { text: "Número Sucursal", value: "numeroSucursal" },
+      { text: "Nombre Sucursal", value: "nombreSucursal" },
+      { text: "Moneda", value: "moneda" }
     ]
   }),
 
@@ -365,7 +424,10 @@ export default {
 
   methods: {
     getContratosFromApi() {
-      const url = api.getUrl("contratacion", "Contratos?tipoTramite=contrato&cliente=true");
+      const url = api.getUrl(
+        "contratacion",
+        "Contratos?tipoTramite=contrato&cliente=true"
+      );
       this.axios.get(url).then(
         response => {
           this.textByfiltro = "Contratos como Cliente";
@@ -379,7 +441,8 @@ export default {
     },
     getDetalles(item) {
       this.contrato = Object.assign({}, item);
-      this.dialog6 = true;
+      this.contrato.entidad = item.entidad[0];
+      this.dialog3 = true;
     },
     getTiempoVenContratosFromApi() {
       const url = api.getUrl("contratacion", "TiempoVenContratos");
@@ -400,7 +463,7 @@ export default {
     close() {
       this.dialog = false;
       this.dialog2 = false;
-      this.dialog6 = false;
+      this.dialog3 = false;
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);
@@ -456,7 +519,7 @@ export default {
     close() {
       this.dialog = false;
       this.dialog2 = false;
-      this.dialog6 = false;
+      this.dialog3 = false;
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);
@@ -506,28 +569,28 @@ export default {
       if (filtro == "contratoTiempo") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratoTiempo"
+          "Contratos?tipoTramite=contrato&filtro=contratoTiempo&cliente=true"
         );
         this.textByfiltro = "Contratos en Tiempo";
       }
       if (filtro == "contratosProxVencer") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratosProxVencer"
+          "Contratos?tipoTramite=contrato&filtro=contratosProxVencer&cliente=true"
         );
         this.textByfiltro = "Contratos Próximos a Vencer";
       }
       if (filtro == "contratosCasiVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratosCasiVenc"
+          "Contratos?tipoTramite=contrato&filtro=contratosCasiVenc&cliente=true"
         );
         this.textByfiltro = "Contratos Casi Vencidos";
       }
       if (filtro == "contratosVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratosVenc"
+          "Contratos?tipoTramite=contrato&filtro=contratosVenc&cliente=true"
         );
         this.textByfiltro = "Contratos Vencidos";
       }

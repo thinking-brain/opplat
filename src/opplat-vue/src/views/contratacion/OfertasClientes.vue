@@ -1019,9 +1019,7 @@ export default {
     },
     editItem(item) {
       this.editedIndex = this.ofertas.indexOf(item);
-
       this.oferta = Object.assign({}, item);
-      this.oferta.entidad = item.entidad;
       this.oferta.entidad = item.entidad[0];
       this.oferta.adminContrato = item.adminContrato.id;
 
@@ -1155,10 +1153,9 @@ export default {
       this.dialog6 = false;
       this.dialog7 = false;
       this.dialog9 = false;
-      this.oferta = {
-        entidad: {},
-        adminContrato: {}
-      };
+      this.oferta.entidad = {};
+      this.oferta.adminContrato = {};
+      this.getOfertasFromApi();
       this.message = "";
       setTimeout(() => {
         this.editedIndex = -1;
@@ -1228,28 +1225,28 @@ export default {
       if (filtro == "ofertaTiempo") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertaTiempo"
+          "Contratos?tipoTramite=oferta&filtro=ofertaTiempo&cliente=true"
         );
         this.textByfiltro = "Ofertas en Tiempo";
       }
       if (filtro == "ofertasProxVencer") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasProxVencer"
+          "Contratos?tipoTramite=oferta&filtro=ofertasProxVencer&cliente=true"
         );
         this.textByfiltro = "Ofertas Próximas a Vencer";
       }
       if (filtro == "ofertasCasiVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasCasiVenc"
+          "Contratos?tipoTramite=oferta&filtro=ofertasCasiVenc&cliente=true"
         );
         this.textByfiltro = "Ofertas Casi Vencidas";
       }
       if (filtro == "ofertasVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasVenc"
+          "Contratos?tipoTramite=oferta&filtro=ofertasVenc&cliente=true"
         );
         this.textByfiltro = "Ofertas Vencidas";
       }

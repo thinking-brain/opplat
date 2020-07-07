@@ -527,11 +527,7 @@
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Sector :</strong>
-                          <u class="pl-2">{{oferta.sectorEntidad}}</u>
-                        </v-col>
-                        <v-col cols="12" md="6" class="pa-2">
-                          <strong>Sector :</strong>
-                          <u class="pl-2">{{oferta.sectorEntidad}}</u>
+                          <u class="pl-2">{{oferta.entidad.sectorNombre}}</u>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Fax :</strong>
@@ -548,7 +544,7 @@
                         <v-col cols="8" md="8" class="pa-2">
                           <strong>Teléfonos :</strong>
                           <v-spacer></v-spacer>
-                          <span v-for="item in oferta.telefonosEntidad" :key="item.numero">
+                          <span v-for="item in oferta.entidad.telefonos" :key="item.numero">
                             <strong class="pl-4">Número:</strong>
                             {{item.numero}}
                             <strong
@@ -562,7 +558,7 @@
                           <strong>Cuentas Bancarias :</strong>
                           <v-data-table
                             :headers="headersCuentas"
-                            :items="oferta.cuentasBancEntidad"
+                            :items="oferta.entidad.cuentasBancarias"
                             hide-default-footer
                             fixed-header
                             class="pt-3"
@@ -708,7 +704,7 @@
       </v-toolbar>
     </template>
     <!-- Actions -->
-   <template v-slot:item.action="{ item }">
+    <template v-slot:item.action="{ item }">
       <v-btn
         class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
         small
@@ -730,7 +726,13 @@
       >
         <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
       </v-btn>
-
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+        small
+        @click="download(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+      </v-btn>
       <v-btn
         class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
         small
@@ -817,6 +819,7 @@ export default {
       class: null
     },
     trabajadores: [],
+    departamentos: [],
     errors: [],
     headers: [
       { text: "Número", sortable: true, value: "numero" },
@@ -837,7 +840,7 @@ export default {
       { text: "Número Sucursal", value: "numeroSucursal" },
       { text: "Nombre Sucursal", value: "nombreSucursal" },
       { text: "Moneda", value: "moneda" }
-    ],
+    ]
   }),
 
   computed: {
@@ -983,25 +986,19 @@ export default {
     },
     editItem(item) {
       this.editedIndex = this.ofertas.indexOf(item);
-
       this.oferta = Object.assign({}, item);
-      this.oferta.entidad = item.entidadId;
-      for (let index = 0; index < item.dictaminadores.length; index++) {
-        this.oferta.dictaminadores[index] =
-          item.dictaminadores[index].dictaminador.id;
-      }
+      this.oferta.entidad = item.entidad[0];
       this.oferta.adminContrato = item.adminContrato.id;
 
       for (let index = 0; index < this.oferta.formasDePago.length; index++) {
         this.oferta.formasDePago[index] = item.formasDePago[index].id;
       }
-      this.oferta.especialistasExternos = [];
 
       this.dialog = true;
     },
     getDetalles(item) {
       this.oferta = Object.assign({}, item);
-      this.oferta.entidad = item.entidad;
+      this.oferta.entidad = item.entidad[0];
       this.dialog6 = true;
       if (this.oferta.ofertVence < this.tiempoVenOfertas.ofertasVencidas) {
         this.textOfertaVence.text = "La Oferta ya se Venció Tiene";
@@ -1085,6 +1082,17 @@ export default {
           }
         );
     },
+    download(item) {
+      const url = api.getUrl("contratacion", "contratos/DownloadFile");
+      this.axios.get(`${url}/${item.id}`).then(
+        response => {
+          window.open(url + "/" + item.id);
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     confirmDelete(item) {
       this.oferta = Object.assign({}, item);
       this.dialog2 = true;
@@ -1110,7 +1118,7 @@ export default {
       this.dialog9 = false;
       this.oferta = {
         entidad: {},
-        adminContrato: {},
+        adminContrato: {}
       };
       setTimeout(() => {
         this.editedIndex = -1;
@@ -1150,7 +1158,10 @@ export default {
       }
     },
     GetVencimientoOferta() {
-      const url = api.getUrl("contratacion", "contratos/VencimientoOferta?cliente=false");
+      const url = api.getUrl(
+        "contratacion",
+        "contratos/VencimientoOferta?cliente=false"
+      );
       this.axios.get(url).then(
         response => {
           this.vencimientoOfertas = response.data;
@@ -1176,28 +1187,28 @@ export default {
       if (filtro == "ofertaTiempo") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertaTiempo"
+          "Contratos?tipoTramite=oferta&filtro=ofertaTiempo&cliente=false"
         );
         this.textByfiltro = "Ofertas en Tiempo";
       }
       if (filtro == "ofertasProxVencer") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasProxVencer"
+          "Contratos?tipoTramite=oferta&filtro=ofertasProxVencer&cliente=false"
         );
         this.textByfiltro = "Ofertas Próximas a Vencer";
       }
       if (filtro == "ofertasCasiVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasCasiVenc"
+          "Contratos?tipoTramite=oferta&filtro=ofertasCasiVenc&cliente=false"
         );
         this.textByfiltro = "Ofertas Casi Vencidas";
       }
       if (filtro == "ofertasVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasVenc"
+          "Contratos?tipoTramite=oferta&filtro=ofertasVenc&cliente=false"
         );
         this.textByfiltro = "Ofertas Vencidas";
       }

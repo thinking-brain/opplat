@@ -31,6 +31,7 @@ namespace RhWebApi.Dtos {
     public DateTime Fecha { get; set; }
     public int PerfilOcupacionalId { get; set; }
     public string Nombre_Referencia { get; set; }
+    public string UserId { get; set; }
 
     [NotMapped]
     private string _nombreCompleto;

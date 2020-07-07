@@ -501,28 +501,28 @@ export default {
       if (filtro == "contratoTiempo") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratoTiempo"
+          "Contratos?tipoTramite=contrato&filtro=contratoTiempo&cliente=false"
         );
         this.textByfiltro = "Contratos en Tiempo";
       }
       if (filtro == "contratosProxVencer") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratosProxVencer"
+          "Contratos?tipoTramite=contrato&filtro=contratosProxVencer&cliente=false"
         );
         this.textByfiltro = "Contratos Próximos a Vencer";
       }
       if (filtro == "contratosCasiVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratosCasiVenc"
+          "Contratos?tipoTramite=contrato&filtro=contratosCasiVenc&cliente=false"
         );
         this.textByfiltro = "Contratos Casi Vencidos";
       }
       if (filtro == "contratosVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratosVenc"
+          "Contratos?tipoTramite=contrato&filtro=contratosVenc&cliente=false"
         );
         this.textByfiltro = "Contratos Vencidos";
       }
