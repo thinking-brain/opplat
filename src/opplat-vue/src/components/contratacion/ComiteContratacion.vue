@@ -1,8 +1,8 @@
 <template>
-  <v-data-table :headers="headers" :items="departamentos" :search="search" class="elevation-1 pa-5">
+  <v-data-table :headers="headers" :items="trabajadoresComiteCont" :search="search" class="elevation-1 pa-5">
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>Departamentos</v-toolbar-title>
+        <v-toolbar-title>Comité de Contratación</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field
@@ -16,7 +16,7 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <template>
-          <v-btn color="primary" @click="newDepartamento()">Nuevo Departamento</v-btn>
+          <v-btn color="primary" @click="nuevo()">Nuevos Integrantes</v-btn>
         </template>
         <!-- Agregar y Editar Departamento -->
         <v-dialog v-model="dialog" persistent max-width="450">
@@ -96,17 +96,16 @@ export default {
   data: () => ({
     dialog: false,
     dialog2: false,
-    departamentos: [],
+    trabajadoresComiteCont: [],
     departamento: {},
     editedIndex: -1,
     errors: [],
-
     headers: [
       {
         text: "Nombre",
         align: "left",
         sortable: true,
-        value: "nombre"
+        value: "nombreCompleto"
       },
       { text: "Acciones", value: "action", sortable: false }
     ]
@@ -128,35 +127,35 @@ export default {
     }
   },
   created() {
-    this.getDepartamentosFromApi();
+    this.getComiteContratacionFromApi();
   },
   methods: {
-    getDepartamentosFromApi() {
-      const url = api.getUrl("contratacion", "Departamentos");
+    getComiteContratacionFromApi() {
+      const url = api.getUrl("contratacion", "ComiteContratacion");
       this.axios.get(url).then(
         response => {
-          this.departamentos = response.data;
+          this.trabajadoresComiteCont = response.data;
         },
         error => {
           console.log(error);
         }
       );
     },
-    newDepartamento() {
+    nuevo() {
       this.dialog = true;
     },
     editItem(item) {
-      this.editedIndex = this.departamentos.indexOf(item);
+      this.editedIndex = this.ComiteContratacion.indexOf(item);
       this.departamento = Object.assign({}, item);
       this.dialog = true;
     },
     save(method) {
-      const url = api.getUrl("contratacion", "Departamentos");
+      const url = api.getUrl("contratacion", "ComiteContratacion");
       if (method === "POST") {
         this.axios.post(url, this.departamento).then(
           response => {
             this.getResponse(response);
-            this.getDepartamentosFromApi();
+            this.getComiteContratacionFromApi();
             this.departamento = [];
             this.dialog = false;
           },
@@ -171,7 +170,7 @@ export default {
           .then(
             response => {
               this.getResponse(response);
-              this.getDepartamentosFromApi();
+              this.getComiteContratacionFromApi();
               this.departamento = {};
               this.dialog = false;
             },
@@ -186,11 +185,11 @@ export default {
       this.dialog2 = true;
     },
     deleteItem(departamento) {
-      const url = api.getUrl("contratacion", "Departamentos");
+      const url = api.getUrl("contratacion", "ComiteContratacion");
       this.axios.delete(`${url}/${departamento.id}`).then(
         response => {
           this.getResponse(response);
-          this.getDepartamentosFromApi();
+          this.getComiteContratacionFromApi();
           this.dialog2 = false;
         },
         error => {

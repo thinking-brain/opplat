@@ -40,6 +40,7 @@ namespace RhWebApi.Models {
         public virtual AperturaSocio AperturaSocio { get; set; }
         public DateTime Fecha_Nac { get; set; }
         public string UserId { get; set; }
+        public string ComiteContratacionId { get; set; }
 
         [NotMapped]
         private string _nombreCompleto;

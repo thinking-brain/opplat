@@ -9,6 +9,7 @@
             <v-tab class="caption py-3">Departamentos</v-tab>
             <v-tab class="caption py-3">Proveedores</v-tab>
             <v-tab class="caption py-3">Especialistas Externos</v-tab>
+            <v-tab class="caption py-3">Comité de Contratación</v-tab>
             <v-tab class="caption py-3">Tiempo de Vencimiento</v-tab>
           </v-tabs>
         </v-toolbar>
@@ -51,6 +52,13 @@
           <v-tab-item>
             <v-card flat>
               <v-card-text>
+                <ComiteContratacion></ComiteContratacion>
+              </v-card-text>
+            </v-card>
+          </v-tab-item>
+          <v-tab-item>
+            <v-card flat>
+              <v-card-text>
                 <TiempoVenContratos></TiempoVenContratos>
               </v-card-text>
             </v-card>
@@ -69,6 +77,7 @@ import EspExternos from "@/components/contratacion/EspExternos.vue";
 import FormasDePago from "@/components/contratacion/FormasDePago.vue";
 import Entidades from "@/components/contratacion/Entidades.vue";
 import Departamentos from "@/components/contratacion/Departamentos.vue";
+import ComiteContratacion from "@/components/contratacion/ComiteContratacion.vue";
 import TiempoVenContratos from "@/components/contratacion/TiempoVenContratos.vue";
 
 export default {
@@ -79,6 +88,7 @@ export default {
     FormasDePago,
     Entidades,
     Departamentos,
+    ComiteContratacion,
     TiempoVenContratos
   },
   data: () => ({

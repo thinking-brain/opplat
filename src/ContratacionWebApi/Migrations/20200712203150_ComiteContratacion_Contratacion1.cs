@@ -4,10 +4,23 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
-    public partial class ContratoId_DepartamentoId : Migration
+    public partial class ComiteContratacion_Contratacion1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "ComiteContratacion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ComiteContratacion", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Departamentos",
                 columns: table => new
@@ -29,6 +42,7 @@ namespace ContratacionWebApi.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Codigo = table.Column<string>(nullable: true),
                     Nombre = table.Column<string>(nullable: false),
+                    Siglas = table.Column<string>(nullable: true),
                     Direccion = table.Column<string>(nullable: false),
                     Nit = table.Column<string>(nullable: false),
                     CI = table.Column<string>(nullable: true),
@@ -186,8 +200,8 @@ namespace ContratacionWebApi.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nombre = table.Column<string>(nullable: false),
-                    Apellidos = table.Column<string>(nullable: false),
+                    Nombre = table.Column<string>(nullable: true),
+                    Apellidos = table.Column<string>(nullable: true),
                     EntidadId = table.Column<int>(nullable: false),
                     Area = table.Column<string>(nullable: true),
                     Departamento = table.Column<string>(nullable: true),
@@ -332,8 +346,7 @@ namespace ContratacionWebApi.Migrations
                 columns: table => new
                 {
                     EspecialistaExternoId = table.Column<int>(nullable: false),
-                    ContratoId = table.Column<int>(nullable: false),
-                    Id = table.Column<int>(nullable: false)
+                    ContratoId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -462,6 +475,11 @@ namespace ContratacionWebApi.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "ComiteContratacion",
+                columns: new[] { "Id", "Nombre" },
+                values: new object[] { 1, "Comité Contratación" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AdminContratos_DepartamentoId",
                 table: "AdminContratos",
@@ -550,6 +568,9 @@ namespace ContratacionWebApi.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ComiteContratacion");
+
             migrationBuilder.DropTable(
                 name: "cont_objs_de_contratos");
 

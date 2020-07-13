@@ -35,6 +35,25 @@ namespace ContratacionWebApi.Migrations
                     b.ToTable("AdminContratos");
                 });
 
+            modelBuilder.Entity("ContratacionWebApi.Models.ComiteContratacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Nombre");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ComiteContratacion");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nombre = "Comité Contratación"
+                        });
+                });
+
             modelBuilder.Entity("ContratacionWebApi.Models.Contrato", b =>
                 {
                     b.Property<int>("Id")
@@ -260,6 +279,8 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("Sector");
 
+                    b.Property<string>("Siglas");
+
                     b.HasKey("Id");
 
                     b.ToTable("Entidades");
@@ -320,8 +341,7 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Apellidos")
-                        .IsRequired();
+                    b.Property<string>("Apellidos");
 
                     b.Property<string>("Area");
 
@@ -331,8 +351,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("EntidadId");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired();
+                    b.Property<string>("Nombre");
 
                     b.HasKey("Id");
 

@@ -78,6 +78,7 @@ namespace ContratacionWebApi.Controllers {
                     Entidad = context.Entidades.Include (e => e.CuentasBancarias).Include (e => e.Telefonos).Where (s => s.Id == c.EntidadId).Select (e => new {
                         Id = e.Id,
                             Nombre = e.Nombre,
+                            Siglas = e.Siglas,
                             Codigo = e.Codigo,
                             Direccion = e.Direccion,
                             Nit = e.Nit,

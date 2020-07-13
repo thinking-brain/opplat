@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    [Migration("20200629203838_ContratoId_DepartamentoId1")]
-    partial class ContratoId_DepartamentoId1
+    [Migration("20200712203150_ComiteContratacion_Contratacion1")]
+    partial class ComiteContratacion_Contratacion1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,6 +35,25 @@ namespace ContratacionWebApi.Migrations
                     b.HasIndex("DepartamentoId");
 
                     b.ToTable("AdminContratos");
+                });
+
+            modelBuilder.Entity("ContratacionWebApi.Models.ComiteContratacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Nombre");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ComiteContratacion");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nombre = "Comité Contratación"
+                        });
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.Contrato", b =>
@@ -262,6 +281,8 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("Sector");
 
+                    b.Property<string>("Siglas");
+
                     b.HasKey("Id");
 
                     b.ToTable("Entidades");
@@ -322,8 +343,7 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Apellidos")
-                        .IsRequired();
+                    b.Property<string>("Apellidos");
 
                     b.Property<string>("Area");
 
@@ -333,8 +353,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("EntidadId");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired();
+                    b.Property<string>("Nombre");
 
                     b.HasKey("Id");
 
