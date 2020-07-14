@@ -9,12 +9,7 @@ namespace ContratacionWebApi.Data {
         protected override void OnModelCreating (ModelBuilder modelBuilder) {
             modelBuilder.Entity<EspExternoId_ContratoId> ()
                 .HasKey (x => new { x.ContratoId, x.EspecialistaExternoId });
-            modelBuilder.Entity<ComiteContratacion> ().HasData (
-                new ComiteContratacion {
-                    Id = 1,
-                        Nombre = "Comité de Contratación"
-                }
-            );
+         
             modelBuilder.ForNpgsqlUseIdentityColumns ();
             modelBuilder.Entity<ContratoId_DepartamentoId> ().HasKey (x => new { x.ContratoId, x.DepartamentoId });
             base.OnModelCreating (modelBuilder);

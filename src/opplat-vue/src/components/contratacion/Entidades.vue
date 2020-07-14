@@ -444,6 +444,9 @@
                     </v-flex>
                   </v-row>
                 </v-flex>
+                  <v-flex xs6 class="px-1 pt-3">
+                <v-alert v-if="errorController!=null" border="left" color="red" dark>{{ errorController }}</v-alert>
+              </v-flex>
                 <!-- /Agregar y Editar Cuenta Bancaria del Proveedor -->
               </v-container>
             </v-form>
@@ -684,6 +687,7 @@ export default {
     NitRules: [v => !!v || "El NIT es Requerido"],
     textNit: "",
     errors: [],
+    errorController: null,
     headers: [
       {
         text: "Nombre",
@@ -1300,9 +1304,11 @@ export default {
                   this.getResponse(response);
                   this.resetDatos();
                   this.dialog = false;
+                  this.errorController = null;
                 },
                 error => {
-                  vm.$snotify.error(error);
+                  this.errorController = error.response.data;
+                  vm.$snotify.error(error.response.data);
                   console.log(error);
                 }
               );
@@ -1479,6 +1485,7 @@ export default {
         ]
       };
       this.textNit = "";
+      this.errorController = null;
     },
     getResponse(response) {
       if (response.status === 200 || response.status === 201) {

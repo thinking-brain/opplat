@@ -470,8 +470,6 @@ namespace RhWebApi.Migrations
 
                     b.Property<string>("Codigo");
 
-                    b.Property<string>("ComiteContratacionId");
-
                     b.Property<string>("Correo");
 
                     b.Property<string>("Direccion");

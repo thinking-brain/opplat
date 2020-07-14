@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
-    public partial class ComiteContratacion_Contratacion1 : Migration
+    public partial class TrabComiteContratacionId : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,7 +14,7 @@ namespace ContratacionWebApi.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nombre = table.Column<string>(nullable: true)
+                    TrabComiteContratacionId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -474,11 +474,6 @@ namespace ContratacionWebApi.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.InsertData(
-                table: "ComiteContratacion",
-                columns: new[] { "Id", "Nombre" },
-                values: new object[] { 1, "Comité Contratación" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AdminContratos_DepartamentoId",

@@ -10,8 +10,8 @@ using RhWebApi.Data;
 namespace RhWebApi.Migrations
 {
     [DbContext(typeof(RhWebApiDbContext))]
-    [Migration("20200204203918_aperturaSocioController1")]
-    partial class aperturaSocioController1
+    [Migration("20200714033141_ComiteContratacionId_Trabajadoresoff")]
+    partial class ComiteContratacionId_Trabajadoresoff
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -64,7 +64,7 @@ namespace RhWebApi.Migrations
 
                     b.Property<int?>("CaracteristicasSocioId");
 
-                    b.Property<bool>("Cerrada");
+                    b.Property<int>("EstadosApertura");
 
                     b.Property<DateTime>("Fecha");
 
@@ -118,21 +118,25 @@ namespace RhWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("ColorDePiel");
-
                     b.Property<string>("Direccion");
+
+                    b.Property<int?>("EdadDesde");
+
+                    b.Property<int?>("EdadHasta");
 
                     b.Property<int?>("MunicipioId");
 
                     b.Property<int>("NivelDeEscolaridad");
 
-                    b.Property<string>("Perfil_Ocupacional");
+                    b.Property<int?>("PerfilOcupacionalId");
 
                     b.Property<int?>("Sexo");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MunicipioId");
+
+                    b.HasIndex("PerfilOcupacionalId");
 
                     b.ToTable("caracteristicas_de_los_socios");
                 });
@@ -351,6 +355,18 @@ namespace RhWebApi.Migrations
                     b.ToTable("OtrosMovimientos");
                 });
 
+            modelBuilder.Entity("RhWebApi.Models.PerfilOcupacional", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Nombre");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PerfilOcupacional");
+                });
+
             modelBuilder.Entity("RhWebApi.Models.Plantilla", b =>
                 {
                     b.Property<int>("Id")
@@ -451,7 +467,8 @@ namespace RhWebApi.Migrations
                     b.Property<int?>("AperturaSocioId");
 
                     b.Property<string>("CI")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(11);
 
                     b.Property<string>("Codigo");
 
@@ -470,8 +487,7 @@ namespace RhWebApi.Migrations
                     b.Property<string>("Nombre")
                         .IsRequired();
 
-                    b.Property<string>("Perfil_Ocupacional")
-                        .IsRequired();
+                    b.Property<int>("PerfilOcupacionalId");
 
                     b.Property<int?>("PuestoDeTrabajoId");
 
@@ -481,11 +497,15 @@ namespace RhWebApi.Migrations
 
                     b.Property<string>("TelefonoMovil");
 
+                    b.Property<string>("UserId");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AperturaSocioId");
 
                     b.HasIndex("MunicipioId");
+
+                    b.HasIndex("PerfilOcupacionalId");
 
                     b.HasIndex("PuestoDeTrabajoId");
 
@@ -505,7 +525,9 @@ namespace RhWebApi.Migrations
 
                     b.Property<int>("TrabajadorId");
 
-                    b.Property<int>("UnidadOrganizativaId");
+                    b.Property<int>("UnidOrgDestinoId");
+
+                    b.Property<int>("UnidOrgOrigenId");
 
                     b.HasKey("Id");
 
@@ -515,7 +537,9 @@ namespace RhWebApi.Migrations
 
                     b.HasIndex("TrabajadorId");
 
-                    b.HasIndex("UnidadOrganizativaId");
+                    b.HasIndex("UnidOrgDestinoId");
+
+                    b.HasIndex("UnidOrgOrigenId");
 
                     b.ToTable("Traslados");
                 });
@@ -587,6 +611,10 @@ namespace RhWebApi.Migrations
                     b.HasOne("RhWebApi.Models.Municipio", "Municipio")
                         .WithMany()
                         .HasForeignKey("MunicipioId");
+
+                    b.HasOne("RhWebApi.Models.PerfilOcupacional", "PerfilOcupacional")
+                        .WithMany()
+                        .HasForeignKey("PerfilOcupacionalId");
                 });
 
             modelBuilder.Entity("RhWebApi.Models.CaracteristicasTrab", b =>
@@ -706,13 +734,18 @@ namespace RhWebApi.Migrations
 
             modelBuilder.Entity("RhWebApi.Models.Trabajador", b =>
                 {
-                    b.HasOne("RhWebApi.Models.AperturaSocio")
+                    b.HasOne("RhWebApi.Models.AperturaSocio", "AperturaSocio")
                         .WithMany("ListaTrabajadores")
                         .HasForeignKey("AperturaSocioId");
 
                     b.HasOne("RhWebApi.Models.Municipio", "Municipio")
                         .WithMany()
                         .HasForeignKey("MunicipioId");
+
+                    b.HasOne("RhWebApi.Models.PerfilOcupacional", "PerfilOcupacional")
+                        .WithMany()
+                        .HasForeignKey("PerfilOcupacionalId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("RhWebApi.Models.PuestoDeTrabajo", "PuestoDeTrabajo")
                         .WithMany("Trabajadores")
@@ -735,9 +768,14 @@ namespace RhWebApi.Migrations
                         .HasForeignKey("TrabajadorId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("RhWebApi.Models.UnidadOrganizativa", "UnidadOrganizativa")
+                    b.HasOne("RhWebApi.Models.UnidadOrganizativa", "UnidOrgDestino")
                         .WithMany()
-                        .HasForeignKey("UnidadOrganizativaId")
+                        .HasForeignKey("UnidOrgDestinoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("RhWebApi.Models.UnidadOrganizativa", "UnidOrgOrigen")
+                        .WithMany()
+                        .HasForeignKey("UnidOrgOrigenId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

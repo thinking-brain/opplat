@@ -63,7 +63,7 @@ namespace ContratacionWebApi.Controllers {
             if (ModelState.IsValid) {
                 foreach (var item in entidad.CuentasBancarias) {
                     if (context.CuentasBancarias.Any (c => c.NumeroCuenta == item.NumeroCuenta)) {
-                        return BadRequest ($"Ya existe el número de cuenta bancaria: " + item.NumeroCuenta);
+                        return BadRequest ($"Ya hay un proveedor con el número de cuenta bancaria: " + item.NumeroCuenta);
                     }
                 }
                 if (context.Entidades.Any (c => c.Nit == entidad.Nit)) {

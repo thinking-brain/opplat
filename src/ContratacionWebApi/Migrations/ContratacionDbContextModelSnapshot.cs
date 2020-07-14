@@ -40,18 +40,11 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Nombre");
+                    b.Property<int>("TrabComiteContratacionId");
 
                     b.HasKey("Id");
 
                     b.ToTable("ComiteContratacion");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Nombre = "Comité Contratación"
-                        });
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.Contrato", b =>

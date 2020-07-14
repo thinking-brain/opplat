@@ -24,66 +24,28 @@ namespace ContratacionWebApi.Controllers {
         // GET contratos/AdminContratos
         [HttpGet]
         public IActionResult GetAll () {
-            var trabajadoresComiteCont = context_rh.Trabajador.Where(t=>t.ComiteContratacionId!=null).ToList ();
-           
-            return Ok (trabajadoresComiteCont);
+            // var trabajadoresComiteCont = context_rh.Trabajador.Where (t => t.ComiteContratacionId != null).ToList ();
+
+            return Ok ();
         }
 
         // GET: contratos/AdminContratos/Id
         [HttpGet ("{id}", Name = "GetTrabComiteCont")]
         public IActionResult GetbyId (int id) {
-         var trabajador = context_rh.Trabajador.Select (t => new {
-                Id = t.Id,
-                    Nombre = t.Nombre,
-                    Apellidos = t.Apellidos,
-                    Nombre_Completo = t.Nombre + " " + t.Apellidos,
-                    CI = t.CI,
-                    Sexo = t.Sexo,
-                    SexoName = t.Sexo.ToString (),
-                    TelefonoFijo = t.TelefonoFijo,
-                    TelefonoMovil = t.TelefonoMovil,
-                    Direccion = t.Direccion,
-                    NivelDeEscolaridad = t.NivelDeEscolaridad,
-                    NivelDeEscolaridadName = t.NivelDeEscolaridad.ToString (), MunicipioProv = t.Municipio.Nombre + " " + t.Municipio.Provincia.Nombre,
-                    PerfilOcupacional = t.PerfilOcupacional.Nombre,
-                    Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
-                    UnidadOrganizativa = t.PuestoDeTrabajo.UnidadOrganizativa.Nombre,
-                    EstadoTrabajador = t.EstadoTrabajador,
-                    EstadoTrabajadorName = t.EstadoTrabajador.ToString (), Correo = t.Correo,
-                    ColorDePiel = t.CaracteristicasTrab.ColorDePiel,
-                    ColorDePielName = t.CaracteristicasTrab.ColorDePiel.ToString (),
-                    ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos,
-                    ColorDeOjosName = t.CaracteristicasTrab.ColorDeOjos.ToString (),
-                    TallaPantalon = t.CaracteristicasTrab.TallaPantalon,
-                    TallaCalzado = t.CaracteristicasTrab.TallaCalzado,
-                    TallaCalzadoName = t.CaracteristicasTrab.TallaCalzado.ToString (),
-                    TallaDeCamisa = t.CaracteristicasTrab.TallaDeCamisa,
-                    TallaDeCamisaName = t.CaracteristicasTrab.TallaDeCamisa.ToString (),
-                    OtrasCaracteristicas = t.CaracteristicasTrab.OtrasCaracteristicas,
-                    Resumen = t.CaracteristicasTrab.Resumen,
-                    Foto = t.CaracteristicasTrab.Foto,
-                    Edad = (DateTime.Now - t.Fecha_Nac).Days / 365,
-                    Departamento = ""
-            });
-            var trabComiteContratacion = trabajador.FirstOrDefault (t => t.Id == id);
-            if (trabComiteContratacion == null) {
-                return NotFound ();
-            }
-            return Ok (trabComiteContratacion);
+
+            return Ok ();
         }
 
         // POST contratos/AdminContratos
         [HttpPost]
-        public IActionResult POST ([FromBody] AdminContratosDto adminContratosDto) {
+        public IActionResult POST ([FromBody] ComiteContratacionDto comiteContratacionDto) {
             if (ModelState.IsValid) {
-                foreach (var item in adminContratosDto.Administradores) {
-                    if (context.AdminContratos.FirstOrDefault (s => s.AdminContratoId == item) == null) {
-                        var administrador = new AdminContrato {
-                        AdminContratoId = item,
-                        DepartamentoId = adminContratosDto.DepartamentoId
-                        };
-                        context.AdminContratos.Add (administrador);
-                        context.SaveChanges ();
+                foreach (var item in comiteContratacionDto.Trabajadores) {
+                    var trab = context_rh.Trabajador.FirstOrDefault (s => s.Id == item);
+                    if (trab != null) {
+                        // trab.ComiteContratacionId = item;
+                        context_rh.Trabajador.Add (trab);
+                        context_rh.SaveChanges ();
                     }
                 }
                 return Ok ();
@@ -93,13 +55,12 @@ namespace ContratacionWebApi.Controllers {
 
         // PUT contratos/trabComiteContratacion/id
         [HttpPut ("{id}")]
-        public IActionResult PUT ([FromBody] AdminContratosDto adminContratosDto, int id) {
-            var administrador = context.AdminContratos.FirstOrDefault (s => s.AdminContratoId == id);
-            foreach (var item in adminContratosDto.Administradores) {
-                administrador.AdminContratoId = item;
+        public IActionResult PUT ([FromBody] ComiteContratacionDto comiteContratacionDto, int id) {
+            var trab = context_rh.Trabajador.FirstOrDefault (s => s.Id == id);
+            foreach (var item in comiteContratacionDto.Trabajadores) {
+                // trab.ComiteContratacionId = item;
             }
-            administrador.DepartamentoId = adminContratosDto.DepartamentoId;
-            context.Entry (administrador).State = EntityState.Modified;
+            context.Entry (trab).State = EntityState.Modified;
             context.SaveChanges ();
             return Ok ();
         }
@@ -107,12 +68,12 @@ namespace ContratacionWebApi.Controllers {
         // DELETE contratos/trabComiteContratacion/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
-            var trabComiteContratacion = context.AdminContratos.FirstOrDefault (s => s.AdminContratoId == id);
+            var trabComiteContratacion = context_rh.Trabajador.FirstOrDefault (s => s.Id == id);
 
             if (trabComiteContratacion == null) {
                 return NotFound ();
             }
-            context.AdminContratos.Remove (trabComiteContratacion);
+            context_rh.Trabajador.Remove (trabComiteContratacion);
             context.SaveChanges ();
             return Ok (trabComiteContratacion);
         }

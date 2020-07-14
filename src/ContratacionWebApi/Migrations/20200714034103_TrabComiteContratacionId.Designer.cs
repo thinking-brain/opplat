@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    [Migration("20200712203150_ComiteContratacion_Contratacion1")]
-    partial class ComiteContratacion_Contratacion1
+    [Migration("20200714034103_TrabComiteContratacionId")]
+    partial class TrabComiteContratacionId
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -42,18 +42,11 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Nombre");
+                    b.Property<int>("TrabComiteContratacionId");
 
                     b.HasKey("Id");
 
                     b.ToTable("ComiteContratacion");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Nombre = "Comité Contratación"
-                        });
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.Contrato", b =>
