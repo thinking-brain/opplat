@@ -41,11 +41,21 @@ namespace ContratacionWebApi.Controllers {
         public IActionResult POST ([FromBody] ComiteContratacionDto comiteContratacionDto) {
             if (ModelState.IsValid) {
                 foreach (var item in comiteContratacionDto.Trabajadores) {
-                    var trab = context_rh.Trabajador.FirstOrDefault (s => s.Id == item);
-                    if (trab != null) {
-                        // trab.ComiteContratacionId = item;
-                        context_rh.Trabajador.Add (trab);
-                        context_rh.SaveChanges ();
+                    if (item != null) {
+                        var trab = context.ComiteContratacion.FirstOrDefault (c => c.TrabComiteContratacionId == item && c.Activo == false);
+                        if (trab != null) {
+                            trab.Activo = true;
+                            context.Entry (trab).State = EntityState.Modified;
+                            context.SaveChanges ();
+                        } else {
+                            var trabComiteContratacion = new ComiteContratacion () {
+                                TrabComiteContratacionId = item,
+                                Activo = true
+                            };
+                            context.ComiteContratacion.Add (trabComiteContratacion);
+                            context_rh.SaveChanges ();
+                        }
+
                     }
                 }
                 return Ok ();

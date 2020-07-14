@@ -8,11 +8,13 @@ using RhWebApi.Models;
 namespace RhWebApi.Data {
     public class RhWebApiDbContext : DbContext {
         public RhWebApiDbContext (DbContextOptions<RhWebApiDbContext> options) : base (options) { }
-        protected override void OnModelCreating (ModelBuilder builder) {
-            base.OnModelCreating (builder);
-            // Customize the ASP.NET Identity model   override the defaults if needed.
-            // For example, you can rename the ASP.NET Identity table names and more.
-            // Add your customizations after calling base.OnModelCreating(builder);
+        protected override void OnModelCreating (ModelBuilder modelBuilder) {
+            base.OnModelCreating (modelBuilder);
+            modelBuilder.Entity<PerfilOcupacional> ().HasData (
+                new PerfilOcupacional {
+                    Id = 0,
+                        Nombre = "Sin Definir"
+                });
         }
         public DbSet<RhWebApi.Models.Trabajador> Trabajador { get; set; }
         public DbSet<RhWebApi.Models.Municipio> Municipio { get; set; }
