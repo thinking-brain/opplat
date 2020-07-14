@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using ContratacionWebApi.Data;
 using ContratacionWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ namespace ContratacionWebApi.Controllers {
             var entidades = context.Entidades.Include (e => e.CuentasBancarias).Include (e => e.Telefonos).Select (e => new {
                 Id = e.Id,
                     Nombre = e.Nombre,
+                    Siglas = e.Siglas,
                     Codigo = e.Codigo,
                     Direccion = e.Direccion,
                     Nit = e.Nit,
@@ -31,14 +33,15 @@ namespace ContratacionWebApi.Controllers {
                     Telefonos = e.Telefonos,
                     CantTelefonos = e.Telefonos.Count (),
                     CuentasBancarias = e.CuentasBancarias.Select (c => new {
-                        NumeroCuenta = c.NumeroCuenta,
+                        Id = c.Id,
+                            NumeroCuenta = c.NumeroCuenta,
                             NumeroSucursal = c.NumeroSucursal,
                             NombreSucursal = c.NombreSucursal,
                             NombreSucursalString = c.NombreSucursal.ToString (),
                             Moneda = c.Moneda,
                             MonedaString = c.Moneda.ToString ()
                     }),
-                    CantCuentasBancarias = e.CuentasBancarias.Count ()
+                    CantCuentas = e.CuentasBancarias.Count ()
             });
 
             return Ok (entidades);
@@ -58,13 +61,18 @@ namespace ContratacionWebApi.Controllers {
         [HttpPost]
         public IActionResult POST ([FromBody] Entidad entidad) {
             if (ModelState.IsValid) {
-                var entByNit = context.Entidades.FirstOrDefault (e => e.Nit == entidad.Nit);
-                if (entByNit != null) {
-                    return BadRequest ($"Ya hay un Proveedor con este NIT");
+                foreach (var item in entidad.CuentasBancarias) {
+                    if (context.CuentasBancarias.Any (c => c.NumeroCuenta == item.NumeroCuenta)) {
+                        return BadRequest ($"Ya hay un proveedor con el número de cuenta bancaria: " + item.NumeroCuenta);
+                    }
+                }
+                if (context.Entidades.Any (c => c.Nit == entidad.Nit)) {
+                    return BadRequest ($"Ya hay un proveedor con este NIT: " + entidad.Nit);
                 } else {
                     var ent = new Entidad {
                         Id = entidad.Id,
                         Nombre = entidad.Nombre,
+                        Siglas = entidad.Siglas,
                         Codigo = entidad.Codigo,
                         Direccion = entidad.Direccion,
                         Nit = entidad.Nit,
@@ -116,61 +124,56 @@ namespace ContratacionWebApi.Controllers {
         public IActionResult PUT ([FromBody] Entidad entidad, int id) {
             var ent = context.Entidades.FirstOrDefault (s => s.Id == id);
 
-            if (context.Entidades.FirstOrDefault (e => e.Nit == entidad.Nit) != null) {
-                return BadRequest ($"Ya hay un Proveedor con este NIT");
-            } else if (context.Entidades.FirstOrDefault (e => e.Codigo == entidad.Codigo) != null) {
-                return BadRequest ($"Ya hay un Proveedor con este Codigo");
-            } else {
-                ent.Nombre = entidad.Nombre;
-                ent.Codigo = entidad.Codigo;
-                ent.Direccion = entidad.Direccion;
-                ent.Nit = entidad.Nit;
-                ent.Sector = entidad.Sector;
-                ent.Fax = entidad.Fax;
-                ent.Correo = entidad.Correo;
-                ent.ObjetoSocial = entidad.ObjetoSocial;
-                context.Entry (ent).State = EntityState.Modified;
+            ent.Nombre = entidad.Nombre;
+            ent.Siglas = entidad.Siglas;
+            ent.Codigo = entidad.Codigo;
+            ent.Direccion = entidad.Direccion;
+            ent.Nit = entidad.Nit;
+            ent.Sector = entidad.Sector;
+            ent.Fax = entidad.Fax;
+            ent.Correo = entidad.Correo;
+            ent.ObjetoSocial = entidad.ObjetoSocial;
+            context.Entry (ent).State = EntityState.Modified;
 
-                var telefonos = context.Telefonos.Where (t => t.EntidadId == ent.Id);
-                if (telefonos != null) {
-                    foreach (var item in telefonos) {
-                        var telef = context.Telefonos.FirstOrDefault (s => s.Id == item.Id);
-                        context.Telefonos.Remove (telef);
-                        context.SaveChanges ();
-                    }
+            var telefonos = context.Telefonos.Where (t => t.EntidadId == ent.Id);
+            if (telefonos != null) {
+                foreach (var item in telefonos) {
+                    var telef = context.Telefonos.FirstOrDefault (s => s.Id == item.Id);
+                    context.Telefonos.Remove (telef);
+                    context.SaveChanges ();
                 }
-                foreach (var item in entidad.Telefonos) {
-                    if (item.Numero != null) {
-                        var telefono = new Telefono {
-                        Id = item.Id,
-                        Numero = item.Numero,
-                        Extension = item.Extension,
-                        EntidadId = ent.Id
-                        };
-                        context.Telefonos.Add (telefono);
-                    }
-                }
-                var cuentas = context.CuentasBancarias.Where (c => c.EntidadId == ent.Id);
-                if (cuentas != null) {
-                    foreach (var item in cuentas) {
-                        var c = context.CuentasBancarias.FirstOrDefault (s => s.Id == item.Id);
-                        context.CuentasBancarias.Remove (c);
-                        context.SaveChanges ();
-                    }
-                }
-                if (entidad.CuentasBancarias != null) {
-                    foreach (var item in entidad.CuentasBancarias) {
-                    if (item.NumeroCuenta != null) {
-                    var cuenta = new CuentaBancaria {
+            }
+            foreach (var item in entidad.Telefonos) {
+                if (item.Numero != null) {
+                    var telefono = new Telefono {
                     Id = item.Id,
-                    NumeroCuenta = item.NumeroCuenta,
-                    NumeroSucursal = item.NumeroSucursal,
-                    NombreSucursal = item.NombreSucursal,
-                    Moneda = item.Moneda,
+                    Numero = item.Numero,
+                    Extension = item.Extension,
                     EntidadId = ent.Id
-                            };
-                            context.CuentasBancarias.Add (cuenta);
-                        }
+                    };
+                    context.Telefonos.Add (telefono);
+                }
+            }
+            var cuentas = context.CuentasBancarias.Where (c => c.EntidadId == ent.Id);
+            if (cuentas != null) {
+                foreach (var item in cuentas) {
+                    var c = context.CuentasBancarias.FirstOrDefault (s => s.Id == item.Id);
+                    context.CuentasBancarias.Remove (c);
+                    context.SaveChanges ();
+                }
+            }
+            if (entidad.CuentasBancarias != null) {
+                foreach (var item in entidad.CuentasBancarias) {
+                if (item.NumeroCuenta != null) {
+                var cuenta = new CuentaBancaria {
+                Id = item.Id,
+                NumeroCuenta = item.NumeroCuenta,
+                NumeroSucursal = item.NumeroSucursal,
+                NombreSucursal = item.NombreSucursal,
+                Moneda = item.Moneda,
+                EntidadId = ent.Id
+                        };
+                        context.CuentasBancarias.Add (cuenta);
                     }
                 }
             }
@@ -182,9 +185,19 @@ namespace ContratacionWebApi.Controllers {
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var entidad = context.Entidades.FirstOrDefault (s => s.Id == id);
-
             if (entidad.Id != id) {
                 return NotFound ();
+            }
+            if (context.Contratos.FirstOrDefault (c => c.EntidadId == id) != null) {
+                return BadRequest ($"Este proveedor esta asociado a un contrato");
+            }
+            var telefonos = context.Telefonos.Where (t => t.EntidadId == id);
+            var cuentas = context.CuentasBancarias.Where (c => c.EntidadId == id);
+            foreach (var item in telefonos) {
+                context.Telefonos.Remove (item);
+            }
+            foreach (var item in cuentas) {
+                context.CuentasBancarias.Remove (item);
             }
             context.Entidades.Remove (entidad);
             context.SaveChanges ();

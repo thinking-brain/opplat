@@ -16,7 +16,7 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <!-- Agregar y Editar Entidad -->
-        <v-dialog v-model="dialog" persistent max-width="1000">
+        <v-dialog v-model="dialog" persistent max-width="1200">
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark v-on="on">Nuevo Proveedor</v-btn>
           </template>
@@ -30,10 +30,10 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-form ref="form" >
+            <v-form ref="form">
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
-                  <v-flex xs3 class="px-2">
+                  <v-flex xs4 class="px-2">
                     <v-text-field
                       v-model="entidad.nombre"
                       label="Nombre"
@@ -42,7 +42,10 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex 6 class="px-2">
+                  <v-flex xs2 class="px-2">
+                    <v-text-field v-model="entidad.siglas" label="Siglas" clearable></v-text-field>
+                  </v-flex>
+                  <v-flex xs6 class="px-2">
                     <v-text-field
                       v-model="entidad.direccion"
                       label="Direccion"
@@ -52,10 +55,10 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs2 class="px-2" v-if="editedIndex!=-1">
+                  <v-flex xs2 class="px-2">
                     <v-text-field v-model="entidad.codigo" label="Código" clearable></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-2">
+                  <v-flex xs2 class="px-2">
                     <v-text-field
                       v-model="entidad.nit"
                       label="NIT"
@@ -65,8 +68,6 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                </v-layout>
-                <v-layout row wrap>
                   <v-flex xs2 class="pr-1 pl-2">
                     <v-select
                       v-model="entidad.sector"
@@ -79,7 +80,7 @@
                   <v-flex xs3 class="px-1">
                     <v-text-field v-model="entidad.fax" label="Fax" clearable></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-1">
+                  <v-flex xs3 class="px-1">
                     <v-text-field
                       v-model="entidad.correo"
                       label="Correo"
@@ -87,9 +88,9 @@
                       :rules="emailRules"
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-1">
-                    <v-text-field v-model="entidad.objetoSocial" label="Objeto Social" clearable></v-text-field>
-                  </v-flex>
+                  <v-col cols="12" sm="12" class="px-1">
+                    <v-textarea v-model="entidad.objetoSocial" label="Objeto Social" rows="1"></v-textarea>
+                  </v-col>
                 </v-layout>
                 <!-- Agregar y Editar Número de Teléfono del Proveedor  -->
                 <v-row class="pl-3" justify="start">
@@ -239,6 +240,7 @@
                     <v-flex cols="2" class="pr-3" v-if="cantCuentas>=1">
                       <v-text-field
                         v-model="entidad.cuentasBancarias[0].numeroCuenta"
+                        :error-messages="modelstate['numeroCuenta']"
                         label="Número de cuenta 1"
                         clearable
                         required
@@ -442,6 +444,9 @@
                     </v-flex>
                   </v-row>
                 </v-flex>
+                  <v-flex xs6 class="px-1 pt-3">
+                <v-alert v-if="errorController!=null" border="left" color="red" dark>{{ errorController }}</v-alert>
+              </v-flex>
                 <!-- /Agregar y Editar Cuenta Bancaria del Proveedor -->
               </v-container>
             </v-form>
@@ -477,7 +482,7 @@
                 <v-col cols="8">
                   <v-card flat>
                     <v-row no-gutters justify="start">
-                      <v-col cols="12" md="9" class="pa-2">
+                      <v-col cols="12" md="6" class="pa-2">
                         <v-list-item-title>
                           <strong>Nombre del Proveedor</strong>
                         </v-list-item-title>
@@ -485,23 +490,29 @@
                       </v-col>
                       <v-col cols="12" md="3" class="pa-2">
                         <v-list-item-title>
+                          <strong>Siglas</strong>
+                        </v-list-item-title>
+                        <v-list-item-subtitle>{{entidad.siglas}}</v-list-item-subtitle>
+                      </v-col>
+                      <v-col cols="12" md="3" class="pa-2">
+                        <v-list-item-title>
                           <strong>Código</strong>
                         </v-list-item-title>
                         <v-list-item-subtitle>{{entidad.codigo}}</v-list-item-subtitle>
                       </v-col>
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="9" class="pa-2">
                         <v-list-item-title>
                           <strong>NIT</strong>
                         </v-list-item-title>
                         <v-list-item-subtitle>{{entidad.nit}}</v-list-item-subtitle>
                       </v-col>
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="3" class="pa-2">
                         <v-list-item-title>
                           <strong>Sector</strong>
                         </v-list-item-title>
                         <v-list-item-subtitle>{{entidad.sectorNombre}}</v-list-item-subtitle>
                       </v-col>
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="12" class="pa-2">
                         <v-list-item-title>
                           <strong>Objeto Social</strong>
                         </v-list-item-title>
@@ -565,7 +576,7 @@
             <v-card-text class="text-center">{{entidad.nombre}}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red" dark @click="deleteItem(entidad)">Aceptar</v-btn>
+              <v-btn color="red" dark @click="deleteItem()">Aceptar</v-btn>
               <v-btn color="primary" @click="close()">Cancelar</v-btn>
             </v-card-actions>
           </v-card>
@@ -573,7 +584,7 @@
         <!-- /Delete Entidad -->
       </v-toolbar>
     </template>
-      <template v-slot:item.action="{ item }">
+    <template v-slot:item.action="{ item }">
       <v-btn
         class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
         small
@@ -583,7 +594,7 @@
       </v-btn>
 
       <v-btn
-        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
         small
         @click="getDetalles(item)"
       >
@@ -667,7 +678,7 @@ export default {
     },
     cantCuentas: 1,
     cuent: "cuentas",
-    cantTelefonos: 1,
+    cantTelefonos: 2,
     telef: "telefonos",
     tabs: null,
     emailRules: [v => /.+@.+\..+/.test(v) || "No tiene la estructura correcta"],
@@ -676,6 +687,7 @@ export default {
     NitRules: [v => !!v || "El NIT es Requerido"],
     textNit: "",
     errors: [],
+    errorController: null,
     headers: [
       {
         text: "Nombre",
@@ -700,7 +712,8 @@ export default {
       { text: "Nombre Sucursal", value: "nombreSucursalString" },
       { text: "Moneda", value: "monedaString" }
     ],
-    date: null
+    date: null,
+    modelstate: {}
   }),
 
   computed: {
@@ -772,186 +785,12 @@ export default {
     },
     editItem(item) {
       this.editedIndex = this.entidades.indexOf(item);
+
       this.entidad = Object.assign({}, item);
-      this.cantTelefonos = item.cantTelefonos;
-      this.cantCuentas = item.cantCuentasBancarias;
-      this.dialog = true;
+      this.cantTelefonos = this.entidad.cantTelefonos;
+      this.cantCuentas = this.entidad.cantCuentas;
+
       // Asinar los 6 valores del arreglo en dependecia de lo que venga del controller
-      if (this.cantTelefonos == 0) {
-        this.cantTelefonos = 1;
-        this.entidad.telefonos = [
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null }
-        ];
-      }
-      if (this.cantTelefonos == 1) {
-        this.entidad.telefonos = [
-          {
-            numero: item.telefonos[0].numero,
-            extension: item.telefonos[0].extension
-          },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null }
-        ];
-      }
-      if (this.cantTelefonos == 2) {
-        this.entidad.telefonos = [
-          {
-            numero: item.telefonos[0].numero,
-            extension: item.telefonos[0].extension
-          },
-          {
-            numero: item.telefonos[1].numero,
-            extension: item.telefonos[1].extension
-          },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null }
-        ];
-      }
-      if (this.cantTelefonos == 3) {
-        this.entidad.telefonos = [
-          {
-            numero: item.telefonos[0].numero,
-            extension: item.telefonos[0].extension
-          },
-          {
-            numero: item.telefonos[1].numero,
-            extension: item.telefonos[1].extension
-          },
-          {
-            numero: item.telefonos[2].numero,
-            extension: item.telefonos[2].extension
-          },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null }
-        ];
-      }
-      if (this.cantTelefonos == 4) {
-        this.entidad.telefonos = [
-          {
-            numero: item.telefonos[0].numero,
-            extension: item.telefonos[0].extension
-          },
-          {
-            numero: item.telefonos[1].numero,
-            extension: item.telefonos[1].extension
-          },
-          {
-            numero: item.telefonos[2].numero,
-            extension: item.telefonos[2].extension
-          },
-          {
-            numero: item.telefonos[3].numero,
-            extension: item.telefonos[3].extension
-          },
-          { numero: null, extension: null },
-          { numero: null, extension: null }
-        ];
-      }
-      if (this.cantTelefonos == 5) {
-        this.entidad.telefonos = [
-          {
-            numero: item.telefonos[0].numero,
-            extension: item.telefonos[0].extension
-          },
-          {
-            numero: item.telefonos[1].numero,
-            extension: item.telefonos[1].extension
-          },
-          {
-            numero: item.telefonos[2].numero,
-            extension: item.telefonos[2].extension
-          },
-          {
-            numero: item.telefonos[3].numero,
-            extension: item.telefonos[3].extension
-          },
-          {
-            numero: item.telefonos[4].numero,
-            extension: item.telefonos[4].extension
-          },
-          { numero: null, extension: null }
-        ];
-      }
-      if (this.cantTelefonos == 6) {
-        this.entidad.telefonos = [
-          {
-            numero: item.telefonos[0].numero,
-            extension: item.telefonos[0].extension
-          },
-          {
-            numero: item.telefonos[1].numero,
-            extension: item.telefonos[1].extension
-          },
-          {
-            numero: item.telefonos[2].numero,
-            extension: item.telefonos[2].extension
-          },
-          {
-            numero: item.telefonos[3].numero,
-            extension: item.telefonos[3].extension
-          },
-          {
-            numero: item.telefonos[4].numero,
-            extension: item.telefonos[4].extension
-          },
-          {
-            numero: item.telefonos[5].numero,
-            extension: item.telefonos[5].extension
-          }
-        ];
-      }
-      if (this.cantCuentas == 0) {
-        this.cantCuentas = 1;
-        this.entidad.cuentasBancarias = [
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          }
-        ];
-      }
       if (this.cantCuentas == 1) {
         this.entidad.cuentasBancarias = [
           {
@@ -1193,10 +1032,198 @@ export default {
           }
         ];
       }
+      if (this.cantCuentas == 0) {
+        this.cantCuentas = 1;
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          }
+        ];
+      }
+      if (this.cantTelefonos == 1) {
+        this.entidad.telefonos = [
+          {
+            numero: item.telefonos[0].numero,
+            extension: item.telefonos[0].extension
+          },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null }
+        ];
+      }
+      if (this.cantTelefonos == 2) {
+        this.entidad.telefonos = [
+          {
+            numero: item.telefonos[0].numero,
+            extension: item.telefonos[0].extension
+          },
+          {
+            numero: item.telefonos[1].numero,
+            extension: item.telefonos[1].extension
+          },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null }
+        ];
+      }
+      if (this.cantTelefonos == 3) {
+        this.entidad.telefonos = [
+          {
+            numero: item.telefonos[0].numero,
+            extension: item.telefonos[0].extension
+          },
+          {
+            numero: item.telefonos[1].numero,
+            extension: item.telefonos[1].extension
+          },
+          {
+            numero: item.telefonos[2].numero,
+            extension: item.telefonos[2].extension
+          },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null }
+        ];
+      }
+      if (this.cantTelefonos == 4) {
+        this.entidad.telefonos = [
+          {
+            numero: item.telefonos[0].numero,
+            extension: item.telefonos[0].extension
+          },
+          {
+            numero: item.telefonos[1].numero,
+            extension: item.telefonos[1].extension
+          },
+          {
+            numero: item.telefonos[2].numero,
+            extension: item.telefonos[2].extension
+          },
+          {
+            numero: item.telefonos[3].numero,
+            extension: item.telefonos[3].extension
+          },
+          { numero: null, extension: null },
+          { numero: null, extension: null }
+        ];
+      }
+      if (this.cantTelefonos == 5) {
+        this.entidad.telefonos = [
+          {
+            numero: item.telefonos[0].numero,
+            extension: item.telefonos[0].extension
+          },
+          {
+            numero: item.telefonos[1].numero,
+            extension: item.telefonos[1].extension
+          },
+          {
+            numero: item.telefonos[2].numero,
+            extension: item.telefonos[2].extension
+          },
+          {
+            numero: item.telefonos[3].numero,
+            extension: item.telefonos[3].extension
+          },
+          {
+            numero: item.telefonos[4].numero,
+            extension: item.telefonos[4].extension
+          },
+          { numero: null, extension: null }
+        ];
+      }
+      if (this.cantTelefonos == 6) {
+        this.entidad.telefonos = [
+          {
+            numero: item.telefonos[0].numero,
+            extension: item.telefonos[0].extension
+          },
+          {
+            numero: item.telefonos[1].numero,
+            extension: item.telefonos[1].extension
+          },
+          {
+            numero: item.telefonos[2].numero,
+            extension: item.telefonos[2].extension
+          },
+          {
+            numero: item.telefonos[3].numero,
+            extension: item.telefonos[3].extension
+          },
+          {
+            numero: item.telefonos[4].numero,
+            extension: item.telefonos[4].extension
+          },
+          {
+            numero: item.telefonos[5].numero,
+            extension: item.telefonos[5].extension
+          }
+        ];
+        if (this.cantTelefonos == 0) {
+          this.cantTelefonos = 1;
+          this.entidad.telefonos = [
+            { numero: null, extension: null },
+            { numero: null, extension: null },
+            { numero: null, extension: null },
+            { numero: null, extension: null },
+            { numero: null, extension: null },
+            { numero: null, extension: null }
+          ];
+        }
+      }
+      if (this.cantTelefonos == 0) {
+        this.cantTelefonos = 2;
+        this.entidad.telefonos = [
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null }
+        ];
+      }
       // --Asinar los 6 valores del arreglo en dependecia de lo que venga del controller
+      this.dialog = true;
     },
     save(method) {
       const url = api.getUrl("contratacion", "entidades");
+      this.modelstate = {};
       if (method === "POST") {
         if (this.$refs.form.validate()) {
           if (
@@ -1269,16 +1296,19 @@ export default {
           } else {
             const errors = [];
             if (this.entidades.find(x => x.nit === this.entidad.nit) != null) {
-              vm.$snotify.error("Ya hay un Proveedor con este NIT");
-              this.textNit = "Ya hay un Proveedor con este NIT";
+              vm.$snotify.error("Ya hay un proveedor con este NIT");
+              this.textNit = "Ya hay un proveedor con este NIT";
             } else {
               this.axios.post(url, this.entidad).then(
                 response => {
                   this.getResponse(response);
                   this.resetDatos();
                   this.dialog = false;
+                  this.errorController = null;
                 },
                 error => {
+                  this.errorController = error.response.data;
+                  vm.$snotify.error(error.response.data);
                   console.log(error);
                 }
               );
@@ -1302,15 +1332,7 @@ export default {
       }
     },
     getDetalles(item) {
-      // this.entidad = Object.assign({}, item);
-      this.entidad.nombre = item.nombre;
-      this.entidad.codigo = item.codigo;
-      this.entidad.direccion = item.direccion;
-      this.entidad.nit = item.nit;
-      this.entidad.fax = item.fax;
-      this.entidad.sectorNombre = item.sectorNombre;
-      this.entidad.correo = item.correo;
-      this.entidad.objetoSocial = item.objetoSocial;
+      this.entidad = Object.assign({}, item);
       if (item.cuentasBancarias.length != 0) {
         this.entidad.cuentasBancarias = item.cuentasBancarias;
       } else
@@ -1322,19 +1344,21 @@ export default {
             moneda: 0
           }
         ];
+      this.cantCuentas = 1;
       if (item.telefonos[0] != null) {
         this.entidad.telefonos = item.telefonos;
       } else this.entidad.telefonos = [{ numero: null, extension: null }];
+      this.cantTelefonos = 1;
       this.dialog3 = true;
     },
     confirmDelete(item) {
-      this.entidad = Object.assign({}, item);
-      this.cantTelefonos = item.cantTelefonos;
+      this.entidad.id = item.id;
+      this.entidad.nombre = item.nombre;
       this.dialog2 = true;
     },
-    deleteItem(entidad) {
+    deleteItem() {
       const url = api.getUrl("contratacion", "entidades");
-      this.axios.delete(`${url}/${entidad.id}`).then(
+      this.axios.delete(`${url}/${this.entidad.id}`).then(
         response => {
           this.getResponse(response);
           this.getEntidadesFromApi();
@@ -1349,6 +1373,55 @@ export default {
       this.dialog = false;
       this.dialog2 = false;
       this.dialog3 = false;
+      this.entidad = {
+        codigo: null,
+        cuentasBancarias: [
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          }
+        ],
+        telefonos: [
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null }
+        ]
+      };
       this.resetDatos();
       setTimeout(() => {
         this.editedIndex = -1;
@@ -1412,6 +1485,7 @@ export default {
         ]
       };
       this.textNit = "";
+      this.errorController = null;
     },
     getResponse(response) {
       if (response.status === 200 || response.status === 201) {

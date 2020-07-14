@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using ContratacionWebApi.Data;
-using ContratacionWebApi.Models;
 using ContratacionWebApi.Dtos;
+using ContratacionWebApi.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,16 +32,18 @@ namespace ContratacionWebApi.Controllers {
         [HttpGet]
         public ActionResult GetAll (string tipoTramite, string filtro, bool cliente) {
             var trabajadores = context_rh.Trabajador.ToList ();
-            var contratoId_DictaminadorId = context.ContratoId_DepartamentoId.ToList ();
+            var contratoId_DepartamentoId = context.ContratoId_DepartamentoId.Include (d => d.Departamento).ToList ();
+            var espExternoId_ContratoId = context.EspExternoId_ContratoId.Include (d => d.EspecialistaExterno).ToList ();
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
-            var contratos = context.Contratos.Select (c => new {
+            var contratos = context.Contratos.Include (c => c.Entidad).Select (c => new {
                 Id = c.Id,
                     Nombre = c.Nombre,
                     Tipo = c.Tipo,
                     TipoNombre = c.Tipo.ToString (),
                     AdminContrato = trabajadores.FirstOrDefault (t => t.Id == c.AdminContratoId),
-                    Departamentos = contratoId_DictaminadorId.Where (s => s.ContratoId == c.Id).Select (e => new {
-                        Dictaminador = trabajadores.FirstOrDefault (d => d.Id == e.DepartamentoId),
+                    Departamentos = contratoId_DepartamentoId.Where (d => d.ContratoId == c.Id).Select (d => new {
+                        Id = d.Departamento.Id,
+                            Nombre = d.Departamento.Nombre
                     }),
                     ObjetoDeContrato = c.ObjetoDeContrato,
                     Numero = c.Numero,
@@ -68,25 +71,34 @@ namespace ContratacionWebApi.Controllers {
                         Id = f.FormaDePago,
                             nombre = f.FormaDePago.ToString ()
                     }),
-                    EspecialistasExternos = context.EspExternoId_ContratoId.Where (s => s.ContratoId == c.Id).Select (e => new {
-                        EspecialistaExterno = context.EspecialistasExternos.FirstOrDefault (p => p.Id == e.EspecialistaExternoId),
+                    EspecialistasExternos = espExternoId_ContratoId.Where (s => s.ContratoId == c.Id).Select (e => new {
+                        Id = e.EspecialistaExterno.Id,
+                            NombreCompleto = e.EspecialistaExterno.NombreCompleto
                     }),
-                    EntidadId = c.EntidadId,
-                    Entidad = context.Entidades.FirstOrDefault (e => e.Id == c.EntidadId),
-                    SectorEntidad = c.Entidad.Sector.ToString (),
-                    TelefonosEntidad = context.Telefonos.Where (t => t.EntidadId == c.Entidad.Id),
-                    CuentasBancEntidad = context.CuentasBancarias.Where (s => s.EntidadId == c.Entidad.Id).Select (
-                        b => new {
-                            Id = b.Id,
+                    Entidad = context.Entidades.Include (e => e.CuentasBancarias).Include (e => e.Telefonos).Where (s => s.Id == c.EntidadId).Select (e => new {
+                        Id = e.Id,
+                            Nombre = e.Nombre,
+                            Siglas = e.Siglas,
+                            Codigo = e.Codigo,
+                            Direccion = e.Direccion,
+                            Nit = e.Nit,
+                            Fax = e.Fax,
+                            Sector = e.Sector,
+                            SectorNombre = e.Sector.ToString (),
+                            Correo = e.Correo,
+                            ObjetoSocial = e.ObjetoSocial,
+                            Telefonos = e.Telefonos,
+                            CantTelefonos = e.Telefonos.Count (),
+                            CuentasBancarias = e.CuentasBancarias.Select (b => new {
                                 NumeroCuenta = b.NumeroCuenta,
-                                NumeroSucursal = b.NumeroSucursal,
-                                NombreSucursalId = b.NombreSucursal,
-                                NombreSucursal = b.NombreSucursal.ToString (),
-                                MonedaId = b.Moneda,
-                                Moneda = b.Moneda.ToString (),
-                                EntidadId = b.EntidadId
-                        }),
-
+                                    NumeroSucursal = b.NumeroSucursal,
+                                    NombreSucursal = b.NombreSucursal,
+                                    NombreSucursalString = b.NombreSucursal.ToString (),
+                                    Moneda = b.Moneda,
+                                    MonedaString = b.Moneda.ToString ()
+                            }),
+                            CantCuentasBancarias = e.CuentasBancarias.Count ()
+                    }),
             });
 
             if (tipoTramite == "oferta") {
@@ -186,7 +198,6 @@ namespace ContratacionWebApi.Controllers {
                     context.ContratoId_FormaPagoId.Add (contratoId_FormaPagoId);
                     context.SaveChanges ();
                 }
-
                 // Subir el Fichero del Contrato
                 // var uploads = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
                 // if (file != null) {
@@ -200,15 +211,13 @@ namespace ContratacionWebApi.Controllers {
                 // Agregar Departamentos de los Dictaminadores 
                 if (contratoDto.Departamentos != null) {
                     foreach (var item in contratoDto.Departamentos) {
-                    var contratoId_DictaminadorId = new ContratoId_DepartamentoId {
+                    var contratoId_DepartamentoId = new ContratoId_DepartamentoId {
                     ContratoId = contrato.Id,
                     DepartamentoId = item
                         };
-                        context.ContratoId_DepartamentoId.Add (contratoId_DictaminadorId);
+                        context.ContratoId_DepartamentoId.Add (contratoId_DepartamentoId);
                         context.SaveChanges ();
                     }
-                } else {
-                    return BadRequest ($"Tienen que dictaminar el contrato el económico y el jurídico");
                 }
 
                 //Agregar Especialistas externos como Dictaminador/es del contrato 
@@ -237,7 +246,7 @@ namespace ContratacionWebApi.Controllers {
 
         // PUT contratacion/contrato/id
         [HttpPut ("{id}")]
-        public IActionResult PUT ([FromBody] ContratoDto contrato, int id) {
+        public IActionResult PUT ([FromBody] ContratoEditDto contrato, int id) {
 
             if (contrato.Id != id) {
                 return BadRequest (ModelState);
@@ -247,7 +256,7 @@ namespace ContratacionWebApi.Controllers {
             c.Nombre = contrato.Nombre;
             c.Tipo = contrato.Tipo;
             c.AdminContratoId = contrato.AdminContrato;
-            c.EntidadId = contrato.Entidad;
+            c.EntidadId = contrato.Entidad.Id;
             c.ObjetoDeContrato = contrato.ObjetoDeContrato;
             c.Numero = contrato.Numero;
             c.MontoCup = contrato.MontoCup;
@@ -284,16 +293,16 @@ namespace ContratacionWebApi.Controllers {
 
             // Agregar Departamentos del contrato 
             if (contrato.Departamentos != null) {
-                var dictaminadores = context.ContratoId_DepartamentoId.Where (s => s.ContratoId == contrato.Id);
-                foreach (var item in dictaminadores) {
+                var departamentos = context.ContratoId_DepartamentoId.Where (s => s.ContratoId == contrato.Id);
+                foreach (var item in departamentos) {
                     context.ContratoId_DepartamentoId.Remove (item);
                 }
                 foreach (var item in contrato.Departamentos) {
-                    var contratoId_DictaminadorId = new ContratoId_DepartamentoId {
+                    var contratoId_DepartamentoId = new ContratoId_DepartamentoId {
                         ContratoId = contrato.Id,
-                        DepartamentoId = item
+                        DepartamentoId = item.Id
                     };
-                    context.ContratoId_DepartamentoId.Add (contratoId_DictaminadorId);
+                    context.ContratoId_DepartamentoId.Add (contratoId_DepartamentoId);
                     context.SaveChanges ();
                 }
             } else {
@@ -309,7 +318,7 @@ namespace ContratacionWebApi.Controllers {
                 foreach (var item in contrato.EspecialistasExternos) {
                     var espExternoId_ContratoId = new EspExternoId_ContratoId {
                         ContratoId = contrato.Id,
-                        EspecialistaExternoId = 1
+                        EspecialistaExternoId = item.Id
                     };
                     context.EspExternoId_ContratoId.Add (espExternoId_ContratoId);
                     context.SaveChanges ();
@@ -463,18 +472,59 @@ namespace ContratacionWebApi.Controllers {
         }
 
         //Post :contratacion/contratos/UploadFile
-        [HttpPost ("/contratacion/contratos/UploadFile")]
-        public async Task<IActionResult> UploadFile (int ContratoId, IFormFile file) {
-            var contrato = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
-            var uploads = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
+        [HttpPost ("/contratacion/contratos/UploadFile/{id}")]
+        public async Task<IActionResult> UploadFile (IFormFile file, int id) {
+            var contrato = context.Contratos.FirstOrDefault (s => s.Id == id);
+            var adminContrato = context.AdminContratos.FirstOrDefault (c => c.AdminContratoId == contrato.AdminContratoId);
+            var departamento = context.Departamentos.FirstOrDefault (d => d.Id == adminContrato.DepartamentoId);
+            if (contrato == null) {
+                return NotFound ($"El Contrato no se encuentra");
+            }
             if (file != null) {
-                var filePath = Path.Combine (uploads, file.FileName);
+                string folderName = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
+                string subFolder = System.IO.Path.Combine (folderName, departamento.Nombre);
+                if (!Directory.Exists (subFolder)) {
+                    System.IO.Directory.CreateDirectory (subFolder);
+                }
+                var filePath = Path.Combine (subFolder, file.FileName);
                 using (var fileStream = new FileStream (filePath, FileMode.Create)) {
                     await file.CopyToAsync (fileStream);
                 }
+                contrato.FilePath = filePath;
+                context.SaveChanges ();
+                return Ok ();
+            } else {
+                return NotFound ($"El archivo es null");
             }
-            return Ok ();
         }
+
+        private Dictionary<string, string> GetMimeTypes () {
+            return new Dictionary<string, string> { { ".txt", "text/plain" },
+                { ".pdf", "application/pdf" },
+                { ".doc", "application/vnd.ms-word" },
+                { ".docx", "application/vnd.ms-word" },
+                { ".xls", "application/vnd.ms-excel" },
+                { ".xlsx", "application/vnd.openxmlformats officedocument.spreadsheetml.sheet" },
+                { ".png", "image/png" },
+                { ".jpg", "image/jpeg" },
+                { ".jpeg", "image/jpeg" },
+                { ".gif", "image/gif" },
+                { ".csv", "text/csv" }
+            };
+        }
+
+        //Post :contratacion/contratos/downloadFile
+        [HttpGet ("/contratacion/contratos/DownloadFile/{id}")]
+        public async Task<IActionResult> DownloadFile (int id) {
+            var contrato = context.Contratos.FirstOrDefault (c => c.Id == id);
+            var path = contrato.FilePath;
+            var memory = new MemoryStream ();
+            using (var stream = new FileStream (path, FileMode.Open)) { await stream.CopyToAsync (memory); }
+            memory.Position = 0;
+            var ext = Path.GetExtension (path).ToLowerInvariant ();
+            return File (memory, GetMimeTypes () [ext], Path.GetFileName (path));
+        }
+
         // GET: contratacion/contratos/Dashboard 
         [HttpGet ("/contratacion/contratos/Dashboard")]
         public async Task<IActionResult> Dashboard () {

@@ -4,16 +4,15 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using ContratacionWebApi.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace ContratacionWebApi.Models {
-    public class ContratoDto {
+    public class ContratoEditDto {
         public int Id { get; set; }
         public string Nombre { get; set; }
         public string Codigo { get; set; }
         public Tipo Tipo { get; set; }
         public int AdminContrato { get; set; }
-        public int Entidad { get; set; }
+        public Entidad Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
         public string Numero { get; set; }
 
@@ -42,7 +41,6 @@ namespace ContratacionWebApi.Models {
         [Required]
         public DateTime FechaDeVenOferta { get; set; }
         public DateTime FechaDeFirmado { get; set; }
-        public IFormFile File;
 
         [Display (Name = "Formas de Pago")]
         public virtual List<FormaDePago> FormasDePago { get; set; }
@@ -51,8 +49,8 @@ namespace ContratacionWebApi.Models {
         [Display (Name = "Término de Pago")]
         public int TerminoDePago { get; set; }
         public string Usuario { get; set; }
-        public List<int> Departamentos { get; set; }
-        public List<int> EspecialistasExternos { get; set; }
+        public List<Departamento> Departamentos { get; set; }
+        public List<EspecialistaExterno> EspecialistasExternos { get; set; }
         public bool AprobJurico { get; set; }
         public bool AprobEconomico { get; set; }
         public bool AprobComitContratacion { get; set; }

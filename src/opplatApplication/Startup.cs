@@ -79,7 +79,7 @@ namespace opplatApplication {
             services.AddDbContext<RhWebApiDbContext> (options =>
                 options.UseNpgsql (context.Configuration.GetConnectionString ("RhWebApiDbContext"), b => b.MigrationsAssembly ("RhWebApi")));
 
-            //contratación db context
+            //contratacion db context
             services.AddDbContext<ContratacionDbContext> (options =>
                 options.UseNpgsql (context.Configuration.GetConnectionString ("ContratacionDbContext"), b => b.MigrationsAssembly ("ContratacionWebApi")));
 

@@ -1,8 +1,13 @@
 <template>
-  <v-data-table :headers="headers" :items="departamentos" :search="search" class="elevation-1 pa-5">
+  <v-data-table
+    :headers="headers"
+    :items="trabajadoresComiteCont"
+    :search="search"
+    class="elevation-1 pa-5"
+  >
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>Departamentos</v-toolbar-title>
+        <v-toolbar-title>Comité de Contratación</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field
@@ -16,7 +21,7 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <template>
-          <v-btn color="primary" @click="newDepartamento()">Nuevo Departamento</v-btn>
+          <v-btn color="primary" @click="dialog=true">Nuevos Integrantes</v-btn>
         </template>
         <!-- Agregar y Editar Departamento -->
         <v-dialog v-model="dialog" persistent max-width="450">
@@ -34,7 +39,35 @@
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs12 class="px-3">
-                    <v-text-field label="Nombre" v-model="departamento.nombre" clearable required></v-text-field>
+                    <v-autocomplete
+                      v-model="comiteContratacion"
+                      item-text="nombre_Completo"
+                      item-value="id"
+                      :items="trabajadores"
+                      cache-items
+                      multiple
+                    >
+                      <template v-slot:selection="data">
+                        <v-chip
+                          v-bind="data.attrs"
+                          :input-value="data.selected"
+                          close
+                          @click="data.select"
+                          @click:close="remove(data.item)"
+                          outlined
+                        >{{ data.item.nombre_Completo }}</v-chip>
+                      </template>
+                      <template v-slot:item="data">
+                        <template v-if="typeof data.item !== 'object'">
+                          <v-list-item-content p="data.item"></v-list-item-content>
+                        </template>
+                        <template v-else>
+                          <v-list-item-content>
+                            <v-list-item-title v-html="data.item.nombre_Completo"></v-list-item-title>
+                          </v-list-item-content>
+                        </template>
+                      </template>
+                    </v-autocomplete>
                   </v-flex>
                 </v-layout>
               </v-container>
@@ -59,10 +92,10 @@
           </v-toolbar>
           <v-card>
             <v-card-title class="headline text-center">Seguro que deseas eliminar el Departamento</v-card-title>
-            <v-card-text class="text-center">{{departamento.nombre}}</v-card-text>
+            <v-card-text class="text-center">{{trabajadorComiteCont.nombre}}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red" dark @click="deleteItem(departamento)">Aceptar</v-btn>
+              <v-btn color="red" dark @click="deleteItem(trabajadorComiteCont)">Aceptar</v-btn>
               <v-btn color="primary" @click="close()">Cancelar</v-btn>
             </v-card-actions>
           </v-card>
@@ -72,20 +105,12 @@
     </template>
     <template v-slot:item.action="{ item }">
       <v-btn
-        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
-        small
-        @click="editItem(item)"
-      >
-        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
-      </v-btn>
-      <v-btn
         class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
         small
         @click="confirmDelete(item)"
       >
         <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
       </v-btn>
-   
     </template>
   </v-data-table>
 </template>
@@ -95,18 +120,18 @@ import api from "@/api";
 export default {
   data: () => ({
     dialog: false,
-    dialog2: false,
-    departamentos: [],
-    departamento: {},
+    trabajadoresComiteCont: [],
+    trabajadorComiteCont: {},
+    comiteContratacion: [],
+    trabajadores: [],
     editedIndex: -1,
     errors: [],
-
     headers: [
       {
         text: "Nombre",
         align: "left",
         sortable: true,
-        value: "nombre"
+        value: "nombreCompleto"
       },
       { text: "Acciones", value: "action", sortable: false }
     ]
@@ -128,51 +153,59 @@ export default {
     }
   },
   created() {
-    this.getDepartamentosFromApi();
+    this.getComiteContratacionFromApi();
+    this.getTrabajadoresFromApi();
   },
   methods: {
-    getDepartamentosFromApi() {
-      const url = api.getUrl("contratacion", "Departamentos");
+    getComiteContratacionFromApi() {
+      const url = api.getUrl("contratacion", "ComiteContratacion");
       this.axios.get(url).then(
         response => {
-          this.departamentos = response.data;
+          this.trabajadoresComiteCont = response.data;
         },
         error => {
           console.log(error);
         }
       );
     },
-    newDepartamento() {
-      this.dialog = true;
-    },
-    editItem(item) {
-      this.editedIndex = this.departamentos.indexOf(item);
-      this.departamento = Object.assign({}, item);
-      this.dialog = true;
+    getTrabajadoresFromApi() {
+      const url = api.getUrl("recursos_humanos", "Trabajadores");
+      this.axios.get(url).then(
+        response => {
+          this.trabajadores = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
     },
     save(method) {
-      const url = api.getUrl("contratacion", "Departamentos");
+      const url = api.getUrl("contratacion", "ComiteContratacion");
       if (method === "POST") {
-        this.axios.post(url, this.departamento).then(
+        this.axios.post(url, this.comiteContratacion).then(
           response => {
             this.getResponse(response);
-            this.getDepartamentosFromApi();
-            this.departamento = [];
+            this.getComiteContratacionFromApi();
+            this.comiteContratacion = [];
             this.dialog = false;
           },
           error => {
+            vm.$snotify.error(error.response.data);
             console.log(error);
           }
         );
       }
       if (method === "PUT") {
         this.axios
-          .put(`${url}/${this.departamento.id}`, this.departamento)
+          .put(
+            `${url}/${this.trabajadorComiteCont.id}`,
+            this.trabajadorComiteCont
+          )
           .then(
             response => {
               this.getResponse(response);
-              this.getDepartamentosFromApi();
-              this.departamento = {};
+              this.getComiteContratacionFromApi();
+              this.trabajadorComiteCont = {};
               this.dialog = false;
             },
             error => {
@@ -182,15 +215,15 @@ export default {
       }
     },
     confirmDelete(item) {
-      this.departamento = Object.assign({}, item);
+      this.trabajadorComiteCont = Object.assign({}, item);
       this.dialog2 = true;
     },
-    deleteItem(departamento) {
-      const url = api.getUrl("contratacion", "Departamentos");
-      this.axios.delete(`${url}/${departamento.id}`).then(
+    deleteItem(trabajadorComiteCont) {
+      const url = api.getUrl("contratacion", "ComiteContratacion");
+      this.axios.delete(`${url}/${trabajadorComiteCont.id}`).then(
         response => {
           this.getResponse(response);
-          this.getDepartamentosFromApi();
+          this.getComiteContratacionFromApi();
           this.dialog2 = false;
         },
         error => {
@@ -200,8 +233,6 @@ export default {
     },
     close() {
       this.dialog = false;
-      this.dialog2 = false;
-      this.departamento = {};
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);
@@ -211,6 +242,10 @@ export default {
         vm.$snotify.success("Exito al realizar la operación");
       }
     }
+  },
+  remove(item) {
+    const index = this.comiteContratacion.indexOf(item.id);
+    if (index >= 0) this.comiteContratacion.splice(index, 1);
   }
 };
 </script>

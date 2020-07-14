@@ -10,6 +10,7 @@ namespace ContratacionWebApi.Models {
         public string Codigo { get; set; }
         [Required]
         public string Nombre { get; set; }
+        public string Siglas { get; set; }
         
         [Required]
         [Display (Name = "Dirección")]

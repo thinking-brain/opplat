@@ -5,7 +5,11 @@
     </template>
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>{{textByfiltro}}</v-toolbar-title>
+        <v-toolbar-title>{{textByfiltro }}</v-toolbar-title>
+        <v-spacer></v-spacer>
+
+        <!-- <div>{{ roles }}</div> -->
+
         <v-divider class="mx-4" inset vertical></v-divider>
         <!-- Agregar y Editar oferta -->
         <v-dialog v-model="dialog" persistent max-width="1100">
@@ -448,22 +452,22 @@
                           <strong>Especialistas Externos:</strong>
                           <span
                             v-for="item in oferta.especialistasExternos"
-                            :key="item.especialistaExterno"
+                            :key="item.nombreCompleto"
                             class="pl-2"
                           >
                             <v-spacer></v-spacer>-
-                            <u class="pl-2">{{item.especialistaExterno.nombreCompleto}}</u>
+                            <u class="pl-2">{{item.nombreCompleto}}</u>
                           </span>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Especialistas Internos:</strong>
                           <span
                             v-for="item in oferta.especialistasExternos"
-                            :key="item.especialistaExterno"
+                            :key="item.nombreCompleto"
                             class="pl-2"
                           >
                             <v-spacer></v-spacer>-
-                            <u class="pl-2">{{item.especialistaExterno.nombreCompleto}}</u>
+                            <u class="pl-2">{{item.nombreCompleto}}</u>
                           </span>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
@@ -527,11 +531,7 @@
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Sector :</strong>
-                          <u class="pl-2">{{oferta.sectorEntidad}}</u>
-                        </v-col>
-                        <v-col cols="12" md="6" class="pa-2">
-                          <strong>Sector :</strong>
-                          <u class="pl-2">{{oferta.sectorEntidad}}</u>
+                          <u class="pl-2">{{oferta.entidad.sectorNombre}}</u>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Fax :</strong>
@@ -548,7 +548,7 @@
                         <v-col cols="8" md="8" class="pa-2">
                           <strong>Teléfonos :</strong>
                           <v-spacer></v-spacer>
-                          <span v-for="item in oferta.telefonosEntidad" :key="item.numero">
+                          <span v-for="item in oferta.entidad.telefonos" :key="item.numero">
                             <strong class="pl-4">Número:</strong>
                             {{item.numero}}
                             <strong
@@ -562,7 +562,7 @@
                           <strong>Cuentas Bancarias :</strong>
                           <v-data-table
                             :headers="headersCuentas"
-                            :items="oferta.cuentasBancEntidad"
+                            :items="oferta.entidad.cuentasBancarias"
                             hide-default-footer
                             fixed-header
                             class="pt-3"
@@ -626,13 +626,24 @@
         <v-row justify="center">
           <v-dialog v-model="dialog7" persistent max-width="400">
             <v-card>
-              <v-flex xs12 class="px-1">
+              <v-toolbar dark fadeOnScroll color="blue darken-3">
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                  <v-btn icon dark @click=" close()">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </v-toolbar-items>
+              </v-toolbar>
+              <v-flex xs12 class="px-1 mt-10">
                 <v-file-input
                   v-model="file"
                   show-size
                   prepend-icon="mdi-note-multiple"
-                  label="Seleccionar Documento"
+                  label="Seleccione el Documento"
                 ></v-file-input>
+              </v-flex>
+              <v-flex xs12 class="px-1">
+                <v-alert v-if="message" border="left" color="red" dark>{{ message }}</v-alert>
               </v-flex>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -709,41 +720,50 @@
     </template>
     <!-- Actions -->
     <template v-slot:item.action="{ item }">
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
-        </template>
-        <span>Editar</span>
-      </v-tooltip>
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="confirmUpload(item)">mdi-upload</v-icon>
-        </template>
-        <span>Guardar Documento</span>
-      </v-tooltip>
-      <v-tooltip top color="green">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="getDetalles(item)">mdi-file-document-box-plus</v-icon>
-        </template>
-        <span>Detalles</span>
-      </v-tooltip>
-      <v-tooltip top color="green">
-        <template v-slot:activator="{ on }">
-          <v-icon
-            small
-            class="mr-2"
-            v-on="on"
-            @click="confirmAprobarOferta(item)"
-          >mdi-check-box-multiple-outline</v-icon>
-        </template>
-        <span>Aprobar la Oferta</span>
-      </v-tooltip>
-      <v-tooltip top color="red">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="confirmDelete(item)">mdi-trash-can</v-icon>
-        </template>
-        <span>Eliminar</span>
-      </v-tooltip>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        small
+        @click="editItem(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+      </v-btn>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        small
+        @click="confirmAprobarOferta(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-check-box-multiple-outline theme--dark</v-icon>
+      </v-btn>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+        small
+        @click="confirmUpload(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
+      </v-btn>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+        small
+        @click="download(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+      </v-btn>
+
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+        small
+        @click="getDetalles(item)"
+      >
+        <v-icon>mdi-format-list-bulleted</v-icon>
+      </v-btn>
+
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+        small
+        @click="confirmDelete(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+      </v-btn>
     </template>
     <!-- /Actions -->
   </v-data-table>
@@ -783,9 +803,7 @@ export default {
     cantOfertas: 0,
     oferta: {
       entidad: {},
-      adminContrato: {},
-      dictaminadores: [],
-      especialistasExternos: []
+      adminContrato: {}
     },
     file: null,
     entidades: [],
@@ -834,18 +852,11 @@ export default {
         value: "numeroCuenta"
       },
       { text: "Número Sucursal", value: "numeroSucursal" },
-      { text: "Nombre Sucursal", value: "nombreSucursal" },
-      { text: "Moneda", value: "moneda" }
+      { text: "Nombre Sucursal", value: "nombreSucursalString" },
+      { text: "Moneda", value: "monedaString" }
     ],
-    headersTelefonos: [
-      {
-        text: "Número",
-        align: "left",
-        sortable: true,
-        value: "numero"
-      },
-      { text: "Extensión", value: "extension" }
-    ]
+    roles: null,
+    message: ""
   }),
 
   computed: {
@@ -875,6 +886,8 @@ export default {
     this.getTrabajadoresFromApi();
     this.getTiempoVenOfertasFromApi();
     this.getDepartamentosFromApi();
+
+    this.roles = this.$store.getters.roles;
   },
 
   methods: {
@@ -993,7 +1006,7 @@ export default {
         }
       );
     },
-     getDepartamentosFromApi() {
+    getDepartamentosFromApi() {
       const url = api.getUrl("contratacion", "Departamentos");
       this.axios.get(url).then(
         response => {
@@ -1006,25 +1019,18 @@ export default {
     },
     editItem(item) {
       this.editedIndex = this.ofertas.indexOf(item);
-
       this.oferta = Object.assign({}, item);
-      this.oferta.entidad = item.entidadId;
-      for (let index = 0; index < item.dictaminadores.length; index++) {
-        this.oferta.dictaminadores[index] =
-          item.dictaminadores[index].dictaminador.id;
-      }
+      this.oferta.entidad = item.entidad[0];
       this.oferta.adminContrato = item.adminContrato.id;
 
       for (let index = 0; index < this.oferta.formasDePago.length; index++) {
         this.oferta.formasDePago[index] = item.formasDePago[index].id;
       }
-      this.oferta.especialistasExternos = [];
-
       this.dialog = true;
     },
     getDetalles(item) {
       this.oferta = Object.assign({}, item);
-      this.oferta.entidad = item.entidad;
+      this.oferta.entidad = item.entidad[0];
       this.dialog6 = true;
       if (this.oferta.ofertVence < this.tiempoVenOfertas.ofertasVencidas) {
         this.textOfertaVence.text = "La Oferta ya se Venció Tiene";
@@ -1088,11 +1094,16 @@ export default {
       this.dialog7 = true;
     },
     upload() {
+      if (!this.file) {
+        this.message = "Por favor seleccione un archivo!";
+        return;
+      }
+      this.message = "";
       const formData = new FormData();
       formData.append("file", this.file);
       const url = api.getUrl("contratacion", "contratos/UploadFile");
       this.axios
-        .post(url, formData, this.oferta.id, {
+        .post(`${url}/${this.oferta.id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -1100,13 +1111,24 @@ export default {
         .then(
           response => {
             this.getResponse(response);
+            this.close();
             this.getOfertasFromApi();
-            this.dialog = false;
           },
           error => {
             console.log(error);
           }
         );
+    },
+    download(item) {
+      const url = api.getUrl("contratacion", "contratos/DownloadFile");
+      this.axios.get(`${url}/${item.id}`).then(
+        response => {
+          window.open(url + "/" + item.id);
+        },
+        error => {
+          console.log(error);
+        }
+      );
     },
     confirmDelete(item) {
       this.oferta = Object.assign({}, item);
@@ -1131,12 +1153,10 @@ export default {
       this.dialog6 = false;
       this.dialog7 = false;
       this.dialog9 = false;
-      this.oferta = {
-        entidad: {},
-        adminContrato: {},
-        dictaminadores: [],
-        especialistasExternos: []
-      };
+      this.oferta.entidad = {};
+      this.oferta.adminContrato = {};
+      this.getOfertasFromApi();
+      this.message = "";
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);
@@ -1146,6 +1166,7 @@ export default {
       this.getEspecialistasExternosFromApi();
       this.getAdminContratosFromApi();
       this.getDictContratosFromApi();
+      this.getDepartamentosFromApi();
       this.dialog3 = false;
       this.dialog4 = false;
       this.dialog5 = false;
@@ -1175,7 +1196,10 @@ export default {
       }
     },
     GetVencimientoOferta() {
-      const url = api.getUrl("contratacion", "contratos/VencimientoOferta?cliente=true");
+      const url = api.getUrl(
+        "contratacion",
+        "contratos/VencimientoOferta?cliente=true"
+      );
       this.axios.get(url).then(
         response => {
           this.vencimientoOfertas = response.data;
@@ -1201,28 +1225,28 @@ export default {
       if (filtro == "ofertaTiempo") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertaTiempo"
+          "Contratos?tipoTramite=oferta&filtro=ofertaTiempo&cliente=true"
         );
         this.textByfiltro = "Ofertas en Tiempo";
       }
       if (filtro == "ofertasProxVencer") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasProxVencer"
+          "Contratos?tipoTramite=oferta&filtro=ofertasProxVencer&cliente=true"
         );
         this.textByfiltro = "Ofertas Próximas a Vencer";
       }
       if (filtro == "ofertasCasiVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasCasiVenc"
+          "Contratos?tipoTramite=oferta&filtro=ofertasCasiVenc&cliente=true"
         );
         this.textByfiltro = "Ofertas Casi Vencidas";
       }
       if (filtro == "ofertasVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasVenc"
+          "Contratos?tipoTramite=oferta&filtro=ofertasVenc&cliente=true"
         );
         this.textByfiltro = "Ofertas Vencidas";
       }

@@ -163,8 +163,8 @@
                   <v-flex xs4 class="px-1">
                     <v-autocomplete
                       v-model="oferta.adminContrato"
-                      item-text="nombreCompleto"
-                      item-value="id"
+                      item-text="administrador.nombreCompleto"
+                      item-value="administrador.id"
                       :items="adminContratos"
                       cache-items
                       label="Administrador"
@@ -174,12 +174,12 @@
                   </v-flex>
                   <v-flex xs5 class="px-1">
                     <v-autocomplete
-                      v-model="oferta.dictaminadores"
-                      item-text="nombreCompleto"
+                      v-model="oferta.departamentos"
+                      item-text="nombre"
                       item-value="id"
-                      :items="dictaminadoresContratos"
-                      label="Dictaminadores Internos"
-                      placeholder="Dictaminadores de Contratos"
+                      :items="departamentos"
+                      cache-items
+                      label="Departamentos que van a dictaminar la oferta"
                       multiple
                     >
                       <template v-slot:selection="data">
@@ -190,7 +190,7 @@
                           @click="data.select"
                           @click:close="removeDictaminadores(data.item)"
                           outlined
-                        >{{ data.item.nombreCompleto }}</v-chip>
+                        >{{ data.item.nombre }}</v-chip>
                       </template>
                       <template v-slot:item="data">
                         <template v-if="typeof data.item !== 'object'">
@@ -198,7 +198,7 @@
                         </template>
                         <template v-else>
                           <v-list-item-content>
-                            <v-list-item-title v-html="data.item.nombreCompleto"></v-list-item-title>
+                            <v-list-item-title v-html="data.item.nombre"></v-list-item-title>
                           </v-list-item-content>
                         </template>
                       </template>
@@ -448,22 +448,22 @@
                           <strong>Especialistas Externos:</strong>
                           <span
                             v-for="item in oferta.especialistasExternos"
-                            :key="item.especialistaExterno"
+                            :key="item.nombreCompleto"
                             class="pl-2"
                           >
                             <v-spacer></v-spacer>-
-                            <u class="pl-2">{{item.especialistaExterno.nombreCompleto}}</u>
+                            <u class="pl-2">{{item.nombreCompleto}}</u>
                           </span>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Especialistas Internos:</strong>
                           <span
                             v-for="item in oferta.especialistasExternos"
-                            :key="item.especialistaExterno"
+                            :key="item.nombreCompleto"
                             class="pl-2"
                           >
                             <v-spacer></v-spacer>-
-                            <u class="pl-2">{{item.especialistaExterno.nombreCompleto}}</u>
+                            <u class="pl-2">{{item.nombreCompleto}}</u>
                           </span>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
@@ -527,11 +527,7 @@
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Sector :</strong>
-                          <u class="pl-2">{{oferta.sectorEntidad}}</u>
-                        </v-col>
-                        <v-col cols="12" md="6" class="pa-2">
-                          <strong>Sector :</strong>
-                          <u class="pl-2">{{oferta.sectorEntidad}}</u>
+                          <u class="pl-2">{{oferta.entidad.sectorNombre}}</u>
                         </v-col>
                         <v-col cols="12" md="6" class="pa-2">
                           <strong>Fax :</strong>
@@ -548,7 +544,7 @@
                         <v-col cols="8" md="8" class="pa-2">
                           <strong>Teléfonos :</strong>
                           <v-spacer></v-spacer>
-                          <span v-for="item in oferta.telefonosEntidad" :key="item.numero">
+                          <span v-for="item in oferta.entidad.telefonos" :key="item.numero">
                             <strong class="pl-4">Número:</strong>
                             {{item.numero}}
                             <strong
@@ -562,7 +558,7 @@
                           <strong>Cuentas Bancarias :</strong>
                           <v-data-table
                             :headers="headersCuentas"
-                            :items="oferta.cuentasBancEntidad"
+                            :items="oferta.entidad.cuentasBancarias"
                             hide-default-footer
                             fixed-header
                             class="pt-3"
@@ -709,41 +705,49 @@
     </template>
     <!-- Actions -->
     <template v-slot:item.action="{ item }">
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
-        </template>
-        <span>Editar</span>
-      </v-tooltip>
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="confirmUpload(item)">mdi-upload</v-icon>
-        </template>
-        <span>Guardar Documento</span>
-      </v-tooltip>
-      <v-tooltip top color="green">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="getDetalles(item)">mdi-file-document-box-plus</v-icon>
-        </template>
-        <span>Detalles</span>
-      </v-tooltip>
-      <v-tooltip top color="green">
-        <template v-slot:activator="{ on }">
-          <v-icon
-            small
-            class="mr-2"
-            v-on="on"
-            @click="confirmAprobarOferta(item)"
-          >mdi-check-box-multiple-outline</v-icon>
-        </template>
-        <span>Aprobar la Oferta</span>
-      </v-tooltip>
-      <v-tooltip top color="red">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="confirmDelete(item)">mdi-trash-can</v-icon>
-        </template>
-        <span>Eliminar</span>
-      </v-tooltip>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        small
+        @click="editItem(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+      </v-btn>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        small
+        @click="confirmAprobarOferta(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-check-box-multiple-outline theme--dark</v-icon>
+      </v-btn>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+        small
+        @click="confirmUpload(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
+      </v-btn>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+        small
+        @click="download(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+      </v-btn>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+        small
+        @click="getDetalles(item)"
+      >
+        <v-icon>mdi-format-list-bulleted</v-icon>
+      </v-btn>
+
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+        small
+        @click="confirmDelete(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+      </v-btn>
     </template>
     <!-- /Actions -->
   </v-data-table>
@@ -815,6 +819,7 @@ export default {
       class: null
     },
     trabajadores: [],
+    departamentos: [],
     errors: [],
     headers: [
       { text: "Número", sortable: true, value: "numero" },
@@ -835,15 +840,6 @@ export default {
       { text: "Número Sucursal", value: "numeroSucursal" },
       { text: "Nombre Sucursal", value: "nombreSucursal" },
       { text: "Moneda", value: "moneda" }
-    ],
-    headersTelefonos: [
-      {
-        text: "Número",
-        align: "left",
-        sortable: true,
-        value: "numero"
-      },
-      { text: "Extensión", value: "extension" }
     ]
   }),
 
@@ -990,25 +986,19 @@ export default {
     },
     editItem(item) {
       this.editedIndex = this.ofertas.indexOf(item);
-
       this.oferta = Object.assign({}, item);
-      this.oferta.entidad = item.entidadId;
-      for (let index = 0; index < item.dictaminadores.length; index++) {
-        this.oferta.dictaminadores[index] =
-          item.dictaminadores[index].dictaminador.id;
-      }
+      this.oferta.entidad = item.entidad[0];
       this.oferta.adminContrato = item.adminContrato.id;
 
       for (let index = 0; index < this.oferta.formasDePago.length; index++) {
         this.oferta.formasDePago[index] = item.formasDePago[index].id;
       }
-      this.oferta.especialistasExternos = [];
 
       this.dialog = true;
     },
     getDetalles(item) {
       this.oferta = Object.assign({}, item);
-      this.oferta.entidad = item.entidad;
+      this.oferta.entidad = item.entidad[0];
       this.dialog6 = true;
       if (this.oferta.ofertVence < this.tiempoVenOfertas.ofertasVencidas) {
         this.textOfertaVence.text = "La Oferta ya se Venció Tiene";
@@ -1076,7 +1066,7 @@ export default {
       formData.append("file", this.file);
       const url = api.getUrl("contratacion", "contratos/UploadFile");
       this.axios
-        .post(url, formData, this.oferta.id, {
+        .post(`${url}/${this.oferta.id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -1085,12 +1075,23 @@ export default {
           response => {
             this.getResponse(response);
             this.getOfertasFromApi();
-            this.dialog = false;
+            this.dialog7 = false;
           },
           error => {
             console.log(error);
           }
         );
+    },
+    download(item) {
+      const url = api.getUrl("contratacion", "contratos/DownloadFile");
+      this.axios.get(`${url}/${item.id}`).then(
+        response => {
+          window.open(url + "/" + item.id);
+        },
+        error => {
+          console.log(error);
+        }
+      );
     },
     confirmDelete(item) {
       this.oferta = Object.assign({}, item);
@@ -1117,9 +1118,7 @@ export default {
       this.dialog9 = false;
       this.oferta = {
         entidad: {},
-        adminContrato: {},
-        dictaminadores: [],
-        especialistasExternos: []
+        adminContrato: {}
       };
       setTimeout(() => {
         this.editedIndex = -1;
@@ -1159,7 +1158,10 @@ export default {
       }
     },
     GetVencimientoOferta() {
-      const url = api.getUrl("contratacion", "contratos/VencimientoOferta?cliente=false");
+      const url = api.getUrl(
+        "contratacion",
+        "contratos/VencimientoOferta?cliente=false"
+      );
       this.axios.get(url).then(
         response => {
           this.vencimientoOfertas = response.data;
@@ -1185,28 +1187,28 @@ export default {
       if (filtro == "ofertaTiempo") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertaTiempo"
+          "Contratos?tipoTramite=oferta&filtro=ofertaTiempo&cliente=false"
         );
         this.textByfiltro = "Ofertas en Tiempo";
       }
       if (filtro == "ofertasProxVencer") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasProxVencer"
+          "Contratos?tipoTramite=oferta&filtro=ofertasProxVencer&cliente=false"
         );
         this.textByfiltro = "Ofertas Próximas a Vencer";
       }
       if (filtro == "ofertasCasiVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasCasiVenc"
+          "Contratos?tipoTramite=oferta&filtro=ofertasCasiVenc&cliente=false"
         );
         this.textByfiltro = "Ofertas Casi Vencidas";
       }
       if (filtro == "ofertasVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasVenc"
+          "Contratos?tipoTramite=oferta&filtro=ofertasVenc&cliente=false"
         );
         this.textByfiltro = "Ofertas Vencidas";
       }
