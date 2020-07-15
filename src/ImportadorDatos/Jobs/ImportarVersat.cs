@@ -207,8 +207,8 @@ namespace ImportadorDatos.Jobs {
                         EstadoTrabajador = estado,
                         Sexo = sexo,
                         Fecha_Nac = fechaNac,
-                        PerfilOcupacionalId = 0,
-                        PuestoDeTrabajoId = 0
+                        PerfilOcupacionalId = 1,
+                        PuestoDeTrabajoId = 1
                     };
 
                     _rhContext.Add (nuevoTrabajador);

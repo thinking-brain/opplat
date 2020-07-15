@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace RhWebApi.Migrations
 {
-    public partial class ComiteContratacionId_Trabajadoresoff : Migration
+    public partial class iniciar_datos_en_1_sin_definir : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -632,6 +632,51 @@ namespace RhWebApi.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "PerfilOcupacional",
+                columns: new[] { "Id", "Nombre" },
+                values: new object[] { 1, "Sin Definir" });
+
+            migrationBuilder.InsertData(
+                table: "categorias_ocupacionales",
+                columns: new[] { "Id", "Descripcion" },
+                values: new object[] { 1, "Sin Definir" });
+
+            migrationBuilder.InsertData(
+                table: "provincias",
+                columns: new[] { "Id", "Nombre" },
+                values: new object[] { 1, "Sin Definir" });
+
+            migrationBuilder.InsertData(
+                table: "tipos_de_unidad_organizativa",
+                columns: new[] { "Id", "Nombre", "Prioridad" },
+                values: new object[] { 1, "Sin Definir", 0 });
+
+            migrationBuilder.InsertData(
+                table: "grupos_escalas",
+                columns: new[] { "Id", "CategoriaOcupacionalId", "Codigo", "SalarioDiferenciado", "SalarioEscala" },
+                values: new object[] { 1, 1, "Sin Definir", false, 0m });
+
+            migrationBuilder.InsertData(
+                table: "municipios",
+                columns: new[] { "Id", "Nombre", "ProvinciaId" },
+                values: new object[] { 1, "Sin Definir", 1 });
+
+            migrationBuilder.InsertData(
+                table: "unidades_organizativas",
+                columns: new[] { "Id", "Activa", "Codigo", "Nombre", "PerteneceAId", "TipoUnidadOrganizativaId" },
+                values: new object[] { 1, false, "Sin Definir", "Sin Definir", null, 1 });
+
+            migrationBuilder.InsertData(
+                table: "Cargo",
+                columns: new[] { "Id", "GrupoEscalaId", "JefeId", "Nombre", "Sigla" },
+                values: new object[] { 1, 1, null, "Sin Definir", "Sin Definir" });
+
+            migrationBuilder.InsertData(
+                table: "puestos_de_trabajos",
+                columns: new[] { "Id", "CargoId", "Descripcion", "JefeId", "PlantillaOcupada", "UnidadOrganizativaId" },
+                values: new object[] { 1, 1, "Sin Definir", null, 0, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_actividades_de_ContratoTrabs_ActividadLaboralId",

@@ -10,8 +10,8 @@ using RhWebApi.Data;
 namespace RhWebApi.Migrations
 {
     [DbContext(typeof(RhWebApiDbContext))]
-    [Migration("20200714033141_ComiteContratacionId_Trabajadoresoff")]
-    partial class ComiteContratacionId_Trabajadoresoff
+    [Migration("20200715011713_iniciar_datos_en_1_sin_definir")]
+    partial class iniciar_datos_en_1_sin_definir
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -190,6 +190,15 @@ namespace RhWebApi.Migrations
                     b.HasIndex("JefeId");
 
                     b.ToTable("Cargo");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            GrupoEscalaId = 1,
+                            Nombre = "Sin Definir",
+                            Sigla = "Sin Definir"
+                        });
                 });
 
             modelBuilder.Entity("RhWebApi.Models.CategoriaOcupacional", b =>
@@ -203,6 +212,13 @@ namespace RhWebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("categorias_ocupacionales");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Descripcion = "Sin Definir"
+                        });
                 });
 
             modelBuilder.Entity("RhWebApi.Models.ContratoTrab", b =>
@@ -291,6 +307,16 @@ namespace RhWebApi.Migrations
                     b.HasIndex("CategoriaOcupacionalId");
 
                     b.ToTable("grupos_escalas");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CategoriaOcupacionalId = 1,
+                            Codigo = "Sin Definir",
+                            SalarioDiferenciado = false,
+                            SalarioEscala = 0m
+                        });
                 });
 
             modelBuilder.Entity("RhWebApi.Models.HistoricoPuestoDeTrabajo", b =>
@@ -329,6 +355,14 @@ namespace RhWebApi.Migrations
                     b.HasIndex("ProvinciaId");
 
                     b.ToTable("municipios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nombre = "Sin Definir",
+                            ProvinciaId = 1
+                        });
                 });
 
             modelBuilder.Entity("RhWebApi.Models.OtroMovimiento", b =>
@@ -365,6 +399,13 @@ namespace RhWebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PerfilOcupacional");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nombre = "Sin Definir"
+                        });
                 });
 
             modelBuilder.Entity("RhWebApi.Models.Plantilla", b =>
@@ -397,6 +438,13 @@ namespace RhWebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("provincias");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nombre = "Sin Definir"
+                        });
                 });
 
             modelBuilder.Entity("RhWebApi.Models.PuestoDeTrabajo", b =>
@@ -423,6 +471,16 @@ namespace RhWebApi.Migrations
                     b.HasIndex("UnidadOrganizativaId");
 
                     b.ToTable("puestos_de_trabajos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CargoId = 1,
+                            Descripcion = "Sin Definir",
+                            PlantillaOcupada = 0,
+                            UnidadOrganizativaId = 1
+                        });
                 });
 
             modelBuilder.Entity("RhWebApi.Models.Requisitos", b =>
@@ -454,6 +512,14 @@ namespace RhWebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("tipos_de_unidad_organizativa");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nombre = "Sin Definir",
+                            Prioridad = 0
+                        });
                 });
 
             modelBuilder.Entity("RhWebApi.Models.Trabajador", b =>
@@ -568,6 +634,16 @@ namespace RhWebApi.Migrations
                     b.HasIndex("TipoUnidadOrganizativaId");
 
                     b.ToTable("unidades_organizativas");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Activa = false,
+                            Codigo = "Sin Definir",
+                            Nombre = "Sin Definir",
+                            TipoUnidadOrganizativaId = 1
+                        });
                 });
 
             modelBuilder.Entity("RhWebApi.Models.ActividadContratoTrab", b =>

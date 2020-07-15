@@ -1,7 +1,7 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="trabajadoresComiteCont"
+    :items="comiteDeContratacion"
     :search="search"
     class="elevation-1 pa-5"
   >
@@ -23,11 +23,11 @@
         <template>
           <v-btn color="primary" @click="dialog=true">Nuevos Integrantes</v-btn>
         </template>
-        <!-- Agregar y Editar Departamento -->
-        <v-dialog v-model="dialog" persistent max-width="450">
+        <!-- Agregar y Editar Comité de Contratación -->
+        <v-dialog v-model="dialog" persistent max-width="600">
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
-              <v-flex xs12 sm10 md6 lg4>{{ formTitle }}</v-flex>
+              <v-flex xs12 sm12 md12>{{ formTitle }}</v-flex>
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-btn icon dark @click=" close()">
@@ -36,11 +36,14 @@
               </v-toolbar-items>
             </v-toolbar>
             <v-form ref="form">
+                <p
+                class="text-center title font-italic mt-12"
+              >Seleccione los, o el Miembro del Comité de Contratación</p>
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex xs12 class="px-3">
                     <v-autocomplete
-                      v-model="comiteContratacion"
+                      v-model="nuevoMiembro.comiteContratacion"
                       item-text="nombre_Completo"
                       item-value="id"
                       :items="trabajadores"
@@ -79,8 +82,8 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <!-- /Agregar y Editar Departamento -->
-        <!-- Delete Departamento -->
+        <!-- /Agregar y Editar Comité de Contratación -->
+        <!-- Delete Comité de Contratación -->
         <v-dialog v-model="dialog2" persistent max-width="350px">
           <v-toolbar dark fadeOnScroll color="red">
             <v-spacer></v-spacer>
@@ -91,16 +94,16 @@
             </v-toolbar-items>
           </v-toolbar>
           <v-card>
-            <v-card-title class="headline text-center">Seguro que deseas eliminar el Departamento</v-card-title>
-            <v-card-text class="text-center">{{trabajadorComiteCont.nombre}}</v-card-text>
+            <v-card-title class="headline text-center">Seguro que deseas eliminar el Comité de Contratación</v-card-title>
+            <v-card-text class="text-center">{{trabComiteContratacion.nombre}}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red" dark @click="deleteItem(trabajadorComiteCont)">Aceptar</v-btn>
+              <v-btn color="red" dark @click="deleteItem(trabComiteContratacion)">Aceptar</v-btn>
               <v-btn color="primary" @click="close()">Cancelar</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <!-- /Delete Departamento -->
+        <!-- /Delete Comité de Contratación -->
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
@@ -120,9 +123,11 @@ import api from "@/api";
 export default {
   data: () => ({
     dialog: false,
-    trabajadoresComiteCont: [],
-    trabajadorComiteCont: {},
-    comiteContratacion: [],
+    dialog2: false,
+    search: "",
+    comiteDeContratacion: [],
+    trabComiteContratacion: {},
+    nuevoMiembro: { comiteContratacion: [] },
     trabajadores: [],
     editedIndex: -1,
     errors: [],
@@ -131,7 +136,7 @@ export default {
         text: "Nombre",
         align: "left",
         sortable: true,
-        value: "nombreCompleto"
+        value: "trabComiteContratacion.nombreCompleto"
       },
       { text: "Acciones", value: "action", sortable: false }
     ]
@@ -139,8 +144,8 @@ export default {
   computed: {
     formTitle() {
       return this.editedIndex === -1
-        ? "Nuevo Departamento"
-        : "Editar Departamento";
+        ? "Nuevo Comité de Contratación"
+        : "Editar Comité de Contratación";
     },
     method() {
       return this.editedIndex === -1 ? "POST" : "PUT";
@@ -161,7 +166,7 @@ export default {
       const url = api.getUrl("contratacion", "ComiteContratacion");
       this.axios.get(url).then(
         response => {
-          this.trabajadoresComiteCont = response.data;
+          this.comiteDeContratacion = response.data;
         },
         error => {
           console.log(error);
@@ -182,11 +187,11 @@ export default {
     save(method) {
       const url = api.getUrl("contratacion", "ComiteContratacion");
       if (method === "POST") {
-        this.axios.post(url, this.comiteContratacion).then(
+        this.axios.post(url, this.nuevoMiembro).then(
           response => {
             this.getResponse(response);
+            this.nuevoMiembro = { comiteContratacion: [] };
             this.getComiteContratacionFromApi();
-            this.comiteContratacion = [];
             this.dialog = false;
           },
           error => {
@@ -198,14 +203,14 @@ export default {
       if (method === "PUT") {
         this.axios
           .put(
-            `${url}/${this.trabajadorComiteCont.id}`,
-            this.trabajadorComiteCont
+            `${url}/${this.trabComiteContratacion.id}`,
+            this.trabComiteContratacion
           )
           .then(
             response => {
               this.getResponse(response);
               this.getComiteContratacionFromApi();
-              this.trabajadorComiteCont = {};
+              this.trabComiteContratacion = {};
               this.dialog = false;
             },
             error => {
@@ -215,12 +220,12 @@ export default {
       }
     },
     confirmDelete(item) {
-      this.trabajadorComiteCont = Object.assign({}, item);
+      this.trabComiteContratacion=item.trabComiteContratacion;
       this.dialog2 = true;
     },
-    deleteItem(trabajadorComiteCont) {
+    deleteItem() {
       const url = api.getUrl("contratacion", "ComiteContratacion");
-      this.axios.delete(`${url}/${trabajadorComiteCont.id}`).then(
+      this.axios.delete(`${url}/${this.trabComiteContratacion.id}`).then(
         response => {
           this.getResponse(response);
           this.getComiteContratacionFromApi();
