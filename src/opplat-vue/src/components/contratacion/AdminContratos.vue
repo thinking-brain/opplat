@@ -10,7 +10,7 @@
         <v-toolbar-title>Administradores de Contratos</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
-        <text-field
+        <v-text-field
           v-model="search"
           append-icon="mdi-magnify"
           label="Buscar"
@@ -18,7 +18,7 @@
           hide-details
           clearable
           dense
-        ></text-field>
+        ></v-text-field>
         <v-spacer></v-spacer>
         <template>
           <v-btn color="primary" dark @click="dialog=true" class="mx-1">Nuevo Administrador</v-btn>
