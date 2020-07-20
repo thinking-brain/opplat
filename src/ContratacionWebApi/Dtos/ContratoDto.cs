@@ -53,6 +53,7 @@ namespace ContratacionWebApi.Models {
         public string Usuario { get; set; }
         public List<int> Departamentos { get; set; }
         public List<int> EspecialistasExternos { get; set; }
+        public List<Monto> Montos { get; set; }
         public bool AprobJurico { get; set; }
         public bool AprobEconomico { get; set; }
         public bool AprobComitContratacion { get; set; }

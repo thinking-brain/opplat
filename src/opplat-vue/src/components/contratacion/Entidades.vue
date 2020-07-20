@@ -32,8 +32,9 @@
             </v-toolbar>
             <v-form ref="form">
               <v-container grid-list-md text-xs-center>
+                <p class="text-left title">Datos Generales:</p>
                 <v-layout row wrap>
-                  <v-flex xs4 class="px-2">
+                  <v-flex cols="2" class="px-2">
                     <v-text-field
                       v-model="entidad.nombre"
                       label="Nombre"
@@ -42,10 +43,10 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs2 class="px-2">
+                  <v-flex cols="2" class="px-2">
                     <v-text-field v-model="entidad.siglas" label="Siglas" clearable></v-text-field>
                   </v-flex>
-                  <v-flex xs6 class="px-2">
+                  <v-flex cols="2" col-md-6 class="px-2">
                     <v-text-field
                       v-model="entidad.direccion"
                       label="Direccion"
@@ -55,10 +56,12 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs2 class="px-2">
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex cols="2" class="px-2">
                     <v-text-field v-model="entidad.codigo" label="Código" clearable></v-text-field>
                   </v-flex>
-                  <v-flex xs2 class="px-2">
+                  <v-flex cols="2" class="px-2">
                     <v-text-field
                       v-model="entidad.nit"
                       label="NIT"
@@ -68,7 +71,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs2 class="pr-1 pl-2">
+                  <v-flex cols="2" class="pr-1 pl-2">
                     <v-select
                       v-model="entidad.sector"
                       item-text="nombre"
@@ -77,10 +80,28 @@
                       label="Sector"
                     ></v-select>
                   </v-flex>
-                  <v-flex xs3 class="px-1">
-                    <v-text-field v-model="entidad.fax" label="Fax" clearable></v-text-field>
-                  </v-flex>
-                  <v-flex xs3 class="px-1">
+                  <v-col cols="12" sm="12" class="px-1">
+                    <v-textarea v-model="entidad.objetoSocial" label="Objeto Social" rows="1"></v-textarea>
+                  </v-col>
+                </v-layout>
+
+                <!-- Telefonos Agregados -->
+                <!-- <v-row justify="start">
+                  <v-col cols="12" sm="12" class="px-3">
+                    <v-data-table
+                      :headers="headerstelefonos"
+                      :items="telefonos"
+                      hide-default-footer
+                      fixed-header
+                    ></v-data-table>
+                  </v-col>
+                </v-row>-->
+                <!-- /Telefonos Agregados -->
+
+                <!-- Agregar y Editar Número de Teléfono del Proveedor  -->
+                <p class="text-left title px-1">Datos de Contacto:</p>
+                <v-row class="px-1" justify="start">
+                  <v-flex cols="2" class="px-1">
                     <v-text-field
                       v-model="entidad.correo"
                       label="Correo"
@@ -88,13 +109,44 @@
                       :rules="emailRules"
                     ></v-text-field>
                   </v-flex>
-                  <v-col cols="12" sm="12" class="px-1">
-                    <v-textarea v-model="entidad.objetoSocial" label="Objeto Social" rows="1"></v-textarea>
-                  </v-col>
-                </v-layout>
-                <!-- Agregar y Editar Número de Teléfono del Proveedor  -->
-                <v-row class="pl-3" justify="start">
-                  <v-flex cols="2" class="pt-2">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field v-model="entidad.fax" label="Fax" clearable></v-text-field>
+                  </v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantTelefonos>=2">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.telefonos[0].numero"
+                      label="Teléfono"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.telefonos[0].extension"
+                      label="Extensión"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.telefonos[1].numero"
+                      label="Teléfono 2"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=2">
+                    <v-text-field
+                      v-model="entidad.telefonos[1].extension"
+                      label="Extensión"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2">
                     <v-card tile flat>
                       <v-tooltip top color="success">
                         <template v-slot:activator="{ on }">
@@ -112,39 +164,9 @@
                       </v-tooltip>
                     </v-card>
                   </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=1">
-                    <v-text-field
-                      v-model="entidad.telefonos[0].numero"
-                      label="Teléfono 1"
-                      clearable
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=1">
-                    <v-text-field
-                      v-model="entidad.telefonos[0].extension"
-                      label="Extensión"
-                      clearable
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=2">
-                    <v-text-field
-                      v-model="entidad.telefonos[1].numero"
-                      label="Teléfono 2"
-                      clearable
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex cols="2" class="pr-6" v-if="cantTelefonos>=2">
-                    <v-text-field
-                      v-model="entidad.telefonos[1].extension"
-                      label="Extensión"
-                      clearable
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex cols="2" class="pl-12 pr-3" v-if="cantTelefonos>=3">
+                </v-row>
+                <v-row class="px-1" justify="start">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=3">
                     <v-text-field
                       v-model="entidad.telefonos[2].numero"
                       label="Teléfono 3"
@@ -152,7 +174,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=3">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=3">
                     <v-text-field
                       v-model="entidad.telefonos[2].extension"
                       label="Extensión"
@@ -160,7 +182,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=4">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=4">
                     <v-text-field
                       v-model="entidad.telefonos[3].numero"
                       label="Teléfono 4"
@@ -168,7 +190,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-6" v-if="cantTelefonos>=4">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=4">
                     <v-text-field
                       v-model="entidad.telefonos[3].extension"
                       label="Extensión"
@@ -176,7 +198,10 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pl-12 pr-3" v-if="cantTelefonos>=5">
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantTelefonos>=3">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=5">
                     <v-text-field
                       v-model="entidad.telefonos[4].numero"
                       label="Teléfono 5"
@@ -184,7 +209,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=5">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=5">
                     <v-text-field
                       v-model="entidad.telefonos[4].extension"
                       label="Extensión"
@@ -192,7 +217,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=6">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=6">
                     <v-text-field
                       v-model="entidad.telefonos[5].numero"
                       label="Teléfono 6"
@@ -200,7 +225,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-6" v-if="cantTelefonos>=6">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=6">
                     <v-text-field
                       v-model="entidad.telefonos[5].extension"
                       label="Extensión"
@@ -208,245 +233,250 @@
                       required
                     ></v-text-field>
                   </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
                 </v-row>
                 <!--/Agregar y Editar Número de Teléfono del Proveedor  -->
+                <p class="text-left title">Datos Bancarios:</p>
 
                 <!-- Agregar y Editar Cuenta Bancaria del Proveedor -->
-                <v-flex>
-                  <v-row class="pl-3 pr-3">
-                    <v-flex cols="2" class="pt-2">
-                      <v-card tile flat>
-                        <v-tooltip top color="success">
-                          <template v-slot:activator="{ on }">
-                            <v-icon
-                              medium
-                              v-on="on"
-                              @click="agregar(cuent)"
-                              color="success"
-                            >mdi-plus</v-icon>
-                          </template>
-                          <span>Agregar Cuenta</span>
-                        </v-tooltip>
-                      </v-card>
-                      <v-card tile flat>
-                        <v-tooltip top color="red darken-1">
-                          <template v-slot:activator="{ on }">
-                            <v-icon medium v-on="on" @click="quitar(cuent)" color="red">mdi-minus</v-icon>
-                          </template>
-                          <span>Quitar Cuenta</span>
-                        </v-tooltip>
-                      </v-card>
-                    </v-flex>
-                    <v-flex cols="2" class="pr-3" v-if="cantCuentas>=1">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[0].numeroCuenta"
-                        :error-messages="modelstate['numeroCuenta']"
-                        label="Número de cuenta 1"
-                        clearable
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="2" class="pr-3" v-if="cantCuentas>=1">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[0].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="2" class="pr-3" v-if="cantCuentas>=1">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[0].nombreSucursal"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="2" class="pr-3" v-if="cantCuentas>=1">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[0].moneda"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
-                  <v-row class="pl-9 pr-3" justify="space-around" no-gutters v-if="cantCuentas>=2">
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[1].numeroCuenta"
-                        label="Número de cuenta 2"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[1].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[1].nombreSucursal"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[1].moneda"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
-                  <v-row class="pl-9 pr-3" justify="space-around" no-gutters v-if="cantCuentas>=3">
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[2].numeroCuenta"
-                        label="Número de cuenta 3"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[2].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[2].nombreSucursal"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[2].moneda"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
-                  <v-row class="pl-9 pr-3" justify="space-around" no-gutters v-if="cantCuentas>=4">
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[3].numeroCuenta"
-                        label="Número de cuenta 4"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[3].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[3].nombreSucursal"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[3].moneda"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
-                  <v-row class="pl-9 pr-3" justify="space-around" no-gutters v-if="cantCuentas>=5">
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[4].numeroCuenta"
-                        label="Número de cuenta 5"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[4].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[4].nombreSucursal"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[4].moneda"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
-                  <v-row class="pl-9 pr-3" justify="space-around" no-gutters v-if="cantCuentas>=6">
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[5].numeroCuenta"
-                        label="Número de cuenta 6"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[5].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[5].nombreSucursal"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[5].moneda"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=1">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[0].numeroCuenta"
+                      :error-messages="modelstate['numeroCuenta']"
+                      label="Número de cuenta 1"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[0].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[0].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[0].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2">
+                    <v-card tile flat>
+                      <v-tooltip top color="success">
+                        <template v-slot:activator="{ on }">
+                          <v-icon medium v-on="on" @click="agregar(cuent)" color="success">mdi-plus</v-icon>
+                        </template>
+                        <span>Agregar Cuenta</span>
+                      </v-tooltip>
+                    </v-card>
+                    <v-card tile flat>
+                      <v-tooltip top color="red darken-1">
+                        <template v-slot:activator="{ on }">
+                          <v-icon medium v-on="on" @click="quitar(cuent)" color="red">mdi-minus</v-icon>
+                        </template>
+                        <span>Quitar Cuenta</span>
+                      </v-tooltip>
+                    </v-card>
+                  </v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=2">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[1].numeroCuenta"
+                      label="Número de cuenta 2"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[1].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[1].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[1].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=3">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[2].numeroCuenta"
+                      label="Número de cuenta 3"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[2].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[2].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[2].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=4">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[3].numeroCuenta"
+                      label="Número de cuenta 4"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[3].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[3].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[3].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=5">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[4].numeroCuenta"
+                      label="Número de cuenta 5"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[4].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[4].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[4].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=6">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[5].numeroCuenta"
+                      label="Número de cuenta 6"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[5].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[5].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[5].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-flex xs6 class="px-1 pt-3">
+                  <v-alert
+                    v-if="errorController!=null"
+                    border="left"
+                    color="red"
+                    dark
+                  >{{ errorController }}</v-alert>
                 </v-flex>
-                  <v-flex xs6 class="px-1 pt-3">
-                <v-alert v-if="errorController!=null" border="left" color="red" dark>{{ errorController }}</v-alert>
-              </v-flex>
                 <!-- /Agregar y Editar Cuenta Bancaria del Proveedor -->
               </v-container>
             </v-form>
@@ -677,8 +707,8 @@ export default {
       ]
     },
     cantCuentas: 1,
-    cuent: "cuentas",
     cantTelefonos: 2,
+    cuent: "cuentas",
     telef: "telefonos",
     tabs: null,
     emailRules: [v => /.+@.+\..+/.test(v) || "No tiene la estructura correcta"],
@@ -701,6 +731,16 @@ export default {
       { text: "Sector", value: "sectorNombre" },
       { text: "Acciones", value: "action", sortable: false }
     ],
+    // headerstelefonos: [
+    //   {
+    //     text: "Número",
+    //     align: "left",
+    //     sortable: true,
+    //     value: "numero"
+    //   },
+    //   { text: "Extensión ", value: "ext" },
+    //   { text: "Acciones", value: "action", sortable: false }
+    // ],
     headersCuentas: [
       {
         text: "Número de Cuenta",
@@ -1226,6 +1266,7 @@ export default {
       this.modelstate = {};
       if (method === "POST") {
         if (this.$refs.form.validate()) {
+          const errors = [];
           if (
             this.entidad.cuentasBancarias[0].numeroCuenta == null ||
             this.entidad.cuentasBancarias[0].numeroSucursal == null ||
@@ -1294,7 +1335,6 @@ export default {
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #6 por Llenar");
           } else {
-            const errors = [];
             if (this.entidades.find(x => x.nit === this.entidad.nit) != null) {
               vm.$snotify.error("Ya hay un proveedor con este NIT");
               this.textNit = "Ya hay un proveedor con este NIT";

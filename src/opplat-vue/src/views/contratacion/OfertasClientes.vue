@@ -12,13 +12,13 @@
 
         <v-divider class="mx-4" inset vertical></v-divider>
         <!-- Agregar y Editar oferta -->
-        <v-dialog v-model="dialog" persistent max-width="1100">
+        <v-dialog v-model="dialog" persistent max-width="1200">
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark v-on="on" class="ml-5">Nueva Oferta</v-btn>
           </template>
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
-              <v-flex xs12 sm10 md6 lg4>{{ formTitle }}</v-flex>
+              <v-flex cols="2" sm10 md6 lg4>{{ formTitle }}</v-flex>
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-btn icon dark @click=" close()">
@@ -29,10 +29,10 @@
             <v-form ref="form">
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
-                  <v-flex xs6 class="px-1">
+                  <v-flex cols="2" class="px-1">
                     <v-text-field v-model="oferta.nombre" label="Nombre" clearable required></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-1" v-if="editedIndex==-1">
+                  <v-flex cols="2" class="px-1" v-if="editedIndex==-1">
                     <v-autocomplete
                       v-model="oferta.tipo"
                       item-text="nombre"
@@ -42,7 +42,7 @@
                       label="tipo"
                     ></v-autocomplete>
                   </v-flex>
-                  <v-flex xs3 class="px-1" v-if="editedIndex!=-1">
+                  <v-flex cols="2" class="px-1" v-if="editedIndex!=-1">
                     <v-autocomplete
                       v-model="oferta.tipo"
                       item-text="nombre"
@@ -52,119 +52,12 @@
                       label="tipo"
                     ></v-autocomplete>
                   </v-flex>
-                  <v-flex xs3 class="px-1" v-if="editedIndex!=-1">
+                  <v-flex cols="2" class="px-1" v-if="editedIndex!=-1">
                     <v-text-field v-model="oferta.numero" label="Número" prefix="#"></v-text-field>
                   </v-flex>
-                  <v-flex xs6 class="px-1">
-                    <v-autocomplete
-                      v-model="oferta.entidad"
-                      item-text="nombre"
-                      item-value="id"
-                      :items="entidades"
-                      cache-items
-                      label="Proveedor"
-                    >
-                      <v-icon @click="dialog3=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
-                    </v-autocomplete>
-                  </v-flex>
-                  <v-flex xs3 class="px-1">
-                    <v-text-field v-model="oferta.montoCup" label="Monto CUP" clearable prefix="$"></v-text-field>
-                  </v-flex>
-                  <v-flex xs3 class="px-1">
-                    <v-text-field v-model="oferta.montoCuc" label="Monto CUC" clearable prefix="$"></v-text-field>
-                  </v-flex>
-                  <v-flex xs3 class="px-1">
-                    <v-text-field v-model="oferta.montoUsd" label="Monto USD" clearable prefix="$"></v-text-field>
-                  </v-flex>
-                  <v-flex xs6 class="px-1">
-                    <v-autocomplete
-                      v-model="oferta.formasDePago"
-                      :items="formasDePagos"
-                      label="Formas de Pago"
-                      item-text="nombre"
-                      item-value="id"
-                      multiple
-                    >
-                      <template v-slot:selection="data">
-                        <v-chip
-                          v-bind="data.attrs"
-                          :input-value="data.selected"
-                          close
-                          @click="data.select"
-                          @click:close="removeformasDePago(data.item)"
-                          outlined
-                        >{{ data.item.nombre }}</v-chip>
-                      </template>
-                      <template v-slot:item="data">
-                        <template v-if="typeof data.item !== 'object'">
-                          <v-list-item-content v-text="data.item"></v-list-item-content>
-                        </template>
-                        <template v-else>
-                          <v-list-item-content>
-                            <v-list-item-title v-html="data.item.nombre"></v-list-item-title>
-                          </v-list-item-content>
-                        </template>
-                      </template>
-                    </v-autocomplete>
-                  </v-flex>
-                  <v-flex xs3>
-                    <v-text-field
-                      v-model="oferta.terminoDePago"
-                      label="Término de Pago en Meses"
-                      clearable
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex xs2 class="px-1">
-                    <v-menu
-                      v-model="menu"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      full-width
-                      min-width="290px"
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-text-field
-                          v-model="oferta.fechaDeRecepcion"
-                          label="Fecha de Recepción"
-                          readonly
-                          clearable
-                          v-on="on"
-                          required
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker v-model="oferta.fechaDeRecepcion" @input="menu = false"></v-date-picker>
-                    </v-menu>
-                  </v-flex>
-                  <v-flex xs2 class="px-1">
-                    <v-menu
-                      v-model="menu1"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      full-width
-                      min-width="290px"
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-text-field
-                          v-model="oferta.fechaDeVenOferta"
-                          label="Fecha de Vencimiento"
-                          readonly
-                          clearable
-                          v-on="on"
-                          required
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker v-model="oferta.fechaDeVenOferta" @input="menu1 = false"></v-date-picker>
-                    </v-menu>
-                  </v-flex>
-                  <v-flex xs4 class="px-1">
-                    <v-text-field v-model="oferta.objetoDeContrato" label="Objeto Social" clearable></v-text-field>
-                  </v-flex>
-                  <v-flex xs4 class="px-1">
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex cols="2" class="px-1">
                     <v-autocomplete
                       v-model="oferta.adminContrato"
                       item-text="administrador.nombreCompleto"
@@ -176,7 +69,19 @@
                       <v-icon @click="dialog4=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
                   </v-flex>
-                  <v-flex xs5 class="px-1">
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="oferta.entidad"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="entidades"
+                      cache-items
+                      label="Proveedor"
+                    >
+                      <v-icon @click="dialog3=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
+                    </v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
                     <v-autocomplete
                       v-model="oferta.departamentos"
                       item-text="nombre"
@@ -209,7 +114,9 @@
                       <v-icon @click="dialog8=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
                   </v-flex>
-                  <v-flex xs4 class="px-1">
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex cols="2" class="px-1">
                     <v-autocomplete
                       v-model="oferta.especialistasExternos"
                       item-text="nombreCompleto"
@@ -223,10 +130,156 @@
                       <v-icon @click="dialog5=true" slot="append" color="blue darken-2">mdi-plus</v-icon>
                     </v-autocomplete>
                   </v-flex>
-                  <!-- <v-flex xs4 class="px-1">
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="montoAndMoneda.cantidad"
+                      label="Monto"
+                      clearable
+                      prefix="$"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-select
+                      v-model="montoAndMoneda.moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-select>
+                  </v-flex>
+                  <v-flex cols="2" class="pt-7">
+                    <v-tooltip top color="success">
+                      <template v-slot:activator="{ on }">
+                        <v-icon medium v-on="on" @click="agregar()" color="success">mdi-plus</v-icon>
+                      </template>
+                      <span>Agregar</span>
+                    </v-tooltip>
+                  </v-flex>
+                  <v-flex xs12>
+                    <v-data-table
+                      :headers="headersMonto"
+                      :items="oferta.montos"
+                      hide-default-footer
+                    >
+                      <template v-slot:item.action="{ item }">
+                        <v-btn
+                          class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+                          small
+                          @click="editar(item)"
+                        >
+                          <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+                        </v-btn>
+                        <v-btn
+                          class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+                          small
+                          @click="quitar(item)"
+                        >
+                          <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-data-table>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex cols="2" md="9" class="px-1">
+                    <v-autocomplete
+                      v-model="oferta.formasDePago"
+                      :items="formasDePagos"
+                      label="Formas de Pago"
+                      item-text="nombre"
+                      item-value="id"
+                      multiple
+                    >
+                      <template v-slot:selection="data">
+                        <v-chip
+                          v-bind="data.attrs"
+                          :input-value="data.selected"
+                          close
+                          @click="data.select"
+                          @click:close="removeformasDePago(data.item)"
+                          outlined
+                        >{{ data.item.nombre }}</v-chip>
+                      </template>
+                      <template v-slot:item="data">
+                        <template v-if="typeof data.item !== 'object'">
+                          <v-list-item-content v-text="data.item"></v-list-item-content>
+                        </template>
+                        <template v-else>
+                          <v-list-item-content>
+                            <v-list-item-title v-html="data.item.nombre"></v-list-item-title>
+                          </v-list-item-content>
+                        </template>
+                      </template>
+                    </v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2">
+                    <v-text-field
+                      v-model="oferta.terminoDePago"
+                      label="Término de Pago en Meses"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex cols="2" class="px-1">
+                    <v-textarea v-model="oferta.objetoDeContrato" label="Objeto Social" rows="1"></v-textarea>
+                  </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex cols="2" class="px-1">
+                    <v-menu
+                      v-model="menu"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      full-width
+                      min-width="290px"
+                    >
+                      <template v-slot:activator="{ on }">
+                        <v-text-field
+                          v-model="oferta.fechaDeRecepcion"
+                          label="Fecha de Recepción"
+                          readonly
+                          clearable
+                          v-on="on"
+                          required
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker v-model="oferta.fechaDeRecepcion" @input="menu = false"></v-date-picker>
+                    </v-menu>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-menu
+                      v-model="menu1"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      full-width
+                      min-width="290px"
+                    >
+                      <template v-slot:activator="{ on }">
+                        <v-text-field
+                          v-model="oferta.fechaDeVenOferta"
+                          label="Fecha de Vencimiento"
+                          readonly
+                          clearable
+                          v-on="on"
+                          required
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker v-model="oferta.fechaDeVenOferta" @input="menu1 = false"></v-date-picker>
+                    </v-menu>
+                  </v-flex>
+                  <!-- <v-flex cols="2" class="px-1">
                     <v-file-input v-model="oferta.file" show-size label="Seleccionar Documento"></v-file-input>
                   </v-flex>-->
-                  <v-flex x2 class="px-1">
+                  <v-flex cols="2" class="px-1">
                     <v-autocomplete
                       v-model="oferta.estado"
                       item-text="nombre"
@@ -373,7 +426,7 @@
         >
           <v-card>
             <v-toolbar dark fadeOnScroll :color="getColor(oferta.ofertVence)">
-              <v-flex xs12 sm10 md6 lg4>Detalles</v-flex>
+              <v-flex cols="2" sm10 md6 lg4>Detalles</v-flex>
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-btn icon dark @click="close()">
@@ -634,7 +687,7 @@
                   </v-btn>
                 </v-toolbar-items>
               </v-toolbar>
-              <v-flex xs12 class="px-1 mt-10">
+              <v-flex cols="2" class="px-1 mt-10">
                 <v-file-input
                   v-model="file"
                   show-size
@@ -642,7 +695,7 @@
                   label="Seleccione el Documento"
                 ></v-file-input>
               </v-flex>
-              <v-flex xs12 class="px-1">
+              <v-flex cols="2" class="px-1">
                 <v-alert v-if="message" border="left" color="red" dark>{{ message }}</v-alert>
               </v-flex>
               <v-card-actions>
@@ -803,10 +856,12 @@ export default {
     cantOfertas: 0,
     oferta: {
       entidad: {},
-      adminContrato: {}
+      adminContrato: {},
+      montos: []
     },
     file: null,
     entidades: [],
+    entidadObjetc: {},
     especialistasExternosAll: [],
     dictaminadoresContratos: [],
     adminContratos: [],
@@ -820,6 +875,7 @@ export default {
     todasLasOfertas: false,
     vencimientoOfertas: [],
     departamentos: [],
+    monedas: [],
     ofertaTiempo: "ofertaTiempo",
     ofertasProxVencer: "ofertasProxVencer",
     ofertasCasiVenc: "ofertasCasiVenc",
@@ -834,6 +890,10 @@ export default {
       class: null
     },
     trabajadores: [],
+    montoAndMoneda: {
+      cantidad: "",
+      moneda: { id: "", nombre: "" }
+    },
     errors: [],
     headers: [
       { text: "Número", sortable: true, value: "numero" },
@@ -842,6 +902,11 @@ export default {
       { text: "Entidad", value: "entidad.nombre" },
       { text: "Vence en", value: "ofertVence" },
       { text: "Estado", value: "estadoNombre" },
+      { text: "Acciones", value: "action", sortable: false }
+    ],
+    headersMonto: [
+      { text: "Monto", sortable: true, value: "cantidad" },
+      { text: "Moneda", align: "left", sortable: true, value: "moneda.nombre" },
       { text: "Acciones", value: "action", sortable: false }
     ],
     headersCuentas: [
@@ -865,6 +930,13 @@ export default {
     },
     method() {
       return this.editedIndex === -1 ? "POST" : "PUT";
+    },
+    monto() {
+      if (this.oferta.entidad != 0) {
+        this.entidadObjetc = this.entidades.find(
+          x => x.id === this.oferta.entidad
+        );
+      }
     }
   },
 
@@ -886,7 +958,7 @@ export default {
     this.getTrabajadoresFromApi();
     this.getTiempoVenOfertasFromApi();
     this.getDepartamentosFromApi();
-
+    this.getMonedasFromApi();
     this.roles = this.$store.getters.roles;
   },
 
@@ -1017,6 +1089,17 @@ export default {
         }
       );
     },
+    getMonedasFromApi() {
+      const url = api.getUrl("contratacion", "Entidades/Monedas");
+      this.axios.get(url).then(
+        response => {
+          this.monedas = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     editItem(item) {
       this.editedIndex = this.ofertas.indexOf(item);
       this.oferta = Object.assign({}, item);
@@ -1064,6 +1147,9 @@ export default {
       this.oferta.cliente = true;
       const url = api.getUrl("contratacion", "Contratos");
       if (method === "POST") {
+        if (this.oferta.montos.length == 0) {
+          this.oferta.montos.push(this.montoAndMoneda);
+        }
         this.axios.post(url, this.oferta).then(
           response => {
             this.getResponse(response);
@@ -1154,7 +1240,9 @@ export default {
       this.dialog7 = false;
       this.dialog9 = false;
       this.oferta.entidad = {};
+      this.oferta.montos = [];
       this.oferta.adminContrato = {};
+      this.entidadObjetc = {};
       this.getOfertasFromApi();
       this.message = "";
       setTimeout(() => {
@@ -1264,6 +1352,33 @@ export default {
     confirmAprobarOferta(item) {
       this.oferta = Object.assign({}, item);
       this.dialog9 = true;
+    },
+    agregar() {
+      const monedaId = this.montoAndMoneda.moneda;
+      if (typeof monedaId === "number") {
+        const m = this.monedas.find(x => x.id === monedaId);
+        const moneda = { id: "", nombre: "" };
+        moneda.id = monedaId;
+        moneda.nombre = m.nombre;
+        this.montoAndMoneda.moneda = moneda;
+      }
+      this.oferta.montos.push(this.montoAndMoneda);
+      this.montoAndMoneda = {
+        cantidad: "",
+        moneda: ""
+      };
+    },
+    editar(item) {
+      const index = this.oferta.montos.indexOf(item.id);
+      if (index >= -1) this.oferta.montos.splice(index, 1);
+      this.montoAndMoneda = {
+        cantidad: item.cantidad,
+        moneda: item.moneda
+      };
+    },
+    quitar(item) {
+      const index = this.oferta.montos.indexOf(item.id);
+      if (index >= -1) this.oferta.montos.splice(index, 1);
     },
     aprobarOferta(item) {}
   }

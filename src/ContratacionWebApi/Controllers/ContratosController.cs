@@ -35,7 +35,7 @@ namespace ContratacionWebApi.Controllers {
             var contratoId_DepartamentoId = context.ContratoId_DepartamentoId.Include (d => d.Departamento).ToList ();
             var espExternoId_ContratoId = context.EspExternoId_ContratoId.Include (d => d.EspecialistaExterno).ToList ();
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
-            var contratos = context.Contratos.Include (c => c.Entidad).Select (c => new {
+            var contratos = context.Contratos.Include (c => c.Entidad).Include (c => c.Montos).Select (c => new {
                 Id = c.Id,
                     Nombre = c.Nombre,
                     Tipo = c.Tipo,
@@ -47,9 +47,7 @@ namespace ContratacionWebApi.Controllers {
                     }),
                     ObjetoDeContrato = c.ObjetoDeContrato,
                     Numero = c.Numero,
-                    MontoCup = c.MontoCup,
-                    MontoCuc = c.MontoCuc,
-                    MontoUsd = c.MontoUsd,
+                    Montos = c.Montos,
                     FechaDeRecepcion = c.FechaDeRecepcion,
                     FechaDeVenOferta = c.FechaDeVenOferta,
                     FechaVenContrato = c.FechaVenContrato,
@@ -171,9 +169,6 @@ namespace ContratacionWebApi.Controllers {
                     EntidadId = contratoDto.Entidad,
                     ObjetoDeContrato = contratoDto.ObjetoDeContrato,
                     Numero = contratoDto.Numero,
-                    MontoCup = contratoDto.MontoCup,
-                    MontoCuc = contratoDto.MontoCuc,
-                    MontoUsd = contratoDto.MontoUsd,
                     TerminoDePago = contratoDto.TerminoDePago,
                     Cliente = contratoDto.Cliente
                 };
@@ -259,9 +254,6 @@ namespace ContratacionWebApi.Controllers {
             c.EntidadId = contrato.Entidad.Id;
             c.ObjetoDeContrato = contrato.ObjetoDeContrato;
             c.Numero = contrato.Numero;
-            c.MontoCup = contrato.MontoCup;
-            c.MontoCuc = contrato.MontoCuc;
-            c.MontoUsd = contrato.MontoUsd;
             c.TerminoDePago = contrato.TerminoDePago;
 
             if (contrato.FechaDeRecepcion != null) {

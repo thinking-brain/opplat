@@ -72,7 +72,7 @@
                       :items="entidades"
                       :rules="EntidadRules"
                       cache-items
-                      label="Entidad Proveedora a la Pertenece"
+                      label="Entidad a la que Pertenece"
                     ></v-autocomplete>
                   </v-flex>
                   <v-flex xs6 class="px-3">
