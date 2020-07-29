@@ -35,7 +35,7 @@ namespace ContratacionWebApi.Controllers {
             var contratoId_DepartamentoId = context.ContratoId_DepartamentoId.Include (d => d.Departamento).ToList ();
             var espExternoId_ContratoId = context.EspExternoId_ContratoId.Include (d => d.EspecialistaExterno).ToList ();
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
-            var contratos = context.Contratos.Include (c => c.Entidad).Select (c => new {
+            var contratos = context.Contratos.Include (c => c.Entidad).Include (c => c.Montos).Select (c => new {
                 Id = c.Id,
                     Nombre = c.Nombre,
                     Tipo = c.Tipo,
@@ -47,9 +47,12 @@ namespace ContratacionWebApi.Controllers {
                     }),
                     ObjetoDeContrato = c.ObjetoDeContrato,
                     Numero = c.Numero,
-                    MontoCup = c.MontoCup,
-                    MontoCuc = c.MontoCuc,
-                    MontoUsd = c.MontoUsd,
+                    Montos = c.Montos.Select (d => new {
+                        ContratoId=d.ContratoId,
+                        Cantidad=d.Cantidad,
+                        Moneda = d.Moneda,
+                        NombreString=d.Moneda.ToString()
+                    }),
                     FechaDeRecepcion = c.FechaDeRecepcion,
                     FechaDeVenOferta = c.FechaDeVenOferta,
                     FechaVenContrato = c.FechaVenContrato,
@@ -171,9 +174,6 @@ namespace ContratacionWebApi.Controllers {
                     EntidadId = contratoDto.Entidad,
                     ObjetoDeContrato = contratoDto.ObjetoDeContrato,
                     Numero = contratoDto.Numero,
-                    MontoCup = contratoDto.MontoCup,
-                    MontoCuc = contratoDto.MontoCuc,
-                    MontoUsd = contratoDto.MontoUsd,
                     TerminoDePago = contratoDto.TerminoDePago,
                     Cliente = contratoDto.Cliente
                 };
@@ -190,6 +190,17 @@ namespace ContratacionWebApi.Controllers {
                 context.Contratos.Add (contrato);
                 context.SaveChanges ();
 
+                if (contratoDto.Montos != null) {
+                    foreach (var item in contratoDto.Montos) {
+                    var monto = new Monto {
+                    Cantidad = item.Cantidad,
+                    Moneda = item.Moneda,
+                    ContratoId = contrato.Id
+                        };
+                        context.Montos.Add (monto);
+                    }
+                    context.SaveChanges ();
+                }
                 foreach (var item in contratoDto.FormasDePago) {
                     var contratoId_FormaPagoId = new ContratoId_FormaPagoId {
                         ContratoId = contrato.Id,
@@ -259,9 +270,6 @@ namespace ContratacionWebApi.Controllers {
             c.EntidadId = contrato.Entidad.Id;
             c.ObjetoDeContrato = contrato.ObjetoDeContrato;
             c.Numero = contrato.Numero;
-            c.MontoCup = contrato.MontoCup;
-            c.MontoCuc = contrato.MontoCuc;
-            c.MontoUsd = contrato.MontoUsd;
             c.TerminoDePago = contrato.TerminoDePago;
 
             if (contrato.FechaDeRecepcion != null) {
@@ -276,6 +284,23 @@ namespace ContratacionWebApi.Controllers {
             }
             context.Entry (c).State = EntityState.Modified;
 
+            //   Agregar monto por monedas
+            if (contrato.Montos != null) {
+                var montos = context.Montos.Where (s => s.ContratoId == contrato.Id);
+                foreach (var item in montos) {
+                    context.Montos.Remove (item);
+                }
+                foreach (var item in contrato.Montos) {
+                    var monto = new Monto {
+                        Cantidad = item.Cantidad,
+                        Moneda = item.Moneda,
+                        ContratoId = contrato.Id
+                    };
+                    context.Montos.Add (monto);
+                    context.SaveChanges ();
+                }
+            }
+            
             if (contrato.FormasDePago != null) {
                 var formasDePago = context.ContratoId_FormaPagoId.Where (s => s.ContratoId == contrato.Id);
                 foreach (var item in formasDePago) {
@@ -326,7 +351,7 @@ namespace ContratacionWebApi.Controllers {
             }
             var HistoricoEstadoContrato = new HistoricoEstadoContrato {
                 ContratoId = contrato.Id,
-                Estado = Estado.Circulando,
+                Estado = contrato.Estado,
                 Fecha = DateTime.Now,
                 Usuario = contrato.Usuario,
             };

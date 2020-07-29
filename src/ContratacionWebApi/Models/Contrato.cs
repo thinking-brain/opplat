@@ -17,19 +17,8 @@ namespace ContratacionWebApi.Models {
         public virtual Entidad Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
         public string Numero { get; set; }
-
-        [Display (Name = "Monto CUP")]
-        [DataType (DataType.Currency)]
-        public decimal? MontoCup { get; set; }
-
-        [Display (Name = "Monto CUC")]
-        [DataType (DataType.Currency)]
-        public decimal? MontoCuc { get; set; }
-
-        [Display (Name = "Monto USD")]
-        [DataType (DataType.Currency)]
-        public decimal? MontoUsd { get; set; }
-
+        public ICollection<Monto> Montos { get; set; }
+        
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Llegada")]
         public DateTime FechaDeRecepcion { get; set; }
