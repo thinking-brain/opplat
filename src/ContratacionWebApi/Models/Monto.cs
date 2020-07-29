@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContratacionWebApi.Models {
+    [Table ("montos")]
     public class Monto {
         public int Id { get; set; }
 

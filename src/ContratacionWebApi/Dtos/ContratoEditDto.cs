@@ -15,19 +15,7 @@ namespace ContratacionWebApi.Models {
         public Entidad Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
         public string Numero { get; set; }
-
-        [Display (Name = "Monto CUP")]
-        [DataType (DataType.Currency)]
-        public decimal? MontoCup { get; set; }
-
-        [Display (Name = "Monto CUC")]
-        [DataType (DataType.Currency)]
-        public decimal? MontoCuc { get; set; }
-
-        [Display (Name = "Monto USD")]
-        [DataType (DataType.Currency)]
-        public decimal? MontoUsd { get; set; }
-        public string[] monedas { get; set; }
+        public List<Monto> Montos { get; set; }
 
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Llegada")]
@@ -48,6 +36,7 @@ namespace ContratacionWebApi.Models {
         //Término de pago en días
         [Display (Name = "Término de Pago")]
         public int TerminoDePago { get; set; }
+        public Estado Estado { get; set; }
         public string Usuario { get; set; }
         public List<Departamento> Departamentos { get; set; }
         public List<EspecialistaExterno> EspecialistasExternos { get; set; }

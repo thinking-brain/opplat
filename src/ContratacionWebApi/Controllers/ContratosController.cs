@@ -47,7 +47,12 @@ namespace ContratacionWebApi.Controllers {
                     }),
                     ObjetoDeContrato = c.ObjetoDeContrato,
                     Numero = c.Numero,
-                    Montos = c.Montos,
+                    Montos = c.Montos.Select (d => new {
+                        ContratoId=d.ContratoId,
+                        Cantidad=d.Cantidad,
+                        Moneda = d.Moneda,
+                        NombreString=d.Moneda.ToString()
+                    }),
                     FechaDeRecepcion = c.FechaDeRecepcion,
                     FechaDeVenOferta = c.FechaDeVenOferta,
                     FechaVenContrato = c.FechaVenContrato,
@@ -185,6 +190,17 @@ namespace ContratacionWebApi.Controllers {
                 context.Contratos.Add (contrato);
                 context.SaveChanges ();
 
+                if (contratoDto.Montos != null) {
+                    foreach (var item in contratoDto.Montos) {
+                    var monto = new Monto {
+                    Cantidad = item.Cantidad,
+                    Moneda = item.Moneda,
+                    ContratoId = contrato.Id
+                        };
+                        context.Montos.Add (monto);
+                    }
+                    context.SaveChanges ();
+                }
                 foreach (var item in contratoDto.FormasDePago) {
                     var contratoId_FormaPagoId = new ContratoId_FormaPagoId {
                         ContratoId = contrato.Id,
@@ -268,6 +284,23 @@ namespace ContratacionWebApi.Controllers {
             }
             context.Entry (c).State = EntityState.Modified;
 
+            //   Agregar monto por monedas
+            if (contrato.Montos != null) {
+                var montos = context.Montos.Where (s => s.ContratoId == contrato.Id);
+                foreach (var item in montos) {
+                    context.Montos.Remove (item);
+                }
+                foreach (var item in contrato.Montos) {
+                    var monto = new Monto {
+                        Cantidad = item.Cantidad,
+                        Moneda = item.Moneda,
+                        ContratoId = contrato.Id
+                    };
+                    context.Montos.Add (monto);
+                    context.SaveChanges ();
+                }
+            }
+            
             if (contrato.FormasDePago != null) {
                 var formasDePago = context.ContratoId_FormaPagoId.Where (s => s.ContratoId == contrato.Id);
                 foreach (var item in formasDePago) {
@@ -318,7 +351,7 @@ namespace ContratacionWebApi.Controllers {
             }
             var HistoricoEstadoContrato = new HistoricoEstadoContrato {
                 ContratoId = contrato.Id,
-                Estado = Estado.Circulando,
+                Estado = contrato.Estado,
                 Fecha = DateTime.Now,
                 Usuario = contrato.Usuario,
             };

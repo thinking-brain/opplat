@@ -78,12 +78,6 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("FilePath");
 
-                    b.Property<decimal?>("MontoCuc");
-
-                    b.Property<decimal?>("MontoCup");
-
-                    b.Property<decimal?>("MontoUsd");
-
                     b.Property<string>("Nombre");
 
                     b.Property<string>("Numero");
@@ -395,6 +389,24 @@ namespace ContratacionWebApi.Migrations
                     b.ToTable("HistoricosEstadoContratos");
                 });
 
+            modelBuilder.Entity("ContratacionWebApi.Models.Monto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<decimal>("Cantidad");
+
+                    b.Property<int>("ContratoId");
+
+                    b.Property<int>("Moneda");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContratoId");
+
+                    b.ToTable("montos");
+                });
+
             modelBuilder.Entity("ContratacionWebApi.Models.ObjetoDeContrato", b =>
                 {
                     b.Property<int>("Id")
@@ -602,6 +614,14 @@ namespace ContratacionWebApi.Migrations
                 {
                     b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
                         .WithMany()
+                        .HasForeignKey("ContratoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("ContratacionWebApi.Models.Monto", b =>
+                {
+                    b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
+                        .WithMany("Montos")
                         .HasForeignKey("ContratoId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

@@ -768,6 +768,7 @@ export default {
   watch: {
     dialog(val) {
       val || this.close();
+      this.$refs.form.reset();
     }
   },
 
