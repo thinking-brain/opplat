@@ -226,7 +226,23 @@ export default {
   created() {},
   methods: {
     close() {
-      if (this.contrato.cliente == true) {
+      if (
+        this.contrato.cliente == true &&
+        this.contrato.aprobComitContratacion == true &&
+        this.contrato.estadoNombre == "Aprobado"
+      ) {
+        this.$router.push({
+          name: "ContratosCliente"
+        });
+      } else if (
+        this.contrato.cliente == false &&
+        this.contrato.aprobComitContratacion == true &&
+        this.contrato.estadoNombre == "Aprobado"
+      ) {
+        this.$router.push({
+          name: "ContratosPrestador"
+        });
+      } else if (this.contrato.cliente == true) {
         this.$router.push({
           name: "OfertasClientes"
         });

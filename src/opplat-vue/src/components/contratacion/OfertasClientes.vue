@@ -327,11 +327,6 @@ export default {
     textByfiltro: "",
     show: false,
     tabs: null,
-    montoAndMoneda: {
-      cantidad: null,
-      moneda: null,
-      nombreString: null
-    },
     errors: [],
     headers: [
       { text: "Número", sortable: true, value: "numero" },
