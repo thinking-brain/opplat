@@ -20,7 +20,7 @@
           </v-card-text>
           <v-divider class="mt-5"></v-divider>
           <v-card-actions>
-            <v-btn to="/admin/usuarios">Cancelar</v-btn>
+            <v-btn to="/administracion/usuarios">Cancelar</v-btn>
             <v-spacer></v-spacer>
             <v-slide-x-reverse-transition>
               <v-tooltip left v-if="formHasErrors">
@@ -101,7 +101,7 @@ export default {
           .post(url, this.form)
           .then(() => {
             vm.$snotify.success('Roles modificados correctamente.');
-            this.$router.push('/admin/usuarios');
+            this.$router.push('/administracion/usuarios');
           })
           .catch((err) => {
             vm.$snotify.error(`Error modificando los roles. ${err}`);

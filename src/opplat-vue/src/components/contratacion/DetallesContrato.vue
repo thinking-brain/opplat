@@ -5,9 +5,9 @@
     >OFERTA DE {{contrato.tipoNombre}} DE {{contrato.nombre}}.</p>
     <v-row>
       <!-- DATOS DE LA OFERTA -->
-      <v-col cols="6">
-        <v-card :elevation="2">
-          <v-row class="mx-0">
+      <v-col>
+        <v-card xs12 sm12 :elevation="2">
+          <v-row class="mx-1">
             <v-col cols="12" md="12" class="pa-2 headline">
               <h3>Oferta</h3>
             </v-col>
@@ -16,50 +16,52 @@
               {{contrato.ofertVence}} Días
             </v-col>
           </v-row>
-          <v-row class="mx-0">
+          <v-row class="mx-1">
             <v-col cols="12" md="6" class="pa-2">
               <strong>Número :</strong>
-              <u class="pl-2">{{contrato.numero}}</u>
+              {{contrato.numero}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Estado :</strong>
-              <u class="pl-2">{{contrato.estadoNombre}}</u>
+              {{contrato.estadoNombre}}
             </v-col>
             <v-col cols="12" md="12" class="pa-2">
               <strong>Administrador del Contrato :</strong>
-              <u class="pl-2">{{contrato.adminContrato.nombreCompleto}}</u>
+              {{contrato.adminContrato.nombreCompleto}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Fecha de Recepción:</strong>
-              <u class="pl-2">{{contrato.fechaDeRece}}</u>
+              {{contrato.fechaDeRece}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>La Oferta Vence el:</strong>
-              <u class="pl-2">{{contrato.fechaDeVenOfer}}</u>
+              {{contrato.fechaDeVenOfer}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Objeto Social :</strong>
-              <u class="pl-2">{{contrato.objetoDeContrato}}</u>
+              {{contrato.objetoDeContrato}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Término de Pago :</strong>
-              <u class="pl-1">{{contrato.terminoDePagoDet}}</u>
+              {{contrato.terminoDePagoDet}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Monto del Contrato :</strong>
               <v-spacer></v-spacer>
               <span v-for="item in contrato.montos" :key="item.nombre">
-                <v-spacer></v-spacer>-
-                <u class="pl-2">${{item.cantidad}} en</u>
-                <u class="pl-2">{{item.nombreString}}</u>
+                <v-spacer></v-spacer>
+                -
+                ${{item.cantidad}} en
+                {{item.nombreString}}
               </span>
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Formas e Pago :</strong>
               <v-spacer></v-spacer>
               <span v-for="item in contrato.formasDePago" :key="item.nombre">
-                <v-spacer></v-spacer>-
-                <u class="pl-2">{{item.nombre}}</u>
+                <v-spacer></v-spacer>
+                -
+                {{item.nombre}}
               </span>
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
@@ -69,8 +71,9 @@
                 :key="item.nombreCompleto"
                 class="pl-2"
               >
-                <v-spacer></v-spacer>-
-                <u class="pl-2">{{item.nombreCompleto}}</u>
+                <v-spacer></v-spacer>
+                -
+                {{item.nombreCompleto}}
               </span>
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
@@ -80,8 +83,9 @@
                 :key="item.nombreCompleto"
                 class="pl-2"
               >
-                <v-spacer></v-spacer>-
-                <u class="pl-2">{{item.nombreCompleto}}</u>
+                <v-spacer></v-spacer>
+                -
+                {{item.nombreCompleto}}
               </span>
             </v-col>
             <v-col cols="12" md="12" class="pa-2">
@@ -122,57 +126,49 @@
       </v-col>
       <!-- /DATOS DE LA OFERTA -->
       <!-- DATOS DE LA ENTIDAD PROVEEDORA -->
-      <v-col cols="6">
-        <v-card :elevation="2">
-          <v-row class="mx-0">
+      <v-col>
+        <v-card xs12 sm12 :elevation="2">
+          <v-row class="mx-1">
             <v-col cols="12" md="12" class="pa-2 headline">
               <h3>Entidad Proveedora</h3>
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Nombre :</strong>
-              <u class="pl-2">{{contrato.entidad.nombre}}</u>
+              {{contrato.entidad.nombre}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Dirección :</strong>
-              <u class="pl-2">{{contrato.entidad.direccion}}</u>
+              {{contrato.entidad.direccion}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>NIT :</strong>
-              <u class="pl-2">{{contrato.entidad.nit}}</u>
+              {{contrato.entidad.nit}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Sector :</strong>
-              <u class="pl-2">{{contrato.entidad.sectorNombre}}</u>
+              {{contrato.entidad.sectorNombre}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Fax :</strong>
-              <u class="pl-2">{{contrato.entidad.fax}}</u>
+              {{contrato.entidad.fax}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Correo :</strong>
-              <u class="pl-2">{{contrato.entidad.correo}}</u>
+              {{contrato.entidad.correo}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Objeto Social :</strong>
-              <u class="pl-2">{{contrato.entidad.objetoSocial}}</u>
+              {{contrato.entidad.objetoSocial}}
             </v-col>
-            <v-col cols="8" md="8" class="pa-2">
+            <div cols="12" md="12" class="pa-2">
               <strong>Teléfonos :</strong>
-              <v-spacer></v-spacer>
-              <span v-for="item in contrato.entidad.telefonos" :key="item.numero">
-                <v-row>
-                  <v-col cols="6">
+              <div v-for="item in contrato.entidad.telefonos" :key="item.numero" class="pt-1">
                     <strong>Número:</strong>
-                    {{item.numero}}
-                  </v-col>
-                  <v-col cols="6">
-                    <strong>Extensión:</strong>
+                    {{item.numero}}<v-spacer></v-spacer>
+                    <strong >Extensión:</strong>
                     {{item.extension}}
-                  </v-col>
-                </v-row>
-                <v-divider></v-divider>
-              </span>
-            </v-col>
+              </div>
+            </div>
             <v-col cols="12" md="12" class="pa-2">
               <strong>Cuentas Bancarias :</strong>
               <v-data-table
@@ -188,9 +184,13 @@
       </v-col>
       <!-- /DATOS DE LA ENTIDAD PROVEEDORA -->
     </v-row>
-    <div class="text-center">
-      <v-btn color="blue darken-1" text @click=" close()">Volver al Listado</v-btn>
-    </div>
+    <v-row>
+      <v-col>
+        <div class="text-center">
+          <v-btn color="blue darken-1" text @click=" close()">Volver al Listado</v-btn>
+        </div>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 <script>
@@ -219,7 +219,7 @@ export default {
       },
       { text: "Número Sucursal", value: "numeroSucursal" },
       { text: "Nombre Sucursal", value: "nombreSucursalString" },
-      { text: "Moneda", value: "nombreString" }
+      { text: "Moneda", value: "monedaString" }
     ]
   }),
   computed: {},

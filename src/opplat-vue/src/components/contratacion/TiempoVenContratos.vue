@@ -1,195 +1,153 @@
 <template>
-  <v-row>
+    <v-row>
     <!-- Formulario Ofertas -->
-    <v-col cols="6" sm="6" md="6">
-      <v-card :elevation="12">
+      <v-card xs12 md6 flat class="flex xs12 sm6 md6 px-5 pt-10" width="600px">
         <v-form>
-          <v-row align="center" justify="center" class="pt-3">
-            <p class="text-center title font-italic">Tiempo de Vencimiento de las Ofertas</p>
-            <v-col cols="6" sm="9" md="5">
+          <p class="text-center title font-italic">Tiempo de Vencimiento de las Ofertas</p>
+          <v-row class="px-10">
+            <v-col cols="12" md="6" class="pa-2">
               <v-text-field
                 v-model="tiempoVenOferta.ofertasProxVencDesde"
                 label="Ofertas Próximas a Vencer"
-                outlined
                 placeholder=" "
                 prefix="Después de"
                 suffix="Días"
               ></v-text-field>
             </v-col>
-            <v-col cols="6" sm="9" md="5">
+            <v-col cols="12" md="6" class="pa-2">
               <v-text-field
                 v-model="tiempoVenOferta.ofertasProxVencHasta"
                 label="Ofertas Próximas a Vencer"
-                outlined
                 placeholder=" "
                 prefix="Antes de"
                 suffix="Días"
               ></v-text-field>
             </v-col>
-            <v-col cols="6" sm="9" md="5">
+            <v-col cols="12" md="6" class="pa-2">
               <v-text-field
                 v-model="tiempoVenOferta.ofertasCasiVencDesde"
                 label="Ofertas Casi Vencidas"
-                outlined
                 placeholder=" "
                 prefix="Después de"
                 suffix="Días"
               ></v-text-field>
             </v-col>
-            <v-col cols="6" sm="9" md="5">
+            <v-col cols="12" md="6" class="pa-2">
               <v-text-field
                 v-model="tiempoVenOferta.ofertasCasiVencHasta"
                 label="Ofertas Casi Vencidas"
-                outlined
                 placeholder=" "
                 prefix="Antes de"
                 suffix="Días"
               ></v-text-field>
             </v-col>
-            <v-col cols="6" sm="9" md="5">
+            <v-col cols="12" md="6" class="pa-2">
               <v-text-field
                 v-model="tiempoVenOferta.ofertaTiempo"
                 label="Ofertas en Tiempo"
-                outlined
                 placeholder=" "
                 prefix="Después de"
                 suffix="Días"
               ></v-text-field>
             </v-col>
-            <v-col cols="6" sm="9" md="5">
+            <v-col cols="12" md="6" class="pa-2">
               <v-text-field
                 v-model="tiempoVenOferta.ofertasVencidas"
                 label="Ofertas Vencidas"
-                outlined
                 placeholder=" "
                 prefix="Antes de"
                 suffix="Días"
               ></v-text-field>
             </v-col>
           </v-row>
-          <v-row justify="center">
-            <v-col cols="6" sm="6" md="5">
-              <v-btn
-                color="success"
-                block
-                outlined
-                class="elevation-7"
-                @click="editTiempoVenOfertas"
-              >Guardar Cambios</v-btn>
-            </v-col>
-            <v-col cols="6" sm="6" md="5">
-              <v-btn
-                color="cyan"
-                block
-                outlined
-                class="elevation-7"
-                @click="inicializarOfertas"
-              >Por Defecto</v-btn>
-            </v-col>
-          </v-row>
+          <div class="text-center">
+            <v-btn
+              class="ma-2"
+              color="success"
+              outlined
+              text
+              @click="editTiempoVenOfertas"
+            >Guardar Cambios</v-btn>
+            <v-btn class="ma-2" color="cyan" outlined text @click="inicializarOfertas">Por Defecto</v-btn>
+          </div>
         </v-form>
       </v-card>
-    </v-col>
     <!-- /Formulario Ofertas -->
-
     <!-- Formulario Contratos -->
-    <v-col cols="6" sm="6" md="6">
-      <v-card :elevation="12">
+      <v-card xs12 md6 flat class="flex xs12 sm6 md6 px-5 pt-10" width="600px">
         <v-form>
-          <v-row align="center" justify="center" class="pt-3">
-            <p class="text-center title font-italic">Tiempo de Vencimiento de los Contratos</p>
-            <v-row class="px-12">
-              <v-col cols="6" sm="9" md="6">
-                <v-text-field
-                  v-model="tiempoVenContrato.contratosProxVencerDesde"
-                  label="Contratos Próximos a Vencer"
-                  outlined
-                  placeholder=" "
-                  prefix="Después de"
-                  suffix="Días"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6" sm="9" md="6">
-                <v-text-field
-                  v-model="tiempoVenContrato.contratosProxVencerHasta"
-                  label="Contratos Próximos a Vencer"
-                  outlined
-                  placeholder=" "
-                  prefix="Antes de"
-                  suffix="Días"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-row class="px-12">
-              <v-col cols="6" sm="9" md="6">
-                <v-text-field
-                  v-model="tiempoVenContrato.contratosCasiVencDesde"
-                  label="Contratos Casi Vencidos"
-                  outlined
-                  placeholder=" "
-                  prefix="Después de"
-                  suffix="Días"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6" sm="9" md="6">
-                <v-text-field
-                  v-model="tiempoVenContrato.contratosCasiVencHasta"
-                  label="Contratos Casi Vencidos"
-                  outlined
-                  placeholder=" "
-                  prefix="Antes de"
-                  suffix="Días"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-row class="px-12">
-              <v-col cols="6" sm="9" md="6">
-                <v-text-field
-                  v-model="tiempoVenContrato.contratoTiempo"
-                  label="Contratos en Tiempo"
-                  outlined
-                  placeholder=" "
-                  prefix="Después de"
-                  suffix="Días"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6" sm="9" md="6">
-                <v-text-field
-                  v-model="tiempoVenContrato.contratosVencidos"
-                  label="Contratos Vencidos"
-                  outlined
-                  placeholder=" "
-                  prefix="Antes de"
-                  suffix="Días"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-          </v-row>
-          <v-row justify="center">
-            <v-col cols="6" sm="6" md="5">
-              <v-btn
-                color="success"
-                block
-                outlined
-                class="elevation-7"
-                @click="editTiempoVenContratos"
-              >Guardar Cambios</v-btn>
+          <p class="text-center title font-italic">Tiempo de Vencimiento de los Contratos</p>
+          <v-row class="px-10">
+            <v-col cols="12" md="6" class="pa-2">
+              <v-text-field
+                v-model="tiempoVenContrato.contratosProxVencerDesde"
+                label="Próximos a Vencer"
+                placeholder=" "
+                prefix="Después de"
+                suffix="Días"
+              ></v-text-field>
             </v-col>
-            <v-col cols="6" sm="6" md="5">
-              <v-btn
-                color="cyan"
-                block
-                outlined
-                class="elevation-7"
-                @click="inicializarContratos"
-              >Por defecto</v-btn>
+            <v-col cols="12" md="6" class="pa-2">
+              <v-text-field
+                v-model="tiempoVenContrato.contratosProxVencerHasta"
+                placeholder=" "
+                prefix="Antes de"
+                suffix="Días"
+              ></v-text-field>
             </v-col>
           </v-row>
+          <v-row class="px-10">
+            <v-col cols="12" md="6" class="pa-2">
+              <v-text-field
+                v-model="tiempoVenContrato.contratosCasiVencDesde"
+                label="Casi Vencidos"
+                placeholder=" "
+                prefix="Después de"
+                suffix="Días"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="6" class="pa-2">
+              <v-text-field
+                v-model="tiempoVenContrato.contratosCasiVencHasta"
+                placeholder=" "
+                prefix="Antes de"
+                suffix="Días"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row class="px-10">
+            <v-col cols="12" md="6" class="pa-2">
+              <v-text-field
+                v-model="tiempoVenContrato.contratoTiempo"
+                label="En Tiempo"
+                placeholder=" "
+                prefix="Después de"
+                suffix="Días"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="6" class="pa-2">
+              <v-text-field
+                v-model="tiempoVenContrato.contratosVencidos"
+                placeholder=" "
+                prefix="Antes de"
+                suffix="Días"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <div class="text-center">
+            <v-btn
+              class="ma-2"
+              color="success"
+              outlined
+              text
+              @click="editTiempoVenContratos"
+            >Guardar Cambios</v-btn>
+            <v-btn class="ma-2" color="cyan" outlined text @click="inicializarContratos">Por Defecto</v-btn>
+          </div>
         </v-form>
       </v-card>
-    </v-col>
     <!-- /Formulario Contratos -->
-  </v-row>
+    </v-row>
 </template>
 <script>
 import api from "@/api";

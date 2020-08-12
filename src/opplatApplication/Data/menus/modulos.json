@@ -49,6 +49,7 @@
         "icon": "mdi-folder-open",
         "roles": [
             "administrador",
+            "administrador contratacion",
             "contratacion"
         ]
     }

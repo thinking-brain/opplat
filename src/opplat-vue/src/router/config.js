@@ -104,6 +104,28 @@ export const protectedRoute = [
       component: () => import(/* webpackChunkName: "table" */ '@/components/admin/UserList.vue'),
     }],
   },
+  // listado de trabajadore y su usuario
+  {
+    name: 'Administracion',
+    path: '/administracion',
+    component: DefaultLayout,
+    redirect: '/administracion/users_VS_trab',
+    meta: {
+      title: 'Admin',
+      icon: 'view_compact',
+      group: 'admin',
+    },
+    children: [{
+      path: '/administracion/users_VS_trab',
+      name: 'Users_VS_Trab',
+      meta: {
+        title: 'Users_VS_Trab',
+        requiresAuth: true,
+        roles: ['administrador'],
+      },
+      component: () => import(/* webpackChunkName: "table" */ '@/components/admin/Users_VS_Trab.vue'),
+    }],
+  },
   // nuevo usuario
   {
     name: 'nuevo',

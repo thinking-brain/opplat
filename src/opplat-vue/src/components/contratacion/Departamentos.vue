@@ -96,6 +96,7 @@ export default {
   data: () => ({
     dialog: false,
     dialog2: false,
+    search:"",
     departamentos: [],
     departamento: {},
     editedIndex: -1,

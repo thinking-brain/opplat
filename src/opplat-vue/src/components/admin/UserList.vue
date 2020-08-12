@@ -12,6 +12,9 @@
         <v-flex sm12 md3>
           <v-btn @click="dialog=true">Importar de AD o LDAP</v-btn>
         </v-flex>
+        <!-- <v-flex sm12 md3 class="pt-6">
+          <UserTrabajador></UserTrabajador>
+        </v-flex> -->
         <v-flex lg12>
           <v-card>
             <v-card-title>
@@ -151,13 +154,15 @@ import RolesList from "@/components/admin/RolesList.vue";
 import CambiarEstadoUsuario from "@/components/admin/CambiarEstadoUsuario.vue";
 import ResetPassword from "@/components/admin/ResetPassword.vue";
 import EditarUsuario from "@/components/admin/EditarUsuario.vue";
+import UserTrabajador from "@/components/admin/User_Trabajador.vue";
 
 export default {
   components: {
     RolesList,
     CambiarEstadoUsuario,
     ResetPassword,
-    EditarUsuario
+    EditarUsuario,
+    UserTrabajador
   },
   data() {
     return {
@@ -265,7 +270,7 @@ export default {
     },
     gestionaRoles(usuario) {
       this.$router.push({
-        name: "Nuevo_Contrato",
+        name: "Gestionar Roles",
         query: {
           usuario
         }

@@ -48,10 +48,10 @@ namespace ContratacionWebApi.Controllers {
                     ObjetoDeContrato = c.ObjetoDeContrato,
                     Numero = c.Numero,
                     Montos = c.Montos.Select (d => new {
-                        ContratoId=d.ContratoId,
-                        Cantidad=d.Cantidad,
-                        Moneda = d.Moneda,
-                        NombreString=d.Moneda.ToString()
+                        ContratoId = d.ContratoId,
+                            Cantidad = d.Cantidad,
+                            Moneda = d.Moneda,
+                            NombreString = d.Moneda.ToString ()
                     }),
                     FechaDeRecepcion = c.FechaDeRecepcion,
                     FechaDeVenOferta = c.FechaDeVenOferta,
@@ -300,7 +300,7 @@ namespace ContratacionWebApi.Controllers {
                     context.SaveChanges ();
                 }
             }
-            
+
             if (contrato.FormasDePago != null) {
                 var formasDePago = context.ContratoId_FormaPagoId.Where (s => s.ContratoId == contrato.Id);
                 foreach (var item in formasDePago) {
@@ -542,12 +542,15 @@ namespace ContratacionWebApi.Controllers {
         [HttpGet ("/contratacion/contratos/DownloadFile/{id}")]
         public async Task<IActionResult> DownloadFile (int id) {
             var contrato = context.Contratos.FirstOrDefault (c => c.Id == id);
-            var path = contrato.FilePath;
-            var memory = new MemoryStream ();
-            using (var stream = new FileStream (path, FileMode.Open)) { await stream.CopyToAsync (memory); }
-            memory.Position = 0;
-            var ext = Path.GetExtension (path).ToLowerInvariant ();
-            return File (memory, GetMimeTypes () [ext], Path.GetFileName (path));
+            if (contrato.FilePath != null) {
+                var path = contrato.FilePath;
+                var memory = new MemoryStream ();
+                using (var stream = new FileStream (path, FileMode.Open)) { await stream.CopyToAsync (memory); }
+                memory.Position = 0;
+                var ext = Path.GetExtension (path).ToLowerInvariant ();
+                return File (memory, GetMimeTypes () [ext], Path.GetFileName (path));
+            }
+                return NotFound ($"No tiene un documento guardado");
         }
 
         // GET: contratacion/contratos/Dashboard 

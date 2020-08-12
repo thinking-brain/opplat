@@ -22,8 +22,10 @@
         "Roles": [
             "economico",
             "juridico",
+            "comite de contratacion",
             "dictaminador",
-            "administrador de contratos"
+            "administrador de contratos",
+            "administrador contratacion"
         ]
     }
 ]

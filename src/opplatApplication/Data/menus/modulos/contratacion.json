@@ -8,6 +8,7 @@
         "component": "Contratos",
         "roles": [
             "administrador",
+            "administrador contratacion",
             "contratacion"
         ],
         "items": [
@@ -20,6 +21,7 @@
                 "name": "ContratosCliente",
                 "roles": [
                     "administrador",
+                    "administrador contratacion",
                     "contratacion"
                 ]
             },
@@ -32,6 +34,7 @@
                 "name": "ContratosPrestador",
                 "roles": [
                     "administrador",
+                    "administrador contratacion",
                     "contratacion"
                 ]
             }
@@ -46,6 +49,7 @@
         "name": "Ofertas",
         "roles": [
             "administrador",
+            "administrador contratacion",
             "contratacion"
         ],
         "items": [
@@ -58,6 +62,7 @@
                 "name": "OfertasClientes",
                 "roles": [
                     "administrador",
+                    "administrador contratacion",
                     "contratacion"
                 ]
             },
@@ -70,6 +75,7 @@
                 "name": "OfertasPrestador",
                 "roles": [
                     "administrador",
+                    "administrador contratacion",
                     "contratacion"
                 ]
             }
@@ -84,7 +90,7 @@
         "name": "Config",
         "roles": [
             "administrador",
-            "contratacion"
+            "administrador contratacion"
         ]
     }
 ]

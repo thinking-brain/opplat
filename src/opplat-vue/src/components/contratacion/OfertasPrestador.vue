@@ -9,7 +9,12 @@
         <v-spacer></v-spacer>
         <!-- <div>{{ roles }}</div> -->
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-btn color="primary" @click="newContrato()" class="ml-5">Nueva Oferta</v-btn>
+        <v-btn
+          color="primary"
+          @click="newContrato()"
+          class="ml-5"
+          v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+        >Nueva Oferta</v-btn>
         <!-- Buscar -->
         <v-spacer></v-spacer>
         <v-text-field
@@ -213,6 +218,7 @@
             v-on="on"
             @click="editItem(item)"
             slot="activator"
+            v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
           >
             <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
           </v-btn>
@@ -226,6 +232,8 @@
             small
             v-on="on"
             @click="confirmAprobarOferta(item)"
+            v-if="(roles.includes('administrador')||roles.includes('economico')||roles.includes('juridico')
+              ||roles.includes('comite de contratacion'))"
           >
             <v-icon>v-icon notranslate mdi mdi-check-box-multiple-outline theme--dark</v-icon>
           </v-btn>
@@ -239,6 +247,7 @@
             small
             v-on="on"
             @click="confirmUpload(item)"
+            v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
           >
             <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
           </v-btn>
@@ -278,6 +287,7 @@
             small
             v-on="on"
             @click="confirmDelete(item)"
+            v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
           >
             <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
           </v-btn>
@@ -341,9 +351,7 @@ export default {
     message: ""
   }),
 
-  computed: {
-  
-  },
+  computed: {},
 
   watch: {},
 
@@ -395,7 +403,7 @@ export default {
     },
     newContrato() {
       const contrato = {
-        cliente:false,
+        cliente: false,
         entidad: {},
         adminContrato: {},
         dictaminadores: [],

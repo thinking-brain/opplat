@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using RhWebApi.Data;
 using RhWebApi.Dtos;
 using RhWebApi.Models;
@@ -27,7 +29,7 @@ namespace RhWebApi.Controllers {
                     s.EstadoTrabajador != Estados.Descartado)
                 .Select (t => new {
                     Id = t.Id,
-                        Nombre = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(t.Nombre),
+                        Nombre = CultureInfo.CurrentCulture.TextInfo.ToTitleCase (t.Nombre),
                         Apellidos = t.Apellidos,
                         Nombre_Completo = CultureInfo.InvariantCulture.TextInfo.ToTitleCase (t.Nombre + " " + t.Apellidos),
                         CI = t.CI,
@@ -90,7 +92,7 @@ namespace RhWebApi.Controllers {
                         Cargo = t.PuestoDeTrabajo.Cargo.Nombre,
                         EstadoTrabajador = t.EstadoTrabajador.ToString (),
                         Correo = t.Correo,
-                        Nombre_Completo = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(t.Nombre + " " + t.Apellidos),
+                        Nombre_Completo = CultureInfo.InvariantCulture.TextInfo.ToTitleCase (t.Nombre + " " + t.Apellidos),
                         ColorDePiel = t.CaracteristicasTrab.ColorDePiel.ToString (),
                         ColorDeOjos = t.CaracteristicasTrab.ColorDeOjos.ToString (),
                         TallaPantalon = t.CaracteristicasTrab.TallaPantalon,
@@ -406,6 +408,48 @@ namespace RhWebApi.Controllers {
         [HttpGet ("/recursos_humanos/Trabajadores/Municipios")]
         public IEnumerable<Municipio> GetAllMunicipios () {
             return context.Municipio.ToList ();
+        }
+
+        // GET recursos_humanos/Trabajadores/ByUserId
+        [HttpGet ("/recursos_humanos/Trabajadores/ByUserId")]
+        public async Task<IActionResult> GetAllTrabUserId (bool tieneUserId) {
+            // var url = "https://localhost:5001/auth/Account/usuarios";
+            // var http = new HttpClient ();
+            // var response = await http.GetStringAsync (url);
+            // var users = JsonConvert.DeserializeObject<List<AccountDto>> (response);
+
+            if (tieneUserId) {
+                var trabajadores = context.Trabajador.Where (t => t.UserId != null).Select (t => new {
+                    Id = t.Id,
+                        Nombre = CultureInfo.CurrentCulture.TextInfo.ToTitleCase (t.Nombre),
+                        Apellidos = t.Apellidos,
+                        NombreCompleto = CultureInfo.InvariantCulture.TextInfo.ToTitleCase (t.Nombre + " " + t.Apellidos),
+                        CI = t.CI,
+                        User = t.UserId
+                }).ToList ();
+                return Ok (trabajadores);
+            }
+            return Ok (context.Trabajador.Where (t => t.UserId == null).ToList ());
+        }
+        // POST recursos_humanos/Trabajadores/AddUserId
+        [HttpPost ("/recursos_humanos/Trabajadores/AddUserId")]
+        public IActionResult AddUserId (List<UserTrabajador> userTrabajadorDto) {
+            foreach (var item in userTrabajadorDto) {
+                var t = context.Trabajador.Find (item.TrabajadorId);
+                t.UserId = item.UserId;
+                context.Update (t);
+            }
+            context.SaveChanges ();
+            return Ok ();
+        }
+        // PUT recursos_humanos/Trabajadores/NullUserId
+        [HttpPut ("/recursos_humanos/Trabajadores/NullUserId/{id}")]
+        public IActionResult NullUserId ([FromBody] TrabajadorDto trabajadorDto, int id) {
+            var t = context.Trabajador.Find (id);
+            t.UserId = null;
+            context.Update (t);
+            context.SaveChanges ();
+            return Ok ();
         }
         private bool TrabajadorExists (int id) {
             return context.Trabajador.Any (e => e.Id == id);

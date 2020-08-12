@@ -90,6 +90,7 @@ const auth = {
     authStatus: state => state.status,
     roles: state => state.usuario.roles,
     usuario: state => state.usuario.nombre,
+    userData: state => state.userData,
   },
 };
 

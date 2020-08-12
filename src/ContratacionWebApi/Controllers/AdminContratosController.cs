@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using ContratacionWebApi.Data;
 using ContratacionWebApi.Dtos;
 using ContratacionWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using RhWebApi.Data;
 using RhWebApi.Models;
 
@@ -38,7 +42,7 @@ namespace ContratacionWebApi.Controllers {
         // GET: contratos/AdminContratos/Id
         [HttpGet ("{id}", Name = "GetAdminContrato")]
         public IActionResult GetbyId (int id) {
-         var trabajadores = context_rh.Trabajador.Select (t => new {
+            var trabajadores = context_rh.Trabajador.Select (t => new {
                 Id = t.Id,
                     Nombre = t.Nombre,
                     Apellidos = t.Apellidos,
@@ -122,5 +126,13 @@ namespace ContratacionWebApi.Controllers {
             context.SaveChanges ();
             return Ok (adminContrato);
         }
+
+        // private async Task<AccountDto> AddUsuario () {
+        //     var request = new HttpRequestMessage (HttpMethod.Post, "https://localhost:5001/auth/");
+        //     request.Content = new StringContent (JsonSerializer.Serialize (
+        //         new AccountDto () { Username = "user", Nombres = "Nombre" }));
+        //         request.Content.Headers.ContentType=new MediaTypeWithQualityHeaderValue("application/json");
+
+      
     }
 }

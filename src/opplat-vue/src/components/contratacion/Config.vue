@@ -1,74 +1,37 @@
 <template>
-  <v-row dense>
-    <v-col>
-      <v-card flat>
-        <v-toolbar flat class="v-toolbar__content">
-          <v-tabs slot="extension" v-model="tabs" centered class="v-toolbar__content">
-            <v-tab class="caption py-3">Administradores</v-tab>
-            <v-tab class="caption py-3">Dictaminadores</v-tab>
-            <v-tab class="caption py-3">Departamentos</v-tab>
-            <v-tab class="caption py-3">Proveedores</v-tab>
-            <v-tab class="caption py-3">Especialistas Externos</v-tab>
-            <v-tab class="caption py-3">Comité de Contratación</v-tab>
-            <v-tab class="caption py-3">Tiempo de Vencimiento</v-tab>
-          </v-tabs>
-        </v-toolbar>
-        <v-tabs-items v-model="tabs" py-6>
-          <v-tab-item>
-            <v-card flat>
-              <v-card-text>
-                <AdminContratos></AdminContratos>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <v-card-text>
-                <DictContratos></DictContratos>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <v-card-text>
-                <Departamentos></Departamentos>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <v-card-text>
-                <Entidades></Entidades>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <v-card-text>
-                <EspExternos></EspExternos>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <v-card-text>
-                <ComiteContratacion></ComiteContratacion>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <v-card-text>
-                <TiempoVenContratos></TiempoVenContratos>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-        </v-tabs-items>
-      </v-card>
-    </v-col>
-  </v-row>
+  <div class="pt-2">
+    <v-tabs v-model="tab" class="elevation-2">
+      <v-tab class="caption py-3">Administradores</v-tab>
+      <v-tab class="caption py-3">Dictaminadores</v-tab>
+      <v-tab class="caption py-3">Departamentos</v-tab>
+      <v-tab class="caption py-3">Proveedores</v-tab>
+      <v-tab class="caption py-3">Especialistas Externos</v-tab>
+      <v-tab class="caption py-3">Comité de Contratación</v-tab>
+      <v-tab class="caption py-3">Tiempo de Vencimiento</v-tab>
+      <v-tab-item>
+        <AdminContratos></AdminContratos>
+      </v-tab-item>
+      <v-tab-item>
+        <DictContratos></DictContratos>
+      </v-tab-item>
+      <v-tab-item>
+        <Departamentos></Departamentos>
+      </v-tab-item>
+      <v-tab-item>
+        <Entidades></Entidades>
+      </v-tab-item>
+      <v-tab-item>
+        <EspExternos></EspExternos>
+      </v-tab-item>
+      <v-tab-item>
+        <ComiteContratacion></ComiteContratacion>
+      </v-tab-item>
+      <v-tab-item>
+        <TiempoVenContratos></TiempoVenContratos>
+      </v-tab-item>
+    </v-tabs>
+  </div>
 </template>
- 
 <script>
 import api from "@/api";
 import AdminContratos from "@/components/contratacion/AdminContratos.vue";
@@ -93,6 +56,8 @@ export default {
   },
   data: () => ({
     tabs: null,
+    tab: null,
+    vertical: true,
     errors: []
   }),
   watch: {

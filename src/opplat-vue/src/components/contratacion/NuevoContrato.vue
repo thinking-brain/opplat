@@ -6,10 +6,10 @@
         <v-form ref="form">
           <v-container grid-list-md text-xs-center>
             <v-layout row wrap>
-              <v-flex cols="2" class="px-1">
+              <v-flex cols="2" md6 class="px-1">
                 <v-text-field v-model="contrato.nombre" label="Nombre" clearable required></v-text-field>
               </v-flex>
-              <v-flex cols="2" class="px-1" v-if="editedIndex==-1">
+              <v-flex cols="2" class="px-1" md1 v-if="editedIndex==-1">
                 <v-autocomplete
                   v-model="contrato.tipo"
                   item-text="nombre"
@@ -19,7 +19,7 @@
                   label="tipo"
                 ></v-autocomplete>
               </v-flex>
-              <v-flex cols="2" class="px-1" v-if="editedIndex!=-1">
+              <v-flex cols="2" md3 class="px-1" v-if="editedIndex!=-1">
                 <v-autocomplete
                   v-model="contrato.tipo"
                   item-text="nombre"
@@ -109,7 +109,7 @@
               </v-flex>
             </v-layout>
             <v-layout row wrap>
-              <v-flex cols="2" class="px-1">
+              <v-flex cols="2" md3 class="px-1">
                 <v-text-field
                   v-model="montoAndMoneda.cantidad"
                   label="Monto"
@@ -118,7 +118,7 @@
                   prefix="$"
                 ></v-text-field>
               </v-flex>
-              <v-flex cols="2" class="px-1">
+              <v-flex cols="2" md1 class="px-1">
                 <v-select
                   v-model="montoAndMoneda.moneda"
                   item-text="nombre"
@@ -128,7 +128,7 @@
                   label="Moneda"
                 ></v-select>
               </v-flex>
-              <v-flex cols="2" class="pt-7">
+              <v-flex cols="2" md1 class="pt-7">
                 <v-tooltip top color="success">
                   <template v-slot:activator="{ on }">
                     <v-icon medium v-on="on" @click="agregar()" color="success">mdi-plus</v-icon>
@@ -136,7 +136,7 @@
                   <span>Agregar</span>
                 </v-tooltip>
               </v-flex>
-              <v-flex xs12>
+              <v-flex cols="2" class="px-1">
                 <v-chip-group multiple column active-class="primary--text">
                   <v-chip
                     v-for="item in montos"
@@ -151,7 +151,6 @@
                   </v-chip>
                 </v-chip-group>
               </v-flex>
-              <v-flex xs1 class="pt-2"></v-flex>
             </v-layout>
             <v-layout row wrap>
               <v-flex cols="2" md="9" class="px-1">
@@ -586,6 +585,7 @@ export default {
                   });
               },
               error => {
+                vm.$snotify.error(error.response.data);
                 console.log(error);
               }
             );
