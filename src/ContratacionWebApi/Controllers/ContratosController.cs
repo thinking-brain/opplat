@@ -371,22 +371,24 @@ namespace ContratacionWebApi.Controllers {
             context.SaveChanges ();
             return Ok (contrato);
         }
-        // PUT contratacion/contrato/AprobContrato/id
-        [HttpPut ("/contratos/contrato/AprobContrato/id")]
-        public IActionResult AprobContrato ([FromBody] AproContratoDto aproContratoDto, int id) {
+        // PUT contratacion/contratos/AprobContrato/id
+        [HttpPut ("/contratacion/contratos/AprobContrato/{id}")]
+        public IActionResult AprobContrato ([FromBody] AproContratoDto aprobarContratoDto, int id) {
+            if (aprobarContratoDto.ContratoId != id) {
+                return BadRequest (ModelState);
+            }
             var c = context.Contratos.Find (id);
-
-            if (c != null) {
-                if (aproContratoDto.AprobEconomico == true) {
+            if (c != null && aprobarContratoDto.roles != null) {
+                if (aprobarContratoDto.roles.Contains ("economico")) {
                     c.AprobEconomico = true;
-                }
-                if (aproContratoDto.AprobJuridico == true) {
+                } else if (aprobarContratoDto.roles.Contains ("juridico")) {
                     c.AprobJuridico = true;
-                }
-                if (aproContratoDto.AprobComitContratacion == true) {
+                } else if (aprobarContratoDto.roles.Contains ("comite de contratacion") && aprobarContratoDto.FechaDeFirmado != null) {
                     c.AprobComitContratacion = true;
+                    c.FechaDeFirmado = aprobarContratoDto.FechaDeFirmado;
+                    c.FechaVenContrato = aprobarContratoDto.FechaDeVencimiento;
+                    c.Estado = Estado.Aprobado;
                 }
-
                 context.Update (c);
                 context.SaveChanges ();
                 return Ok ();
@@ -550,7 +552,7 @@ namespace ContratacionWebApi.Controllers {
                 var ext = Path.GetExtension (path).ToLowerInvariant ();
                 return File (memory, GetMimeTypes () [ext], Path.GetFileName (path));
             }
-                return NotFound ($"No tiene un documento guardado");
+            return NotFound ($"No tiene un documento guardado");
         }
 
         // GET: contratacion/contratos/Dashboard 

@@ -156,9 +156,64 @@
             <v-card>
               <v-card-title class="headline text-center">Seguro que deseas aprobar la Oferta</v-card-title>
               <v-card-text class="text-center">{{oferta.nombre}}</v-card-text>
+              <v-flex
+                cols="2"
+                class="px-12"
+                v-if="(roles.includes('comite de contratacion')||roles.includes('administrador'))"
+              >
+                <v-menu
+                  v-model="menu"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="290px"
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-text-field
+                      v-model="aprobarContrato.fechaDeFirmado"
+                      label="Fecha de Firmado"
+                      readonly
+                      clearable
+                      v-on="on"
+                      required
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker v-model="aprobarContrato.fechaDeFirmado" @input="menu = false"></v-date-picker>
+                </v-menu>
+              </v-flex>
+              <v-flex
+                cols="2"
+                class="px-12"
+                v-if="(roles.includes('comite de contratacion')||roles.includes('administrador'))"
+              >
+                <v-menu
+                  v-model="menu1"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="290px"
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-text-field
+                      v-model="aprobarContrato.FechaDeVencimiento"
+                      label="Fecha de Vencimiento"
+                      readonly
+                      clearable
+                      v-on="on"
+                      required
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="aprobarContrato.FechaDeVencimiento"
+                    @input="menu1 = false"
+                  ></v-date-picker>
+                </v-menu>
+              </v-flex>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="red" dark @click="aprobarOferta(oferta)">Aceptar</v-btn>
+                <v-btn color="red" dark @click="aprobarOferta()">Aceptar</v-btn>
                 <v-btn color="primary" @click="close()">Cancelar</v-btn>
               </v-card-actions>
             </v-card>
@@ -321,6 +376,8 @@ export default {
     dialog3: false,
     dialog4: false,
     dialog5: false,
+    menu: false,
+    menu1: false,
     search: "",
     editedIndex: -1,
     ofertas: [],
@@ -350,6 +407,12 @@ export default {
     show: false,
     tabs: null,
     errors: [],
+    aprobarContrato: {
+      roles: null,
+      contratoId: null,
+      fechaDeFirmado: null,
+      FechaDeVencimiento: null
+    },
     headers: [
       { text: "Número", sortable: true, value: "numero" },
       { text: "Nombre", align: "left", sortable: true, value: "nombre" },
@@ -360,7 +423,7 @@ export default {
       { text: "Acciones", value: "action", sortable: false }
     ],
     roles: [],
-    usuario:{},
+    usuario: {},
     message: ""
   }),
   computed: {},
@@ -371,10 +434,7 @@ export default {
     this.getOfertasFromApi();
     this.getMonedasFromApi();
     this.roles = this.$store.getters.roles;
-    this.usuario = this.$store.getters.usuario;
-    this.userData = this.$store.getters.userData;
-    console.log(this.usuario);
-    console.log(this.userData);
+    console.log(this.roles);
   },
 
   methods: {
@@ -528,6 +588,11 @@ export default {
       this.dialog3 = false;
       this.dialog4 = false;
       this.dialog5 = false;
+      this.aprobarContrato = {
+        roles: null,
+        contratoId: null,
+        fechaDeFirmado: null
+      };
       this.getOfertasFromApi();
       setTimeout(() => {
         this.editedIndex = -1;
@@ -618,7 +683,25 @@ export default {
       this.oferta = Object.assign({}, item);
       this.dialog5 = true;
     },
-    aprobarOferta(item) {}
+    aprobarOferta() {
+      const url = api.getUrl("contratacion", "contratos/AprobContrato");
+      this.aprobarContrato.contratoId = this.oferta.id;
+      this.aprobarContrato.roles = this.roles;
+      this.axios
+        .put(`${url}/${this.aprobarContrato.contratoId}`, this.aprobarContrato)
+        .then(
+          response => {
+            this.getResponse(response);
+            this.close();
+          },
+          error => {
+            console.log(error);
+          }
+        )
+        .catch(e => {
+          vm.$snotify.error(e.response.data.errors);
+        });
+    }
   }
 };
 </script>

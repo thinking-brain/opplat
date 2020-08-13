@@ -207,6 +207,7 @@ export default {
 
   created() {
     this.getContratosFromApi();
+    this.getTiempoVenContratosFromApi();
   },
 
   methods: {
