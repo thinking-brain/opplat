@@ -411,42 +411,49 @@ namespace RhWebApi.Controllers {
         }
 
         // GET recursos_humanos/Trabajadores/ByUserId
-        [HttpGet ("/recursos_humanos/Trabajadores/ByUserId")]
-        public async Task<IActionResult> GetAllTrabUserId (bool tieneUserId) {
+        [HttpGet ("/recursos_humanos/Trabajadores/ByUserName")]
+        public async Task<IActionResult> GetAllTrabUserNAme (bool tieneUsername) {
             // var url = "https://localhost:5001/auth/Account/usuarios";
             // var http = new HttpClient ();
             // var response = await http.GetStringAsync (url);
             // var users = JsonConvert.DeserializeObject<List<AccountDto>> (response);
 
-            if (tieneUserId) {
-                var trabajadores = context.Trabajador.Where (t => t.UserId != null).Select (t => new {
+            if (tieneUsername) {
+                var trabajadores = context.Trabajador.Where (t => t.Username != null).Select (t => new {
                     Id = t.Id,
                         Nombre = CultureInfo.CurrentCulture.TextInfo.ToTitleCase (t.Nombre),
                         Apellidos = t.Apellidos,
                         NombreCompleto = CultureInfo.InvariantCulture.TextInfo.ToTitleCase (t.Nombre + " " + t.Apellidos),
                         CI = t.CI,
-                        User = t.UserId
+                        Username = t.Username
                 }).ToList ();
                 return Ok (trabajadores);
+            } else {
+                return Ok (context.Trabajador.Where (t => t.Username == null).ToList ());
             }
-            return Ok (context.Trabajador.Where (t => t.UserId == null).ToList ());
         }
-        // POST recursos_humanos/Trabajadores/AddUserId
-        [HttpPost ("/recursos_humanos/Trabajadores/AddUserId")]
-        public IActionResult AddUserId (List<UserTrabajador> userTrabajadorDto) {
+        // POST recursos_humanos/Trabajadores/AddUserName
+        [HttpPost ("/recursos_humanos/Trabajadores/AddUserName")]
+        public IActionResult AddUserName (List<UserTrabajador> userTrabajadorDto) {
+            var trabajadores = context.Trabajador;
             foreach (var item in userTrabajadorDto) {
-                var t = context.Trabajador.Find (item.TrabajadorId);
-                t.UserId = item.UserId;
-                context.Update (t);
+                var trab = trabajadores.FirstOrDefault (x => x.Username == item.Username);
+                if (trab == null) {
+                    var t = trabajadores.Find (item.TrabajadorId);
+                    t.Username = item.Username;
+                    context.Update (t);
+                } else {
+                    return BadRequest ($"Ya el usuario " + item.Username + " está asignado al trabajador " + trab.NombreCompleto);
+                }
             }
             context.SaveChanges ();
             return Ok ();
         }
-        // PUT recursos_humanos/Trabajadores/NullUserId
-        [HttpPut ("/recursos_humanos/Trabajadores/NullUserId/{id}")]
+        // PUT recursos_humanos/Trabajadores/NullUserName
+        [HttpPut ("/recursos_humanos/Trabajadores/NullUserName/{id}")]
         public IActionResult NullUserId ([FromBody] TrabajadorDto trabajadorDto, int id) {
             var t = context.Trabajador.Find (id);
-            t.UserId = null;
+            t.Username = null;
             context.Update (t);
             context.SaveChanges ();
             return Ok ();

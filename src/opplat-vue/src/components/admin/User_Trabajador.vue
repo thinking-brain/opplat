@@ -30,11 +30,9 @@
                 </v-flex>
                 <v-flex sm12 md3 class="pt-3">
                   <v-autocomplete
-                    v-model="userTrabajador.userId"
+                    v-model="userTrabajador.username"
                     item-text="username"
-                    item-value="userId"
                     :items="lista_usuarios"
-                    cache-items
                     label="Listado de usuarios"
                   ></v-autocomplete>
                 </v-flex>
@@ -75,6 +73,7 @@
               </v-chip>
             </v-chip-group>
           </v-flex>
+          <v-alert type="error" v-if="validate.show">{{validate.text}}</v-alert>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -94,7 +93,6 @@ export default {
     lista_usuarios: [],
     trabajadores: [],
     userTrabajador: {
-      userId: null,
       username: null,
       trabajadorId: null,
       nombreCompleto: null
@@ -103,6 +101,10 @@ export default {
     userTrabajadorDto: [],
     messagesTrabajador: "",
     messagesUser: "",
+    validate: {
+      text: "",
+      show: false
+    },
     errors: []
   }),
   created() {
@@ -111,7 +113,6 @@ export default {
   },
   methods: {
     getUsuariosFromApi() {
-      console.log("entro");
       const url = api.getUrl("api-account", "account/usuarios");
       this.axios
         .get(url)
@@ -126,7 +127,10 @@ export default {
         });
     },
     getTrabajadoresFromApi() {
-      const url = api.getUrl("recursos_humanos", "Trabajadores/ByUserId?tieneUserId=false");
+      const url = api.getUrl(
+        "recursos_humanos",
+        "Trabajadores/Byusername?tieneUsername=false"
+      );
       this.axios.get(url).then(
         response => {
           this.trabajadores = response.data;
@@ -139,25 +143,23 @@ export default {
     },
     save() {
       if (
-        this.userTrabajador.userId != null &&
+        this.userTrabajador.username != null &&
         this.userTrabajador.trabajadorId
       ) {
         this.agregar();
       }
       this.userTrabajadorDto = this.list;
-      const url = api.getUrl("recursos_humanos", "Trabajadores/AddUserId");
+      const url = api.getUrl("recursos_humanos", "Trabajadores/AddUserName");
       this.axios.post(url, this.userTrabajadorDto).then(
         response => {
           this.getResponse(response);
-          this.userTrabajador = {
-            userId: null,
-            username: null,
-            trabajadorId: null,
-            nombreCompleto: null
-          };
+          window.location.reload();
           this.dialog = false;
         },
         error => {
+          this.validate.text = error.response.data;
+          this.validate.show = true;
+          vm.$snotify.error(error.response.data);
           console.log(error);
         }
       );
@@ -165,7 +167,6 @@ export default {
     close() {
       this.dialog = false;
       this.userTrabajador = {
-        userId: null,
         username: null,
         trabajadorId: null,
         nombreCompleto: null
@@ -176,7 +177,7 @@ export default {
         x => x.trabajadorId === this.userTrabajador.trabajadorId
       );
       const verificarUser = this.list.find(
-        x => x.userId === this.userTrabajador.userId
+        x => x.username === this.userTrabajador.username
       );
       if (verificarTrab != null) {
         vm.$snotify.error("Ya se agregó este trabajador");
@@ -187,13 +188,12 @@ export default {
           x => x.id === this.userTrabajador.trabajadorId
         );
         const u = this.lista_usuarios.find(
-          x => x.userId === this.userTrabajador.userId
+          x => x.username === this.userTrabajador.username
         );
         this.userTrabajador.nombreCompleto = t.nombreCompleto;
         this.userTrabajador.username = u.username;
         this.list.push(this.userTrabajador);
         this.userTrabajador = {
-          userId: null,
           username: null,
           trabajadorId: null,
           nombreCompleto: null
@@ -202,6 +202,8 @@ export default {
     },
     quitar(item) {
       this.list.splice(this.list.indexOf(item), 1);
+      this.validate.text = "";
+      this.validate.show = false;
     },
     getResponse(response) {
       if (response.status === 200 || response.status === 201) {

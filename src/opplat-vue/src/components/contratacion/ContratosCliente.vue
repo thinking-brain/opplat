@@ -187,6 +187,7 @@ export default {
       text: null,
       class: null
     },
+    roles:[],
     errors: [],
     headers: [
       { text: "Número", align: "left", sortable: true, value: "numero" },
@@ -206,15 +207,19 @@ export default {
   watch: {},
 
   created() {
+    this.roles = this.$store.getters.roles;
+
     this.getContratosFromApi();
     this.getTiempoVenContratosFromApi();
   },
 
   methods: {
     getContratosFromApi() {
+      var username = this.$store.getters.usuario;
+
       const url = api.getUrl(
         "contratacion",
-        "Contratos?tipoTramite=contrato&cliente=true"
+        `Contratos?tipoTramite=contrato&cliente=true&username=${username}&roles=${this.roles}`
       );
       this.axios.get(url).then(
         response => {
@@ -230,7 +235,7 @@ export default {
     getDetalles(item) {
       this.contrato = Object.assign({}, item);
       this.contrato.entidad = item.entidad[0];
-      this.contrato.adminContrato = item.adminContrato.id;
+      this.contrato.adminContrato = item.adminContrato;
       const contrato = this.contrato;
       this.$router.push({
         name: "Detalles_Contrato",
@@ -271,7 +276,7 @@ export default {
       ) {
         return "deep-orange";
       } else if (
-        contratoVence > this.tiempoVenContratos.contratosProxVencerDesde &&
+        contratoVence >= this.tiempoVenContratos.contratosProxVencerDesde &&
         contratoVence <= this.tiempoVenContratos.contratosProxVencerHasta
       )
         return "orange";

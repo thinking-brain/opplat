@@ -30,7 +30,7 @@ namespace ContratacionWebApi.Controllers {
 
         // GET contratacion/Contratos/tipoTramite(Oferta o contrato)
         [HttpGet]
-        public ActionResult GetAll (string tipoTramite, string filtro, bool cliente) {
+        public ActionResult GetAll (string tipoTramite, string filtro, bool cliente, string username, string roles) {
             var trabajadores = context_rh.Trabajador.ToList ();
             var contratoId_DepartamentoId = context.ContratoId_DepartamentoId.Include (d => d.Departamento).ToList ();
             var espExternoId_ContratoId = context.EspExternoId_ContratoId.Include (d => d.EspecialistaExterno).ToList ();
@@ -78,7 +78,9 @@ namespace ContratacionWebApi.Controllers {
                         Id = e.EspecialistaExterno.Id,
                             NombreCompleto = e.EspecialistaExterno.NombreCompleto
                     }),
-                    Entidad = context.Entidades.Include (e => e.CuentasBancarias).Include (e => e.Telefonos).Where (s => s.Id == c.EntidadId).Select (e => new {
+                    Entidad = context.Entidades.Include (e => e.CuentasBancarias).Include (e => e.Telefonos)
+                    .Where (s => s.Id == c.EntidadId)
+                    .Select (e => new {
                         Id = e.Id,
                             Nombre = e.Nombre,
                             Siglas = e.Siglas,
@@ -103,7 +105,6 @@ namespace ContratacionWebApi.Controllers {
                             CantCuentasBancarias = e.CuentasBancarias.Count ()
                     }),
             });
-
             if (tipoTramite == "oferta") {
                 contratos = contratos.Where (c => c.FechaDeFirmado == FechaPorDefecto && c.AprobComitContratacion == false && c.Estado != Estado.Aprobado);
                 var tiempoVenOfertas = context.TiempoVenOfertas.ToList ();
@@ -123,7 +124,6 @@ namespace ContratacionWebApi.Controllers {
                             contratos = contratos.Where (c => c.OfertVence < tiempoVenOferta.OfertasVencidas);
                         }
                     }
-
                 }
             }
             if (tipoTramite == "contrato") {
@@ -134,7 +134,7 @@ namespace ContratacionWebApi.Controllers {
                     contratos = contratos.Where (c => c.ContVence > tiempoVenContrato.ContratoTiempo);
                 }
                 if (filtro == "contratosProxVencer") {
-                    contratos = contratos.Where (c => c.ContVence > tiempoVenContrato.ContratosProxVencerDesde && c.ContVence <= tiempoVenContrato.ContratosProxVencerHasta);
+                    contratos = contratos.Where (c => c.ContVence >= tiempoVenContrato.ContratosProxVencerDesde && c.ContVence <= tiempoVenContrato.ContratosProxVencerHasta);
                 }
                 if (filtro == "contratosCasiVenc") {
                     contratos = contratos.Where (c => c.ContVence >= tiempoVenContrato.ContratosCasiVencDesde && c.ContVence <= tiempoVenContrato.ContratosCasiVencHasta);
@@ -142,6 +142,18 @@ namespace ContratacionWebApi.Controllers {
                 if (filtro == "contratosVenc") {
                     contratos = contratos.Where (c => c.ContVence < tiempoVenContrato.ContratosVencidos);
                 }
+            }
+            if (roles != null) {
+                var data = roles.Split (",");
+                if (data.Contains (("administrador contratacion")) || data.Contains (("administrador")) ||
+                    data.Contains (("juridico")) || data.Contains (("economico")) ||
+                    data.Contains (("comite de contratacion"))) {
+                    username = null;
+                }
+            }
+            if (username != null) {
+                var trab = trabajadores.FirstOrDefault (t => t.Username == username);
+                contratos = contratos.Where (c => c.AdminContrato.Id == trab.Id);
             }
             if (cliente == true) {
                 contratos = contratos.Where (c => c.Cliente == true);
@@ -244,9 +256,9 @@ namespace ContratacionWebApi.Controllers {
                 }
                 var HistoricoEstadoContrato = new HistoricoEstadoContrato {
                     ContratoId = contrato.Id,
-                    Estado = Estado.Circulando,
+                    Estado = Estado.Nuevo,
                     Fecha = DateTime.Now,
-                    Usuario = contratoDto.Usuario,
+                    Usuario = contratoDto.UserName,
                 };
                 context.Add (HistoricoEstadoContrato);
                 context.SaveChanges ();
@@ -377,18 +389,33 @@ namespace ContratacionWebApi.Controllers {
             if (aprobarContratoDto.ContratoId != id) {
                 return BadRequest (ModelState);
             }
+            DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             var c = context.Contratos.Find (id);
             if (c != null && aprobarContratoDto.roles != null) {
+                var HistoricoEstadoContrato = new HistoricoEstadoContrato {
+                ContratoId = id,
+                Fecha = DateTime.Now,
+                Usuario = aprobarContratoDto.UserName
+                };
                 if (aprobarContratoDto.roles.Contains ("economico")) {
                     c.AprobEconomico = true;
+                    c.Estado = Estado.Circulando;
+                    HistoricoEstadoContrato.Estado = Estado.Circulando;
                 } else if (aprobarContratoDto.roles.Contains ("juridico")) {
                     c.AprobJuridico = true;
+                    c.Estado = Estado.Circulando;
+                    HistoricoEstadoContrato.Estado = Estado.Circulando;
                 } else if (aprobarContratoDto.roles.Contains ("comite de contratacion") && aprobarContratoDto.FechaDeFirmado != null) {
                     c.AprobComitContratacion = true;
                     c.FechaDeFirmado = aprobarContratoDto.FechaDeFirmado;
                     c.FechaVenContrato = aprobarContratoDto.FechaDeVencimiento;
                     c.Estado = Estado.Aprobado;
+                    HistoricoEstadoContrato.Estado = Estado.Aprobado;
+                } else {
+                    return BadRequest ($"Los roles de este usuario no tienen permiso para aprobar la oferta");
                 }
+                context.Add (HistoricoEstadoContrato);
+
                 context.Update (c);
                 context.SaveChanges ();
                 return Ok ();
@@ -412,6 +439,7 @@ namespace ContratacionWebApi.Controllers {
                 new { Id = Tipo.Prestación_de_Servicio, Nombre = "Prestación de Servicio" },
                 new { Id = Tipo.Suministro, Nombre = Tipo.Suministro.ToString () },
                 new { Id = Tipo.Transporte, Nombre = Tipo.Transporte.ToString () },
+                new { Id = Tipo.Suplemento, Nombre = Tipo.Suplemento.ToString () },
             };
             return Ok (tipo);
         }
@@ -434,7 +462,7 @@ namespace ContratacionWebApi.Controllers {
 
         // GET: contratacion/contratos/VencimientoContrato 
         [HttpGet ("/contratacion/contratos/VencimientoContrato")]
-        public IActionResult GetVencimientoContrato (bool cliente) {
+        public IActionResult GetVencimientoContrato (bool cliente, string username, string roles) {
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             List<int> cantSegunFecha = new List<int> ();
             var tiempoVenContratos = context.TiempoVenContratos.ToList ();
@@ -442,6 +470,17 @@ namespace ContratacionWebApi.Controllers {
             var contratos = context.Contratos
                 .Where (c => c.FechaDeFirmado != FechaPorDefecto &&
                     c.AprobComitContratacion == true && c.Estado == Estado.Aprobado);
+            if (roles != null) {
+                var data = roles.Split (",");
+                if (data.Contains (("administrador contratacion")) || data.Contains (("administrador")) ||
+                    data.Contains (("juridico")) || data.Contains (("economico"))) {
+                    username = null;
+                }
+            }
+            if (username != null) {
+                var trab = context_rh.Trabajador.FirstOrDefault (t => t.Username == username);
+                contratos = contratos.Where (c => c.AdminContratoId == trab.Id);
+            }
             if (cliente == true) {
                 contratos = contratos.Where (c => c.Cliente == true);
             } else {
@@ -457,7 +496,7 @@ namespace ContratacionWebApi.Controllers {
 
             // Contratos Próximos a Vencer
             cantSegunFecha.Add (contratos
-                .Where (c => (c.FechaVenContrato - DateTime.Now).Days > tiempoVenContrato.ContratosProxVencerDesde && (c.FechaVenContrato - DateTime.Now).Days <= tiempoVenContrato.ContratosProxVencerHasta).Count ());
+                .Where (c => (c.FechaVenContrato - DateTime.Now).Days >= tiempoVenContrato.ContratosProxVencerDesde && (c.FechaVenContrato - DateTime.Now).Days <= tiempoVenContrato.ContratosProxVencerHasta).Count ());
 
             // Contratos OK
             cantSegunFecha.Add (contratos.Where (c => (c.FechaVenContrato - DateTime.Now).Days > tiempoVenContrato.ContratoTiempo).Count ());
@@ -466,8 +505,8 @@ namespace ContratacionWebApi.Controllers {
         }
 
         // GET: contratacion/contratos/VencimientoOferta 
-        [HttpGet ("/contratacion/contratos/VencimientoOferta")]
-        public IActionResult GetVencimientoOferta (bool cliente) {
+        [HttpGet ("/contratacion/Contratos/VencimientoOferta")]
+        public IActionResult GetVencimientoOferta (bool cliente, string username, string roles) {
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             List<int> cantSegunFecha = new List<int> ();
             var tiempoVenOfertas = context.TiempoVenOfertas.ToList ();
@@ -475,6 +514,19 @@ namespace ContratacionWebApi.Controllers {
             var ofertas = context.Contratos
                 .Where (c => c.FechaDeFirmado == FechaPorDefecto &&
                     c.AprobComitContratacion == false && c.Estado != Estado.Aprobado);
+
+            if (roles != null) {
+                var data = roles.Split (",");
+                if (data.Contains (("administrador contratacion")) || data.Contains (("administrador")) ||
+                    data.Contains (("juridico")) || data.Contains (("economico")) ||
+                    data.Contains (("comite de contratacion"))) {
+                    username = null;
+                }
+            }
+            if (username != null) {
+                var trab = context_rh.Trabajador.FirstOrDefault (t => t.Username == username);
+                ofertas = ofertas.Where (c => c.AdminContratoId == trab.Id);
+            }
             if (cliente == true) {
                 ofertas = ofertas.Where (c => c.Cliente == true);
             } else {
@@ -490,7 +542,7 @@ namespace ContratacionWebApi.Controllers {
 
             // Ofertas Próximos a Vencer
             cantSegunFecha.Add (ofertas
-                .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days > tiempoVenOferta.OfertasProxVencDesde && (c.FechaDeVenOferta - DateTime.Now).Days <= tiempoVenOferta.OfertasProxVencHasta).Count ());
+                .Where (c => (c.FechaDeVenOferta - DateTime.Now).Days >= tiempoVenOferta.OfertasProxVencDesde && (c.FechaDeVenOferta - DateTime.Now).Days <= tiempoVenOferta.OfertasProxVencHasta).Count ());
 
             // Ofertas OK
             cantSegunFecha.Add (ofertas.Where (c => (c.FechaDeVenOferta - DateTime.Now).Days > tiempoVenOferta.OfertaTiempo).Count ());

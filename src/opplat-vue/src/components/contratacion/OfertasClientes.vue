@@ -12,7 +12,7 @@
       </template>
       <template v-slot:top>
         <v-toolbar flat color="white">
-          <v-toolbar-title>{{textByfiltro }}</v-toolbar-title>
+          <v-toolbar-title>{{textByfiltro}}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-btn
@@ -277,90 +277,94 @@
       </template>
       <!-- Actions -->
       <template v-slot:item.action="{ item }">
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
-              small
-              v-on="on"
-              @click="editItem(item)"
-              slot="activator"
-              v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
-            >
-              <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
-            </v-btn>
-          </template>
-          <span>Editar</span>
-        </v-tooltip>
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
-              small
-              v-on="on"
-              @click="confirmAprobarOferta(item)"
-              v-if="(roles.includes('administrador')||roles.includes('economico')||roles.includes('juridico')
-              ||roles.includes('comite de contratacion'))"
-            >
-              <v-icon>v-icon notranslate mdi mdi-check-box-multiple-outline theme--dark</v-icon>
-            </v-btn>
-          </template>
-          <span>Aprobar la Oferta</span>
-        </v-tooltip>
-        <v-tooltip top color="black">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
-              small
-              v-on="on"
-              @click="confirmUpload(item)"
-              v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
-            >
-              <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
-            </v-btn>
-          </template>
-          <span>Guardar Documento</span>
-        </v-tooltip>
-        <v-tooltip top color="black">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
-              small
-              v-on="on"
-              @click="download(item)"
-            >
-              <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
-            </v-btn>
-          </template>
-          <span>Descargar Documento</span>
-        </v-tooltip>
-        <v-tooltip top color="teal">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
-              small
-              v-on="on"
-              @click="getDetalles(item)"
-            >
-              <v-icon>mdi-format-list-bulleted</v-icon>
-            </v-btn>
-          </template>
-          <span>Detalles</span>
-        </v-tooltip>
-        <v-tooltip top color="pink">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
-              small
-              v-on="on"
-              @click="confirmDelete(item)"
-              v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
-            >
-              <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
-            </v-btn>
-          </template>
-          <span>Eliminar</span>
-        </v-tooltip>
+        <v-row justify="end">
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+                small
+                v-on="on"
+                @click="editItem(item)"
+                slot="activator"
+                v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+              >
+                <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+              </v-btn>
+            </template>
+            <span>Editar</span>
+          </v-tooltip>
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+                small
+                v-on="on"
+                @click="confirmAprobarOferta(item)"
+                v-if="(roles.includes('administrador')
+              ||(roles.includes('economico')&& item.aprobEconomico==false)
+              ||(roles.includes('juridico')&& item.aprobJuridico==false)
+              ||(roles.includes('comite de contratacion')&& item.aprobComitContratacion==false))"
+              >
+                <v-icon>v-icon notranslate mdi mdi-check-box-multiple-outline theme--dark</v-icon>
+              </v-btn>
+            </template>
+            <span>Aprobar la Oferta</span>
+          </v-tooltip>
+          <v-tooltip top color="black">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+                small
+                v-on="on"
+                @click="confirmUpload(item)"
+                v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+              >
+                <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
+              </v-btn>
+            </template>
+            <span>Guardar Documento</span>
+          </v-tooltip>
+          <v-tooltip top color="black">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+                small
+                v-on="on"
+                @click="download(item)"
+              >
+                <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+              </v-btn>
+            </template>
+            <span>Descargar Documento</span>
+          </v-tooltip>
+          <v-tooltip top color="teal">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+                small
+                v-on="on"
+                @click="getDetalles(item)"
+              >
+                <v-icon>mdi-format-list-bulleted</v-icon>
+              </v-btn>
+            </template>
+            <span>Detalles</span>
+          </v-tooltip>
+          <v-tooltip top color="pink">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+                small
+                v-on="on"
+                @click="confirmDelete(item)"
+                v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+              >
+                <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+              </v-btn>
+            </template>
+            <span>Eliminar</span>
+          </v-tooltip>
+        </v-row>
       </template>
       <!-- /Actions -->
     </v-data-table>
@@ -385,7 +389,8 @@ export default {
     oferta: {
       entidad: {},
       adminContrato: {},
-      montos: []
+      montos: [],
+      username: ""
     },
     file: null,
     estados: [],
@@ -407,8 +412,10 @@ export default {
     show: false,
     tabs: null,
     errors: [],
+    roles: [],
+    username: {},
     aprobarContrato: {
-      roles: null,
+      roles: [],
       contratoId: null,
       fechaDeFirmado: null,
       FechaDeVencimiento: null
@@ -422,26 +429,28 @@ export default {
       { text: "Estado", value: "estadoNombre" },
       { text: "Acciones", value: "action", sortable: false }
     ],
-    roles: [],
-    usuario: {},
     message: ""
   }),
   computed: {},
   watch: {},
 
   created() {
-    this.getTiempoVenOfertasFromApi();
-    this.getOfertasFromApi();
-    this.getMonedasFromApi();
     this.roles = this.$store.getters.roles;
+    this.username = this.$store.getters.usuario;
     console.log(this.roles);
+    console.log(this.username);
+
+    this.getOfertasFromApi();
+    this.getTiempoVenOfertasFromApi();
+    this.getMonedasFromApi();
+    this.getVencimientoOferta();
   },
 
   methods: {
     getOfertasFromApi() {
       const url = api.getUrl(
         "contratacion",
-        "Contratos?tipoTramite=oferta&cliente=true"
+        `Contratos?tipoTramite=oferta&cliente=true&username=${this.username}&roles=${this.roles}`
       );
       this.axios.get(url).then(
         response => {
@@ -479,12 +488,13 @@ export default {
     newContrato() {
       const contrato = {
         cliente: true,
-        entidad: {},
         adminContrato: {},
         dictaminadores: [],
         montos: [],
-        especialistasExternos: []
+        especialistasExternos: [],
+        username: null
       };
+      contrato;
       this.$router.push({
         name: "Nuevo_Contrato",
         query: {
@@ -513,7 +523,6 @@ export default {
       this.oferta = Object.assign({}, item);
       this.oferta.entidad = item.entidad[0];
       this.oferta.adminContrato = item.adminContrato;
-      this.oferta.montos = item.montos;
       const contrato = this.oferta;
       this.$router.push({
         name: "Detalles_Contrato",
@@ -521,6 +530,25 @@ export default {
           contrato
         }
       });
+    },
+    getUsuarioFromApi() {
+      const username = this.$store.getters.usuario;
+      const url = api.getUrl(
+        "api-account",
+        `account/perfil?usuario=${username}`
+      );
+      this.axios
+        .get(url)
+        .then(
+          (
+            p // console.log(p)
+          ) => {
+            this.usuario = p.data;
+          }
+        )
+        .catch(e => {
+          vm.$snotify.error(e.response.data.errors);
+        });
     },
     confirmUpload(item) {
       this.oferta = Object.assign({}, item);
@@ -613,7 +641,7 @@ export default {
       ) {
         return "deep-orange";
       } else if (
-        ofertVence > this.tiempoVenOfertas.ofertasProxVencDesde &&
+        ofertVence >= this.tiempoVenOfertas.ofertasProxVencDesde &&
         ofertVence <= this.tiempoVenOfertas.ofertasProxVencHasta
       )
         return "orange";
@@ -624,7 +652,7 @@ export default {
     getVencimientoOferta() {
       const url = api.getUrl(
         "contratacion",
-        "contratos/VencimientoOferta?cliente=true"
+        `Contratos/VencimientoOferta?cliente=true&username=${this.username}&roles=${this.roles}`
       );
       this.axios.get(url).then(
         response => {
@@ -643,28 +671,28 @@ export default {
       if (filtro == "ofertaTiempo") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertaTiempo&cliente=true"
+          `Contratos?tipoTramite=oferta&filtro=ofertaTiempo&cliente=true&username=${this.username}&roles=${this.roles}`
         );
         this.textByfiltro = "Ofertas en Tiempo";
       }
       if (filtro == "ofertasProxVencer") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasProxVencer&cliente=true"
+          `Contratos?tipoTramite=oferta&filtro=ofertasProxVencer&cliente=true&username=${this.username}&roles=${this.roles}`
         );
         this.textByfiltro = "Ofertas Próximas a Vencer";
       }
       if (filtro == "ofertasCasiVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasCasiVenc&cliente=true"
+          `Contratos?tipoTramite=oferta&filtro=ofertasCasiVenc&cliente=true&username=${this.username}&roles=${this.roles}`
         );
         this.textByfiltro = "Ofertas Casi Vencidas";
       }
       if (filtro == "ofertasVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=oferta&filtro=ofertasVenc&cliente=true"
+          `Contratos?tipoTramite=oferta&filtro=ofertasVenc&cliente=true&username=${this.username}&roles=${this.roles}`
         );
         this.textByfiltro = "Ofertas Vencidas";
       }
@@ -687,6 +715,15 @@ export default {
       const url = api.getUrl("contratacion", "contratos/AprobContrato");
       this.aprobarContrato.contratoId = this.oferta.id;
       this.aprobarContrato.roles = this.roles;
+      this.aprobarContrato.username = this.username;
+      if (
+        this.aprobarContrato.fechaDeFirmado == null &&
+        this.aprobarContrato.FechaDeVencimiento == null
+      ) {
+        var fecha = new Date("01/01/0001");
+        this.aprobarContrato.fechaDeFirmado = fecha;
+        this.aprobarContrato.FechaDeVencimiento = fecha;
+      }
       this.axios
         .put(`${url}/${this.aprobarContrato.contratoId}`, this.aprobarContrato)
         .then(
@@ -696,11 +733,9 @@ export default {
           },
           error => {
             console.log(error);
+            vm.$snotify.error(error.response.data);
           }
-        )
-        .catch(e => {
-          vm.$snotify.error(e.response.data.errors);
-        });
+        );
     }
   }
 };

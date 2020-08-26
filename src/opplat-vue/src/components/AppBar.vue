@@ -43,7 +43,7 @@
             <v-icon>mdi-account</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Perfil de usuario</v-list-item-title>
+            <v-list-item-title>Perfil del usuario {{username}}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item @click="handleLogut" ripple="ripple" rel="noopener">
@@ -60,28 +60,33 @@
 </template>
 
 <script>
-import Util from '@/util';
+import Util from "@/util";
 
 export default {
-  data: () => ({}),
+  data: () => ({
+    username: null
+  }),
+  created() {
+    this.username = this.$store.getters.usuario;
+  },
   methods: {
     changeDrawer() {
       const visibility = !this.$store.getters.drawerVisibility;
       this.$store
-        .dispatch('changeVisibility', visibility)
+        .dispatch("changeVisibility", visibility)
         .then(() => {})
-        .catch((err) => {});
+        .catch(err => {});
     },
     handleFullScreen() {
       Util.toggleFullScreen();
     },
     handleLogut() {
-      this.$router.push('/auth/login');
+      this.$router.push("/auth/login");
     },
     handleSetting() {},
     handleProfile() {
-      this.$router.push('/account/perfil');
-    },
-  },
+      this.$router.push("/account/perfil");
+    }
+  }
 };
 </script>

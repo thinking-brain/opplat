@@ -9,6 +9,7 @@ namespace ContratacionWebApi.Dtos {
     public class AproContratoDto {
         public List<string> roles { get; set; }
         public int ContratoId { get; set; }
+        public string UserName { get; set; }
         public DateTime FechaDeFirmado { get; set; }
         public DateTime FechaDeVencimiento { get; set; }
     }

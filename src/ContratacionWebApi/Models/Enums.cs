@@ -12,6 +12,7 @@ namespace ContratacionWebApi.Models {
         Consignación,
         Arrendamiento,
         Transporte,
+        Suplemento
 
     }
 

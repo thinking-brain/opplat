@@ -4,7 +4,6 @@ import axios from 'axios';
 import api from '@/api';
 
 Vue.use(Vuex);
-
 const auth = {
   state: {
     status: sessionStorage.getItem('token') ? 'success' : '',
@@ -84,13 +83,14 @@ const auth = {
       });
     },
   },
+
   getters: {
     isLoggedIn: state => !!state.token,
     token: state => state.token,
     authStatus: state => state.status,
     roles: state => state.usuario.roles,
     usuario: state => state.usuario.nombre,
-    userData: state => state.userData,
+    // userId: state => state.userId,
   },
 };
 

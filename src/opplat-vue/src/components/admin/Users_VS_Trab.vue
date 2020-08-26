@@ -24,7 +24,7 @@
             <v-data-table
               :headers="usuarios.headers"
               :search="search"
-              :items="trabajadores"
+              :items="trabajadoresConUser"
               :footer-props="{
                 showFirstLastPage: true,
                 itemsPerPage : [10, 25, 50, { text: 'All', value: -1 }],
@@ -35,9 +35,9 @@
             >
               <template v-slot:body="{ items }">
                 <tbody>
-                  <tr v-for="item in items" :key="item.name">
+                  <tr v-for="item in items" :key="item.id">
                     <td>{{ item.nombreCompleto }}</td>
-                    <td>{{ item.user.username }}</td>
+                    <td>{{ item.username }}</td>
                     <td>
                       <v-tooltip top color="pink">
                         <template v-slot:activator="{ on }">
@@ -99,6 +99,7 @@ export default {
       dialog: false,
       lista_usuarios: [],
       trabajadores: [],
+      trabajadoresConUser: [],
       trabajador: {},
       trab: [],
       errors: [],
@@ -112,20 +113,21 @@ export default {
           },
           {
             text: "Usuario asignado al Trabajador",
-            value: "user.username"
+            value: "username.username"
           },
           {
             text: "Acciones",
             value: ""
           }
         ],
-        items: this.trabajadores
+        items: this.trabajadoresConUser
       }
     };
   },
   created() {
     this.getUsuariosFromApi();
     this.getTrabajadoresFromApi();
+    this.getTrabConUserFromApi();
   },
   computed: {},
   methods: {
@@ -145,22 +147,27 @@ export default {
         });
     },
     getTrabajadoresFromApi() {
-      this.trabajadores = [];
       const url = api.getUrl(
         "recursos_humanos",
-        "Trabajadores/ByUserId?tieneUserId=true"
+        "Trabajadores/ByUserName?tieneUsername=false"
       );
       this.axios.get(url).then(
         response => {
-          this.trab = response.data;
-          for (let i = 0; i < this.trab.length; i++) {
-            const u = this.lista_usuarios.find(
-              x => x.userId === this.trab[i].user
-            );
-            this.trab[i].user = u;
-            this.trabajadores.push(this.trab[i]);
-          }
-          this.volver = false;
+          this.trabajadores = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    getTrabConUserFromApi() {
+      const url = api.getUrl(
+        "recursos_humanos",
+        "Trabajadores/ByUserName?tieneUsername=true"
+      );
+      this.axios.get(url).then(
+        response => {
+          this.trabajadoresConUser = response.data;
         },
         error => {
           console.log(error);
@@ -172,13 +179,16 @@ export default {
       this.dialog = true;
     },
     userNull() {
-      const url = api.getUrl("recursos_humanos", "Trabajadores/NullUserId");
+      const url = api.getUrl("recursos_humanos", "Trabajadores/NullUserName");
       this.axios.put(`${url}/${this.trabajador.id}`, this.trabajador).then(
         response => {
           this.getResponse(response);
+          this.getTrabajadoresFromApi();
+          this.getTrabConUserFromApi();
           this.close();
         },
         error => {
+          vm.$snotify.error(error.response.data);
           console.log(error);
         }
       );

@@ -9,7 +9,7 @@
               <v-flex cols="2" md6 class="px-1">
                 <v-text-field v-model="contrato.nombre" label="Nombre" clearable required></v-text-field>
               </v-flex>
-              <v-flex cols="2" class="px-1" md1 v-if="editedIndex==-1">
+              <v-flex cols="2" class="px-1" md3 v-if="editedIndex==-1">
                 <v-autocomplete
                   v-model="contrato.tipo"
                   item-text="nombre"
@@ -29,7 +29,7 @@
                   label="tipo"
                 ></v-autocomplete>
               </v-flex>
-              <v-flex cols="2" class="px-1" v-if="editedIndex!=-1">
+              <v-flex cols="2" md3 class="px-1" v-if="editedIndex!=-1">
                 <v-text-field v-model="contrato.numero" label="Número" prefix="#"></v-text-field>
               </v-flex>
             </v-layout>
@@ -65,7 +65,7 @@
                   item-value="id"
                   :items="departamentos"
                   cache-items
-                  label="Departamentos que van a dictaminar la contrato"
+                  label="Departamentos que van a dictaminar la oferta"
                   multiple
                 >
                   <template v-slot:selection="data">
@@ -246,7 +246,7 @@
               <!-- <v-flex cols="2" class="px-1">
                     <v-file-input v-model="contrato.file" show-size label="Seleccionar Documento"></v-file-input>
               </v-flex>-->
-              <v-flex cols="2" class="px-1">
+              <!-- <v-flex cols="2" class="px-1">
                 <v-autocomplete
                   v-model="contrato.estado"
                   item-text="nombre"
@@ -255,7 +255,7 @@
                   cache-items
                   label="Estado"
                 ></v-autocomplete>
-              </v-flex>
+              </v-flex>-->
             </v-layout>
           </v-container>
         </v-form>
@@ -376,10 +376,12 @@ export default {
     },
     montos: [],
     errors: [],
-    roles: null,
+    roles: [],
+    username: null,
     title: "",
     messagesMoneda: "",
     messagesCantidad: "",
+    enabled: false,
     MonedaRules: [v => !!v || "Faltan datos por llenar"],
     MontoRules: [v => !!v || "Faltan datos por llenar"]
   }),
@@ -392,12 +394,15 @@ export default {
     },
     method() {
       return this.editedIndex === -1 ? "POST" : "PUT";
-    }
+    },
     // monto() {
     //   if (this.contrato.entidad != 0) {
     //     this.entidadObjetc = this.entidades.find(
     //       x => x.id === this.contrato.entidad
     //     );
+    //   }
+    //   if (this.contrato.entidad != null) {
+    //     this.disabled = false;
     //   }
     // }
   },
@@ -421,6 +426,7 @@ export default {
     this.getDepartamentosFromApi();
     this.getMonedasFromApi();
     this.roles = this.$store.getters.roles;
+    this.username = this.$store.getters.usuario;
     this.montos = this.contrato.montos;
   },
 
@@ -572,6 +578,7 @@ export default {
           this.montos.push(this.montoAndMoneda);
           this.contrato.montos = this.montos;
           if (this.$refs.form.validate()) {
+            this.contrato.username = this.username;
             this.axios.post(url, this.contrato).then(
               response => {
                 this.getResponse(response);

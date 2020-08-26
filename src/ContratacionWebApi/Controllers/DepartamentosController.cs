@@ -34,6 +34,10 @@ namespace ContratacionWebApi.Controllers {
         [HttpPost]
         public IActionResult POST ([FromBody] Departamento departamento) {
             if (ModelState.IsValid) {
+                var d = context.Departamentos.FirstOrDefault (x => x.Nombre == departamento.Nombre);
+                if (d != null) {
+                    return BadRequest ("Ya el departamento " + departamento.Nombre + " está creado");
+                }
                 context.Departamentos.Add (departamento);
                 context.SaveChanges ();
                 return new CreatedAtRouteResult ("GetDeparatmentos", new { id = departamento.Id });

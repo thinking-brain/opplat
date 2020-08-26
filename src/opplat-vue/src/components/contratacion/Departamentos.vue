@@ -85,7 +85,6 @@
       >
         <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
       </v-btn>
-   
     </template>
   </v-data-table>
 </template>
@@ -96,7 +95,7 @@ export default {
   data: () => ({
     dialog: false,
     dialog2: false,
-    search:"",
+    search: "",
     departamentos: [],
     departamento: {},
     editedIndex: -1,
@@ -162,6 +161,7 @@ export default {
             this.dialog = false;
           },
           error => {
+            vm.$snotify.error(error.response.data);
             console.log(error);
           }
         );
