@@ -39,7 +39,7 @@ namespace ContratacionWebApi {
                 c.IncludeXmlComments (xmlPath);
             });
 
-            //contratación db context
+            //contratacion db context
             services.AddDbContext<ContratacionDbContext> (options =>
                 options.UseNpgsql (context.Configuration.GetConnectionString ("ContratacionDbContext"), b => b.MigrationsAssembly ("ContratacionWebApi")));
 

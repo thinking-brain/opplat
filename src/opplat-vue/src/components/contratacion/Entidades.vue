@@ -16,7 +16,7 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <!-- Agregar y Editar Entidad -->
-        <v-dialog v-model="dialog" persistent max-width="1000">
+        <v-dialog v-model="dialog" persistent max-width="1200">
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark v-on="on">Nuevo Proveedor</v-btn>
           </template>
@@ -30,10 +30,11 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form ref="form">
               <v-container grid-list-md text-xs-center>
+                <p class="text-left title">Datos Generales:</p>
                 <v-layout row wrap>
-                  <v-flex xs3 class="px-2">
+                  <v-flex cols="2" class="px-2">
                     <v-text-field
                       v-model="entidad.nombre"
                       label="Nombre"
@@ -42,7 +43,10 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex 6 class="px-2">
+                  <v-flex cols="2" class="px-2">
+                    <v-text-field v-model="entidad.siglas" label="Siglas" clearable></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" col-md-6 class="px-2">
                     <v-text-field
                       v-model="entidad.direccion"
                       label="Direccion"
@@ -52,14 +56,12 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs2 class="px-2" v-if="editedIndex!=-1">
-                    <v-text-field
-                      v-model="entidad.codigo"
-                      label="Código"
-                      clearable
-                    ></v-text-field>
+                </v-layout>
+                <v-layout row wrap>
+                  <v-flex cols="2" class="px-2">
+                    <v-text-field v-model="entidad.codigo" label="Código" clearable></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-2">
+                  <v-flex cols="2" class="px-2">
                     <v-text-field
                       v-model="entidad.nit"
                       label="NIT"
@@ -69,22 +71,37 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                </v-layout>
-                <v-layout row wrap>
-                  <v-flex xs2 class="pr-1 pl-2">
+                  <v-flex cols="2" class="pr-1 pl-2">
                     <v-select
                       v-model="entidad.sector"
                       item-text="nombre"
                       item-value="id"
                       :items="sectores"
-                      :filter="activeFilter"
                       label="Sector"
                     ></v-select>
                   </v-flex>
-                  <v-flex xs3 class="px-1">
-                    <v-text-field v-model="entidad.fax" label="Fax" clearable></v-text-field>
-                  </v-flex>
-                  <v-flex xs4 class="px-1">
+                  <v-col cols="12" sm="12" class="px-1">
+                    <v-textarea v-model="entidad.objetoSocial" label="Objeto Social" rows="1"></v-textarea>
+                  </v-col>
+                </v-layout>
+
+                <!-- Telefonos Agregados -->
+                <!-- <v-row justify="start">
+                  <v-col cols="12" sm="12" class="px-3">
+                    <v-data-table
+                      :headers="headerstelefonos"
+                      :items="telefonos"
+                      hide-default-footer
+                      fixed-header
+                    ></v-data-table>
+                  </v-col>
+                </v-row>-->
+                <!-- /Telefonos Agregados -->
+
+                <!-- Agregar y Editar Número de Teléfono del Proveedor  -->
+                <p class="text-left title px-1">Datos de Contacto:</p>
+                <v-row class="px-1" justify="start">
+                  <v-flex cols="2" class="px-1">
                     <v-text-field
                       v-model="entidad.correo"
                       label="Correo"
@@ -92,13 +109,44 @@
                       :rules="emailRules"
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs3 class="px-1">
-                    <v-text-field v-model="entidad.objetoSocial" label="Objeto Social" clearable></v-text-field>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field v-model="entidad.fax" label="Fax" clearable></v-text-field>
                   </v-flex>
-                </v-layout>
-                <!-- Agregar y Editar Número de Teléfono del Proveedor  -->
-                <v-row class="pl-3" justify="start">
-                  <v-flex cols="2" class="pt-2">
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantTelefonos>=2">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.telefonos[0].numero"
+                      label="Teléfono"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.telefonos[0].extension"
+                      label="Extensión"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.telefonos[1].numero"
+                      label="Teléfono 2"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=2">
+                    <v-text-field
+                      v-model="entidad.telefonos[1].extension"
+                      label="Extensión"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2">
                     <v-card tile flat>
                       <v-tooltip top color="success">
                         <template v-slot:activator="{ on }">
@@ -116,39 +164,9 @@
                       </v-tooltip>
                     </v-card>
                   </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=1">
-                    <v-text-field
-                      v-model="entidad.telefonos[0].numero"
-                      label="Teléfono 1"
-                      clearable
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=1">
-                    <v-text-field
-                      v-model="entidad.telefonos[0].extension"
-                      label="Extensión"
-                      clearable
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=2">
-                    <v-text-field
-                      v-model="entidad.telefonos[1].numero"
-                      label="Teléfono 2"
-                      clearable
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex cols="2" class="pr-6" v-if="cantTelefonos>=2">
-                    <v-text-field
-                      v-model="entidad.telefonos[1].extension"
-                      label="Extensión"
-                      clearable
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex cols="2" class="pl-12 pr-3" v-if="cantTelefonos>=3">
+                </v-row>
+                <v-row class="px-1" justify="start">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=3">
                     <v-text-field
                       v-model="entidad.telefonos[2].numero"
                       label="Teléfono 3"
@@ -156,7 +174,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=3">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=3">
                     <v-text-field
                       v-model="entidad.telefonos[2].extension"
                       label="Extensión"
@@ -164,7 +182,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=4">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=4">
                     <v-text-field
                       v-model="entidad.telefonos[3].numero"
                       label="Teléfono 4"
@@ -172,7 +190,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-6" v-if="cantTelefonos>=4">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=4">
                     <v-text-field
                       v-model="entidad.telefonos[3].extension"
                       label="Extensión"
@@ -180,7 +198,10 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pl-12 pr-3" v-if="cantTelefonos>=5">
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantTelefonos>=3">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=5">
                     <v-text-field
                       v-model="entidad.telefonos[4].numero"
                       label="Teléfono 5"
@@ -188,7 +209,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=5">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=5">
                     <v-text-field
                       v-model="entidad.telefonos[4].extension"
                       label="Extensión"
@@ -196,7 +217,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-3" v-if="cantTelefonos>=6">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=6">
                     <v-text-field
                       v-model="entidad.telefonos[5].numero"
                       label="Teléfono 6"
@@ -204,7 +225,7 @@
                       required
                     ></v-text-field>
                   </v-flex>
-                  <v-flex cols="2" class="pr-6" v-if="cantTelefonos>=6">
+                  <v-flex cols="2" class="px-1" v-if="cantTelefonos>=6">
                     <v-text-field
                       v-model="entidad.telefonos[5].extension"
                       label="Extensión"
@@ -212,252 +233,249 @@
                       required
                     ></v-text-field>
                   </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
                 </v-row>
                 <!--/Agregar y Editar Número de Teléfono del Proveedor  -->
+                <p class="text-left title">Datos Bancarios:</p>
 
                 <!-- Agregar y Editar Cuenta Bancaria del Proveedor -->
-                <v-flex>
-                  <v-row class="pl-3 pr-3">
-                    <v-flex cols="2" class="pt-2">
-                      <v-card tile flat>
-                        <v-tooltip top color="success">
-                          <template v-slot:activator="{ on }">
-                            <v-icon
-                              medium
-                              v-on="on"
-                              @click="agregar(cuent)"
-                              color="success"
-                            >mdi-plus</v-icon>
-                          </template>
-                          <span>Agregar Cuenta</span>
-                        </v-tooltip>
-                      </v-card>
-                      <v-card tile flat>
-                        <v-tooltip top color="red darken-1">
-                          <template v-slot:activator="{ on }">
-                            <v-icon medium v-on="on" @click="quitar(cuent)" color="red">mdi-minus</v-icon>
-                          </template>
-                          <span>Quitar Cuenta</span>
-                        </v-tooltip>
-                      </v-card>
-                    </v-flex>
-                    <v-flex cols="2" class="pr-3" v-if="cantCuentas>=1">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[0].numeroCuenta"
-                        label="Número de cuenta 1"
-                        clearable
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="2" class="pr-3" v-if="cantCuentas>=1">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[0].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="2" class="pr-3" v-if="cantCuentas>=1">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[0].nombreSucursalId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        :filter="activeFilter"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="2" class="pr-3" v-if="cantCuentas>=1">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[0].monedaId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        :filter="activeFilter"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
-                  <v-row class="pl-9 pr-3" justify="space-around" no-gutters v-if="cantCuentas>=2">
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[1].numeroCuenta"
-                        label="Número de cuenta 2"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[1].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[1].nombreSucursalId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        :filter="activeFilter"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[1].monedaId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        :filter="activeFilter"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
-                  <v-row class="pl-9 pr-3" justify="space-around" no-gutters v-if="cantCuentas>=3">
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[2].numeroCuenta"
-                        label="Número de cuenta 3"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[2].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[2].nombreSucursalId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        :filter="activeFilter"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[2].monedaId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        :filter="activeFilter"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
-                  <v-row class="pl-9 pr-3" justify="space-around" no-gutters v-if="cantCuentas>=4">
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[3].numeroCuenta"
-                        label="Número de cuenta 4"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[3].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[3].nombreSucursalId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        :filter="activeFilter"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[3].monedaId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        :filter="activeFilter"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
-                  <v-row class="pl-9 pr-3" justify="space-around" no-gutters v-if="cantCuentas>=5">
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[4].numeroCuenta"
-                        label="Número de cuenta 5"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[4].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[4].nombreSucursalId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        :filter="activeFilter"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[4].monedaId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        :filter="activeFilter"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
-                  <v-row class="pl-9 pr-3" justify="space-around" no-gutters v-if="cantCuentas>=6">
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[5].numeroCuenta"
-                        label="Número de cuenta 6"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-text-field
-                        v-model="entidad.cuentasBancarias[5].numeroSucursal"
-                        label="Número Sucursal"
-                        clearable
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[5].nombreSucursalId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="nombreSuces"
-                        :filter="activeFilter"
-                        label="Nombre Sucursal"
-                      ></v-autocomplete>
-                    </v-flex>
-                    <v-flex cols="3" class="px-2">
-                      <v-autocomplete
-                        v-model="entidad.cuentasBancarias[5].monedaId"
-                        item-text="nombre"
-                        item-value="id"
-                        :items="monedas"
-                        :filter="activeFilter"
-                        label="Moneda"
-                      ></v-autocomplete>
-                    </v-flex>
-                  </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=1">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[0].numeroCuenta"
+                      :error-messages="modelstate['numeroCuenta']"
+                      label="Número de cuenta 1"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[0].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[0].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[0].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2">
+                    <v-card tile flat>
+                      <v-tooltip top color="success">
+                        <template v-slot:activator="{ on }">
+                          <v-icon medium v-on="on" @click="agregar(cuent)" color="success">mdi-plus</v-icon>
+                        </template>
+                        <span>Agregar Cuenta</span>
+                      </v-tooltip>
+                    </v-card>
+                    <v-card tile flat>
+                      <v-tooltip top color="red darken-1">
+                        <template v-slot:activator="{ on }">
+                          <v-icon medium v-on="on" @click="quitar(cuent)" color="red">mdi-minus</v-icon>
+                        </template>
+                        <span>Quitar Cuenta</span>
+                      </v-tooltip>
+                    </v-card>
+                  </v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=2">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[1].numeroCuenta"
+                      label="Número de cuenta 2"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[1].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[1].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[1].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=3">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[2].numeroCuenta"
+                      label="Número de cuenta 3"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[2].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[2].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[2].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=4">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[3].numeroCuenta"
+                      label="Número de cuenta 4"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[3].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[3].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[3].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=5">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[4].numeroCuenta"
+                      label="Número de cuenta 5"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[4].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[4].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[4].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-row class="px-1" justify="start" v-if="cantCuentas>=6">
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[5].numeroCuenta"
+                      label="Número de cuenta 6"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-text-field
+                      v-model="entidad.cuentasBancarias[5].numeroSucursal"
+                      label="Número Sucursal"
+                      clearable
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[5].nombreSucursal"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="nombreSuces"
+                      label="Nombre Sucursal"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex cols="2" class="px-1">
+                    <v-autocomplete
+                      v-model="entidad.cuentasBancarias[5].moneda"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="monedas"
+                      label="Moneda"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex xs1 class="pt-2"></v-flex>
+                </v-row>
+                <v-flex xs6 class="px-1 pt-3">
+                  <v-alert
+                    v-if="errorController!=null"
+                    border="left"
+                    color="red"
+                    dark
+                  >{{ errorController }}</v-alert>
                 </v-flex>
                 <!-- /Agregar y Editar Cuenta Bancaria del Proveedor -->
               </v-container>
@@ -494,31 +512,37 @@
                 <v-col cols="8">
                   <v-card flat>
                     <v-row no-gutters justify="start">
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="6" class="pa-2">
                         <v-list-item-title>
                           <strong>Nombre del Proveedor</strong>
                         </v-list-item-title>
                         <v-list-item-subtitle>{{entidad.nombre}}</v-list-item-subtitle>
                       </v-col>
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="3" class="pa-2">
+                        <v-list-item-title>
+                          <strong>Siglas</strong>
+                        </v-list-item-title>
+                        <v-list-item-subtitle>{{entidad.siglas}}</v-list-item-subtitle>
+                      </v-col>
+                      <v-col cols="12" md="3" class="pa-2">
                         <v-list-item-title>
                           <strong>Código</strong>
                         </v-list-item-title>
                         <v-list-item-subtitle>{{entidad.codigo}}</v-list-item-subtitle>
                       </v-col>
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="9" class="pa-2">
                         <v-list-item-title>
                           <strong>NIT</strong>
                         </v-list-item-title>
                         <v-list-item-subtitle>{{entidad.nit}}</v-list-item-subtitle>
                       </v-col>
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="3" class="pa-2">
                         <v-list-item-title>
                           <strong>Sector</strong>
                         </v-list-item-title>
                         <v-list-item-subtitle>{{entidad.sectorNombre}}</v-list-item-subtitle>
                       </v-col>
-                      <v-col cols="12" md="4" class="pa-2">
+                      <v-col cols="12" md="12" class="pa-2">
                         <v-list-item-title>
                           <strong>Objeto Social</strong>
                         </v-list-item-title>
@@ -560,7 +584,7 @@
                     </v-card-text>
                   </v-card>
                 </v-col>
-                <!-- Contactos de la Entidad -->
+                <!-- /Contactos de la Entidad -->
               </v-row>
             </v-container>
           </v-card>
@@ -582,7 +606,7 @@
             <v-card-text class="text-center">{{entidad.nombre}}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red" dark @click="deleteItem(entidad)">Aceptar</v-btn>
+              <v-btn color="red" dark @click="deleteItem()">Aceptar</v-btn>
               <v-btn color="primary" @click="close()">Cancelar</v-btn>
             </v-card-actions>
           </v-card>
@@ -591,24 +615,29 @@
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
-      <v-tooltip top color="success">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
-        </template>
-        <span>Editar</span>
-      </v-tooltip>
-      <v-tooltip top color="green darken-4">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="getDetalles(item)">mdi-file-document-box-plus</v-icon>
-        </template>
-        <span>Detalles</span>
-      </v-tooltip>
-      <v-tooltip top color="red darken-1">
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="confirmDelete(item)">mdi-trash-can</v-icon>
-        </template>
-        <span>Eliminar</span>
-      </v-tooltip>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        small
+        @click="editItem(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+      </v-btn>
+
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+        small
+        @click="getDetalles(item)"
+      >
+        <v-icon>mdi-format-list-bulleted</v-icon>
+      </v-btn>
+
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+        small
+        @click="confirmDelete(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+      </v-btn>
     </template>
   </v-data-table>
 </template>
@@ -629,43 +658,43 @@ export default {
     monedas: [],
     sectores: [],
     entidad: {
-      codigo:null,
+      codigo: null,
       cuentasBancarias: [
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         },
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         },
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         },
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         },
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         },
         {
           numeroCuenta: null,
           numeroSucursal: null,
-          nombreSucursalId: null,
-          monedaId: null
+          nombreSucursal: 0,
+          moneda: 0
         }
       ],
       telefonos: [
@@ -678,8 +707,8 @@ export default {
       ]
     },
     cantCuentas: 1,
+    cantTelefonos: 2,
     cuent: "cuentas",
-    cantTelefonos: 1,
     telef: "telefonos",
     tabs: null,
     emailRules: [v => /.+@.+\..+/.test(v) || "No tiene la estructura correcta"],
@@ -688,6 +717,7 @@ export default {
     NitRules: [v => !!v || "El NIT es Requerido"],
     textNit: "",
     errors: [],
+    errorController: null,
     headers: [
       {
         text: "Nombre",
@@ -701,6 +731,16 @@ export default {
       { text: "Sector", value: "sectorNombre" },
       { text: "Acciones", value: "action", sortable: false }
     ],
+    // headerstelefonos: [
+    //   {
+    //     text: "Número",
+    //     align: "left",
+    //     sortable: true,
+    //     value: "numero"
+    //   },
+    //   { text: "Extensión ", value: "ext" },
+    //   { text: "Acciones", value: "action", sortable: false }
+    // ],
     headersCuentas: [
       {
         text: "Número de Cuenta",
@@ -709,10 +749,11 @@ export default {
         value: "numeroCuenta"
       },
       { text: "Número Sucursal", value: "numeroSucursal" },
-      { text: "Nombre Sucursal", value: "nombreSucursal" },
-      { text: "Moneda", value: "moneda" }
+      { text: "Nombre Sucursal", value: "nombreSucursalString" },
+      { text: "Moneda", value: "monedaString" }
     ],
-    date: null
+    date: null,
+    modelstate: {}
   }),
 
   computed: {
@@ -727,6 +768,7 @@ export default {
   watch: {
     dialog(val) {
       val || this.close();
+      this.$refs.form.reset();
     }
   },
 
@@ -784,20 +826,292 @@ export default {
     },
     editItem(item) {
       this.editedIndex = this.entidades.indexOf(item);
+
       this.entidad = Object.assign({}, item);
-      this.cantTelefonos = item.cantTelefonos;
-      this.cantCuentas = item.cantCuentasBancarias;
-      this.dialog = true;
+      this.cantTelefonos = this.entidad.cantTelefonos;
+      this.cantCuentas = this.entidad.cantCuentas;
+
       // Asinar los 6 valores del arreglo en dependecia de lo que venga del controller
-      if (this.cantTelefonos == 0) {
-        this.cantTelefonos = 1;
-        this.entidad.telefonos = [
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null }
+      if (this.cantCuentas == 1) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          }
+        ];
+      }
+      if (this.cantCuentas == 2) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[1].nombreSucursal,
+            moneda: item.cuentasBancarias[1].moneda
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          }
+        ];
+      }
+      if (this.cantCuentas == 3) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[1].nombreSucursal,
+            moneda: item.cuentasBancarias[1].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[2].nombreSucursal,
+            moneda: item.cuentasBancarias[2].moneda
+          },
+
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          }
+        ];
+      }
+      if (this.cantCuentas == 4) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[1].nombreSucursal,
+            moneda: item.cuentasBancarias[1].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[2].nombreSucursal,
+            moneda: item.cuentasBancarias[2].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[3].nombreSucursal,
+            moneda: item.cuentasBancarias[3].moneda
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          }
+        ];
+      }
+      if (this.cantCuentas == 5) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[1].nombreSucursal,
+            moneda: item.cuentasBancarias[1].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[2].nombreSucursal,
+            moneda: item.cuentasBancarias[2].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[3].nombreSucursal,
+            moneda: item.cuentasBancarias[3].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[4].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[4].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[4].nombreSucursal,
+            moneda: item.cuentasBancarias[4].moneda
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          }
+        ];
+      }
+      if (this.cantCuentas == 6) {
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[0].nombreSucursal,
+            moneda: item.cuentasBancarias[0].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[1].nombreSucursal,
+            moneda: item.cuentasBancarias[1].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[2].nombreSucursal,
+            moneda: item.cuentasBancarias[2].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[3].nombreSucursal,
+            moneda: item.cuentasBancarias[3].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[4].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[4].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[4].nombreSucursal,
+            moneda: item.cuentasBancarias[4].moneda
+          },
+          {
+            numeroCuenta: item.cuentasBancarias[5].numeroCuenta,
+            numeroSucursal: item.cuentasBancarias[5].numeroSucursal,
+            nombreSucursal: item.cuentasBancarias[5].nombreSucursal,
+            moneda: item.cuentasBancarias[5].moneda
+          }
+        ];
+      }
+      if (this.cantCuentas == 0) {
+        this.cantCuentas = 1;
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          }
         ];
       }
       if (this.cantTelefonos == 1) {
@@ -922,300 +1236,43 @@ export default {
             extension: item.telefonos[5].extension
           }
         ];
+        if (this.cantTelefonos == 0) {
+          this.cantTelefonos = 1;
+          this.entidad.telefonos = [
+            { numero: null, extension: null },
+            { numero: null, extension: null },
+            { numero: null, extension: null },
+            { numero: null, extension: null },
+            { numero: null, extension: null },
+            { numero: null, extension: null }
+          ];
+        }
       }
-      if (this.cantCuentas == 0) {
-        this.cantCuentas = 1;
-        this.entidad.cuentasBancarias = [
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          }
-        ];
-      }
-      if (this.cantCuentas == 1) {
-        this.entidad.cuentasBancarias = [
-          {
-            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          }
-        ];
-      }
-      if (this.cantCuentas == 2) {
-        this.entidad.cuentasBancarias = [
-          {
-            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
-            monedaId: item.cuentasBancarias[1].monedaId
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          }
-        ];
-      }
-      if (this.cantCuentas == 3) {
-        this.entidad.cuentasBancarias = [
-          {
-            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
-            monedaId: item.cuentasBancarias[1].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
-            monedaId: item.cuentasBancarias[2].monedaId
-          },
-
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          }
-        ];
-      }
-      if (this.cantCuentas == 4) {
-        this.entidad.cuentasBancarias = [
-          {
-            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
-            monedaId: item.cuentasBancarias[1].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
-            monedaId: item.cuentasBancarias[2].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[3].nombreSucursalId,
-            monedaId: item.cuentasBancarias[3].monedaId
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          }
-        ];
-      }
-      if (this.cantCuentas == 5) {
-        this.entidad.cuentasBancarias = [
-          {
-            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
-            monedaId: item.cuentasBancarias[1].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
-            monedaId: item.cuentasBancarias[2].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[3].nombreSucursalId,
-            monedaId: item.cuentasBancarias[3].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[4].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[4].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[4].nombreSucursalId,
-            monedaId: item.cuentasBancarias[4].monedaId
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
-          }
-        ];
-      }
-      if (this.cantCuentas == 6) {
-        this.entidad.cuentasBancarias = [
-          {
-            numeroCuenta: item.cuentasBancarias[0].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[0].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[0].nombreSucursalId,
-            monedaId: item.cuentasBancarias[0].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[1].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[1].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[1].nombreSucursalId,
-            monedaId: item.cuentasBancarias[1].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[2].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[2].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[2].nombreSucursalId,
-            monedaId: item.cuentasBancarias[2].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[3].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[3].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[3].nombreSucursalId,
-            monedaId: item.cuentasBancarias[3].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[4].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[4].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[4].nombreSucursalId,
-            monedaId: item.cuentasBancarias[4].monedaId
-          },
-          {
-            numeroCuenta: item.cuentasBancarias[5].numeroCuenta,
-            numeroSucursal: item.cuentasBancarias[5].numeroSucursal,
-            nombreSucursalId: item.cuentasBancarias[5].nombreSucursalId,
-            monedaId: item.cuentasBancarias[5].monedaId
-          }
+      if (this.cantTelefonos == 0) {
+        this.cantTelefonos = 2;
+        this.entidad.telefonos = [
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null }
         ];
       }
       // --Asinar los 6 valores del arreglo en dependecia de lo que venga del controller
+      this.dialog = true;
     },
     save(method) {
       const url = api.getUrl("contratacion", "entidades");
+      this.modelstate = {};
       if (method === "POST") {
         if (this.$refs.form.validate()) {
+          const errors = [];
           if (
             this.entidad.cuentasBancarias[0].numeroCuenta == null ||
             this.entidad.cuentasBancarias[0].numeroSucursal == null ||
-            this.entidad.cuentasBancarias[0].nombreSucursalId == null ||
-            this.entidad.cuentasBancarias[0].monedaId == null
+            this.entidad.cuentasBancarias[0].nombreSucursal == null ||
+            this.entidad.cuentasBancarias[0].moneda == null
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #1 por Llenar");
           }
@@ -1225,9 +1282,9 @@ export default {
             (this.cantCuentas >= 2 &&
               this.entidad.cuentasBancarias[1].numeroSucursal == null) ||
             (this.cantCuentas >= 2 &&
-              this.entidad.cuentasBancarias[1].nombreSucursalId == null) ||
+              this.entidad.cuentasBancarias[1].nombreSucursal == null) ||
             (this.cantCuentas >= 2 &&
-              this.entidad.cuentasBancarias[1].monedaId == null)
+              this.entidad.cuentasBancarias[1].moneda == null)
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #2 por Llenar");
           }
@@ -1237,9 +1294,9 @@ export default {
             (this.cantCuentas >= 3 &&
               this.entidad.cuentasBancarias[2].numeroSucursal == null) ||
             (this.cantCuentas >= 3 &&
-              this.entidad.cuentasBancarias[2].nombreSucursalId == null) ||
+              this.entidad.cuentasBancarias[2].nombreSucursal == null) ||
             (this.cantCuentas >= 3 &&
-              this.entidad.cuentasBancarias[2].monedaId == null)
+              this.entidad.cuentasBancarias[2].moneda == null)
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #3 por Llenar");
           }
@@ -1249,9 +1306,9 @@ export default {
             (this.cantCuentas >= 4 &&
               this.entidad.cuentasBancarias[3].numeroSucursal == null) ||
             (this.cantCuentas >= 4 &&
-              this.entidad.cuentasBancarias[3].nombreSucursalId == null) ||
+              this.entidad.cuentasBancarias[3].nombreSucursal == null) ||
             (this.cantCuentas >= 4 &&
-              this.entidad.cuentasBancarias[3].monedaId == null)
+              this.entidad.cuentasBancarias[3].moneda == null)
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #4 por Llenar");
           }
@@ -1261,9 +1318,9 @@ export default {
             (this.cantCuentas >= 5 &&
               this.entidad.cuentasBancarias[4].numeroSucursal == null) ||
             (this.cantCuentas >= 5 &&
-              this.entidad.cuentasBancarias[4].nombreSucursalId == null) ||
+              this.entidad.cuentasBancarias[4].nombreSucursal == null) ||
             (this.cantCuentas >= 5 &&
-              this.entidad.cuentasBancarias[4].monedaId == null)
+              this.entidad.cuentasBancarias[4].moneda == null)
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #5 por Llenar");
           }
@@ -1273,24 +1330,26 @@ export default {
             (this.cantCuentas >= 6 &&
               this.entidad.cuentasBancarias[5].numeroSucursal == null) ||
             (this.cantCuentas >= 6 &&
-              this.entidad.cuentasBancarias[5].nombreSucursalId == null) ||
+              this.entidad.cuentasBancarias[5].nombreSucursal == null) ||
             (this.cantCuentas >= 6 &&
-              this.entidad.cuentasBancarias[5].monedaId == null)
+              this.entidad.cuentasBancarias[5].moneda == null)
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #6 por Llenar");
           } else {
-            const errors = [];
             if (this.entidades.find(x => x.nit === this.entidad.nit) != null) {
-              vm.$snotify.error("Ya hay un Proveedor con este NIT");
-              this.textNit = "Ya hay un Proveedor con este NIT";
+              vm.$snotify.error("Ya hay un proveedor con este NIT");
+              this.textNit = "Ya hay un proveedor con este NIT";
             } else {
               this.axios.post(url, this.entidad).then(
                 response => {
                   this.getResponse(response);
                   this.resetDatos();
                   this.dialog = false;
+                  this.errorController = null;
                 },
                 error => {
+                  this.errorController = error.response.data;
+                  vm.$snotify.error(error.response.data);
                   console.log(error);
                 }
               );
@@ -1315,17 +1374,32 @@ export default {
     },
     getDetalles(item) {
       this.entidad = Object.assign({}, item);
-      this.cantTelefonos = item.cantTelefonos;
+      if (item.cuentasBancarias.length != 0) {
+        this.entidad.cuentasBancarias = item.cuentasBancarias;
+      } else
+        this.entidad.cuentasBancarias = [
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          }
+        ];
+      this.cantCuentas = 1;
+      if (item.telefonos[0] != null) {
+        this.entidad.telefonos = item.telefonos;
+      } else this.entidad.telefonos = [{ numero: null, extension: null }];
+      this.cantTelefonos = 1;
       this.dialog3 = true;
     },
     confirmDelete(item) {
-      this.entidad = Object.assign({}, item);
-      this.cantTelefonos = item.cantTelefonos;
+      this.entidad.id = item.id;
+      this.entidad.nombre = item.nombre;
       this.dialog2 = true;
     },
-    deleteItem(entidad) {
+    deleteItem() {
       const url = api.getUrl("contratacion", "entidades");
-      this.axios.delete(`${url}/${entidad.id}`).then(
+      this.axios.delete(`${url}/${this.entidad.id}`).then(
         response => {
           this.getResponse(response);
           this.getEntidadesFromApi();
@@ -1340,6 +1414,55 @@ export default {
       this.dialog = false;
       this.dialog2 = false;
       this.dialog3 = false;
+      this.entidad = {
+        codigo: null,
+        cuentasBancarias: [
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          },
+          {
+            numeroCuenta: null,
+            numeroSucursal: null,
+            nombreSucursal: 0,
+            moneda: 0
+          }
+        ],
+        telefonos: [
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null },
+          { numero: null, extension: null }
+        ]
+      };
       this.resetDatos();
       setTimeout(() => {
         this.editedIndex = -1;
@@ -1359,38 +1482,38 @@ export default {
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           },
           {
             numeroCuenta: null,
             numeroSucursal: null,
-            nombreSucursalId: null,
-            monedaId: null
+            nombreSucursal: 0,
+            moneda: 0
           }
         ],
         telefonos: [
@@ -1403,6 +1526,7 @@ export default {
         ]
       };
       this.textNit = "";
+      this.errorController = null;
     },
     getResponse(response) {
       if (response.status === 200 || response.status === 201) {

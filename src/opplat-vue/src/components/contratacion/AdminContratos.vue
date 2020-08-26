@@ -20,11 +20,11 @@
           dense
         ></v-text-field>
         <v-spacer></v-spacer>
-        <!-- Agregar y Editar Administrador de Contratos -->
-        <v-dialog v-model="dialog" persistent max-width="500">
-          <template v-slot:activator="{ on }">
-            <v-btn color="primary" dark v-on="on" class="mx-1">Nuevo Administrador</v-btn>
-          </template>
+        <template>
+          <v-btn color="primary" dark @click="dialog=true" class="mx-1">Nuevo Administrador</v-btn>
+        </template>
+        <!-- Agregar Administrador de Contratos -->
+        <v-dialog v-model="dialog" persistent max-width="800">
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
               <v-flex>{{ formTitle }}</v-flex>
@@ -35,17 +35,18 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form>
+              <p
+                class="text-center title font-italic mt-12"
+              >Seleccione los Administradores de Contratos</p>
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
-                  <v-flex xs12 class="px-3">
+                  <v-flex xs8 class="px-3">
                     <v-autocomplete
-                      v-model="administradoresContratos"
+                      v-model="newAdminContratos.administradores"
                       item-text="nombre_Completo"
                       item-value="id"
                       :items="trabajadores"
-                      :filter="activeFilter"
-                      :rules="trabajadorIdRules"
                       cache-items
                       label="Administradores"
                       multiple
@@ -62,7 +63,7 @@
                       </template>
                       <template v-slot:item="data">
                         <template v-if="typeof data.item !== 'object'">
-                          <v-list-item-content v-text="data.item"></v-list-item-content>
+                          <v-list-item-content p="data.item"></v-list-item-content>
                         </template>
                         <template v-else>
                           <v-list-item-content>
@@ -71,6 +72,16 @@
                         </template>
                       </template>
                     </v-autocomplete>
+                  </v-flex>
+                  <v-flex xs4 class="px-3">
+                    <v-autocomplete
+                      v-model="newAdminContratos.departamentoId"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="departamentos"
+                      cache-items
+                      label="Departamento"
+                    ></v-autocomplete>
                   </v-flex>
                 </v-layout>
               </v-container>
@@ -82,16 +93,63 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <!-- /Agregar y Editar Administrador de Contratos -->
-
-        <!-- Detalles del Administrador -->
-        <v-dialog v-model="dialog3" persistent transition="dialog-bottom-transition" flat>
+        <!-- /Agregar Administrador de Contratos -->
+        <!-- Editar Administrador de Contratos -->
+        <v-dialog v-model="dialog1" persistent max-width="800">
           <v-card>
             <v-toolbar dark fadeOnScroll color="blue darken-3">
-              <v-flex xs12 sm10 md6 lg4>Detalles del Administradors</v-flex>
+              <v-flex>{{ formTitle }}</v-flex>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn icon dark @click="dialog3 = false">
+                <v-btn icon dark @click=" close()">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+              </v-toolbar-items>
+            </v-toolbar>
+            <v-form>
+              <p
+                class="text-center title font-italic mt-12"
+              >Seleccione los Administradores de Contratos</p>
+              <v-container grid-list-md text-xs-center>
+                <v-layout row wrap>
+                  <v-flex xs8 class="px-3">
+                    <p-field
+                      v-model="adminContrato.nombreCompleto"
+                      item-value="id"
+                      label="Administradores"
+                      readonly
+                    ></p-field>
+                  </v-flex>
+                  <v-flex xs4 class="px-3">
+                    <v-autocomplete
+                      v-model="adminContrato.departamentoId"
+                      item-text="nombre"
+                      item-value="id"
+                      :items="departamentos"
+                      cache-items
+                      label="Departamento"
+                    ></v-autocomplete>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-form>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="green darken-1" text @click="save(method)">Aceptar</v-btn>
+              <v-btn color="blue darken-1" text @click=" close()">Cancelar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <!-- /Editar Administrador de Contratos -->
+
+        <!-- Detalles del Administrador -->
+        <v-dialog v-model="dialog2" persistent transition="dialog-bottom-transition" flat>
+          <v-card>
+            <v-toolbar dark fadeOnScroll color="blue darken-3">
+              <v-flex xs12 sm10 md6 lg4>Detalles del Administrador</v-flex>
+              <v-spacer></v-spacer>
+              <v-toolbar-items>
+                <v-btn icon dark @click="close()">
                   <v-icon>mdi-close</v-icon>
                 </v-btn>
               </v-toolbar-items>
@@ -106,58 +164,12 @@
                         <v-list-item two-line>
                           <v-list-item-content>
                             <v-list-item-title>
-                              <strong>Unidad Organizativa:</strong>
+                              <strong>Departamento:</strong>
                             </v-list-item-title>
-                            <v-list-item-subtitle>{{adminContrato.unidadOrganizativa}}</v-list-item-subtitle>
+                            <v-list-item-subtitle>{{departamento.nombre}}</v-list-item-subtitle>
                           </v-list-item-content>
                         </v-list-item>
                       </v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item two-line>
-                          <v-list-item-content>
-                            <v-list-item-title>
-                              <strong>Cargo:</strong>
-                            </v-list-item-title>
-                            <v-list-item-subtitle>{{adminContrato.cargo}}</v-list-item-subtitle>
-                          </v-list-item-content>
-                        </v-list-item>
-                      </v-layout>
-                      <v-layout class="pa-2">
-                        <v-list-item two-line>
-                          <v-list-item-content>
-                            <v-list-item-title>
-                              <strong>Estado:</strong>
-                            </v-list-item-title>
-                            <v-list-item-subtitle>{{adminContrato.estadoTrabajadorName}}</v-list-item-subtitle>
-                          </v-list-item-content>
-                        </v-list-item>
-                      </v-layout>
-                    </v-layout>
-                    <v-layout class="pa-2">
-                      <v-list-item two-line>
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            <strong>Funciones o Tareas Principales del Cargo:</strong>
-                          </v-list-item-title>
-                          <v-list-item-subtitle
-                            v-for="item in funciones"
-                            :key="item.text"
-                          >- {{item.text}}</v-list-item-subtitle>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-layout>
-                    <v-layout class="pa-2">
-                      <v-list-item two-line>
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            <strong>Requisitos de Conocimiento para el Cargo:</strong>
-                          </v-list-item-title>
-                          <v-list-item-subtitle
-                            v-for="item in requisitos"
-                            :key="item.text"
-                          >- {{item.text}}</v-list-item-subtitle>
-                        </v-list-item-content>
-                      </v-list-item>
                     </v-layout>
                   </v-card>
                 </v-col>
@@ -183,47 +195,47 @@
                     <v-row dense>
                       <v-col cols="7">
                         <v-layout class="pa-2">
-                          <v-text>Carnet de Identidad: {{adminContrato.ci}}</v-text>
+                          <p>Carnet de Identidad: {{adminContrato.ci}}</p>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Nivel de Escolaridad: {{adminContrato.nivelDeEscolaridadName}}</v-text>
+                          <p>Nivel de Escolaridad: {{adminContrato.nivelDeEscolaridadName}}</p>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Perfil Ocupacional: {{adminContrato.perfilOcupacional}}</v-text>
+                          <p>Perfil Ocupacional: {{adminContrato.perfilOcupacional}}</p>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Color de Ojos: {{adminContrato.colorDeOjosName}}</v-text>
+                          <p>Color de Ojos: {{adminContrato.colorDeOjosName}}</p>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Fecha Nacimiento: {{adminContrato.fecha_Nac}}</v-text>
+                          <p>Fecha Nacimiento: {{adminContrato.fecha_Nac}}</p>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Correo: {{adminContrato.correo}}</v-text>
+                          <p>Correo: {{adminContrato.correo}}</p>
                         </v-layout>
                       </v-col>
                       <v-col cols="5">
                         <v-layout class="pa-2">
-                          <v-text>Sexo: {{adminContrato.sexoName}}</v-text>
+                          <p>Sexo: {{adminContrato.sexoName}}</p>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Teléfono Fijo: {{adminContrato.telefonoFijo}}</v-text>
+                          <p>Teléfono Fijo: {{adminContrato.telefonoFijo}}</p>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Teléfono Movil: {{adminContrato.telefonoMovil}}</v-text>
+                          <p>Teléfono Movil: {{adminContrato.telefonoMovil}}</p>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Color de Piel: {{adminContrato.colorDePielName}}</v-text>
+                          <p>Color de Piel: {{adminContrato.colorDePielName}}</p>
                         </v-layout>
                         <v-layout class="pa-2">
-                          <v-text>Edad: {{adminContrato.edad}} Años</v-text>
+                          <p>Edad: {{adminContrato.edad}} Años</p>
                         </v-layout>
                       </v-col>
                     </v-row>
                     <v-layout class="pa-2">
-                      <v-text>Direccion: {{adminContrato.direccion}}</v-text>
+                      <p>Direccion: {{adminContrato.direccion}}</p>
                     </v-layout>
                     <v-layout class="pa-2">
-                      <v-text>Otros Datos de Interes: {{adminContrato.otrasCaracteristicas}}</v-text>
+                      <p>Otros Datos de Interes: {{adminContrato.otrasCaracteristicas}}</p>
                     </v-layout>
                   </v-card>
                 </v-col>
@@ -234,11 +246,11 @@
         <!-- Detalles del Administrador -->
 
         <!-- Delete Administrador de Contratos -->
-        <v-dialog v-model="dialog2" persistent max-width="600px">
+        <v-dialog v-model="dialog3" persistent max-width="600px">
           <v-toolbar dark fadeOnScroll color="red">
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn icon dark @click="dialog2 = false">
+              <v-btn icon dark @click="close()">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </v-toolbar-items>
@@ -263,18 +275,29 @@
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="getDetallesAdmin(item)">mdi-account-plus</v-icon>
-        </template>
-        <span>Detalles</span>
-      </v-tooltip>
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="confirmDelete(item)">mdi-trash-can</v-icon>
-        </template>
-        <span>Eliminar</span>
-      </v-tooltip>
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+        small
+        @click="editItem(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+      </v-btn>
+
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+        small
+        @click="getDetalles(item)"
+      >
+        <v-icon>mdi-format-list-bulleted</v-icon>
+      </v-btn>
+
+      <v-btn
+        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+        small
+        @click="confirmDelete(item)"
+      >
+        <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+      </v-btn>
     </template>
   </v-data-table>
 </template>
@@ -289,21 +312,25 @@ export default {
     dialog3: false,
     search: "",
     editedIndex: -1,
-    administradoresContratos: [],
+    newAdminContratos: {
+      administradores: [],
+      departamentoId: {}
+    },
     adminContratos: [],
     adminContrato: {},
+    departamentos: [],
+    departamento: {},
     trabajadores: [],
     tabs: null,
-    trabajadorIdRules: [v => !!v || "El Nombre del Trabajador es Requerido"],
     errors: [],
     headers: [
       {
         text: "Nombre",
         align: "left",
         sortable: true,
-        value: "nombreCompleto"
+        value: "administrador.nombreCompleto"
       },
-
+      { text: "Departamento", value: "departamento.nombre" },
       { text: "Acciones", value: "action", sortable: false }
     ]
   }),
@@ -328,6 +355,7 @@ export default {
   created() {
     this.getAdminContratosFromApi();
     this.getTrabajadoresFromApi();
+    this.getDepartamentosFromApi();
   },
 
   methods: {
@@ -353,46 +381,69 @@ export default {
         }
       );
     },
+    getDepartamentosFromApi() {
+      const url = api.getUrl("contratacion", "Departamentos");
+      this.axios.get(url).then(
+        response => {
+          this.departamentos = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     editItem(item) {
       this.editedIndex = this.adminContratos.indexOf(item);
-      this.adminContrato = Object.assign({}, item);
-      this.dialog = true;
+      this.adminContrato = item.administrador;
+      this.adminContrato.departamentoId = item.departamento.id;
+      this.dialog1 = true;
     },
-    getDetallesAdmin(item) {
-      this.adminContrato = this.trabajadores.find(t => t.id === item.id);
-      this.dialog3 = true;
+    getDetalles(item) {
+      const url = api.getUrl("contratacion", "AdminContratos");
+      this.axios.get(`${url}/${item.administrador.id}`).then(
+        response => {
+          this.adminContrato = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+      this.departamento = item.departamento;
+      this.dialog2 = true;
     },
     save(method) {
       const url = api.getUrl("contratacion", "AdminContratos");
       if (method === "POST") {
-        if (this.$refs.form.validate()) {
-          this.snackbar = true;
-        }
-        if (this.administradoresContratos == null) {
-          vm.$snotify.error("Faltan campos por llenar que son obligatorios");
-        } else {
-          this.axios.post(url, this.administradoresContratos).then(
-            response => {
-              this.getResponse(response);
-              this.getAdminContratosFromApi();
-              this.administradoresContratos = [];
-              this.dialog = false;
-            },
-            error => {
-              console.log(error);
-            }
-          );
-        }
+        this.axios.post(url, this.newAdminContratos).then(
+          response => {
+            this.getResponse(response);
+            this.getAdminContratosFromApi();
+            this.newAdminContratos = {
+              administradores: [],
+              departamentoId: {}
+            };
+            this.dialog = false;
+          },
+          error => {
+            console.log(error);
+          }
+        );
       }
       if (method === "PUT") {
+        this.newAdminContratos.departamentoId = this.adminContrato.departamentoId;
+        this.newAdminContratos.administradores[0] = this.adminContrato.id;
         this.axios
-          .put(`${url}/${this.adminContrato.id}`, this.adminContrato)
+          .put(`${url}/${this.adminContrato.id}`, this.newAdminContratos)
           .then(
             response => {
               this.getResponse(response);
               this.getAdminContratosFromApi();
+              this.newAdminContratos = {
+                administradores: [],
+                departamentoId: {}
+              };
               this.adminContrato = {};
-              this.dialog = false;
+              this.dialog1 = false;
             },
             error => {
               console.log(error);
@@ -401,16 +452,17 @@ export default {
       }
     },
     confirmDelete(item) {
-      this.adminContrato = Object.assign({}, item);
-      this.dialog2 = true;
+      this.adminContrato = item.administrador;
+      this.dialog3 = true;
     },
-    deleteItem(adminContrato) {
+    deleteItem() {
       const url = api.getUrl("contratacion", "AdminContratos");
-      this.axios.delete(`${url}/${adminContrato.id}`).then(
+      this.axios.delete(`${url}/${this.adminContrato.id}`).then(
         response => {
           this.getResponse(response);
           this.getAdminContratosFromApi();
-          this.dialog2 = false;
+          this.adminContrato = {};
+          this.dialog3 = false;
         },
         error => {
           console.log(error);
@@ -421,6 +473,13 @@ export default {
       this.dialog = false;
       this.dialog1 = false;
       this.dialog2 = false;
+      this.dialog3 = false;
+      this.newAdminContratos = {
+        administradores: [],
+        departamentoId: {}
+      };
+      this.adminContrato = {};
+      this.administradores = [];
       setTimeout(() => {
         this.editedIndex = -1;
       }, 300);
@@ -431,8 +490,8 @@ export default {
       }
     },
     removeAdministradoresContratos(item) {
-      const index = this.administradoresContratos.indexOf(item.id);
-      if (index >= 0) this.administradoresContratos.splice(index, 1);
+      const index = this.administradores.indexOf(item.id);
+      if (index >= 0) this.administradores.splice(index, 1);
     }
   }
 };

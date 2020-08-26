@@ -16,7 +16,7 @@ namespace ImportadorDatos.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Asientos", b =>
@@ -51,6 +51,22 @@ namespace ImportadorDatos.Migrations
                     b.ToTable("CentrosDeCostos");
                 });
 
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.CuentaBancaria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CtaBancoEntidadVersatId");
+
+                    b.Property<int>("CuentaBancariaId");
+
+                    b.Property<string>("NumeroCta");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CuentasBancarias");
+                });
+
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Cuentas", b =>
                 {
                     b.Property<int>("Id")
@@ -81,6 +97,24 @@ namespace ImportadorDatos.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ElementoDeGastos");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Entidad", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Codigo");
+
+                    b.Property<int>("EntidadId");
+
+                    b.Property<int>("EntidadVersatId");
+
+                    b.Property<string>("NIT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Entidades");
                 });
 
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.PartidaDeGasto", b =>

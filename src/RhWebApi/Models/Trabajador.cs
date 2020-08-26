@@ -39,6 +39,7 @@ namespace RhWebApi.Models {
         public int? AperturaSocioId { get; set; }
         public virtual AperturaSocio AperturaSocio { get; set; }
         public DateTime Fecha_Nac { get; set; }
+        public string UserId { get; set; }
 
         [NotMapped]
         private string _nombreCompleto;

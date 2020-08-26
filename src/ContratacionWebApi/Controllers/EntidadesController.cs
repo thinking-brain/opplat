@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using ContratacionWebApi.Data;
 using ContratacionWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +18,10 @@ namespace ContratacionWebApi.Controllers {
         // GET entidades/Entidades
         [HttpGet]
         public IActionResult GetAll () {
-            var entidades = context.Entidades.Select (e => new {
+            var entidades = context.Entidades.Include (e => e.CuentasBancarias).Include (e => e.Telefonos).Select (e => new {
                 Id = e.Id,
                     Nombre = e.Nombre,
+                    Siglas = e.Siglas,
                     Codigo = e.Codigo,
                     Direccion = e.Direccion,
                     Nit = e.Nit,
@@ -28,26 +30,22 @@ namespace ContratacionWebApi.Controllers {
                     SectorNombre = e.Sector.ToString (),
                     Correo = e.Correo,
                     ObjetoSocial = e.ObjetoSocial,
-                    Telefonos = context.Telefonos.Where (t => t.EntidadId == e.Id),
-                    CantTelefonos = context.Telefonos.Where (t => t.EntidadId == e.Id).Count (),
-                    CuentasBancarias = context.CuentasBancarias.Where (c => c.EntidadId == e.Id).Select (
-                        b => new {
-                            Id = b.Id,
-                                NumeroCuenta = b.NumeroCuenta,
-                                NumeroSucursal = b.NumeroSucursal,
-                                NombreSucursalId = b.NombreSucursal,
-                                NombreSucursal = b.NombreSucursal.ToString (),
-                                MonedaId = b.Moneda,
-                                Moneda = b.Moneda.ToString (),
-                                EntidadId = b.EntidadId
-                        }
-                    ),
-                    CantCuentasBancarias = context.CuentasBancarias.Where (c => c.EntidadId == e.Id).Count (),
+                    Telefonos = e.Telefonos,
+                    CantTelefonos = e.Telefonos.Count (),
+                    CuentasBancarias = e.CuentasBancarias.Select (c => new {
+                        Id = c.Id,
+                            NumeroCuenta = c.NumeroCuenta,
+                            NumeroSucursal = c.NumeroSucursal,
+                            NombreSucursal = c.NombreSucursal,
+                            NombreSucursalString = c.NombreSucursal.ToString (),
+                            Moneda = c.Moneda,
+                            MonedaString = c.Moneda.ToString ()
+                    }),
+                    CantCuentas = e.CuentasBancarias.Count ()
             });
 
             return Ok (entidades);
         }
-
         // GET: entidades/Entidades/Id
         [HttpGet ("{id}", Name = "GetEntidad")]
         public IActionResult GetbyId (int id) {
@@ -63,13 +61,18 @@ namespace ContratacionWebApi.Controllers {
         [HttpPost]
         public IActionResult POST ([FromBody] Entidad entidad) {
             if (ModelState.IsValid) {
-                var entByNit = context.Entidades.FirstOrDefault (e => e.Nit == entidad.Nit);
-                if (entByNit != null) {
-                    return BadRequest ($"Ya hay un Proveedor con este NIT");
+                foreach (var item in entidad.CuentasBancarias) {
+                    if (context.CuentasBancarias.Any (c => c.NumeroCuenta == item.NumeroCuenta)) {
+                        return BadRequest ($"Ya hay un proveedor con el número de cuenta bancaria: " + item.NumeroCuenta);
+                    }
+                }
+                if (context.Entidades.Any (c => c.Nit == entidad.Nit)) {
+                    return BadRequest ($"Ya hay un proveedor con este NIT: " + entidad.Nit);
                 } else {
                     var ent = new Entidad {
                         Id = entidad.Id,
                         Nombre = entidad.Nombre,
+                        Siglas = entidad.Siglas,
                         Codigo = entidad.Codigo,
                         Direccion = entidad.Direccion,
                         Nit = entidad.Nit,
@@ -120,10 +123,9 @@ namespace ContratacionWebApi.Controllers {
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] Entidad entidad, int id) {
             var ent = context.Entidades.FirstOrDefault (s => s.Id == id);
-            if (ent == null) {
-                return BadRequest (ModelState);
-            }
+
             ent.Nombre = entidad.Nombre;
+            ent.Siglas = entidad.Siglas;
             ent.Codigo = entidad.Codigo;
             ent.Direccion = entidad.Direccion;
             ent.Nit = entidad.Nit;
@@ -183,9 +185,19 @@ namespace ContratacionWebApi.Controllers {
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var entidad = context.Entidades.FirstOrDefault (s => s.Id == id);
-
             if (entidad.Id != id) {
                 return NotFound ();
+            }
+            if (context.Contratos.FirstOrDefault (c => c.EntidadId == id) != null) {
+                return BadRequest ($"Este proveedor esta asociado a un contrato");
+            }
+            var telefonos = context.Telefonos.Where (t => t.EntidadId == id);
+            var cuentas = context.CuentasBancarias.Where (c => c.EntidadId == id);
+            foreach (var item in telefonos) {
+                context.Telefonos.Remove (item);
+            }
+            foreach (var item in cuentas) {
+                context.CuentasBancarias.Remove (item);
             }
             context.Entidades.Remove (entidad);
             context.SaveChanges ();
@@ -198,6 +210,7 @@ namespace ContratacionWebApi.Controllers {
                 new { Id = NombreSucursal.BPA, Nombre = "BPA" },
                 new { Id = NombreSucursal.Bandec, Nombre = "Bandec" },
                 new { Id = NombreSucursal.Banco_Metropolitano, Nombre = "Banco Metropolitano" },
+                new { Id = NombreSucursal.BFI, Nombre = "BFI" },
             };
             return Ok (tipo);
         }
@@ -205,7 +218,7 @@ namespace ContratacionWebApi.Controllers {
         [HttpGet ("/contratacion/Entidades/Monedas")]
         public IActionResult GetAllMonedas () {
             var tipo = new List<dynamic> () {
-                new { Id = Moneda.MN, Nombre = "MN" },
+                new { Id = Moneda.CUP, Nombre = "CUP" },
                 new { Id = Moneda.CUC, Nombre = "CUC" },
                 new { Id = Moneda.USD, Nombre = "USD" },
             };

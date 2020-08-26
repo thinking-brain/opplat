@@ -352,7 +352,7 @@ export const protectedRoute = [
     children: [
       {
         path: '/recursos_humanos/dashboard',
-        name: 'Dashboard',
+        name: 'Dashboard Recursos Humanos',
         meta: {
           title: 'Cuadro de mando',
           requiresAuth: true,
@@ -398,64 +398,6 @@ export const protectedRoute = [
     ],
   },
 
-  // Recursos Humanos
-  {
-    name: 'Recusos Humanos',
-    path: '/recursos_humanos',
-    component: DefaultLayout,
-    redirect: '/recursos_humanos/dashboard',
-    meta: {
-      title: 'Trabajadores',
-      group: 'recursos_humanos',
-    },
-    children: [
-      {
-        path: '/recursos_humanos/dashboard',
-        name: 'Dashboard',
-        meta: {
-          title: 'Cuadro de mando',
-          requiresAuth: true,
-        },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Dashboard.vue'),
-      },
-      {
-        path: '/recursos_humanos/Trabajadores',
-        name: 'Trabajadores',
-        meta: {
-          title: 'Trabajadores',
-          requiresAuth: true,
-        },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Trabajadores.vue'),
-      },
-      {
-        path: '/recursos_humanos/Bolsa',
-        name: 'Bolsa',
-        meta: {
-          title: 'Bolsa',
-          requiresAuth: true,
-        },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Bolsa.vue'),
-      },
-      {
-        path: '/recursos_humanos/ListadoAperturas',
-        name: 'ListadoAperturas',
-        meta: {
-          title: 'Listado de Aperturas',
-          requiresAuth: true,
-        },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/ListadoAperturas.vue'),
-      },
-      {
-        path: '/recursos_humanos/Apertura',
-        name: 'Apertura',
-        meta: {
-          title: 'Apertura',
-          requiresAuth: true,
-        },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/recursos_humanos/Apertura.vue'),
-      },
-    ],
-  },
   // Contratacion
   {
     name: 'Contratacion',
@@ -477,22 +419,40 @@ export const protectedRoute = [
         component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Dashboard.vue'),
       },
       {
-        path: '/contratacion/Contratos',
-        name: 'Contratos',
+        path: '/contratacion/ContratosCliente',
+        name: 'ContratosCliente',
         meta: {
-          title: 'Contratos',
+          title: 'ContratosCliente',
           requiresAuth: true,
         },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Contratos.vue'),
+        component: () => import(/* webpackChunkName: "table" */ '@/components/contratacion/ContratosCliente.vue'),
       },
       {
-        path: '/contratacion/Ofertas',
-        name: 'Ofertas',
+        path: '/contratacion/ContratosPrestador',
+        name: 'ContratosPrestador',
         meta: {
-          title: 'Ofertas',
+          title: 'ContratosPrestador',
           requiresAuth: true,
         },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Ofertas.vue'),
+        component: () => import(/* webpackChunkName: "table" */ '@/components/contratacion/ContratosPrestador.vue'),
+      },
+      {
+        path: '/contratacion/OfertasClientes',
+        name: 'OfertasClientes',
+        meta: {
+          title: 'OfertasClientes',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/components/contratacion/OfertasClientes.vue'),
+      },
+      {
+        path: '/contratacion/OfertasPrestador',
+        name: 'OfertasPrestador',
+        meta: {
+          title: 'OfertasPrestador',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/components/contratacion/OfertasPrestador.vue'),
       },
       {
         path: '/contratacion/Config',
@@ -501,7 +461,31 @@ export const protectedRoute = [
           title: 'Config',
           requiresAuth: true,
         },
-        component: () => import(/* webpackChunkName: "table" */ '@/views/contratacion/Config.vue'),
+        component: () => import(/* webpackChunkName: "table" */ '@/components/contratacion/Config.vue'),
+      },
+      {
+        path: '/contratacion/contrato/nuevo',
+        name: 'Nuevo_Contrato',
+        props: route => ({
+          contrato: route.query.contrato,
+        }),
+        meta: {
+          title: 'Nuevo_Contrato',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/components/contratacion/NuevoContrato.vue'),
+      },
+      {
+        path: '/contratacion/contrato/detalles',
+        name: 'Detalles_Contrato',
+        props: route => ({
+          contrato: route.query.contrato,
+        }),
+        meta: {
+          title: 'Detalles_Contrato',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/components/contratacion/DetallesContrato.vue'),
       },
     ],
   },

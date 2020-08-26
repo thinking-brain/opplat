@@ -258,7 +258,7 @@ export default {
     },
     gestionaRoles(usuario) {
       this.$router.push({
-        name: "gestionar-roles",
+        name: "Nuevo_Contrato",
         query: {
           usuario
         }

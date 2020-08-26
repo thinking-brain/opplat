@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using ContratacionWebApi.Models;
 
-namespace ContratacionWebApi.Models {
+namespace ContratacionWebApi.Dtos {
     public class AdminCont_Cant {
         public AdminContrato AdminContrato{get;set;}
         public int CantidadContratos{get;set;}

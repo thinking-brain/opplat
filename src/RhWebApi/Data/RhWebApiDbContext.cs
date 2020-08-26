@@ -8,11 +8,66 @@ using RhWebApi.Models;
 namespace RhWebApi.Data {
     public class RhWebApiDbContext : DbContext {
         public RhWebApiDbContext (DbContextOptions<RhWebApiDbContext> options) : base (options) { }
-        protected override void OnModelCreating (ModelBuilder builder) {
-            base.OnModelCreating (builder);
-            // Customize the ASP.NET Identity model   override the defaults if needed.
-            // For example, you can rename the ASP.NET Identity table names and more.
-            // Add your customizations after calling base.OnModelCreating(builder);
+        protected override void OnModelCreating (ModelBuilder modelBuilder) {
+            base.OnModelCreating (modelBuilder);
+            modelBuilder.Entity<Provincia> ().HasData (
+                new Provincia {
+                    Id = 1,
+                        Nombre = "Sin Definir"
+                });
+            modelBuilder.Entity<Municipio> ().HasData (
+                new Municipio {
+                    Id = 1,
+                        Nombre = "Sin Definir",
+                        ProvinciaId = 1
+                });
+            modelBuilder.Entity<PerfilOcupacional> ().HasData (
+                new PerfilOcupacional {
+                    Id = 1,
+                        Nombre = "Sin Definir"
+                });
+            modelBuilder.Entity<CategoriaOcupacional> ().HasData (
+                new CategoriaOcupacional {
+                    Id = 1,
+                        Descripcion = "Sin Definir"
+                });
+            modelBuilder.Entity<GrupoEscala> ().HasData (
+                new GrupoEscala {
+                    Id = 1,
+                        CategoriaOcupacionalId = 1,
+                        Codigo = "Sin Definir",
+                        SalarioDiferenciado = false,
+                        SalarioEscala = 0
+                });
+            modelBuilder.Entity<Cargo> ().HasData (
+                new Cargo {
+                    Id = 1,
+                        Nombre = "Sin Definir",
+                        Sigla = "Sin Definir",
+                        GrupoEscalaId = 1
+                });
+            modelBuilder.Entity<PuestoDeTrabajo> ().HasData (
+                new PuestoDeTrabajo {
+                    Id = 1,
+                        CargoId = 1,
+                        UnidadOrganizativaId = 1,
+                        Descripcion = "Sin Definir",
+                        PlantillaOcupada = 0
+                });
+            modelBuilder.Entity<TipoUnidadOrganizativa> ().HasData (
+                new TipoUnidadOrganizativa {
+                    Id = 1,
+                        Nombre = "Sin Definir",
+                        Prioridad = 0
+                });
+            modelBuilder.Entity<UnidadOrganizativa> ().HasData (
+                new UnidadOrganizativa {
+                    Id = 1,
+                        Codigo = "Sin Definir",
+                        Nombre = "Sin Definir",
+                        TipoUnidadOrganizativaId = 1,
+                        Activa = false
+                });
         }
         public DbSet<RhWebApi.Models.Trabajador> Trabajador { get; set; }
         public DbSet<RhWebApi.Models.Municipio> Municipio { get; set; }
