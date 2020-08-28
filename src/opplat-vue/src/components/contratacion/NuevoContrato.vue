@@ -48,7 +48,7 @@
               </v-flex>
               <v-flex cols="2" class="px-1">
                 <v-autocomplete
-                  v-model="contrato.entidad"
+                  v-model="entidad"
                   item-text="nombre"
                   item-value="id"
                   :items="entidades"
@@ -96,7 +96,7 @@
               <v-flex cols="2" class="px-1">
                 <v-autocomplete
                   v-model="contrato.especialistasExternos"
-                  item-text="nombreCompleto"
+                  item-text="nombreAMostrar"
                   item-value="id"
                   :items="especialistasExternosAll"
                   cache-items
@@ -114,6 +114,7 @@
                   v-model="montoAndMoneda.cantidad"
                   label="Monto"
                   :error-messages="messagesCantidad"
+                  :disabled="disabled"
                   clearable
                   prefix="$"
                 ></v-text-field>
@@ -125,6 +126,7 @@
                   item-value="id"
                   :items="monedas"
                   :error-messages="messagesMoneda"
+                  :disabled="disabled"
                   label="Moneda"
                 ></v-select>
               </v-flex>
@@ -152,11 +154,13 @@
                 </v-chip-group>
               </v-flex>
             </v-layout>
+            <p>{{textFormaPago}}</p>
             <v-layout row wrap>
               <v-flex cols="2" md="9" class="px-1">
                 <v-autocomplete
                   v-model="contrato.formasDePago"
                   :items="formasDePagos"
+                  :disabled="disabled"
                   label="Formas de Pago"
                   item-text="nombre"
                   item-value="id"
@@ -187,7 +191,8 @@
               <v-flex cols="2">
                 <v-text-field
                   v-model="contrato.terminoDePago"
-                  label="Término de Pago en Meses"
+                  label="Término de pago"
+                  placeholder="en días áviles después de presentada la factura"
                   clearable
                   required
                 ></v-text-field>
@@ -195,7 +200,11 @@
             </v-layout>
             <v-layout row wrap>
               <v-flex cols="2" class="px-1">
-                <v-textarea v-model="contrato.objetoDeContrato" label="Objeto Social" rows="1"></v-textarea>
+                <v-textarea
+                  v-model="contrato.objetoDeContrato"
+                  label="Objeto del Contrato"
+                  rows="1"
+                ></v-textarea>
               </v-flex>
             </v-layout>
             <v-layout row wrap>
@@ -359,7 +368,7 @@ export default {
     cantOfertas: 0,
     file: null,
     entidades: [],
-    entidadObjetc: {},
+    entidad: {},
     especialistasExternosAll: [],
     dictaminadoresContratos: [],
     adminContratos: [],
@@ -381,9 +390,11 @@ export default {
     title: "",
     messagesMoneda: "",
     messagesCantidad: "",
-    enabled: false,
+    messagesFormaPago: "",
+    disabled: true,
     MonedaRules: [v => !!v || "Faltan datos por llenar"],
-    MontoRules: [v => !!v || "Faltan datos por llenar"]
+    MontoRules: [v => !!v || "Faltan datos por llenar"],
+    textFormaPago: ""
   }),
   computed: {
     formTitle() {
@@ -394,21 +405,26 @@ export default {
     },
     method() {
       return this.editedIndex === -1 ? "POST" : "PUT";
-    },
-    // monto() {
-    //   if (this.contrato.entidad != 0) {
-    //     this.entidadObjetc = this.entidades.find(
-    //       x => x.id === this.contrato.entidad
-    //     );
-    //   }
-    //   if (this.contrato.entidad != null) {
-    //     this.disabled = false;
-    //   }
-    // }
+    }
   },
   watch: {
-    dialog(val) {
-      val || this.close();
+    entidad: function() {
+      this.disabled = false;
+      this.textFormaPago = "";
+      this.getMonedasEntidad();
+      this.contrato.entidad = this.entidad;
+      if (this.monedas.length == 0) {
+        this.textFormaPago =
+          "Este proveedor no tiene cuenta bancaria, la única forma de pago que va a admitir es pago en efectivo";
+        var formadepago = {
+          id: 2,
+          nombre: "Efectivo"
+        };
+        this.formasDePagos = [];
+        this.formasDePagos.push(formadepago);
+        this.getMonedasFromApi();
+      }
+      console.log(this.monedas);
     }
   },
 
@@ -424,7 +440,6 @@ export default {
     this.getTrabajadoresFromApi();
     this.getTiempoVenOfertasFromApi();
     this.getDepartamentosFromApi();
-    this.getMonedasFromApi();
     this.roles = this.$store.getters.roles;
     this.username = this.$store.getters.usuario;
     this.montos = this.contrato.montos;
@@ -557,6 +572,17 @@ export default {
         }
       );
     },
+    getMonedasEntidad() {
+      const url = api.getUrl("contratacion", "Entidades/Monedas");
+      this.axios.get(`${url}/${this.entidad}`).then(
+        response => {
+          this.monedas = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     getMonedasFromApi() {
       const url = api.getUrl("contratacion", "Entidades/Monedas");
       this.axios.get(url).then(
@@ -570,6 +596,8 @@ export default {
     },
     save(method) {
       const url = api.getUrl("contratacion", "Contratos");
+      var fechaporDefecto = new Date("01/01/0001");
+
       if (method === "POST") {
         if (
           this.montoAndMoneda.cantidad != null &&
@@ -577,6 +605,13 @@ export default {
         ) {
           this.montos.push(this.montoAndMoneda);
           this.contrato.montos = this.montos;
+
+          if (this.contrato.fechaDeRecepcion == null) {
+            this.contrato.fechaDeRecepcion = fechaporDefecto;
+          }
+          if (this.contrato.fechaDeVenOferta == null) {
+            this.contrato.fechaDeVenOferta = fechaporDefecto;
+          }
           if (this.$refs.form.validate()) {
             this.contrato.username = this.username;
             this.axios.post(url, this.contrato).then(

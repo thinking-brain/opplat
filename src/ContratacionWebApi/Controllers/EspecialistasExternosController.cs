@@ -28,6 +28,7 @@ namespace ContratacionWebApi.Controllers {
                     Area = e.Area,
                     Departamento = e.Departamento,
                     Cargo = e.Cargo,
+                    NombreAMostrar = e.Entidad.Nombre + ", " + e.NombreCompleto
             });
             return Ok (especialistasExternos);
         }

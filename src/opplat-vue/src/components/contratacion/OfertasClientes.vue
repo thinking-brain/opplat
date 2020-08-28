@@ -720,9 +720,9 @@ export default {
         this.aprobarContrato.fechaDeFirmado == null &&
         this.aprobarContrato.FechaDeVencimiento == null
       ) {
-        var fecha = new Date("01/01/0001");
-        this.aprobarContrato.fechaDeFirmado = fecha;
-        this.aprobarContrato.FechaDeVencimiento = fecha;
+        var fechaporDefecto = new Date("01/01/0001");
+        this.aprobarContrato.fechaDeFirmado = fechaporDefecto;
+        this.aprobarContrato.FechaDeVencimiento = fechaporDefecto;
       }
       this.axios
         .put(`${url}/${this.aprobarContrato.contratoId}`, this.aprobarContrato)

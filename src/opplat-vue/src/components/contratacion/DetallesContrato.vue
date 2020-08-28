@@ -38,7 +38,7 @@
               {{contrato.fechaDeVenOfer}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
-              <strong>Objeto Social :</strong>
+              <strong>Objeto del Contrato :</strong>
               {{contrato.objetoDeContrato}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
@@ -56,7 +56,7 @@
               </span>
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
-              <strong>Formas e Pago :</strong>
+              <strong>Formas de Pago :</strong>
               <v-spacer></v-spacer>
               <span v-for="item in contrato.formasDePago" :key="item.nombre">
                 <v-spacer></v-spacer>

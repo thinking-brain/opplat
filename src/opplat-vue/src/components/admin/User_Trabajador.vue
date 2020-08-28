@@ -187,11 +187,7 @@ export default {
         const t = this.trabajadores.find(
           x => x.id === this.userTrabajador.trabajadorId
         );
-        const u = this.lista_usuarios.find(
-          x => x.username === this.userTrabajador.username
-        );
         this.userTrabajador.nombreCompleto = t.nombreCompleto;
-        this.userTrabajador.username = u.username;
         this.list.push(this.userTrabajador);
         this.userTrabajador = {
           username: null,

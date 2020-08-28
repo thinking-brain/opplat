@@ -225,6 +225,14 @@ namespace ContratacionWebApi.Controllers {
             return Ok (tipo);
         }
         // GET: contratacion/Entidades/Monedas
+        [HttpGet ("/contratacion/Entidades/Monedas/{id}")]
+        public IActionResult GetMonedasEntidad (int id) {
+            var tipo = context.CuentasBancarias.Where (x => x.EntidadId == id).Select (m => new {
+                Nombre = m.Moneda.ToString ()
+            });
+            return Ok (tipo);
+        }
+        // GET: contratacion/Entidades/Monedas
         [HttpGet ("/contratacion/Entidades/Sectores")]
         public IActionResult GetAllSectores () {
             var tipo = new List<dynamic> () {

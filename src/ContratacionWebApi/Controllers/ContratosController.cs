@@ -61,7 +61,7 @@ namespace ContratacionWebApi.Controllers {
                     FechaDeVenOfer = c.FechaDeVenOferta.ToString ("dd/MM/yyyy"),
                     FechaVenCont = c.FechaVenContrato.ToString ("dd/MM/yyyy"),
                     TerminoDePago = c.TerminoDePago,
-                    TerminoDePagoDet = c.TerminoDePago / 30 + " Meses y " + c.TerminoDePago % 30 + " Días",
+                    TerminoDePagoDet = c.TerminoDePago + " días áviles",
                     Estado = c.Estado,
                     EstadoNombre = c.Estado.ToString (),
                     AprobJuridico = c.AprobJuridico,
@@ -189,12 +189,13 @@ namespace ContratacionWebApi.Controllers {
                     TerminoDePago = contratoDto.TerminoDePago,
                     Cliente = contratoDto.Cliente
                 };
-                if (contratoDto.FechaDeRecepcion != null) {
-                    contrato.FechaDeRecepcion = contratoDto.FechaDeRecepcion;
-                } else {
+                DateTime FechaPorDefecto = new DateTime (2001,01,01,05,00,00);
+                if (contratoDto.FechaDeRecepcion == FechaPorDefecto) {
                     contrato.FechaDeRecepcion = DateTime.Now;
+                } else {
+                    contrato.FechaDeRecepcion = contratoDto.FechaDeRecepcion;
                 }
-                if (contratoDto.FechaDeVenOferta != null) {
+                if (contratoDto.FechaDeVenOferta != FechaPorDefecto) {
                     contrato.FechaDeVenOferta = contratoDto.FechaDeVenOferta;
                 } else {
                     contrato.FechaDeVenOferta = DateTime.Now.AddDays (20);
