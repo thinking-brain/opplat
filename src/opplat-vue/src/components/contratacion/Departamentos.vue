@@ -75,6 +75,7 @@
         class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
         small
         @click="editItem(item)"
+        v-if="item.nombre!='Jurídico' && item.nombre!='Económico' "
       >
         <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
       </v-btn>
@@ -82,6 +83,7 @@
         class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
         small
         @click="confirmDelete(item)"
+        v-if="item.nombre!='Jurídico' && item.nombre!='Económico' "
       >
         <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
       </v-btn>

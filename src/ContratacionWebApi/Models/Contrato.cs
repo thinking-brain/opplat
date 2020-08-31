@@ -50,10 +50,10 @@ namespace ContratacionWebApi.Models {
 
         [NotMapped]
         public virtual ICollection<HistoricoEstadoContrato> Estados { get; set; }
-        public bool AprobEconomico { get; set; }
-        public bool AprobJuridico { get; set; }
-        public bool AprobComitContratacion { get; set; }
-        public Estado Estado { get; set; }
+        public Estado EstadoEconomico { get; set; }
+        public Estado EstadoJuridico { get; set; }
+        public Estado EstadoComitContratacion { get; set; }
+        public Estado EstadoContrato { get; set; }
         public bool Cliente { get; set; }
         public virtual ICollection<Suplemento> Suplementos { get; set; }
 

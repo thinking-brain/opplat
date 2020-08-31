@@ -29,7 +29,7 @@
                   label="tipo"
                 ></v-autocomplete>
               </v-flex>
-              <v-flex cols="2" md3 class="px-1" v-if="editedIndex!=-1">
+              <v-flex cols="2" md3 class="px-1" v-if="editedIndex!=-1&& (roles.includes('juridico')||roles.includes('administrador'))">
                 <v-text-field v-model="contrato.numero" label="Número" prefix="#"></v-text-field>
               </v-flex>
             </v-layout>
@@ -401,6 +401,9 @@ export default {
       if (this.contrato.id != null) {
         this.editedIndex = this.contrato.id;
       }
+      if (this.editedIndex != -1) {
+        this.entidad = this.contrato.entidad;
+      }
       return this.editedIndex === -1 ? "Nueva Oferta" : "Editar Oferta";
     },
     method() {
@@ -411,11 +414,22 @@ export default {
     entidad: function() {
       this.disabled = false;
       this.textFormaPago = "";
-      this.getMonedasEntidad();
-      this.contrato.entidad = this.entidad;
-      if (this.monedas.length == 0) {
+      this.getFormasDePagosFromApi();
+      const url = api.getUrl("contratacion", "Entidades/Monedas");
+      this.axios.get(`${url}/${this.entidad}`).then(
+        response => {
+          this.monedas = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    monedas: function() {
+      console.log(this.monedas.length);
+      if (this.monedas.length === 0) {
         this.textFormaPago =
-          "Este proveedor no tiene cuenta bancaria, la única forma de pago que va a admitir es pago en efectivo";
+          "Este proveedor no tiene cuenta bancaria asociada, la única forma de pago que va a admitir es pago en efectivo";
         var formadepago = {
           id: 2,
           nombre: "Efectivo"
@@ -424,7 +438,6 @@ export default {
         this.formasDePagos.push(formadepago);
         this.getMonedasFromApi();
       }
-      console.log(this.monedas);
     }
   },
 
@@ -562,7 +575,7 @@ export default {
       );
     },
     getDepartamentosFromApi() {
-      const url = api.getUrl("contratacion", "Departamentos");
+      const url = api.getUrl("contratacion", "Departamentos/ForNewContract");
       this.axios.get(url).then(
         response => {
           this.departamentos = response.data;
@@ -597,6 +610,7 @@ export default {
     save(method) {
       const url = api.getUrl("contratacion", "Contratos");
       var fechaporDefecto = new Date("01/01/0001");
+      this.contrato.entidad = this.entidad;
 
       if (method === "POST") {
         if (

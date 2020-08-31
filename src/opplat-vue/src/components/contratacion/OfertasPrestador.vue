@@ -236,9 +236,9 @@
               v-on="on"
               @click="confirmAprobarOferta(item)"
               v-if="(roles.includes('administrador')
-              ||(roles.includes('economico')&& item.aprobEconomico==false)
-              ||(roles.includes('juridico')&& item.aprobJuridico==false)
-              ||(roles.includes('comite de contratacion')&& item.aprobComitContratacion==false))"
+              ||roles.includes('economico')
+              ||roles.includes('juridico')
+              ||roles.includes('secretario comite de contratacion'))"
             >
               <v-icon>v-icon notranslate mdi mdi-check-box-multiple-outline theme--dark</v-icon>
             </v-btn>
@@ -266,11 +266,26 @@
               small
               v-on="on"
               @click="download(item)"
+              v-if="item.filePath !=null"
             >
               <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
             </v-btn>
           </template>
           <span>Descargar Documento</span>
+        </v-tooltip>
+        <v-tooltip top color="red">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small red--text"
+              small
+              v-on="on"
+              @click="download(item)"
+              v-if="item.filePath ==null"
+            >
+              <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+            </v-btn>
+          </template>
+          <span>No tiene un documento guardado</span>
         </v-tooltip>
         <v-tooltip top color="teal">
           <template v-slot:activator="{ on }">
@@ -348,7 +363,6 @@ export default {
       { text: "Número", sortable: true, value: "numero" },
       { text: "Nombre", align: "left", sortable: true, value: "nombre" },
       { text: "Tipo", value: "tipoNombre" },
-      { text: "Entidad", value: "entidad.nombre" },
       { text: "Vence en", value: "ofertVence" },
       { text: "Estado", value: "estadoNombre" },
       { text: "Acciones", value: "action", sortable: false }
@@ -488,7 +502,7 @@ export default {
           response => {
             this.getResponse(response);
             this.close();
-            this.getOfertasFromApi();
+            location.reload();
           },
           error => {
             console.log(error);
@@ -502,6 +516,7 @@ export default {
           window.open(url + "/" + item.id);
         },
         error => {
+          vm.$snotify.error(error.response.data);
           console.log(error);
         }
       );

@@ -13,6 +13,17 @@ namespace ContratacionWebApi.Data {
             modelBuilder.ForNpgsqlUseIdentityColumns ();
             modelBuilder.Entity<ContratoId_DepartamentoId> ().HasKey (x => new { x.ContratoId, x.DepartamentoId });
             base.OnModelCreating (modelBuilder);
+            
+             modelBuilder.Entity<Departamento> ().HasData (
+                new Departamento {
+                    Id = 1,
+                        Nombre = "Económico"
+                });
+             modelBuilder.Entity<Departamento> ().HasData (
+                new Departamento {
+                    Id = 2,
+                        Nombre = "Jurídico"
+                });
         }
         public DbSet<Contrato> Contratos { get; set; }
         public DbSet<ContratoId_DepartamentoId> ContratoId_DepartamentoId { get; set; }

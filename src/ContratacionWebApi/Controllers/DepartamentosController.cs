@@ -18,6 +18,12 @@ namespace ContratacionWebApi.Controllers {
         public IEnumerable<Departamento> GetAll () {
             return context.Departamentos.ToList ();
         }
+        // Para mostrar en nueva oferta
+        // GET contratacion/Departamentos/
+        [HttpGet ("/contratacion/Departamentos/ForNewContract")]
+        public IEnumerable<Departamento> GetForNewContract () {
+            return context.Departamentos.Where (d => d.Nombre != "Jurídico" && d.Nombre != "Económico").ToList ();
+        }
 
         // GET: contratacion/Departamentos/Id
         [HttpGet ("{id}", Name = "GetDeparatmentos")]

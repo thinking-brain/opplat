@@ -144,7 +144,7 @@
           <!-- /Cantidad de Ofertas Vencidas -->
 
           <!-- Aprobar oferta -->
-          <v-dialog v-model="dialog5" persistent max-width="350px">
+          <v-dialog v-model="dialog4" persistent max-width="350px">
             <v-toolbar dark fadeOnScroll color="red">
               <v-spacer></v-spacer>
               <v-toolbar-items>
@@ -159,7 +159,7 @@
               <v-flex
                 cols="2"
                 class="px-12"
-                v-if="(roles.includes('comite de contratacion')||roles.includes('administrador'))"
+                v-if="(roles.includes('secretario comite de contratacion')||roles.includes('administrador'))"
               >
                 <v-menu
                   v-model="menu"
@@ -185,7 +185,7 @@
               <v-flex
                 cols="2"
                 class="px-12"
-                v-if="(roles.includes('comite de contratacion')||roles.includes('administrador'))"
+                v-if="(roles.includes('secretario comite de contratacion')||roles.includes('administrador'))"
               >
                 <v-menu
                   v-model="menu1"
@@ -277,7 +277,7 @@
       </template>
       <!-- Actions -->
       <template v-slot:item.action="{ item }">
-        <v-row justify="end">
+        <v-row>
           <v-tooltip top color="primary">
             <template v-slot:activator="{ on }">
               <v-btn
@@ -293,23 +293,9 @@
             </template>
             <span>Editar</span>
           </v-tooltip>
-          <v-tooltip top color="primary">
-            <template v-slot:activator="{ on }">
-              <v-btn
-                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
-                small
-                v-on="on"
-                @click="confirmAprobarOferta(item)"
-                v-if="(roles.includes('administrador')
-              ||(roles.includes('economico')&& item.aprobEconomico==false)
-              ||(roles.includes('juridico')&& item.aprobJuridico==false)
-              ||(roles.includes('comite de contratacion')&& item.aprobComitContratacion==false))"
-              >
-                <v-icon>v-icon notranslate mdi mdi-check-box-multiple-outline theme--dark</v-icon>
-              </v-btn>
-            </template>
-            <span>Aprobar la Oferta</span>
-          </v-tooltip>
+          <!-- Edit jurídico -->
+            <EditJuridico v-if="roles.includes('juridico')" v-bind:oferta="item"></EditJuridico>
+          <!-- /Edit jurídico -->
           <v-tooltip top color="black">
             <template v-slot:activator="{ on }">
               <v-btn
@@ -331,11 +317,26 @@
                 small
                 v-on="on"
                 @click="download(item)"
+                v-if="item.filePath !=null"
               >
                 <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
               </v-btn>
             </template>
             <span>Descargar Documento</span>
+          </v-tooltip>
+          <v-tooltip top color="red darken-3">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small red darken-3--text"
+                small
+                v-on="on"
+                @click="download(item)"
+                v-if="item.filePath ==null"
+              >
+                <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+              </v-btn>
+            </template>
+            <span>No tiene un documento guardado</span>
           </v-tooltip>
           <v-tooltip top color="teal">
             <template v-slot:activator="{ on }">
@@ -372,14 +373,18 @@
 </template>
 <script>
 import api from "@/api";
+import EditJuridico from "@/components/contratacion/EditJuridico.vue";
 
 export default {
+  components: {
+    EditJuridico
+  },
   data: () => ({
     dialog1: false,
     dialog2: false,
     dialog3: false,
     dialog4: false,
-    dialog5: false,
+    dialog4: false,
     menu: false,
     menu1: false,
     search: "",
@@ -424,7 +429,6 @@ export default {
       { text: "Número", sortable: true, value: "numero" },
       { text: "Nombre", align: "left", sortable: true, value: "nombre" },
       { text: "Tipo", value: "tipoNombre" },
-      { text: "Entidad", value: "entidad.nombre" },
       { text: "Vence en", value: "ofertVence" },
       { text: "Estado", value: "estadoNombre" },
       { text: "Acciones", value: "action", sortable: false }
@@ -437,8 +441,8 @@ export default {
   created() {
     this.roles = this.$store.getters.roles;
     this.username = this.$store.getters.usuario;
-    console.log(this.roles);
-    console.log(this.username);
+    console.log("roles: " + this.roles);
+    console.log("username: " + this.username);
 
     this.getOfertasFromApi();
     this.getTiempoVenOfertasFromApi();
@@ -572,8 +576,8 @@ export default {
         .then(
           response => {
             this.getResponse(response);
+            location.reload();
             this.close();
-            this.getOfertasFromApi();
           },
           error => {
             vm.$snotify.error(error.response.data);
@@ -615,7 +619,6 @@ export default {
       this.dialog2 = false;
       this.dialog3 = false;
       this.dialog4 = false;
-      this.dialog5 = false;
       this.aprobarContrato = {
         roles: null,
         contratoId: null,
@@ -709,7 +712,7 @@ export default {
     },
     confirmAprobarOferta(item) {
       this.oferta = Object.assign({}, item);
-      this.dialog5 = true;
+      this.dialog4 = true;
     },
     aprobarOferta() {
       const url = api.getUrl("contratacion", "contratos/AprobContrato");

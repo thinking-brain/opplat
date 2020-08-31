@@ -13,7 +13,6 @@ namespace ContratacionWebApi.Models {
         Arrendamiento,
         Transporte,
         Suplemento
-
     }
 
     public enum Estado {
