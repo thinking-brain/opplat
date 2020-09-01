@@ -86,11 +86,12 @@ namespace Account.WebApi.Controllers
                 {
                     return Ok(new { status = 400, mensaje = e.Message });
                 }
-                string[] attr = { "cn", "sAMAccountName" };
+               // { "cn", "sAMAccountName" }
+                string[] attr = {};
                 string @base = cn.GetRootDse().Attributes["rootDomainNamingContext"][0].ToString();
                 if (model.UnidadOrganizativa.Length > 1)
                 {
-                    @base = "OU=" + model.UnidadOrganizativa.ToLower() + "," + @base;
+                    @base = model.UnidadOrganizativa.ToLower() + "," + @base;
                 }
                 try
                 {
@@ -129,7 +130,7 @@ namespace Account.WebApi.Controllers
                     {
                         error = "No existe la unidad organizativa";
                     }
-                    return Ok(new { status = 400, mensaje = error });
+                    return BadRequest(new { error = e.Message });
                 }
                 cn.Dispose();
             }
