@@ -13,19 +13,22 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RhWebApi.Data;
 using RhWebApi.Models;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
     [ApiController]
     public class ContratosController : Controller {
         private IHostingEnvironment _hostingEnvironment;
+        private readonly IEmailSender _emailSender;
         private readonly ContratacionDbContext context;
         private readonly RhWebApiDbContext context_rh;
-        public ContratosController (ContratacionDbContext context, IHostingEnvironment environment, RhWebApiDbContext context_rh) {
+        public ContratosController (ContratacionDbContext context, IHostingEnvironment environment, RhWebApiDbContext context_rh, IEmailSender sender) {
 
             this.context = context;
             this.context_rh = context_rh;
             _hostingEnvironment = environment;
+            _emailSender = sender;
         }
 
         // GET contratacion/Contratos/tipoTramite(Oferta o contrato)
@@ -264,6 +267,7 @@ namespace ContratacionWebApi.Controllers {
                 };
                 context.Add (HistoricoEstadoContrato);
                 context.SaveChanges ();
+                await _emailSender.SendEmailAsync("vicente@cteag.une.cu","Probando","prueba");
                 return new CreatedAtRouteResult ("GetContrato", new { id = contrato.Id });
             }
             return BadRequest (ModelState);

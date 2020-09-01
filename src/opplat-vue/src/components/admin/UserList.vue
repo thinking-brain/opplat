@@ -249,19 +249,12 @@ export default {
             UnidadOrganizativa: this.userImportForm.UnidadOrganizativa
           })
           .then(response => {
-            if (response.data.status === 200) {
-              this.dialog = false;
-              vm.$snotify.success(response.data.mensaje);
-              this.getUsuariosFromApi();
-            }
-            if (response.data.status === 400) {
-              vm.$snotify.error(response.data.mensaje);
-            }
+            this.dialog = false;
+            vm.$snotify.success(response.data.mensaje);
+            this.getUsuariosFromApi();
           })
           .catch(e => {
-            vm.$snotify.error(
-              "No nos podemso comunicar con el servicio de usuarios"
-            );
+            vm.$snotify.error(e.response.data.error);
           });
       }
     },
