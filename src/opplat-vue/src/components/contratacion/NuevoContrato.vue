@@ -29,7 +29,12 @@
                   label="tipo"
                 ></v-autocomplete>
               </v-flex>
-              <v-flex cols="2" md3 class="px-1" v-if="editedIndex!=-1&& (roles.includes('juridico')||roles.includes('administrador'))">
+              <v-flex
+                cols="2"
+                md3
+                class="px-1"
+                v-if="editedIndex!=-1&& (roles.includes('juridico')||roles.includes('administrador'))"
+              >
                 <v-text-field v-model="contrato.numero" label="Número" prefix="#"></v-text-field>
               </v-flex>
             </v-layout>
@@ -394,7 +399,8 @@ export default {
     disabled: true,
     MonedaRules: [v => !!v || "Faltan datos por llenar"],
     MontoRules: [v => !!v || "Faltan datos por llenar"],
-    textFormaPago: ""
+    textFormaPago: "",
+    loading: false
   }),
   computed: {
     formTitle() {
@@ -608,6 +614,7 @@ export default {
       );
     },
     save(method) {
+      this.loading = true;
       const url = api.getUrl("contratacion", "Contratos");
       var fechaporDefecto = new Date("01/01/0001");
       this.contrato.entidad = this.entidad;
@@ -631,6 +638,7 @@ export default {
             this.axios.post(url, this.contrato).then(
               response => {
                 this.getResponse(response);
+                this.loading = false;
                 if (this.contrato.cliente == true) {
                   this.$router.push({
                     name: "OfertasClientes"
@@ -646,9 +654,9 @@ export default {
               }
             );
           }
-        } else if (this.montoAndMoneda.cantidad == null) {
+        } else if (this.montoAndMoneda.cantidad == null&&this.montoAndMoneda.moneda != null) {
           this.messagesCantidad = "Faltan datos por llenar";
-        } else if (this.montoAndMoneda.moneda == null) {
+        } else if (this.montoAndMoneda.moneda == null&&this.montoAndMoneda.cantidad != null) {
           this.messagesMoneda = "Faltan datos por llenar";
         }
       }
@@ -686,9 +694,15 @@ export default {
             .catch(e => {
               vm.$snotify.error(e.response.data.errors);
             });
-        } else if (this.montoAndMoneda.cantidad == null) {
+        } else if (
+          this.montoAndMoneda.cantidad == null &&
+          this.montoAndMoneda.moneda != null
+        ) {
           this.messagesCantidad = "Faltan datos por llenar";
-        } else if (this.montoAndMoneda.moneda == null) {
+        } else if (
+          this.montoAndMoneda.moneda == null &&
+          this.montoAndMoneda.cantidad != null
+        ) {
           this.messagesMoneda = "Faltan datos por llenar";
         }
       }
@@ -732,7 +746,9 @@ export default {
         this.montoAndMoneda.cantidad != null &&
         this.montoAndMoneda.moneda != null
       ) {
-        const m = this.monedas.find(x => x.id === this.montoAndMoneda.moneda);
+        const m = this.monedas.find(
+          x => x.nombre === this.montoAndMoneda.moneda
+        );
         this.montoAndMoneda.nombreString = m.nombre;
         this.montos.push(this.montoAndMoneda);
         this.montoAndMoneda = {

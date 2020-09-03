@@ -54,9 +54,10 @@ namespace ContratacionWebApi.Models {
         public List<int> Departamentos { get; set; }
         public List<int> EspecialistasExternos { get; set; }
         public List<Monto> Montos { get; set; }
-        public bool AprobJurico { get; set; }
-        public bool AprobEconomico { get; set; }
-        public bool AprobComitContratacion { get; set; }
+         public Estado EstadoEconomico { get; set; }
+        public Estado EstadoJuridico { get; set; }
+        public Estado EstadoComitContratacion { get; set; }
+        public Estado EstadoContrato { get; set; }
         public bool Cliente { get; set; }
     }
 }

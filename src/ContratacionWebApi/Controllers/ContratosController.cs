@@ -9,11 +9,11 @@ using ContratacionWebApi.Dtos;
 using ContratacionWebApi.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RhWebApi.Data;
 using RhWebApi.Models;
-using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
@@ -110,7 +110,7 @@ namespace ContratacionWebApi.Controllers {
                     }),
             });
             if (tipoTramite == "oferta") {
-                contratos = contratos.Where (c => c.FechaDeFirmado == FechaPorDefecto && c.EstadoComitContratacion == Estado.Revision && c.Estado != Estado.Aprobado);
+                contratos = contratos.Where (c => c.FechaDeFirmado == FechaPorDefecto && c.Estado != Estado.Aprobado);
                 var tiempoVenOfertas = context.TiempoVenOfertas.ToList ();
                 if (tiempoVenOfertas.Count () > 0) {
                     var tiempoVenOferta = tiempoVenOfertas[0];
@@ -133,7 +133,7 @@ namespace ContratacionWebApi.Controllers {
             if (tipoTramite == "contrato") {
                 var tiempoVenContratos = context.TiempoVenContratos.ToList ();
                 var tiempoVenContrato = tiempoVenContratos[0];
-                contratos = contratos.Where (c => c.FechaDeFirmado != FechaPorDefecto && c.EstadoComitContratacion == Estado.Aprobado && c.Estado == Estado.Aprobado);
+                contratos = contratos.Where (c => c.FechaDeFirmado != FechaPorDefecto && c.Estado == Estado.Aprobado);
                 if (filtro == "contratoTiempo") {
                     contratos = contratos.Where (c => c.ContVence > tiempoVenContrato.ContratoTiempo);
                 }
@@ -267,7 +267,22 @@ namespace ContratacionWebApi.Controllers {
                 };
                 context.Add (HistoricoEstadoContrato);
                 context.SaveChanges ();
-                await _emailSender.SendEmailAsync("vicente@cteag.une.cu","Probando","prueba");
+
+                var trabajadores = context_rh.Trabajador.ToList ();
+                string correos = "";
+
+                var dictaminadores = context.DictaminadoresContratos.Where (d => d.Departamento.Nombre == "Económico" || d.Departamento.Nombre == "Jurídico" || contratoDto.Departamentos.Contains (d.DepartamentoId))
+                    .Select (d => new {
+                        Trabajador = trabajadores.Where (x => x.Id == d.DictaminadorId).Select (t => new {
+                            Correo = t.Correo
+                        })
+                    }).ToList ();
+                foreach (var t in dictaminadores) {
+                    foreach (var item in t.Trabajador) {
+                        correos += item.Correo + " ";
+                    }
+                }
+                await _emailSender.SendEmailAsync (correos, "Nuevo Contrato", "Se ha creado un nuevo contrato que debe dictaminar");
                 return new CreatedAtRouteResult ("GetContrato", new { id = contrato.Id });
             }
             return BadRequest (ModelState);
@@ -612,7 +627,6 @@ namespace ContratacionWebApi.Controllers {
             return NotFound ($"No tiene un documento guardado");
         }
 
-        // GET: contratacion/contratos/Dashboard 
         [HttpGet ("/contratacion/contratos/Dashboard")]
         public async Task<IActionResult> Dashboard () {
             var dashboard = new Dashboard ();
@@ -627,7 +641,7 @@ namespace ContratacionWebApi.Controllers {
             var contratos = context.Contratos.Where (c => c.FechaDeFirmado != FechaPorDefecto &&
                 c.EstadoComitContratacion == Estado.Aprobado && c.EstadoContrato == Estado.Aprobado).ToList ();
 
-            var ofertas = context.Contratos.Where (c => c.FechaDeFirmado == FechaPorDefecto &&c.EstadoContrato != Estado.Aprobado);
+            var ofertas = context.Contratos.Where (c => c.FechaDeFirmado == FechaPorDefecto && c.EstadoContrato != Estado.Aprobado);
 
             if (ofertas != null) {
                 // Grafico Lineal Ofertas //

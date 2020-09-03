@@ -294,7 +294,7 @@
             <span>Editar</span>
           </v-tooltip>
           <!-- Edit jurídico -->
-            <EditJuridico v-if="roles.includes('juridico')" v-bind:oferta="item"></EditJuridico>
+            <EditNoAdmin v-if="roles.includes('juridico')" v-bind:oferta="item"></EditNoAdmin>
           <!-- /Edit jurídico -->
           <v-tooltip top color="black">
             <template v-slot:activator="{ on }">
@@ -373,11 +373,11 @@
 </template>
 <script>
 import api from "@/api";
-import EditJuridico from "@/components/contratacion/EditJuridico.vue";
+import EditNoAdmin from "@/components/contratacion/EditNoAdmin.vue";
 
 export default {
   components: {
-    EditJuridico
+    EditNoAdmin
   },
   data: () => ({
     dialog1: false,
