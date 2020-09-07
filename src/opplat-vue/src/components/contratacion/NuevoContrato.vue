@@ -409,6 +409,9 @@ export default {
       }
       if (this.editedIndex != -1) {
         this.entidad = this.contrato.entidad;
+        if (this.montoAndMoneda.cantidad != null) {
+          this.entidad = this.entidad.id;
+        }
       }
       return this.editedIndex === -1 ? "Nueva Oferta" : "Editar Oferta";
     },
@@ -421,15 +424,7 @@ export default {
       this.disabled = false;
       this.textFormaPago = "";
       this.getFormasDePagosFromApi();
-      const url = api.getUrl("contratacion", "Entidades/Monedas");
-      this.axios.get(`${url}/${this.entidad}`).then(
-        response => {
-          this.monedas = response.data;
-        },
-        error => {
-          console.log(error);
-        }
-      );
+      this.getMonedasEntidad();
     },
     monedas: function() {
       console.log(this.monedas.length);
@@ -591,9 +586,9 @@ export default {
         }
       );
     },
-    getMonedasEntidad() {
+    getMonedasFromApi() {
       const url = api.getUrl("contratacion", "Entidades/Monedas");
-      this.axios.get(`${url}/${this.entidad}`).then(
+      this.axios.get(url).then(
         response => {
           this.monedas = response.data;
         },
@@ -602,9 +597,9 @@ export default {
         }
       );
     },
-    getMonedasFromApi() {
+    getMonedasEntidad() {
       const url = api.getUrl("contratacion", "Entidades/Monedas");
-      this.axios.get(url).then(
+      this.axios.get(`${url}/${this.entidad}`).then(
         response => {
           this.monedas = response.data;
         },
@@ -654,9 +649,15 @@ export default {
               }
             );
           }
-        } else if (this.montoAndMoneda.cantidad == null&&this.montoAndMoneda.moneda != null) {
+        } else if (
+          this.montoAndMoneda.cantidad == null &&
+          this.montoAndMoneda.moneda != null
+        ) {
           this.messagesCantidad = "Faltan datos por llenar";
-        } else if (this.montoAndMoneda.moneda == null&&this.montoAndMoneda.cantidad != null) {
+        } else if (
+          this.montoAndMoneda.moneda == null &&
+          this.montoAndMoneda.cantidad != null
+        ) {
           this.messagesMoneda = "Faltan datos por llenar";
         }
       }

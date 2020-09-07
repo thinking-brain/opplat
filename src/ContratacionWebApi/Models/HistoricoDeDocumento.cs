@@ -13,7 +13,7 @@ namespace ContratacionWebApi.Models
         public virtual Documento Documento { get; set; }
 
         [Required]
-        public int UsuarioId { get; set; }
+        public string Username { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime Fecha { get; set; }

@@ -14,11 +14,11 @@
         <v-toolbar flat color="white">
           <v-toolbar-title>{{textByfiltro}}</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-divider class="mx-4" inset vertical></v-divider>
+          <v-divider class="mx-5" inset vertical></v-divider>
           <v-btn
             color="primary"
             @click="newContrato()"
-            class="ml-5"
+            class="px-3"
             v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
           >Nueva Oferta</v-btn>
           <!-- Buscar -->
@@ -31,6 +31,7 @@
             hide-details
             clearable
             dense
+            class="px-3"
           ></v-text-field>
           <!-- /Buscar -->
 
@@ -142,83 +143,6 @@
             </v-tooltip>
           </v-badge>
           <!-- /Cantidad de Ofertas Vencidas -->
-
-          <!-- Aprobar oferta -->
-          <v-dialog v-model="dialog4" persistent max-width="350px">
-            <v-toolbar dark fadeOnScroll color="red">
-              <v-spacer></v-spacer>
-              <v-toolbar-items>
-                <v-btn icon dark @click="close()">
-                  <v-icon>mdi-close</v-icon>
-                </v-btn>
-              </v-toolbar-items>
-            </v-toolbar>
-            <v-card>
-              <v-card-title class="headline text-center">Seguro que deseas aprobar la Oferta</v-card-title>
-              <v-card-text class="text-center">{{oferta.nombre}}</v-card-text>
-              <v-flex
-                cols="2"
-                class="px-12"
-                v-if="(roles.includes('secretario comite de contratacion')||roles.includes('administrador'))"
-              >
-                <v-menu
-                  v-model="menu"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-text-field
-                      v-model="aprobarContrato.fechaDeFirmado"
-                      label="Fecha de Firmado"
-                      readonly
-                      clearable
-                      v-on="on"
-                      required
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker v-model="aprobarContrato.fechaDeFirmado" @input="menu = false"></v-date-picker>
-                </v-menu>
-              </v-flex>
-              <v-flex
-                cols="2"
-                class="px-12"
-                v-if="(roles.includes('secretario comite de contratacion')||roles.includes('administrador'))"
-              >
-                <v-menu
-                  v-model="menu1"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-text-field
-                      v-model="aprobarContrato.FechaDeVencimiento"
-                      label="Fecha de Vencimiento"
-                      readonly
-                      clearable
-                      v-on="on"
-                      required
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="aprobarContrato.FechaDeVencimiento"
-                    @input="menu1 = false"
-                  ></v-date-picker>
-                </v-menu>
-              </v-flex>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="red" dark @click="aprobarOferta()">Aceptar</v-btn>
-                <v-btn color="primary" @click="close()">Cancelar</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-          <!-- /Aprobar oferta -->
           <!-- Delete oferta -->
           <v-dialog v-model="dialog2" persistent max-width="350px">
             <v-toolbar dark fadeOnScroll color="red">
@@ -294,7 +218,7 @@
             <span>Editar</span>
           </v-tooltip>
           <!-- Edit jurídico -->
-            <EditNoAdmin v-if="roles.includes('juridico')" v-bind:oferta="item"></EditNoAdmin>
+          <EditNoAdmin v-if="roles.includes('juridico')" v-bind:oferta="item"></EditNoAdmin>
           <!-- /Edit jurídico -->
           <v-tooltip top color="black">
             <template v-slot:activator="{ on }">
@@ -368,6 +292,45 @@
         </v-row>
       </template>
       <!-- /Actions -->
+
+      <!-- Filtro segun aprobacion de los dictaminadores -->
+      <template v-slot:body.append>
+        <tr>
+          <td></td>
+          <td>
+            <strong>Filtros:</strong>
+          </td>
+          <td></td>
+          <td>
+            <v-autocomplete
+              v-model="estadoEconomico"
+              item-text="nombre"
+              item-value="id"
+              :items="estados"
+              label="Económico"
+            ></v-autocomplete>
+          </td>
+          <td>
+            <v-autocomplete
+              v-model="estadoJuridico"
+              item-text="nombre"
+              item-value="id"
+              :items="estados"
+              label="Jurídico"
+            ></v-autocomplete>
+          </td>
+          <td>
+            <v-autocomplete
+              v-model="estadoComiteCont"
+              item-text="nombre"
+              item-value="id"
+              :items="estados"
+              label="Comité Contratación"
+            ></v-autocomplete>
+          </td>
+        </tr>
+      </template>
+      <!-- /Filtro segun aprobacion de los dictaminadores -->
     </v-data-table>
   </v-container>
 </template>
@@ -406,7 +369,6 @@ export default {
     vencidos: 0,
     todasLasOfertas: false,
     vencimientoOfertas: [],
-    monedas: [],
     ofertaTiempo: "ofertaTiempo",
     ofertasProxVencer: "ofertasProxVencer",
     ofertasCasiVenc: "ofertasCasiVenc",
@@ -419,24 +381,32 @@ export default {
     errors: [],
     roles: [],
     username: {},
-    aprobarContrato: {
-      roles: [],
-      contratoId: null,
-      fechaDeFirmado: null,
-      FechaDeVencimiento: null
-    },
     headers: [
       { text: "Número", sortable: true, value: "numero" },
       { text: "Nombre", align: "left", sortable: true, value: "nombre" },
       { text: "Tipo", value: "tipoNombre" },
       { text: "Vence en", value: "ofertVence" },
+      // { text: "Estado del Jurídico", value: "estadoJuridicoNombre" },
       { text: "Estado", value: "estadoNombre" },
       { text: "Acciones", value: "action", sortable: false }
     ],
-    message: ""
+    message: "",
+    estadoJuridico: 8,
+    estadoEconomico: 8,
+    estadoComiteCont: 8
   }),
   computed: {},
-  watch: {},
+  watch: {
+    estadoJuridico: function() {
+      this.getOfertasByEstado();
+    },
+    estadoEconomico: function() {
+      this.getOfertasByEstado();
+    },
+    estadoComiteCont: function() {
+      this.getOfertasByEstado();
+    }
+  },
 
   created() {
     this.roles = this.$store.getters.roles;
@@ -447,14 +417,32 @@ export default {
     this.getOfertasFromApi();
     this.getTiempoVenOfertasFromApi();
     this.getMonedasFromApi();
+    this.getEstadosParaAprobarFromApi();
     this.getVencimientoOferta();
   },
 
   methods: {
     getOfertasFromApi() {
+      this.resetEstadoDictaminadores();
       const url = api.getUrl(
         "contratacion",
-        `Contratos?tipoTramite=oferta&cliente=true&username=${this.username}&roles=${this.roles}`
+        `Contratos?tipoTramite=oferta&cliente=true&username=${this.username}&roles=${this.roles}&estadoJuridico=${this.estadoJuridico}&estadoEconomico=${this.estadoEconomico}&estadoComiteCont=${this.estadoComiteCont}`
+      );
+      this.axios.get(url).then(
+        response => {
+          this.textByfiltro = "Ofertas de los Clientes";
+          this.ofertas = response.data;
+          this.cantOfertas = this.ofertas.length;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    getOfertasByEstado() {
+      const url = api.getUrl(
+        "contratacion",
+        `Contratos?tipoTramite=oferta&cliente=true&username=${this.username}&roles=${this.roles}&estadoJuridico=${this.estadoJuridico}&estadoEconomico=${this.estadoEconomico}&estadoComiteCont=${this.estadoComiteCont}`
       );
       this.axios.get(url).then(
         response => {
@@ -483,6 +471,17 @@ export default {
       this.axios.get(url).then(
         response => {
           this.monedas = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    getEstadosParaAprobarFromApi() {
+      const url = api.getUrl("contratacion", "contratos/EstadosParaAprobar");
+      this.axios.get(url).then(
+        response => {
+          this.estados = response.data;
         },
         error => {
           console.log(error);
@@ -619,11 +618,6 @@ export default {
       this.dialog2 = false;
       this.dialog3 = false;
       this.dialog4 = false;
-      this.aprobarContrato = {
-        roles: null,
-        contratoId: null,
-        fechaDeFirmado: null
-      };
       this.getOfertasFromApi();
       setTimeout(() => {
         this.editedIndex = -1;
@@ -710,35 +704,10 @@ export default {
         }
       );
     },
-    confirmAprobarOferta(item) {
-      this.oferta = Object.assign({}, item);
-      this.dialog4 = true;
-    },
-    aprobarOferta() {
-      const url = api.getUrl("contratacion", "contratos/AprobContrato");
-      this.aprobarContrato.contratoId = this.oferta.id;
-      this.aprobarContrato.roles = this.roles;
-      this.aprobarContrato.username = this.username;
-      if (
-        this.aprobarContrato.fechaDeFirmado == null &&
-        this.aprobarContrato.FechaDeVencimiento == null
-      ) {
-        var fechaporDefecto = new Date("01/01/0001");
-        this.aprobarContrato.fechaDeFirmado = fechaporDefecto;
-        this.aprobarContrato.FechaDeVencimiento = fechaporDefecto;
-      }
-      this.axios
-        .put(`${url}/${this.aprobarContrato.contratoId}`, this.aprobarContrato)
-        .then(
-          response => {
-            this.getResponse(response);
-            this.close();
-          },
-          error => {
-            console.log(error);
-            vm.$snotify.error(error.response.data);
-          }
-        );
+    resetEstadoDictaminadores() {
+      this.estadoJuridico = 8;
+      this.estadoEconomico = 8;
+      this.estadoComiteCont = 8;
     }
   }
 };

@@ -13,17 +13,17 @@
     </template>
     <v-card ref="form">
       <v-card-title>
-        <span>Editar oferta: {{oferta.nombre}}</span>
+        <span>Editar contrato: {{contrato.nombre}}</span>
       </v-card-title>
       <v-card-text>
         <v-row>
           <v-layout row wrap>
             <v-flex cols="2" md3 class="px-3">
-              <v-text-field v-model="oferta.numero" label="Número" prefix="#"></v-text-field>
+              <v-text-field v-model="contrato.numero" label="Número" prefix="#"></v-text-field>
             </v-flex>
             <v-flex cols="2" md9 class="px-3">
               <v-file-input
-                v-model="file"
+                v-model="contrato.file"
                 show-size
                 prepend-icon="mdi-note-multiple"
                 label="Seleccione el dictamen del contrato"
@@ -42,7 +42,7 @@
               >
                 <template v-slot:activator="{ on }">
                   <v-text-field
-                    v-model="aprobarContrato.fechaDeFirmado"
+                    v-model="contrato.fechaDeFirmado"
                     label="Fecha de Firmado"
                     readonly
                     clearable
@@ -50,7 +50,7 @@
                     required
                   ></v-text-field>
                 </template>
-                <v-date-picker v-model="aprobarContrato.fechaDeFirmado" @input="menu = false"></v-date-picker>
+                <v-date-picker v-model="contrato.fechaDeFirmado" @input="menu = false"></v-date-picker>
               </v-menu>
             </v-flex>
             <v-flex cols="2" class="px-3">
@@ -64,7 +64,7 @@
               >
                 <template v-slot:activator="{ on }">
                   <v-text-field
-                    v-model="aprobarContrato.FechaDeVencimiento"
+                    v-model="contrato.fechaDeVencimiento"
                     label="Fecha de Vencimiento"
                     readonly
                     clearable
@@ -72,22 +72,26 @@
                     required
                   ></v-text-field>
                 </template>
-                <v-date-picker v-model="aprobarContrato.FechaDeVencimiento" @input="menu1 = false"></v-date-picker>
+                <v-date-picker v-model="contrato.fechaDeVencimiento" @input="menu1 = false"></v-date-picker>
               </v-menu>
             </v-flex>
           </v-layout>
           <v-row justify="center">
-            <v-radio-group v-model="row" row>
-              <v-radio label="Aprobar" value="radio-1"></v-radio>
-              <v-radio label="No Aprobar" value="radio-2"></v-radio>
-              <v-radio label="En Revisión" value="radio-3"></v-radio>
-            </v-radio-group>
+            <v-flex cols="2" class="px-3">
+              <v-autocomplete
+                v-model="contrato.estado"
+                item-text="nombre"
+                item-value="id"
+                :items="estados"
+                label="Estado del contrato"
+              ></v-autocomplete>
+            </v-flex>
           </v-row>
         </v-row>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" dark text @click="aprobarOferta()">Aceptar</v-btn>
-          <v-btn text @click="close()">Cancelar</v-btn>
+          <v-btn color="green darken-1" dark text @click="save()">Aceptar</v-btn>
+          <v-btn text @click="dialog=false">Cancelar</v-btn>
         </v-card-actions>
       </v-card-text>
     </v-card>
@@ -102,16 +106,20 @@ export default {
     dialog: false,
     menu: false,
     menu1: false,
-    aprobarContrato: {
+    contrato: {
       roles: [],
-      contratoId: null,
+      contratoId: 0,
       fechaDeFirmado: null,
-      FechaDeVencimiento: null
+      estado: null,
+      dictamen: null,
+      fechaDeVencimiento: null,
+      file: null
     },
     roles: [],
     username: {},
     errorMessages: [],
-    errors: []
+    errors: [],
+    estados: []
   }),
   computed: {
     form() {}
@@ -119,12 +127,58 @@ export default {
   created() {
     this.roles = this.$store.getters.roles;
     this.username = this.$store.getters.usuario;
+    this.contrato.id = this.oferta.id;
+    this.getEstadosParaAprobarFromApi();
+    this.getEstadoByRool();
   },
   watch: {},
 
   methods: {
-    close() {
-      this.dialog = false;
+    getEstadosParaAprobarFromApi() {
+      const url = api.getUrl("contratacion", "contratos/EstadosParaAprobar");
+      this.axios.get(url).then(
+        response => {
+          this.estados = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    getEstadoByRool() {
+      const url = api.getUrl(
+        "contratacion",
+        `contratos/EstadoByRool?id=${this.contrato.id}&roles=${this.roles}`
+      );
+      this.axios.get(url).then(
+        response => {
+          this.contrato.estado = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    save() {
+      const url = api.getUrl("contratacion", "contratos/EditNoAdmin");
+      this.contrato.contratoId = this.oferta.id;
+      this.contrato.roles = this.roles;
+      this.contrato.username = this.username;
+
+      if (this.contrato.file != null && this.contrato.contratoId != 0) {
+        this.axios.put(url, this.contrato).then(
+          response => {
+            if (response.status === 200 || response.status === 201) {
+              vm.$snotify.success("Exito al realizar la operación");
+            }
+            this.dialog = false;
+          },
+          error => {
+            vm.$snotify.error(error.response.data);
+            console.log(error);
+          }
+        );
+      }
     }
   }
 };

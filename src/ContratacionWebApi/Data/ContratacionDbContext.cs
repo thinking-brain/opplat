@@ -34,6 +34,7 @@ namespace ContratacionWebApi.Data {
         public DbSet<EspExternoId_ContratoId> EspExternoId_ContratoId { get; set; }
         public DbSet<ContratoId_FormaPagoId> ContratoId_FormaPagoId { get; set; }
         public DbSet<HistoricoEstadoContrato> HistoricosEstadoContratos { get; set; }
+        public DbSet<HistoricoDeDocumento> HistoricosDeDocumentos { get; set; }
         public DbSet<AdminContrato> AdminContratos { get; set; }
         public DbSet<Documento> Documentos { get; set; }
         public DbSet<Telefono> Telefonos { get; set; }

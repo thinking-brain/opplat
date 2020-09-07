@@ -88,38 +88,21 @@
                 {{item.nombreCompleto}}
               </span>
             </v-col>
-            <v-col cols="12" md="12" class="pa-2">
-              <strong>Aprobado por el Jurídico :</strong>
-              <span v-if="contrato.aprobJuridico">
-                <v-icon color="success">mdi-check-underline</v-icon>
-                <v-text :class="`success--text`">Sí</v-text>
-              </span>
-              <span v-else>
-                <v-icon color="red">mdi-close-outline</v-icon>
-                <v-text :class="`red--text`">No</v-text>
-              </span>
+              <v-col cols="12" md="12" class="pa-2">
+                <hr>
+                <strong>Estado de la Oferta:</strong>
+              </v-col>
+            <v-col cols="12" md="6" class="pa-2">
+              <strong>Jurídico :</strong>
+              {{contrato.estadoJuridicoNombre}}
+            </v-col>
+            <v-col cols="12" md="6" class="pa-2">
+              <strong>Económico :</strong>
+              {{contrato.estadoEconomicoNombre}}
             </v-col>
             <v-col cols="12" md="12" class="pa-2">
-              <strong>Aprobado por el Económico :</strong>
-              <span v-if="contrato.aprobEconomico">
-                <v-icon color="success">mdi-check-underline</v-icon>
-                <v-text :class="`success--text`">Sí</v-text>
-              </span>
-              <span v-else>
-                <v-icon color="red">mdi-close-outline</v-icon>
-                <v-text :class="`red--text`">No</v-text>
-              </span>
-            </v-col>
-            <v-col cols="12" md="12" class="pa-2">
-              <strong>Aprobado por el Comité Contratación:</strong>
-              <span v-if="contrato.aprobComitContratacion">
-                <v-text :class="`success--text`">Sí</v-text>
-                <v-icon color="success">mdi-check-underline</v-icon>
-              </span>
-              <span v-else>
-                <v-icon color="red">mdi-close-outline</v-icon>
-                <v-text :class="`red--text`">No</v-text>
-              </span>
+              <strong>Comité Contratación:</strong>
+              {{contrato.estadoComitContratacionNombre}}
             </v-col>
           </v-row>
         </v-card>
@@ -163,10 +146,11 @@
             <div cols="12" md="12" class="pa-2">
               <strong>Teléfonos :</strong>
               <div v-for="item in contrato.entidad.telefonos" :key="item.numero" class="pt-1">
-                    <strong>Número:</strong>
-                    {{item.numero}}<v-spacer></v-spacer>
-                    <strong >Extensión:</strong>
-                    {{item.extension}}
+                <strong>Número:</strong>
+                {{item.numero}}
+                <v-spacer></v-spacer>
+                <strong>Extensión:</strong>
+                {{item.extension}}
               </div>
             </div>
             <v-col cols="12" md="12" class="pa-2">

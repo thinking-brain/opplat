@@ -12,5 +12,7 @@ namespace ContratacionWebApi.Dtos {
         public string UserName { get; set; }
         public DateTime FechaDeFirmado { get; set; }
         public DateTime FechaDeVencimiento { get; set; }
+        public Estado Estado { get; set; }
+        public string Numero { get; set; }
     }
 }
