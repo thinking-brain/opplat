@@ -503,6 +503,7 @@ namespace ContratacionWebApi.Controllers {
                 new { Id = Estado.Aprobado, Nombre = Estado.Aprobado.ToString () },
                 new { Id = Estado.No_Aprobado, Nombre = "No Aprobado" },
                 new { Id = Estado.Por_Revisar, Nombre = "Por Revisar" },
+                new { Id = Estado.SinEstado, Nombre = "Ningun Filtro" },
             };
             return Ok (estadosContratos);
         }

@@ -16,6 +16,7 @@ namespace ContratacionWebApi.Models {
     }
 
     public enum Estado {
+        SinEstado,
         Nuevo,
         Circulando,
         Aprobado,
@@ -24,7 +25,6 @@ namespace ContratacionWebApi.Models {
         Cancelado,
         Vencido,
         Por_Revisar,
-        SinEstado
     }
     public enum EstadoSolicitud {
         Nueva,

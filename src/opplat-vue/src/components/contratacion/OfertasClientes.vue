@@ -1,12 +1,6 @@
 <template>
   <v-container>
-    <v-data-table
-      :headers="headers"
-      :items="ofertas"
-      :search="search"
-      dense
-      class="elevation-1 pa-5"
-    >
+    <v-data-table :headers="headers" :items="ofertas" :search="search" dense>
       <template v-slot:item.ofertVence="{ item }">
         <v-chip :color="getColor(item.ofertVence)" dark>{{ item.ofertVence }} días</v-chip>
       </template>
@@ -198,6 +192,51 @@
           </v-row>
           <!-- /Subir Documento -->
         </v-toolbar>
+        <hr>
+        <!-- Filtro segun aprobacion de los dictaminadores -->
+        <template>
+          <tr>
+            <td>
+              <strong>Filtrar según estado:</strong>
+            </td>
+            <td></td>
+            <td>
+              <v-col cols="12" md="12">
+                <v-autocomplete
+                  v-model="estadoEconomico"
+                  item-text="nombre"
+                  item-value="id"
+                  :items="estados"
+                  label="Económico"
+                ></v-autocomplete>
+              </v-col>
+            </td>
+            <td>
+              <v-col cols="12" md="12">
+                <v-autocomplete
+                  v-model="estadoJuridico"
+                  item-text="nombre"
+                  item-value="id"
+                  :items="estados"
+                  label="Jurídico"
+                ></v-autocomplete>
+              </v-col>
+            </td>
+            <td></td>
+            <td>
+              <v-col cols="12" md="12">
+                <v-autocomplete
+                  v-model="estadoComiteCont"
+                  item-text="nombre"
+                  item-value="id"
+                  :items="estados"
+                  label="Comité Contratación"
+                ></v-autocomplete>
+              </v-col>
+            </td>
+          </tr>
+        </template>
+        <!-- /Filtro segun aprobacion de los dictaminadores -->
       </template>
       <!-- Actions -->
       <template v-slot:item.action="{ item }">
@@ -292,45 +331,6 @@
         </v-row>
       </template>
       <!-- /Actions -->
-
-      <!-- Filtro segun aprobacion de los dictaminadores -->
-      <template v-slot:body.append>
-        <tr>
-          <td></td>
-          <td>
-            <strong>Filtros:</strong>
-          </td>
-          <td></td>
-          <td>
-            <v-autocomplete
-              v-model="estadoEconomico"
-              item-text="nombre"
-              item-value="id"
-              :items="estados"
-              label="Económico"
-            ></v-autocomplete>
-          </td>
-          <td>
-            <v-autocomplete
-              v-model="estadoJuridico"
-              item-text="nombre"
-              item-value="id"
-              :items="estados"
-              label="Jurídico"
-            ></v-autocomplete>
-          </td>
-          <td>
-            <v-autocomplete
-              v-model="estadoComiteCont"
-              item-text="nombre"
-              item-value="id"
-              :items="estados"
-              label="Comité Contratación"
-            ></v-autocomplete>
-          </td>
-        </tr>
-      </template>
-      <!-- /Filtro segun aprobacion de los dictaminadores -->
     </v-data-table>
   </v-container>
 </template>
@@ -391,20 +391,20 @@ export default {
       { text: "Acciones", value: "action", sortable: false }
     ],
     message: "",
-    estadoJuridico: 8,
-    estadoEconomico: 8,
-    estadoComiteCont: 8
+    estadoJuridico: 0,
+    estadoEconomico: 0,
+    estadoComiteCont: 0
   }),
   computed: {},
   watch: {
     estadoJuridico: function() {
-      this.getOfertasByEstado();
+      this.getOfertasFromApi();
     },
     estadoEconomico: function() {
-      this.getOfertasByEstado();
+      this.getOfertasFromApi();
     },
     estadoComiteCont: function() {
-      this.getOfertasByEstado();
+      this.getOfertasFromApi();
     }
   },
 
@@ -423,7 +423,6 @@ export default {
 
   methods: {
     getOfertasFromApi() {
-      this.resetEstadoDictaminadores();
       const url = api.getUrl(
         "contratacion",
         `Contratos?tipoTramite=oferta&cliente=true&username=${this.username}&roles=${this.roles}&estadoJuridico=${this.estadoJuridico}&estadoEconomico=${this.estadoEconomico}&estadoComiteCont=${this.estadoComiteCont}`
@@ -439,22 +438,7 @@ export default {
         }
       );
     },
-    getOfertasByEstado() {
-      const url = api.getUrl(
-        "contratacion",
-        `Contratos?tipoTramite=oferta&cliente=true&username=${this.username}&roles=${this.roles}&estadoJuridico=${this.estadoJuridico}&estadoEconomico=${this.estadoEconomico}&estadoComiteCont=${this.estadoComiteCont}`
-      );
-      this.axios.get(url).then(
-        response => {
-          this.textByfiltro = "Ofertas de los Clientes";
-          this.ofertas = response.data;
-          this.cantOfertas = this.ofertas.length;
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    },
+
     getTiempoVenOfertasFromApi() {
       const url = api.getUrl("contratacion", "TiempoVenOfertas");
       this.axios.get(url).then(
@@ -665,6 +649,7 @@ export default {
       );
     },
     filtro(filtro) {
+      this.resetEstadoDictaminadores();
       if (filtro == "ofertaTiempo") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
@@ -705,9 +690,9 @@ export default {
       );
     },
     resetEstadoDictaminadores() {
-      this.estadoJuridico = 8;
-      this.estadoEconomico = 8;
-      this.estadoComiteCont = 8;
+      this.estadoJuridico = 0;
+      this.estadoEconomico = 0;
+      this.estadoComiteCont = 0;
     }
   }
 };
