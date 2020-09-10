@@ -757,29 +757,46 @@
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="editItem(item)">mdi-pencil</v-icon>
-        </template>
-        <span>Editar</span>
-      </v-tooltip>
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-icon
-            small
-            class="mr-2"
-            v-on="on"
-            @click="getDetallesTrab(item)"
-          >mdi-account-plus</v-icon>
-        </template>
-        <span>Detalles</span>
-      </v-tooltip>
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-icon small class="mr-2" v-on="on" @click="movimiento(item)">mdi-walk</v-icon>
-        </template>
-        <span>Movimiento</span>
-      </v-tooltip>
+       <v-tooltip top color="primary">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+                small
+                v-on="on"
+                @click="editItem(item)"
+                slot="activator"
+              >
+                <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+              </v-btn>
+            </template>
+            <span>Editar</span>
+          </v-tooltip>
+            <v-tooltip top color="teal">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+                small
+                v-on="on"
+                @click="getDetalles(item)"
+              >
+                <v-icon>mdi-format-list-bulleted</v-icon>
+              </v-btn>
+            </template>
+            <span>Detalles</span>
+          </v-tooltip>
+          <v-tooltip top color="teal">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small black--text"
+                small
+                v-on="on"
+                @click="movimiento(item)"
+              >
+                <v-icon>mdi-walk</v-icon>
+              </v-btn>
+            </template>
+            <span>Movimiento</span>
+          </v-tooltip>
     </template>
   </v-data-table>
 </template>
@@ -917,7 +934,7 @@ export default {
         },
       );
     },
-    getDetallesTrab(item) {
+    getDetalles(item) {
       this.trabajador = Object.assign({}, item);
       this.dialog3 = true;
     },

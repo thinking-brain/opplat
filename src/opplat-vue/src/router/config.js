@@ -498,6 +498,18 @@ export const protectedRoute = [
         component: () => import(/* webpackChunkName: "table" */ '@/components/contratacion/NuevoContrato.vue'),
       },
       {
+        path: '/contratacion/contrato/editNoAdmin',
+        name: 'EditNoAdmin',
+        props: route => ({
+          contrato: route.query.contrato,
+        }),
+        meta: {
+          title: 'EditNoAdmin',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/components/contratacion/EditNoAdmin.vue'),
+      },
+      {
         path: '/contratacion/contrato/detalles',
         name: 'Detalles_Contrato',
         props: route => ({
