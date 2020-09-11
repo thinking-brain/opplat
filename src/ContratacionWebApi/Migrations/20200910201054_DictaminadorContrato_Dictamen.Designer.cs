@@ -3,15 +3,17 @@ using System;
 using ContratacionWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    partial class ContratacionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200910201054_DictaminadorContrato_Dictamen")]
+    partial class DictaminadorContrato_Dictamen
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -179,8 +181,6 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("Consideraciones");
 
-                    b.Property<int>("ContratoId");
-
                     b.Property<int>("DictaminadorContratoId");
 
                     b.Property<int?>("EspecialistaId");
@@ -199,11 +199,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("Recomendaciones");
 
-                    b.Property<string>("username");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ContratoId");
 
                     b.HasIndex("DictaminadorContratoId");
 
@@ -568,11 +564,6 @@ namespace ContratacionWebApi.Migrations
 
             modelBuilder.Entity("ContratacionWebApi.Models.Dictamen", b =>
                 {
-                    b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
-                        .WithMany()
-                        .HasForeignKey("ContratoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("ContratacionWebApi.Models.DictaminadorContrato", "DictaminadorContrato")
                         .WithMany()
                         .HasForeignKey("DictaminadorContratoId")

@@ -6,13 +6,14 @@ using System.Linq;
 using ContratacionWebApi.Models;
 
 namespace ContratacionWebApi.Dtos {
-    public class AproContratoDto {
-        public List<string> roles { get; set; }
+    public class EditNoAdminDto {
         public int ContratoId { get; set; }
-        public string UserName { get; set; }
+        public string Numero { get; set; }
         public DateTime FechaDeFirmado { get; set; }
         public DateTime FechaDeVencimiento { get; set; }
         public Estado Estado { get; set; }
-        public string Numero { get; set; }
+        public string UserName { get; set; }
+        public List<string> roles { get; set; }
+        public Dictamen Dictamen { get; set; }
     }
 }

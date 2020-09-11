@@ -9,42 +9,50 @@
       <p class="text-left title">Datos a llenar del Dictamen:</p>
       <v-row>
         <v-layout row wrap class="px-3">
-          <v-flex cols="2" md3 class="px-3">
+          <v-flex cols="2" md3 class="px-3 pt-3">
             <v-text-field v-model="dictamen.numero" label="Número de Dictamen" prefix="#"></v-text-field>
           </v-flex>
           <v-flex cols="2" md9 class="px-3">
-            <v-text-field v-model="dictamen.observaciones" label="Observaciones"></v-text-field>
+            <v-textarea v-model="dictamen.observaciones" label="Observaciones" rows="1"></v-textarea>
           </v-flex>
           <v-flex cols="2" md6 class="px-3">
-            <v-text-field v-model="contrato.consideraciones" label="Consideraciones"></v-text-field>
+            <v-textarea v-model="contrato.consideraciones" label="Consideraciones" rows="2"></v-textarea>
           </v-flex>
           <v-flex cols="2" md6 class="px-3">
-            <v-text-field v-model="contrato.recomendaciones" label="Recomendaciones"></v-text-field>
+            <v-textarea v-model="contrato.recomendaciones" label="Recomendaciones" rows="2"></v-textarea>
           </v-flex>
           <v-flex cols="2" md6 class="px-3">
             <v-text-field v-model="contrato.fundamentosDeDerecho" label="Fundamentos de Derecho"></v-text-field>
+          </v-flex>
+          <v-flex cols="2" xs12 md6 class="px-3">
+            <v-file-input
+              v-model="file"
+              show-size
+              prepend-icon="mdi-note-multiple"
+              label="Seleccione el dictamen del contrato"
+            ></v-file-input>
+          </v-flex>
+          <v-flex cols="2" class="px-1">
+            <v-alert v-if="message" border="left" color="red" dark>{{ message }}</v-alert>
           </v-flex>
         </v-layout>
       </v-row>
       <p class="text-left title">Datos a llenar del Contrato:</p>
       <v-row>
         <v-layout row wrap class="px-3">
-            <v-flex cols="2" md3 class="px-3" v-if="roles.includes('juridico')">
-              <v-text-field v-model="contrato.numero" label="Número" prefix="#"></v-text-field>
-            </v-flex>
-            <v-flex cols="2" md9 class="px-3">
-              <v-file-input
-                v-model="contrato.file"
-                show-size
-                prepend-icon="mdi-note-multiple"
-                label="Seleccione el dictamen del contrato"
-              ></v-file-input>
-            </v-flex>
-        </v-layout>
-      </v-row>
-      <v-row>
-        <v-layout row wrap v-if="roles.includes('juridico')">
-          <v-flex cols="2" md6 class="px-3">
+          <v-flex cols="2" md2 class="px-3" v-if="roles.includes('juridico')">
+            <v-text-field v-model="contrato.numero" label="Número" prefix="#"></v-text-field>
+          </v-flex>
+          <v-flex cols="2" md2 class="px-3">
+            <v-autocomplete
+              v-model="contrato.estado"
+              item-text="nombre"
+              item-value="id"
+              :items="estados"
+              label="Estado del contrato"
+            ></v-autocomplete>
+          </v-flex>
+          <v-flex cols="2" md4 class="px-3" v-if="roles.includes('juridico')">
             <v-menu
               v-model="menu"
               :close-on-content-click="false"
@@ -67,7 +75,7 @@
               <v-date-picker v-model="contrato.fechaDeFirmado" @input="menu = false"></v-date-picker>
             </v-menu>
           </v-flex>
-          <v-flex cols="2" class="px-3">
+          <v-flex cols="2" md4 class="px-3">
             <v-menu
               v-model="menu1"
               :close-on-content-click="false"
@@ -90,20 +98,11 @@
             </v-menu>
           </v-flex>
         </v-layout>
-        <v-flex cols="2" md12 class="px-3">
-          <v-autocomplete
-            v-model="contrato.estado"
-            item-text="nombre"
-            item-value="id"
-            :items="estados"
-            label="Estado del contrato"
-          ></v-autocomplete>
-        </v-flex>
       </v-row>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="green darken-1" dark text @click="save()">Aceptar</v-btn>
-        <v-btn text @click="dialog=false">Cancelar</v-btn>
+        <v-btn text @click="close()">Cancelar</v-btn>
       </v-card-actions>
     </v-card-text>
   </v-card>
@@ -117,19 +116,12 @@ export default {
     dialog: false,
     menu: false,
     menu1: false,
-    contrato: {
-      roles: [],
-      contratoId: 0,
-      fechaDeFirmado: null,
-      estado: null,
-      dictamen: null,
-      fechaDeVencimiento: null,
-      file: null
-    },
     dictamen: {},
+    file: null,
     roles: [],
     username: {},
     errorMessages: [],
+    message: "",
     errors: [],
     estados: []
   }),
@@ -172,24 +164,43 @@ export default {
       );
     },
     save() {
+      if (!this.file) {
+        this.message = "Por favor seleccione un archivo!";
+        return;
+      }
+      this.message = "";
+      const formData = new FormData();
+      formData.append("file", this.file);
+      formData.append("contrato", this.contrato);
+      const config = {
+        headers: {
+          "content-type": "multipart/form-data"
+        }
+      };
       const url = api.getUrl("contratacion", "contratos/EditNoAdmin");
-      this.contrato.contratoId = this.contrato.id;
-      this.contrato.roles = this.roles;
-      this.contrato.username = this.username;
-
-      if (this.contrato.file != null && this.contrato.contratoId != 0) {
-        this.axios.put(url, this.contrato).then(
-          response => {
-            if (response.status === 200 || response.status === 201) {
-              vm.$snotify.success("Exito al realizar la operación");
-            }
-            this.dialog = false;
-          },
-          error => {
-            vm.$snotify.error(error.response.data);
-            console.log(error);
-          }
-        );
+      this.axios.post(url, formData, config).then(
+        response => {
+          this.getResponse(response);
+        },
+        error => {
+          vm.$snotify.error(error.response.data);
+          console.log(error);
+        }
+      );
+    },
+    close() {
+      if (this.contrato.cliente == true) {
+        this.$router.push({
+          name: "OfertasClientes"
+        });
+      } else
+        this.$router.push({
+          name: "OfertasPrestador"
+        });
+    },
+    getResponse(response) {
+      if (response.status === 200 || response.status === 201) {
+        vm.$snotify.success("Exito al realizar la operación");
       }
     }
   }

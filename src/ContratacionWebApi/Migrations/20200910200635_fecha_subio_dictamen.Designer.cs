@@ -3,15 +3,17 @@ using System;
 using ContratacionWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    partial class ContratacionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200910200635_fecha_subio_dictamen")]
+    partial class fecha_subio_dictamen
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -179,11 +181,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("Consideraciones");
 
-                    b.Property<int>("ContratoId");
-
-                    b.Property<int>("DictaminadorContratoId");
-
-                    b.Property<int?>("EspecialistaId");
+                    b.Property<int>("EspecialistaId");
 
                     b.Property<DateTime>("FechaDictamen");
 
@@ -199,13 +197,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("Recomendaciones");
 
-                    b.Property<string>("username");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ContratoId");
-
-                    b.HasIndex("DictaminadorContratoId");
 
                     b.HasIndex("EspecialistaId");
 
@@ -568,19 +560,10 @@ namespace ContratacionWebApi.Migrations
 
             modelBuilder.Entity("ContratacionWebApi.Models.Dictamen", b =>
                 {
-                    b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
-                        .WithMany()
-                        .HasForeignKey("ContratoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ContratacionWebApi.Models.DictaminadorContrato", "DictaminadorContrato")
-                        .WithMany()
-                        .HasForeignKey("DictaminadorContratoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ContratacionWebApi.Models.Especialista")
+                    b.HasOne("ContratacionWebApi.Models.Especialista", "Especialista")
                         .WithMany("Dictamenes")
-                        .HasForeignKey("EspecialistaId");
+                        .HasForeignKey("EspecialistaId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.DictaminadorContrato", b =>

@@ -418,46 +418,61 @@ namespace ContratacionWebApi.Controllers {
             context.SaveChanges ();
             return Ok (contrato);
         }
-        // PUT contratacion/contratos/EditNoAdmin
-        [HttpPut ("/contratacion/contratos/EditNoAdmin")]
-        public async Task<IActionResult> EditNoAdmin (AproContratoDto aproContrato) {
-            var c = context.Contratos.Find (aproContrato.ContratoId);
-            var text = "";
-            if (c != null && aproContrato.roles != null) {
-                var HistoricoEstadoContrato = new HistoricoEstadoContrato {
-                ContratoId = aproContrato.ContratoId,
-                Fecha = DateTime.Now,
-                Usuario = aproContrato.UserName
-                };
-                if (aproContrato.roles.Contains ("economico")) {
-                    c.EstadoEconomico = aproContrato.Estado;
-                    c.EstadoContrato = Estado.Circulando;
-                    HistoricoEstadoContrato.Estado = aproContrato.Estado;
-                    text = "El económico modificó la oferta";
-                } else if (aproContrato.roles.Contains ("juridico")) {
-                    c.Numero = aproContrato.Numero;
-                    c.EstadoJuridico = aproContrato.Estado;
-                    c.FechaDeFirmado = aproContrato.FechaDeFirmado;
-                    c.FechaVenContrato = aproContrato.FechaDeVencimiento;
-                    c.EstadoContrato = Estado.Circulando;
-                    HistoricoEstadoContrato.Estado = aproContrato.Estado;
-                    text = "El jurídico modificó la oferta";
-                } else if (aproContrato.roles.Contains ("secretario comite de contratacion") && aproContrato.FechaDeFirmado != null) {
-                    c.EstadoComitContratacion = aproContrato.Estado;
-                    c.EstadoContrato = aproContrato.Estado;
-                    HistoricoEstadoContrato.Estado = aproContrato.Estado;
-                    text = "El secretario del comité de contratación modificó la oferta";
-                } else {
-                    return BadRequest ($"Los roles de este usuario no tienen permiso para aprobar la oferta");
-                }
-                context.Add (HistoricoEstadoContrato);
-                context.Update (c);
-                context.SaveChanges ();
+        // PUT contratacion/contratos/editNoAdminDto
+        [HttpPut ("/contratacion/contratos/editNoAdminDto")]
+        public async Task<IActionResult> EditNoAdminDto ([FromForm] IFormFile file, [FromForm] Contrato contrato) {
+            return Ok ();
+            // var c = context.Contratos.Find (editNoAdmin.ContratoId);
+            // var text = "";
+            // if (c != null && editNoAdmin.roles != null) {
+            //     var dictamen = new Dictamen {
+            //     ContratoId = editNoAdmin.ContratoId,
+            //     NumeroDeDictamen = editNoAdmin.Dictamen.NumeroDeDictamen,
+            //     DictaminadorContratoId = editNoAdmin.Dictamen.DictaminadorContratoId,
+            //     Observaciones = editNoAdmin.Dictamen.Observaciones,
+            //     Consideraciones = editNoAdmin.Dictamen.Consideraciones,
+            //     Recomendaciones = editNoAdmin.Dictamen.Recomendaciones,
+            //     FundamentosDeDerecho = editNoAdmin.Dictamen.FundamentosDeDerecho,
+            //     FechaDictamen = editNoAdmin.Dictamen.FechaDictamen,
+            //     Username = editNoAdmin.UserName
+            //     };
+            //     context.Add (dictamen);
+            //     context.SaveChanges ();
 
-                var admin = context_rh.Trabajador.Find (c.AdminContratoId);
-                await _emailSender.SendEmailAsync (admin.Correo, "Se ha editado el Contrato", text);
-            }
-            return NotFound ();
+            //     var HistoricoEstadoContrato = new HistoricoEstadoContrato {
+            //         ContratoId = editNoAdmin.ContratoId,
+            //         Fecha = DateTime.Now,
+            //         Usuario = editNoAdmin.UserName
+            //     };
+            //     if (editNoAdmin.roles.Contains ("economico")) {
+            //         c.EstadoEconomico = editNoAdmin.Estado;
+            //         c.EstadoContrato = Estado.Circulando;
+            //         HistoricoEstadoContrato.Estado = editNoAdmin.Estado;
+            //         text = "El económico modificó la oferta";
+            //     } else if (editNoAdmin.roles.Contains ("juridico")) {
+            //         c.Numero = editNoAdmin.Numero;
+            //         c.EstadoJuridico = editNoAdmin.Estado;
+            //         c.FechaDeFirmado = editNoAdmin.FechaDeFirmado;
+            //         c.FechaVenContrato = editNoAdmin.FechaDeVencimiento;
+            //         c.EstadoContrato = Estado.Circulando;
+            //         HistoricoEstadoContrato.Estado = editNoAdmin.Estado;
+            //         text = "El jurídico modificó la oferta";
+            //     } else if (editNoAdmin.roles.Contains ("secretario comite de contratacion") && editNoAdmin.FechaDeFirmado != null) {
+            //         c.EstadoComitContratacion = editNoAdmin.Estado;
+            //         c.EstadoContrato = editNoAdmin.Estado;
+            //         HistoricoEstadoContrato.Estado = editNoAdmin.Estado;
+            //         text = "El secretario del comité de contratación modificó la oferta";
+            //     } else {
+            //         return BadRequest ($"Los roles de este usuario no tienen permiso para aprobar la oferta");
+            //     }
+            //     context.Add (HistoricoEstadoContrato);
+            //     context.Update (c);
+            //     context.SaveChanges ();
+
+            //     var admin = context_rh.Trabajador.Find (c.AdminContratoId);
+            //     await _emailSender.SendEmailAsync (admin.Correo, "Se ha editado el Contrato", text);
+            // }
+            // return NotFound ();
         }
 
         // GET: contratacion/contratos/Tipos

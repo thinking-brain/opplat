@@ -456,7 +456,6 @@ export default {
         }
       );
     },
-
     getTiempoVenOfertasFromApi() {
       const url = api.getUrl("contratacion", "TiempoVenOfertas");
       this.axios.get(url).then(

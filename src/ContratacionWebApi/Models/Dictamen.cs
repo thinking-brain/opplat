@@ -6,20 +6,17 @@ namespace ContratacionWebApi.Models {
     public class Dictamen {
         public int Id { get; set; }
         public string NumeroDeDictamen { get; set; }
-        public int EspecialistaId { get; set; }
-
-        public virtual Especialista Especialista { get; set; }
-
-        public bool Aprobado { get; set; }
-
+        public int DictaminadorContratoId { get; set; }
+        public virtual DictaminadorContrato DictaminadorContrato { get; set; }
+        public string FilePath { get; set; }
         public string Observaciones { get; set; }
-
-        [Required]
         public string FundamentosDeDerecho { get; set; }
-
         public string Consideraciones { get; set; }
-
         public string Recomendaciones { get; set; }
+        public DateTime FechaDictamen { get; set; }
+        public int ContratoId { get; set; }
+        public Contrato Contrato { get; set; }
+        public string Username { get; set; }
 
         [Display (Name = "Otros SI")]
         public string OtrosSi { get; set; }
