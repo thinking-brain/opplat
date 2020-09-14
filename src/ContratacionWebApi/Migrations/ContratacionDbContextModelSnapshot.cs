@@ -181,8 +181,6 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("ContratoId");
 
-                    b.Property<int>("DictaminadorContratoId");
-
                     b.Property<int?>("EspecialistaId");
 
                     b.Property<DateTime>("FechaDictamen");
@@ -199,17 +197,15 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("Recomendaciones");
 
-                    b.Property<string>("username");
+                    b.Property<string>("Username");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ContratoId");
 
-                    b.HasIndex("DictaminadorContratoId");
-
                     b.HasIndex("EspecialistaId");
 
-                    b.ToTable("Dictamen");
+                    b.ToTable("Dictamenes");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.DictaminadorContrato", b =>
@@ -571,11 +567,6 @@ namespace ContratacionWebApi.Migrations
                     b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
                         .WithMany()
                         .HasForeignKey("ContratoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ContratacionWebApi.Models.DictaminadorContrato", "DictaminadorContrato")
-                        .WithMany()
-                        .HasForeignKey("DictaminadorContratoId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("ContratacionWebApi.Models.Especialista")

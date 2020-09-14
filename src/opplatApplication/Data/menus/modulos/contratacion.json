@@ -90,7 +90,8 @@
         "name": "Config",
         "roles": [
             "administrador",
-            "administrador contratacion"
+            "administrador contratacion",
+            "contratacion"
         ]
     }
 ]

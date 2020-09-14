@@ -376,7 +376,8 @@ export default {
       entidad: {},
       adminContrato: {},
       montos: [],
-      username: ""
+      username: "",
+      roles: null
     },
     file: null,
     estados: [],
@@ -526,6 +527,8 @@ export default {
     editNoAdmin(item) {
       this.editedIndex = this.ofertas.indexOf(item);
       this.oferta = Object.assign({}, item);
+      this.oferta.username = this.username;
+      this.oferta.roles = this.roles;
       this.oferta.entidad = item.entidad[0];
       this.oferta.adminContrato = item.adminContrato.id;
 

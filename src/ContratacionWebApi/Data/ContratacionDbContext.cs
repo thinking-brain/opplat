@@ -43,5 +43,6 @@ namespace ContratacionWebApi.Data {
         public DbSet<Departamento> Departamentos { get; set; }
         public DbSet<ComiteContratacion> ComiteContratacion { get; set; }
         public DbSet<Monto> Montos { get; set; }
+        public DbSet<Dictamen> Dictamenes { get; set; }
     }
 }

@@ -6,7 +6,7 @@
     <v-row>
       <!-- DATOS DE LA OFERTA -->
       <v-col>
-        <v-card xs12 sm12 :elevation="2">
+        <v-card xs12 sm12 flat>
           <v-row class="mx-1">
             <v-col cols="12" md="12" class="pa-2 headline">
               <h3>Oferta</h3>
@@ -88,10 +88,10 @@
                 {{item.nombreCompleto}}
               </span>
             </v-col>
-              <v-col cols="12" md="12" class="pa-2">
-                <hr>
-                <strong>Estado de la Oferta:</strong>
-              </v-col>
+            <v-col cols="12" md="12" class="pa-2">
+              <hr />
+              <strong>Estado de la Oferta:</strong>
+            </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Jurídico :</strong>
               {{contrato.estadoJuridicoNombre}}
@@ -139,17 +139,22 @@
               <strong>Correo :</strong>
               {{contrato.entidad.correo}}
             </v-col>
-            <v-col cols="12" md="6" class="pa-2">
+            <v-col cols="12" md="12" class="pa-2">
               <strong>Objeto Social :</strong>
               {{contrato.entidad.objetoSocial}}
             </v-col>
             <div cols="12" md="12" class="pa-2">
               <strong>Teléfonos :</strong>
-              <div v-for="item in contrato.entidad.telefonos" :key="item.numero" class="pt-1">
+              <div
+                v-for="item in contrato.entidad.telefonos"
+                :key="item.numero"
+                cols="12"
+                md="12"
+                class="pt-1"
+              >
                 <strong>Número:</strong>
                 {{item.numero}}
-                <v-spacer></v-spacer>
-                <strong>Extensión:</strong>
+                <strong class="ml-2">Ext:</strong>
                 {{item.extension}}
               </div>
             </div>
