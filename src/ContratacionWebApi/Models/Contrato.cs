@@ -55,6 +55,7 @@ namespace ContratacionWebApi.Models {
         public Estado EstadoComitContratacion { get; set; }
         public Estado EstadoContrato { get; set; }
         public bool Cliente { get; set; }
+        public virtual ICollection<Dictamen> Dictamenes { get; set; }
         public virtual ICollection<Suplemento> Suplementos { get; set; }
 
         // [NotMapped]

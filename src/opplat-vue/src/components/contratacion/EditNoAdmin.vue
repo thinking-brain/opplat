@@ -7,7 +7,8 @@
     </v-row>
     <v-form>
       <v-card-text>
-        <p class="text-left title">Datos a llenar del Dictamen:</p>
+        <p class="text-left title">Datos a llenar del Nuevo Dictamen:</p>
+        <p v-if="contrato.dictamenes!=null">Este Contrato ya ha sido dictaminado puede consultar en los detalles del mismo para mas información</p>
         <v-row>
           <v-layout row wrap class="px-3">
             <v-flex cols="2" md3 class="px-3 pt-3">
@@ -81,7 +82,7 @@
                 <v-date-picker v-model="contrato.fechaDeFirmado" @input="menu = false"></v-date-picker>
               </v-menu>
             </v-flex>
-            <v-flex cols="2" md4 class="px-3">
+            <v-flex cols="2" md4 class="px-3" v-if="roles.includes('juridico')">
               <v-menu
                 v-model="menu1"
                 :close-on-content-click="false"
@@ -92,7 +93,7 @@
               >
                 <template v-slot:activator="{ on }">
                   <v-text-field
-                    v-model="contrato.fechaDeVencimiento"
+                    v-model="contrato.fechaVenContrato"
                     label="Fecha de Vencimiento"
                     readonly
                     clearable
@@ -133,7 +134,8 @@ export default {
     message: "",
     errors: [],
     estados: [],
-    messagesNumDictamen: ""
+    messagesNumDictamen: "",
+    dictamenes: []
   }),
   computed: {
     form() {}
@@ -145,10 +147,22 @@ export default {
     this.contrato.fechaDeFirmado = null;
     this.getEstadosParaAprobarFromApi();
     this.getEstadoByRool();
+    this.getDictamenesByContratoId();
   },
   watch: {},
 
   methods: {
+    getDictamenesByContratoId() {
+      const url = api.getUrl("contratacion", "dictamenes/getByContratoId");
+      this.axios.get(`${url}/${this.contrato.id}`).then(
+        response => {
+          this.dictamenes = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     getEstadosParaAprobarFromApi() {
       const url = api.getUrl("contratacion", "contratos/EstadosParaAprobar");
       this.axios.get(url).then(
@@ -186,7 +200,7 @@ export default {
         formData.append("file", this.file);
         const url = api.getUrl(
           "contratacion",
-          `contratos/Dictamenes/UploadFile?ContratoId=${this.contrato.id}&NumeroDeDictamen=${this.dictamen.numero}
+          `Dictamenes/UploadFile?ContratoId=${this.contrato.id}&NumeroDeDictamen=${this.dictamen.numero}
         &Observaciones=${this.dictamen.observaciones}&FundamentosDeDerecho=${this.dictamen.fundamentosDeDerecho}
         &Consideraciones=${this.dictamen.consideraciones}&Recomendaciones=${this.dictamen.recomendaciones}&Username=${this.username}`
         );
@@ -227,6 +241,7 @@ export default {
         }
       );
     },
+
     close() {
       if (this.contrato.cliente == true) {
         this.$router.push({

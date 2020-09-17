@@ -6,7 +6,7 @@ namespace ContratacionWebApi.Models {
     public class Dictamen {
         public int Id { get; set; }
         [Required]
-        public string NumeroDeDictamen { get; set; }
+        public string Numero { get; set; }
         public string FilePath { get; set; }
         public string Observaciones { get; set; }
         public string FundamentosDeDerecho { get; set; }

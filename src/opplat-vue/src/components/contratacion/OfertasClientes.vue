@@ -256,7 +256,6 @@
             </template>
             <span>Editar</span>
           </v-tooltip>
-          <!-- Edit jurídico -->
           <v-tooltip top color="primary">
             <template v-slot:activator="{ on }">
               <v-btn
@@ -265,18 +264,13 @@
                 v-on="on"
                 @click="editNoAdmin(item)"
                 slot="activator"
-                v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')"
+                v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
               >
                 <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
               </v-btn>
             </template>
             <span>Editar</span>
-          </v-tooltip>
-          <!-- <EditNoAdmin
-            v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')"
-            v-bind:oferta="item"
-          ></EditNoAdmin>-->
-          <!-- /Edit jurídico -->
+          </v-tooltip>       
           <v-tooltip top color="black">
             <template v-slot:activator="{ on }">
               <v-btn
@@ -530,6 +524,7 @@ export default {
       this.oferta.username = this.username;
       this.oferta.roles = this.roles;
       this.oferta.entidad = item.entidad[0];
+      this.oferta.fechaDeFirmado = new Date("01/01/0001");
       this.oferta.adminContrato = item.adminContrato.id;
 
       for (let index = 0; index < this.oferta.formasDePago.length; index++) {

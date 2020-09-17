@@ -38,7 +38,7 @@ namespace ContratacionWebApi.Controllers {
             var contratoId_DepartamentoId = context.ContratoId_DepartamentoId.Include (d => d.Departamento).ToList ();
             var espExternoId_ContratoId = context.EspExternoId_ContratoId.Include (d => d.EspecialistaExterno).ToList ();
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
-            var contratos = context.Contratos.Include (c => c.Entidad).Include (c => c.Montos).Select (c => new {
+            var contratos = context.Contratos.Include (c => c.Entidad).Include (c => c.Montos).Include (c => c.Dictamenes).Select (c => new {
                 Id = c.Id,
                     Nombre = c.Nombre,
                     Tipo = c.Tipo,
@@ -84,6 +84,22 @@ namespace ContratacionWebApi.Controllers {
                     EspecialistasExternos = espExternoId_ContratoId.Where (s => s.ContratoId == c.Id).Select (e => new {
                         Id = e.EspecialistaExterno.Id,
                             NombreCompleto = e.EspecialistaExterno.NombreCompleto
+                    }),
+                    Dictamenes = c.Dictamenes.Select (d => new {
+                        Id = d.Id,
+                            Numero = d.Numero,
+                            Observaciones = d.Observaciones,
+                            Recomendaciones = d.Recomendaciones,
+                            Consideraciones = d.Consideraciones,
+                            FundamentosDeDerecho = d.FundamentosDeDerecho,
+                            ContratoId = d.ContratoId,
+                            Contrato=d.Contrato,
+                            FilePath = d.FilePath,
+                            OtrosSi = d.OtrosSi,
+                            FechaDictamen = d.FechaDictamen,
+                            Fecha = d.FechaDictamen.ToString ("dd/MM/yyyy"),
+                            Dictaminador = trabajadores.FirstOrDefault (t => t.Username == d.Username),
+                            Username = d.Username
                     }),
                     Entidad = context.Entidades.Include (e => e.CuentasBancarias).Include (e => e.Telefonos)
                     .Where (s => s.Id == c.EntidadId)
@@ -285,7 +301,7 @@ namespace ContratacionWebApi.Controllers {
                 var trabajadores = context_rh.Trabajador.ToList ();
                 string correos = "";
 
-                var dictaminadores = context.DictaminadoresContratos.Where (d => d.Departamento.Nombre == "Económico" || d.Departamento.Nombre == "Jurídico" || contratoDto.Departamentos.Contains (d.DepartamentoId))
+                var dictaminadores = context.DictaminadoresContratos.Where (d => d.Departamento.Nombre == "Económico" || d.Departamento.Nombre == "Jurídico")
                     .Select (d => new {
                         Trabajador = trabajadores.Where (x => x.Id == d.DictaminadorId).Select (t => new {
                             Correo = t.Correo
@@ -421,6 +437,7 @@ namespace ContratacionWebApi.Controllers {
         // PUT contratacion/contratos/editNoAdminDto
         [HttpPut ("/contratacion/contratos/editNoAdminDto/{id}")]
         public async Task<IActionResult> EditNoAdminDto (EditNoAdminDto contrato, int id) {
+            DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             var c = context.Contratos.Find (id);
             var text = "";
             if (c != null && contrato.roles != null) {
@@ -437,7 +454,9 @@ namespace ContratacionWebApi.Controllers {
                 } else if (contrato.roles.Contains ("juridico")) {
                     c.Numero = contrato.Numero;
                     c.EstadoJuridico = contrato.Estado;
-                    c.FechaDeFirmado = contrato.FechaDeFirmado;
+                    if (contrato.FechaDeFirmado != FechaPorDefecto) {
+                        c.FechaDeFirmado = contrato.FechaDeFirmado;
+                    }
                     c.FechaVenContrato = contrato.FechaDeVencimiento;
                     c.EstadoContrato = Estado.Circulando;
                     HistoricoEstadoContrato.Estado = contrato.Estado;
@@ -489,7 +508,7 @@ namespace ContratacionWebApi.Controllers {
             var estadosContratos = new List<dynamic> () {
                 new { Id = Estado.Nuevo, Nombre = Estado.Nuevo.ToString () },
                 new { Id = Estado.Circulando, Nombre = Estado.Circulando.ToString () },
-                new { Id = Estado.Aprobado, Nombre = Estado.Aprobado.ToString () },
+                new { Id = Estado.Aprobado, Nombre = "Aprobado" },
                 new { Id = Estado.No_Aprobado, Nombre = "No Aprobado" },
                 new { Id = Estado.Vigente, Nombre = Estado.Vigente.ToString () },
                 new { Id = Estado.Cancelado, Nombre = Estado.Cancelado.ToString () },
@@ -503,7 +522,7 @@ namespace ContratacionWebApi.Controllers {
         [HttpGet ("/contratacion/contratos/EstadosParaAprobar")]
         public IActionResult GetEstadosContratos () {
             var estadosContratos = new List<dynamic> () {
-                new { Id = Estado.Aprobado, Nombre = Estado.Aprobado.ToString () },
+                new { Id = Estado.Aprobado, Nombre = "Aprobado" },
                 new { Id = Estado.No_Aprobado, Nombre = "No Aprobado" },
                 new { Id = Estado.Por_Revisar, Nombre = "Por Revisar" },
                 new { Id = Estado.SinEstado, Nombre = " " },
@@ -656,7 +675,7 @@ namespace ContratacionWebApi.Controllers {
             };
         }
 
-        //Post :contratacion/contratos/downloadFile
+        //Get :contratacion/contratos/downloadFile
         [HttpGet ("/contratacion/contratos/DownloadFile/{id}")]
         public async Task<IActionResult> DownloadFile (int id) {
             var contrato = context.Contratos.FirstOrDefault (c => c.Id == id);
