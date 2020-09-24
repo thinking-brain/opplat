@@ -24,7 +24,7 @@ namespace ContratacionWebApi.Models {
         Vigente,
         Cancelado,
         Vencido,
-        Por_Revisar,
+        Por_Aprobar,
     }
     public enum EstadoSolicitud {
         Nueva,

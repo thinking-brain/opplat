@@ -20,6 +20,7 @@
     "print-js": "^1.0.63",
     "register-service-worker": "^1.6.2",
     "tableexport": "^5.2.0",
+    "v-tooltip": "^2.0.3",
     "vue": "^2.6.11",
     "vue-apexcharts": "^1.5.2",
     "vue-axios": "^2.1.4",

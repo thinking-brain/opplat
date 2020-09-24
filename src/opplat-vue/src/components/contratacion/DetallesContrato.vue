@@ -93,16 +93,16 @@
               <strong>Estado de la Oferta:</strong>
             </v-col>
             <v-col cols="12" md="3">
-              <strong>Jurídico :</strong>
-              {{contrato.estadoJuridicoNombre}}
+              <strong>Jurídico </strong>
+              <u>{{contrato.estadoJuridicoNombre}}</u>
             </v-col>
             <v-col cols="12" md="3">
-              <strong>Económico :</strong>
-              {{contrato.estadoEconomicoNombre}}
+              <strong>Económico </strong>
+              <u>{{contrato.estadoEconomicoNombre}}</u>
             </v-col>
             <v-col cols="12" md="6">
-              <strong>Comité Contratación:</strong>
-              {{contrato.estadoComitContratacionNombre}}
+              <strong>Comité Contratación </strong>
+              <u>{{contrato.estadoComitContratacionNombre}}</u>
             </v-col>
           </v-row>
         </v-card>
@@ -185,8 +185,29 @@
           fixed-header
           class="pt-3"
           dense
+          :search="search"
           v-if="switch1==true"
         >
+          <template v-slot:top>
+            <v-toolbar flat color="white">
+              <v-divider class="mx-1" inset vertical></v-divider>
+              <!-- Buscar -->
+              <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Buscar"
+                single-line
+                hide-details
+                clearable
+                dense
+                class="px-3"
+              ></v-text-field>
+              <!-- /Buscar -->
+              <v-spacer></v-spacer>
+              <v-spacer></v-spacer>
+            </v-toolbar>
+          </template>
+
           <!-- Actions -->
           <template v-slot:item.action="{ item }">
             <v-row>
@@ -212,7 +233,7 @@
                     small
                     v-on="on"
                     @click="confirmUpload(item)"
-                    v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+                    v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
                   >
                     <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
                   </v-btn>
@@ -260,7 +281,7 @@
                 </template>
                 <span>Detalles</span>
               </v-tooltip>
-              <v-tooltip top color="pink">
+              <!-- <v-tooltip top color="pink">
                 <template v-slot:activator="{ on }">
                   <v-btn
                     class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
@@ -272,7 +293,7 @@
                   </v-btn>
                 </template>
                 <span>Eliminar</span>
-              </v-tooltip>
+              </v-tooltip> -->
             </v-row>
           </template>
           <!-- /Actions -->
@@ -380,10 +401,6 @@
                   <strong>Fecha del Dictamen :</strong>
                   {{dictamen.fecha}}
                 </v-col>
-                <v-col cols="12" md="6" class="pa-2">
-                  <strong>Dictaminador :</strong>
-                  {{dictamen.dictaminador.nombreCompleto}}
-                </v-col>
               </v-row>
             </v-card-text>
           </v-card>
@@ -409,6 +426,7 @@ export default {
   data: () => ({
     dialog: false,
     dialog1: false,
+    search: "",
     enTiempo: 0,
     casiVenc: 0,
     proxVencer: 0,

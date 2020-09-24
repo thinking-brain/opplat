@@ -338,7 +338,7 @@
                 <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
               </v-btn>
             </template>
-            <span>Eliminar</span>
+            <span>Cancelar</span>
           </v-tooltip>
         </v-row>
       </template>
@@ -418,7 +418,7 @@ export default {
     },
     estadoComiteCont: function() {
       this.getOfertasFromApi();
-    }
+    },
   },
 
   created() {
@@ -617,8 +617,8 @@ export default {
       this.dialog2 = true;
     },
     deleteItem(oferta) {
-      const url = api.getUrl("contratacion", "Contratos");
-      this.axios.delete(`${url}/${oferta.id}`).then(
+      const url = api.getUrl("contratacion", "Contratos/cancelar");
+      this.axios.put(`${url}/${oferta.id}`).then(
         response => {
           this.getResponse(response);
           this.getOfertasFromApi();

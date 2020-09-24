@@ -40,9 +40,17 @@ namespace ContratacionWebApi.Controllers {
         [HttpPost]
         public IActionResult POST ([FromBody] Departamento departamento) {
             if (ModelState.IsValid) {
-                var d = context.Departamentos.FirstOrDefault (x => x.Nombre == departamento.Nombre);
-                if (d != null) {
+                var nameDepartamento = departamento.Nombre.Trim ().ToLower ();
+                nameDepartamento = nameDepartamento.Replace (" ", "");
+                if (context.Departamentos.FirstOrDefault (d => d.Nombre == departamento.Nombre) != null) {
                     return BadRequest ("Ya el departamento " + departamento.Nombre + " está creado");
+                }
+                foreach (var item in context.Departamentos) {
+                    var nameBd = item.Nombre.Trim ().ToLower ();
+                    nameBd = nameBd.Replace (" ", "");
+                    if (nameBd == nameDepartamento) {
+                        return BadRequest ("Ya el departamento " + departamento.Nombre + " está creado");
+                    }
                 }
                 context.Departamentos.Add (departamento);
                 context.SaveChanges ();
@@ -51,7 +59,7 @@ namespace ContratacionWebApi.Controllers {
             return BadRequest (ModelState);
         }
 
-        // PUT contratacion/departamento/id
+        // PUT contratacion/Departamentos/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] Departamento departamento, int id) {
             if (departamento.Id != id) {
@@ -63,7 +71,7 @@ namespace ContratacionWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE contratacion/departamento/id
+        // DELETE contratacion/Departamentos/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var departamento = context.Departamentos.FirstOrDefault (s => s.Id == id);

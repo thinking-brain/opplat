@@ -38,7 +38,7 @@ namespace ContratacionWebApi.Controllers {
             var contratoId_DepartamentoId = context.ContratoId_DepartamentoId.Include (d => d.Departamento).ToList ();
             var espExternoId_ContratoId = context.EspExternoId_ContratoId.Include (d => d.EspecialistaExterno).ToList ();
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
-            var contratos = context.Contratos.Include (c => c.Entidad).Include (c => c.Montos).Include (c => c.Dictamenes).Select (c => new {
+            var contratos = context.Contratos.Where (c => c.EstadoContrato != Estado.Cancelado).Include (c => c.Entidad).Include (c => c.Montos).Include (c => c.Dictamenes).Select (c => new {
                 Id = c.Id,
                     Nombre = c.Nombre,
                     Tipo = c.Tipo,
@@ -93,7 +93,7 @@ namespace ContratacionWebApi.Controllers {
                             Consideraciones = d.Consideraciones,
                             FundamentosDeDerecho = d.FundamentosDeDerecho,
                             ContratoId = d.ContratoId,
-                            Contrato=d.Contrato,
+                            Contrato = d.Contrato,
                             FilePath = d.FilePath,
                             OtrosSi = d.OtrosSi,
                             FechaDictamen = d.FechaDictamen,
@@ -218,9 +218,9 @@ namespace ContratacionWebApi.Controllers {
                     Numero = contratoDto.Numero,
                     TerminoDePago = contratoDto.TerminoDePago,
                     Cliente = contratoDto.Cliente,
-                    EstadoComitContratacion = Estado.Por_Revisar,
-                    EstadoEconomico = Estado.Por_Revisar,
-                    EstadoJuridico = Estado.Por_Revisar,
+                    EstadoComitContratacion = Estado.Por_Aprobar,
+                    EstadoEconomico = Estado.Por_Aprobar,
+                    EstadoJuridico = Estado.Por_Aprobar,
                     EstadoContrato = Estado.Nuevo
                 };
                 DateTime FechaPorDefecto = new DateTime (2001, 01, 01, 05, 00, 00);
@@ -423,6 +423,17 @@ namespace ContratacionWebApi.Controllers {
             return Ok ();
         }
 
+        // DELETE contratacion/contrato/cancelar/id
+        [HttpPut ("cancelar/{id}")]
+        public IActionResult Cancelar (int id) {
+            var contrato = context.Contratos.FirstOrDefault (s => s.Id == id);
+            if (contrato == null) {
+                return NotFound ();
+            }
+            contrato.EstadoContrato = Estado.Cancelado;
+            context.SaveChanges ();
+            return Ok (contrato);
+        }
         // DELETE contratacion/contrato/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
@@ -435,7 +446,7 @@ namespace ContratacionWebApi.Controllers {
             return Ok (contrato);
         }
         // PUT contratacion/contratos/editNoAdminDto
-        [HttpPut ("/contratacion/contratos/editNoAdminDto/{id}")]
+        [HttpPut ("editNoAdminDto/{id}")]
         public async Task<IActionResult> EditNoAdminDto (EditNoAdminDto contrato, int id) {
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             var c = context.Contratos.Find (id);
@@ -483,7 +494,7 @@ namespace ContratacionWebApi.Controllers {
         }
 
         // GET: contratacion/contratos/Tipos
-        [HttpGet ("/contratacion/contratos/Tipos")]
+        [HttpGet ("Tipos")]
         public IActionResult GetAllTiposContratos () {
             var tipo = new List<dynamic> () {
                 new { Id = Tipo.Marco, Nombre = Tipo.Marco.ToString () },
@@ -503,7 +514,7 @@ namespace ContratacionWebApi.Controllers {
             return Ok (tipo);
         }
         // GET: contratacion/contratos/Estados
-        [HttpGet ("/contratacion/contratos/Estados")]
+        [HttpGet ("Estados")]
         public IActionResult GetAllEstadosContratos () {
             var estadosContratos = new List<dynamic> () {
                 new { Id = Estado.Nuevo, Nombre = Estado.Nuevo.ToString () },
@@ -513,24 +524,24 @@ namespace ContratacionWebApi.Controllers {
                 new { Id = Estado.Vigente, Nombre = Estado.Vigente.ToString () },
                 new { Id = Estado.Cancelado, Nombre = Estado.Cancelado.ToString () },
                 new { Id = Estado.Vencido, Nombre = Estado.Vencido.ToString () },
-                new { Id = Estado.Por_Revisar, Nombre = "Por Revisar" },
+                new { Id = Estado.Por_Aprobar, Nombre = "Por Aprobar" },
                 new { Id = Estado.SinEstado, Nombre = "Sin Estado" },
             };
             return Ok (estadosContratos);
         }
         // GET: contratacion/contratos/EstadosParaAprobar
-        [HttpGet ("/contratacion/contratos/EstadosParaAprobar")]
+        [HttpGet ("EstadosParaAprobar")]
         public IActionResult GetEstadosContratos () {
             var estadosContratos = new List<dynamic> () {
                 new { Id = Estado.Aprobado, Nombre = "Aprobado" },
                 new { Id = Estado.No_Aprobado, Nombre = "No Aprobado" },
-                new { Id = Estado.Por_Revisar, Nombre = "Por Revisar" },
+                new { Id = Estado.Por_Aprobar, Nombre = "Por Aprobar" },
                 new { Id = Estado.SinEstado, Nombre = " " },
             };
             return Ok (estadosContratos);
         }
         // GET: contratacion/contratos/EstadosParaAprobar
-        [HttpGet ("/contratacion/contratos/EstadoByRool")]
+        [HttpGet ("EstadoByRool")]
         public IActionResult GetEstadoByRool (int id, string roles) {
             var c = context.Contratos.FirstOrDefault (x => x.Id == id);
             var estado = Estado.SinEstado;
@@ -546,7 +557,7 @@ namespace ContratacionWebApi.Controllers {
         }
 
         // GET: contratacion/contratos/VencimientoContrato 
-        [HttpGet ("/contratacion/contratos/VencimientoContrato")]
+        [HttpGet ("VencimientoContrato")]
         public IActionResult GetVencimientoContrato (bool cliente, string username, string roles) {
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             List<int> cantSegunFecha = new List<int> ();
@@ -590,7 +601,7 @@ namespace ContratacionWebApi.Controllers {
         }
 
         // GET: contratacion/contratos/VencimientoOferta 
-        [HttpGet ("/contratacion/Contratos/VencimientoOferta")]
+        [HttpGet ("VencimientoOferta")]
         public IActionResult GetVencimientoOferta (bool cliente, string username, string roles) {
             List<int> cantSegunFecha = new List<int> ();
             var tiempoVenOfertas = context.TiempoVenOfertas.ToList ();

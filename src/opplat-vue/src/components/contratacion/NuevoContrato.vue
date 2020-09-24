@@ -11,22 +11,33 @@
               </v-flex>
               <v-flex cols="2" class="px-1" md3 v-if="editedIndex==-1">
                 <v-autocomplete
-                  v-model="contrato.tipo"
+                  v-model="tipo"
                   item-text="nombre"
                   item-value="id"
                   :items="tipos"
                   cache-items
-                  label="tipo"
+                  label="Tipo"
                 ></v-autocomplete>
               </v-flex>
+              <v-flex cols="2" class="px-1" md3 v-if="suplemento">
+                <v-autocomplete
+                  v-model="contratoId"
+                  item-text="nombre"
+                  item-value="id"
+                  :items="contratos"
+                  cache-items
+                  label="Contrato al que pertenece"
+                ></v-autocomplete>
+              </v-flex>
+
               <v-flex cols="2" md3 class="px-1" v-if="editedIndex!=-1">
                 <v-autocomplete
-                  v-model="contrato.tipo"
+                  v-model="tipo"
                   item-text="nombre"
                   item-value="id"
                   :items="tipos"
                   cache-items
-                  label="tipo"
+                  label="Tipo"
                 ></v-autocomplete>
               </v-flex>
               <v-flex
@@ -372,6 +383,7 @@ export default {
     ofertas: [],
     cantOfertas: 0,
     file: null,
+    contratos: [],
     entidades: [],
     entidad: {},
     especialistasExternosAll: [],
@@ -379,6 +391,7 @@ export default {
     adminContratos: [],
     estados: [],
     tipos: [],
+    tipo: {},
     formasDePagos: [],
     departamentos: [],
     monedas: [],
@@ -400,7 +413,9 @@ export default {
     MonedaRules: [v => !!v || "Faltan datos por llenar"],
     MontoRules: [v => !!v || "Faltan datos por llenar"],
     textFormaPago: "",
-    loading: false
+    loading: false,
+    suplemento: false,
+    contratoId:null
   }),
   computed: {
     formTitle() {
@@ -439,11 +454,18 @@ export default {
         this.formasDePagos.push(formadepago);
         this.getMonedasFromApi();
       }
+    },
+    tipo: function() {
+      if (this.tipo == 12) {
+        this.getContratosFromApi();
+        this.suplemento = true;
+      }
     }
   },
 
   created() {
     this.getOfertasFromApi();
+    this.getContratosFromApi();
     this.getEstadosFromApi();
     this.getTiposFromApi();
     this.getEntidadesFromApi();
@@ -470,6 +492,20 @@ export default {
           this.textByfiltro = "Ofertas de los Clientes";
           this.ofertas = response.data;
           this.cantOfertas = this.ofertas.length;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    getContratosFromApi() {
+      const url = api.getUrl(
+        "contratacion",
+        `Contratos?tipoTramite=contrato&cliente=true&username=${username}&roles=${this.roles}`
+      );
+      this.axios.get(url).then(
+        response => {
+          this.contratos = response.data;
         },
         error => {
           console.log(error);
