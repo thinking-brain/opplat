@@ -18,7 +18,7 @@ namespace ContratacionWebApi.Models {
         public string ObjetoDeContrato { get; set; }
         public string Numero { get; set; }
         public ICollection<Monto> Montos { get; set; }
-        
+
         [DataType (DataType.Date)]
         [Display (Name = "Fecha de Llegada")]
         public DateTime FechaDeRecepcion { get; set; }
@@ -57,7 +57,11 @@ namespace ContratacionWebApi.Models {
         public bool Cliente { get; set; }
         public virtual ICollection<Dictamen> Dictamenes { get; set; }
         public virtual ICollection<Suplemento> Suplementos { get; set; }
-
+        public int? ContratoId { get; set; }
+        public ICollection<Contrato> Contratos { get; set; }
+        public Contrato () {
+            Estados = new HashSet<HistoricoEstadoContrato> ();
+        }
         // [NotMapped]
         // public string Descripcion => $"{Entidad.Nombre}-{Tipo} ({Numero})";
 
@@ -71,9 +75,5 @@ namespace ContratacionWebApi.Models {
         //         return estadoActual.Estado;
         //     }
         // }
-
-        public Contrato () {
-            Estados = new HashSet<HistoricoEstadoContrato> ();
-        }
     }
 }

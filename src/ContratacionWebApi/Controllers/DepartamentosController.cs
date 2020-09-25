@@ -26,7 +26,7 @@ namespace ContratacionWebApi.Controllers {
         }
 
         // GET: contratacion/Departamentos/Id
-        [HttpGet ("{id}", Name = "GetDeparatmentos")]
+        [HttpGet ("{id}", Name = "GetDepartamentos")]
         public IActionResult GetbyId (int id) {
             var departamento = context.Departamentos.FirstOrDefault (s => s.Id == id);
 
@@ -40,21 +40,20 @@ namespace ContratacionWebApi.Controllers {
         [HttpPost]
         public IActionResult POST ([FromBody] Departamento departamento) {
             if (ModelState.IsValid) {
-                var nameDepartamento = departamento.Nombre.Trim ().ToLower ();
-                nameDepartamento = nameDepartamento.Replace (" ", "");
+                var nameDepartamento = departamento.Nombre.Trim ().ToUpper ().Replace (" ", "");
                 if (context.Departamentos.FirstOrDefault (d => d.Nombre == departamento.Nombre) != null) {
                     return BadRequest ("Ya el departamento " + departamento.Nombre + " está creado");
                 }
                 foreach (var item in context.Departamentos) {
-                    var nameBd = item.Nombre.Trim ().ToLower ();
-                    nameBd = nameBd.Replace (" ", "");
+                    var nameBd = item.Nombre.Trim ().ToUpper ().Replace (" ", "");
                     if (nameBd == nameDepartamento) {
                         return BadRequest ("Ya el departamento " + departamento.Nombre + " está creado");
                     }
                 }
+                departamento.Nombre = departamento.Nombre.ToUpper ();
                 context.Departamentos.Add (departamento);
                 context.SaveChanges ();
-                return new CreatedAtRouteResult ("GetDeparatmentos", new { id = departamento.Id });
+                return new CreatedAtRouteResult ("GetDepartamentos", new { id = departamento.Id });
             }
             return BadRequest (ModelState);
         }

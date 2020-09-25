@@ -38,7 +38,7 @@ namespace ContratacionWebApi.Controllers {
             var contratoId_DepartamentoId = context.ContratoId_DepartamentoId.Include (d => d.Departamento).ToList ();
             var espExternoId_ContratoId = context.EspExternoId_ContratoId.Include (d => d.EspecialistaExterno).ToList ();
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
-            var contratos = context.Contratos.Where (c => c.EstadoContrato != Estado.Cancelado).Include (c => c.Entidad).Include (c => c.Montos).Include (c => c.Dictamenes).Select (c => new {
+            var contratos = context.Contratos.Where (c => c.EstadoContrato != Estado.Cancelado).Include (c => c.Entidad).Include (c => c.Montos).Include (c => c.Dictamenes).Include (c => c.Contratos).Select (c => new {
                 Id = c.Id,
                     Nombre = c.Nombre,
                     Tipo = c.Tipo,
@@ -127,6 +127,7 @@ namespace ContratacionWebApi.Controllers {
                             }),
                             CantCuentasBancarias = e.CuentasBancarias.Count ()
                     }),
+                    Suplementos = c.Contratos
             });
             if (tipoTramite == "oferta") {
                 contratos = contratos.Where (c => c.Estado != Estado.Aprobado);
@@ -654,12 +655,15 @@ namespace ContratacionWebApi.Controllers {
                 return NotFound ($"El Contrato no se encuentra");
             }
             if (file != null) {
-                string folderName = Path.Combine (_hostingEnvironment.WebRootPath, "uploadContratos");
+                string folderName = Path.Combine (_hostingEnvironment.WebRootPath, "Contratos");
                 string subFolder = System.IO.Path.Combine (folderName, departamento.Nombre);
-                if (!Directory.Exists (subFolder)) {
-                    System.IO.Directory.CreateDirectory (subFolder);
+                var name = file.FileName.Split (".");
+                string subFolder1 = System.IO.Path.Combine (subFolder, name[0]);
+
+                if (!Directory.Exists (subFolder1)) {
+                    System.IO.Directory.CreateDirectory (subFolder1);
                 }
-                var filePath = Path.Combine (subFolder, file.FileName);
+                var filePath = Path.Combine (subFolder1, file.FileName);
                 using (var fileStream = new FileStream (filePath, FileMode.Create)) {
                     await file.CopyToAsync (fileStream);
                 }

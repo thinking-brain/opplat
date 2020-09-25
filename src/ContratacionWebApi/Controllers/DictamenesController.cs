@@ -43,6 +43,11 @@ namespace ContratacionWebApi.Controllers {
         public async Task<IActionResult> POST (IFormFile file, int ContratoId, string NumeroDeDictamen, string Observaciones,
             string FundamentosDeDerecho, string Consideraciones, string Recomendaciones, string Username, string OtrosSi) {
             var d = context.Dictamenes.FirstOrDefault (x => x.Numero == NumeroDeDictamen);
+
+            var cont = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
+            var adminContrato = context.AdminContratos.FirstOrDefault (c => c.AdminContratoId == cont.AdminContratoId);
+            var departamento = context.Departamentos.FirstOrDefault (dep => dep.Id == adminContrato.DepartamentoId);
+
             if (d != null) {
                 return BadRequest ("Ya hay un dictamen con este numero " + NumeroDeDictamen);
             }
@@ -60,18 +65,20 @@ namespace ContratacionWebApi.Controllers {
                     FechaDictamen = DateTime.Now,
                     OtrosSi = OtrosSi
                 };
-                if (file != null) {
-                    string folderName = Path.Combine (_hostingEnvironment.WebRootPath, "Upload Dictamenes");
-                    string subFolder = System.IO.Path.Combine (folderName, "Prueba");
-                    if (!Directory.Exists (subFolder)) {
-                        System.IO.Directory.CreateDirectory (subFolder);
-                    }
-                    var filePath = Path.Combine (subFolder, file.FileName);
-                    using (var fileStream = new FileStream (filePath, FileMode.Create)) {
-                        await file.CopyToAsync (fileStream);
-                    }
-                    dictamen.FilePath = filePath;
+                string folderName = Path.Combine (_hostingEnvironment.WebRootPath, "Contratos");
+                string subFolder = System.IO.Path.Combine (folderName, departamento.Nombre);
+                FileInfo f = new FileInfo (contrato.FilePath);
+                var name = f.Name.Split (".");
+                string subFolder1 = System.IO.Path.Combine (subFolder, name[0]);
+
+                if (!Directory.Exists (subFolder1)) {
+                    System.IO.Directory.CreateDirectory (subFolder1);
                 }
+                var filePath = Path.Combine (subFolder1, file.FileName);
+                using (var fileStream = new FileStream (filePath, FileMode.Create)) {
+                    await file.CopyToAsync (fileStream);
+                }
+                dictamen.FilePath = filePath;
                 context.Dictamenes.Add (dictamen);
                 context.SaveChanges ();
                 return Ok ();
@@ -94,8 +101,12 @@ namespace ContratacionWebApi.Controllers {
             d.Username = Username;
             d.OtrosSi = OtrosSi;
             if (file != null) {
+                var cont = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
+                var adminContrato = context.AdminContratos.FirstOrDefault (c => c.AdminContratoId == cont.AdminContratoId);
+                var departamento = context.Departamentos.FirstOrDefault (dep => dep.Id == adminContrato.DepartamentoId);
+
                 string folderName = Path.Combine (_hostingEnvironment.WebRootPath, "Upload Dictamenes");
-                string subFolder = System.IO.Path.Combine (folderName, "Prueba");
+                string subFolder = System.IO.Path.Combine (folderName, departamento.Nombre);
                 if (!Directory.Exists (subFolder)) {
                     System.IO.Directory.CreateDirectory (subFolder);
                 }
@@ -109,7 +120,7 @@ namespace ContratacionWebApi.Controllers {
             context.SaveChanges ();
             return Ok ();
         }
-         private Dictionary<string, string> GetMimeTypes () {
+        private Dictionary<string, string> GetMimeTypes () {
             return new Dictionary<string, string> { { ".txt", "text/plain" },
                 { ".pdf", "application/pdf" },
                 { ".doc", "application/vnd.ms-word" },

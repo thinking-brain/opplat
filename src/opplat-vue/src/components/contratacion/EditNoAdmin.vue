@@ -8,7 +8,9 @@
     <v-form>
       <v-card-text>
         <p class="text-left title">Datos a llenar del Nuevo Dictamen:</p>
-        <p v-if="contrato.dictamenes!=null">Este Contrato ya ha sido dictaminado puede consultar en los detalles del mismo para mas información</p>
+        <p
+          v-if="contrato.dictamenes!=null"
+        >Este Contrato ya ha sido dictaminado puede consultar en los detalles del mismo para mas información</p>
         <v-row>
           <v-layout row wrap class="px-3">
             <v-flex cols="2" md3 class="px-3 pt-3">
@@ -223,6 +225,9 @@ export default {
     },
     editNoAdmin() {
       const url = api.getUrl("contratacion", "contratos/editNoAdminDto");
+      if (this.contrato.fechaDeFirmado == null) {
+        this.contrato.fechaDeFirmado = new Date("01/01/0001");
+      }
       this.axios.put(`${url}/${this.contrato.id}`, this.contrato).then(
         response => {
           this.getResponse(response);

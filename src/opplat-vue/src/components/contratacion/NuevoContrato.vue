@@ -457,7 +457,6 @@ export default {
     },
     tipo: function() {
       if (this.tipo == 12) {
-        this.getContratosFromApi();
         this.suplemento = true;
       }
     }
@@ -501,7 +500,7 @@ export default {
     getContratosFromApi() {
       const url = api.getUrl(
         "contratacion",
-        `Contratos?tipoTramite=contrato&cliente=true&username=${username}&roles=${this.roles}`
+        `Contratos?tipoTramite=contrato&cliente=true&username=${this.username}&roles=${this.roles}`
       );
       this.axios.get(url).then(
         response => {

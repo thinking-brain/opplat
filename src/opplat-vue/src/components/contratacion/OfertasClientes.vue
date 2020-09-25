@@ -371,7 +371,8 @@ export default {
       adminContrato: {},
       montos: [],
       username: "",
-      roles: null
+      roles: null,
+      fechaDeFirmado:null
     },
     file: null,
     estados: [],

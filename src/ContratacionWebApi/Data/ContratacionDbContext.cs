@@ -17,12 +17,12 @@ namespace ContratacionWebApi.Data {
              modelBuilder.Entity<Departamento> ().HasData (
                 new Departamento {
                     Id = 1,
-                        Nombre = "Económico"
+                        Nombre = "ECONÓMICO"
                 });
              modelBuilder.Entity<Departamento> ().HasData (
                 new Departamento {
                     Id = 2,
-                        Nombre = "Jurídico"
+                        Nombre = "JURÍDICO"
                 });
         }
         public DbSet<Contrato> Contratos { get; set; }
