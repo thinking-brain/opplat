@@ -2,18 +2,22 @@
   <v-container grid-list-xl fluid>
     <p
       class="text-center text-uppercase headline font-weight-black"
-    >OFERTA DE {{contrato.tipoNombre}} DE {{contrato.nombre}}.</p>
+    >{{Title}} DE {{contrato.tipoNombre}} DE {{contrato.nombre}}.</p>
     <v-row>
       <!-- DATOS DE LA OFERTA -->
       <v-col>
         <v-card xs12 sm12 flat>
           <v-row class="mx-1">
             <v-col cols="12" md="12" class="pa-2 headline">
-              <h3>Oferta</h3>
+              <h3>Datos {{subTitle}}</h3>
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Vence en:</strong>
               {{contrato.ofertVence}} Días
+            </v-col>
+            <v-col cols="12" md="6" class="pa-2">
+              <strong>Tipo:</strong>
+              {{contrato.tipoNombre}}
             </v-col>
           </v-row>
           <v-row class="mx-1">
@@ -90,18 +94,18 @@
             </v-col>
             <v-col cols="12" md="12" class="pa-2">
               <hr />
-              <strong>Estado de la Oferta:</strong>
-            </v-col>
-            <v-col cols="12" md="3">
-              <strong>Jurídico </strong>
-              <u>{{contrato.estadoJuridicoNombre}}</u>
-            </v-col>
-            <v-col cols="12" md="3">
-              <strong>Económico </strong>
-              <u>{{contrato.estadoEconomicoNombre}}</u>
+              <strong>Estado {{subTitle}}:</strong>
             </v-col>
             <v-col cols="12" md="6">
-              <strong>Comité Contratación </strong>
+              <strong>Jurídico:</strong>
+              <u>{{contrato.estadoJuridicoNombre}}</u>
+            </v-col>
+            <v-col cols="12" md="6">
+              <strong>Económico:</strong>
+              <u>{{contrato.estadoEconomicoNombre}}</u>
+            </v-col>
+            <v-col cols="12" md="12">
+              <strong>Comité Contratación:</strong>
               <u>{{contrato.estadoComitContratacionNombre}}</u>
             </v-col>
           </v-row>
@@ -173,115 +177,116 @@
       </v-col>
       <!-- /DATOS DE LA ENTIDAD PROVEEDORA -->
     </v-row>
-    <v-row class="mx-1">
-      <v-col cols="12" md="2" class="pa-2">
-        <v-switch v-model="switch1" :label="`Ver Dictámenes`"></v-switch>
-      </v-col>
-      <v-col cols="12" md="10" class="pa-2">
-        <v-data-table
-          :headers="headersDictamen"
-          :items="contrato.dictamenes"
-          hide-default-footer
-          fixed-header
-          class="pt-3"
-          dense
-          :search="search"
-          v-if="switch1==true"
-        >
-          <template v-slot:top>
-            <v-toolbar flat color="white">
-              <v-divider class="mx-1" inset vertical></v-divider>
-              <!-- Buscar -->
-              <v-text-field
-                v-model="search"
-                append-icon="mdi-magnify"
-                label="Buscar"
-                single-line
-                hide-details
-                clearable
-                dense
-                class="px-3"
-              ></v-text-field>
-              <!-- /Buscar -->
-              <v-spacer></v-spacer>
-              <v-spacer></v-spacer>
-            </v-toolbar>
-          </template>
+    <v-tabs v-model="tab" class="elevation-2">
+      <v-tab class="caption py-3">Dictámenes</v-tab>
+      <v-tab class="caption py-3">Suplementos</v-tab>
+      <v-tab-item>
+        <!-- Dictamenes -->
+        <v-row class="mx-1">
+          <v-col cols="12" md="12" class="pa-2">
+            <v-data-table
+              :headers="headersDictamen"
+              :items="contrato.dictamenes"
+              hide-default-footer
+              fixed-header
+              class="pt-3"
+              dense
+              :search="search"
+            >
+              <template v-slot:top>
+                <v-toolbar flat color="white">
+                  <v-divider class="mx-1" inset vertical></v-divider>
+                  <!-- Buscar -->
+                  <v-text-field
+                    v-model="search"
+                    append-icon="mdi-magnify"
+                    label="Buscar"
+                    single-line
+                    hide-details
+                    clearable
+                    dense
+                    class="px-3"
+                  ></v-text-field>
+                  <!-- /Buscar -->
+                  <v-spacer></v-spacer>
+                  <v-spacer></v-spacer>
+                </v-toolbar>
+              </template>
 
-          <!-- Actions -->
-          <template v-slot:item.action="{ item }">
-            <v-row>
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
-                    small
-                    v-on="on"
-                    @click="editItem(item)"
-                    slot="activator"
-                    v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
-                  >
-                    <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
-                  </v-btn>
-                </template>
-                <span>Editar</span>
-              </v-tooltip>
-              <v-tooltip top color="black">
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
-                    small
-                    v-on="on"
-                    @click="confirmUpload(item)"
-                    v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
-                  >
-                    <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
-                  </v-btn>
-                </template>
-                <span>Guardar Documento</span>
-              </v-tooltip>
-              <v-tooltip top color="black">
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
-                    small
-                    v-on="on"
-                    @click="download(item)"
-                    v-if="item.filePath !=null"
-                  >
-                    <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
-                  </v-btn>
-                </template>
-                <span>Descargar Documento</span>
-              </v-tooltip>
-              <v-tooltip top color="red darken-3">
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small red darken-3--text"
-                    small
-                    v-on="on"
-                    @click="download(item)"
-                    v-if="item.filePath ==null"
-                  >
-                    <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
-                  </v-btn>
-                </template>
-                <span>No tiene un documento guardado</span>
-              </v-tooltip>
-              <v-tooltip top color="teal">
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
-                    small
-                    v-on="on"
-                    @click="getDetalles(item)"
-                  >
-                    <v-icon>mdi-format-list-bulleted</v-icon>
-                  </v-btn>
-                </template>
-                <span>Detalles</span>
-              </v-tooltip>
-              <!-- <v-tooltip top color="pink">
+              <!-- Actions -->
+              <template v-slot:item.action="{ item }">
+                <v-row>
+                  <v-tooltip top color="primary">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+                        small
+                        v-on="on"
+                        @click="editItem(item)"
+                        slot="activator"
+                        v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
+                      >
+                        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Editar</span>
+                  </v-tooltip>
+                  <v-tooltip top color="black">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+                        small
+                        v-on="on"
+                        @click="confirmUpload(item)"
+                        v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
+                      >
+                        <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Guardar Documento</span>
+                  </v-tooltip>
+                  <v-tooltip top color="black">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+                        small
+                        v-on="on"
+                        @click="download(item)"
+                        v-if="item.filePath !=null"
+                      >
+                        <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Descargar Documento</span>
+                  </v-tooltip>
+                  <v-tooltip top color="red darken-3">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small red darken-3--text"
+                        small
+                        v-on="on"
+                        @click="download(item)"
+                        v-if="item.filePath ==null"
+                      >
+                        <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>No tiene un documento guardado</span>
+                  </v-tooltip>
+                  <v-tooltip top color="teal">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+                        small
+                        v-on="on"
+                        @click="getDetalles(item)"
+                      >
+                        <v-icon>mdi-format-list-bulleted</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Detalles</span>
+                  </v-tooltip>
+                  <!-- <v-tooltip top color="pink">
                 <template v-slot:activator="{ on }">
                   <v-btn
                     class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
@@ -293,121 +298,172 @@
                   </v-btn>
                 </template>
                 <span>Eliminar</span>
-              </v-tooltip> -->
-            </v-row>
-          </template>
-          <!-- /Actions -->
-        </v-data-table>
-        <!-- Editar Dictamen-->
-        <v-dialog v-model="dialog" persistent max-width="900">
-          <v-card>
-            <v-toolbar dark fadeOnScroll color="blue darken-3">
-              <v-spacer></v-spacer>
-              <v-toolbar-items>
-                <v-btn icon dark @click="dialog=false">
-                  <v-icon>mdi-close</v-icon>
-                </v-btn>
-              </v-toolbar-items>
-            </v-toolbar>
-            <v-card-text>
-              <p class="text-left title">Datos a llenar del Dictamen:</p>
-              <v-row>
-                <v-layout row wrap class="px-3">
-                  <v-flex cols="2" md3 class="px-3 pt-3">
-                    <v-text-field
-                      v-model="dictamen.numero"
-                      label="Número de Dictamen"
-                      :error-messages="messagesNumDictamen"
-                      prefix="#"
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex cols="2" md9 class="px-3">
-                    <v-textarea v-model="dictamen.observaciones" label="Observaciones" rows="1"></v-textarea>
-                  </v-flex>
-                  <v-flex cols="2" md6 class="px-3">
-                    <v-textarea v-model="dictamen.consideraciones" label="Consideraciones" rows="2"></v-textarea>
-                  </v-flex>
-                  <v-flex cols="2" md6 class="px-3">
-                    <v-textarea v-model="dictamen.recomendaciones" label="Recomendaciones" rows="2"></v-textarea>
-                  </v-flex>
-                  <v-flex cols="2" xs12 md6 class="px-3">
-                    <v-file-input
-                      v-model="file"
-                      show-size
-                      prepend-icon="mdi-note-multiple"
-                      label="Seleccione el dictamen del contrato"
-                    ></v-file-input>
-                  </v-flex>
-                  <v-flex cols="2" md6 class="px-3">
-                    <v-text-field
-                      v-model="dictamen.fundamentosDeDerecho"
-                      label="Fundamentos de Derecho"
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex cols="2" md6 class="px-1">
-                    <v-alert v-if="message" border="left" color="red" dark>{{ message }}</v-alert>
-                  </v-flex>
-                </v-layout>
-              </v-row>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="green darken-1" dark text @click="save()">Aceptar</v-btn>
-                <v-btn text @click="dialog=false">Cancelar</v-btn>
-              </v-card-actions>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
-        <!-- /Editar Dictamen-->
+                  </v-tooltip>-->
+                </v-row>
+              </template>
+              <!-- /Actions -->
+            </v-data-table>
+            <!-- Editar Dictamen-->
+            <v-dialog v-model="dialog" persistent max-width="900">
+              <v-card>
+                <v-toolbar dark fadeOnScroll color="blue darken-3">
+                  <v-spacer></v-spacer>
+                  <v-toolbar-items>
+                    <v-btn icon dark @click="dialog=false">
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </v-toolbar-items>
+                </v-toolbar>
+                <v-card-text>
+                  <p class="text-left title">Datos a llenar del Dictamen:</p>
+                  <v-row>
+                    <v-layout row wrap class="px-3">
+                      <v-flex cols="2" md3 class="px-3 pt-3">
+                        <v-text-field
+                          v-model="dictamen.numero"
+                          label="Número de Dictamen"
+                          :error-messages="messagesNumDictamen"
+                          prefix="#"
+                        ></v-text-field>
+                      </v-flex>
+                      <v-flex cols="2" md9 class="px-3">
+                        <v-textarea v-model="dictamen.observaciones" label="Observaciones" rows="1"></v-textarea>
+                      </v-flex>
+                      <v-flex cols="2" md6 class="px-3">
+                        <v-textarea
+                          v-model="dictamen.consideraciones"
+                          label="Consideraciones"
+                          rows="2"
+                        ></v-textarea>
+                      </v-flex>
+                      <v-flex cols="2" md6 class="px-3">
+                        <v-textarea
+                          v-model="dictamen.recomendaciones"
+                          label="Recomendaciones"
+                          rows="2"
+                        ></v-textarea>
+                      </v-flex>
+                      <v-flex cols="2" xs12 md6 class="px-3">
+                        <v-file-input
+                          v-model="file"
+                          show-size
+                          prepend-icon="mdi-note-multiple"
+                          label="Seleccione el dictamen del contrato"
+                        ></v-file-input>
+                      </v-flex>
+                      <v-flex cols="2" md6 class="px-3">
+                        <v-text-field
+                          v-model="dictamen.fundamentosDeDerecho"
+                          label="Fundamentos de Derecho"
+                        ></v-text-field>
+                      </v-flex>
+                      <v-flex cols="2" md6 class="px-1">
+                        <v-alert v-if="message" border="left" color="red" dark>{{ message }}</v-alert>
+                      </v-flex>
+                    </v-layout>
+                  </v-row>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="green darken-1" dark text @click="save()">Aceptar</v-btn>
+                    <v-btn text @click="dialog=false">Cancelar</v-btn>
+                  </v-card-actions>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
+            <!-- /Editar Dictamen-->
 
-        <!-- Detalles del dictamen -->
-        <v-dialog v-model="dialog1" persistent max-width="900">
-          <v-card>
-            <v-toolbar dark fadeOnScroll color="blue darken-3">
-              <v-spacer></v-spacer>
-              <v-toolbar-items>
-                <v-btn icon dark @click="dialog1=false">
-                  <v-icon>mdi-close</v-icon>
-                </v-btn>
-              </v-toolbar-items>
-            </v-toolbar>
-            <v-card-text>
-              <p class="text-center title mt-2">Detalles del Dictamen:</p>
-              <v-row class="mx-1">
-                <v-col cols="12" md="6" class="pa-2">
-                  <strong>Número :</strong>
-                  {{dictamen.numero}}
-                </v-col>
-                <v-col cols="12" md="6" class="pa-2">
-                  <strong>Pertenece al contrato :</strong>
-                  {{contrato.nombre}}
-                </v-col>
-                <v-col cols="12" md="6" class="pa-2">
-                  <strong>Observaciones :</strong>
-                  {{dictamen.observaciones}}
-                </v-col>
-                <v-col cols="12" md="6" class="pa-2">
-                  <strong>Consideraciones :</strong>
-                  {{dictamen.consideraciones}}
-                </v-col>
-                <v-col cols="12" md="6" class="pa-2">
-                  <strong>Recomendaciones</strong>
-                  {{dictamen.recomendaciones}}
-                </v-col>
-                <v-col cols="12" md="6" class="pa-2">
-                  <strong>FundamentosDeDerecho</strong>
-                  {{dictamen.fundamentosDeDerecho}}
-                </v-col>
-                <v-col cols="12" md="6" class="pa-2">
-                  <strong>Fecha del Dictamen :</strong>
-                  {{dictamen.fecha}}
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
-        <!-- /Detalles del dictamen -->
-      </v-col>
-    </v-row>
+            <!-- Detalles del dictamen -->
+            <v-dialog v-model="dialog1" persistent max-width="900">
+              <v-card>
+                <v-toolbar dark fadeOnScroll color="blue darken-3">
+                  <v-spacer></v-spacer>
+                  <v-toolbar-items>
+                    <v-btn icon dark @click="dialog1=false">
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </v-toolbar-items>
+                </v-toolbar>
+                <v-card-text>
+                  <p class="text-center title mt-2">Detalles del Dictamen:</p>
+                  <v-row class="mx-1">
+                    <v-col cols="12" md="6" class="pa-2">
+                      <strong>Número :</strong>
+                      {{dictamen.numero}}
+                    </v-col>
+                    <v-col cols="12" md="6" class="pa-2">
+                      <strong>Pertenece al contrato :</strong>
+                      {{contrato.nombre}}
+                    </v-col>
+                    <v-col cols="12" md="6" class="pa-2">
+                      <strong>Observaciones :</strong>
+                      {{dictamen.observaciones}}
+                    </v-col>
+                    <v-col cols="12" md="6" class="pa-2">
+                      <strong>Consideraciones :</strong>
+                      {{dictamen.consideraciones}}
+                    </v-col>
+                    <v-col cols="12" md="6" class="pa-2">
+                      <strong>Recomendaciones</strong>
+                      {{dictamen.recomendaciones}}
+                    </v-col>
+                    <v-col cols="12" md="6" class="pa-2">
+                      <strong>FundamentosDeDerecho</strong>
+                      {{dictamen.fundamentosDeDerecho}}
+                    </v-col>
+                    <v-col cols="12" md="6" class="pa-2">
+                      <strong>Fecha del Dictamen :</strong>
+                      {{dictamen.fecha}}
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
+            <!-- /Detalles del dictamen -->
+          </v-col>
+        </v-row>
+        <!-- /Dictamenes -->
+      </v-tab-item>
+      <v-tab-item>
+        <!-- Suplementos -->
+        <v-row class="mx-1">
+          <v-col cols="12" md="12" class="pa-2">
+            <v-data-table
+              :headers="headerSuplementos"
+              :items="suplementos"
+              hide-default-footer
+              fixed-header
+              class="pt-3"
+              :search="search"
+              flat
+            >
+              <template v-slot:item.ofertVence="{ item }">
+                <v-chip :color="getColor(item.ofertVence)" dark>{{ item.ofertVence }} días</v-chip>
+              </template>
+              <template v-slot:top>
+                <v-toolbar flat color="white">
+                  <v-divider class="mx-1" inset vertical></v-divider>
+                  <!-- Buscar -->
+                  <v-text-field
+                    v-model="search"
+                    append-icon="mdi-magnify"
+                    label="Buscar"
+                    single-line
+                    hide-details
+                    clearable
+                    dense
+                    class="px-3"
+                  ></v-text-field>
+                  <!-- /Buscar -->
+                  <v-spacer></v-spacer>
+                  <v-spacer></v-spacer>
+                </v-toolbar>
+              </template>
+            </v-data-table>
+          </v-col>
+        </v-row>
+        <!-- /Suplementos -->
+      </v-tab-item>
+    </v-tabs>
     <v-row>
       <v-col>
         <div class="text-center">
@@ -438,11 +494,14 @@ export default {
     ofertasVenc: "ofertasVenc",
     dictamen: {},
     file: "",
+    suplementos: [],
+    tiempoVenOfertas: [],
+    tabs: null,
+    tab: null,
     textOfertaVence: {
       text: null,
       class: null
     },
-    switch1: false,
     headersCuentas: [
       {
         text: "Número de Cuenta",
@@ -466,13 +525,32 @@ export default {
       { text: "Fecha", value: "fecha" },
       { text: "Acciones", value: "action", sortable: false }
     ],
+    headerSuplementos: [
+      { text: "Identificador", sortable: true, value: "id" },
+      { text: "Nombre", sortable: true, value: "nombre" },
+      { text: "Motivo Suplemento", value: "motivoSuplemento" },
+      { text: "Fecha de Recepción", value: "fechaDeRece" },
+      { text: "Vence", value: "ofertVence" }
+      // { text: "Acciones", value: "action", sortable: false }
+    ],
     message: "",
     messagesNumDictamen: "",
     roles: [],
     username: ""
   }),
-  computed: {},
+  computed: {
+    Title() {
+      return this.contrato.esContrato === true ? "Contrato" : "Oferta";
+    },
+    subTitle() {
+      return this.contrato.esContrato === true
+        ? "del Contrato"
+        : "de la Oferta";
+    }
+  },
   created() {
+    this.getSuplementosFromApi();
+    this.getTiempoVenOfertasFromApi();
     this.roles = this.$store.getters.roles;
     this.username = this.$store.getters.usuario;
   },
@@ -548,10 +626,53 @@ export default {
           name: "OfertasPrestador"
         });
     },
+    getSuplementosFromApi() {
+      var username = this.$store.getters.usuario;
+      const url = api.getUrl(
+        "contratacion",
+        `Contratos?cliente=true&contratoId=${this.contrato.id}`
+      );
+      this.axios.get(url).then(
+        response => {
+          this.suplementos = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     getResponse(response) {
       if (response.status === 200 || response.status === 201) {
         vm.$snotify.success("Exito al realizar la operación");
       }
+    },
+    getColor(ofertVence) {
+      if (ofertVence < this.tiempoVenOfertas.ofertasVencidas) {
+        return "red";
+      } else if (
+        ofertVence >= this.tiempoVenOfertas.ofertasCasiVencDesde &&
+        ofertVence <= this.tiempoVenOfertas.ofertasCasiVencHasta
+      ) {
+        return "deep-orange";
+      } else if (
+        ofertVence >= this.tiempoVenOfertas.ofertasProxVencDesde &&
+        ofertVence <= this.tiempoVenOfertas.ofertasProxVencHasta
+      )
+        return "orange";
+      else {
+        return "green";
+      }
+    },
+    getTiempoVenOfertasFromApi() {
+      const url = api.getUrl("contratacion", "TiempoVenOfertas");
+      this.axios.get(url).then(
+        response => {
+          this.tiempoVenOfertas = response.data[0];
+        },
+        error => {
+          console.log(error);
+        }
+      );
     }
   }
 };

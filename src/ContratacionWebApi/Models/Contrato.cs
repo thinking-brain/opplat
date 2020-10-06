@@ -59,6 +59,7 @@ namespace ContratacionWebApi.Models {
         public virtual ICollection<Suplemento> Suplementos { get; set; }
         public int? ContratoId { get; set; }
         public ICollection<Contrato> Contratos { get; set; }
+        public string MotivoSuplemento { get; set; }
         public Contrato () {
             Estados = new HashSet<HistoricoEstadoContrato> ();
         }

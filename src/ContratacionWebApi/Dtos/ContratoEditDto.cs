@@ -44,5 +44,7 @@ namespace ContratacionWebApi.Models {
         public bool AprobEconomico { get; set; }
         public bool AprobComitContratacion { get; set; }
         public bool Cliente { get; set; }
+        public int? ContratoId { get; set; }
+        public string MotivoSuplemento { get; set; }
     }
 }

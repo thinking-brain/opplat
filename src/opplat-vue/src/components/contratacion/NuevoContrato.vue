@@ -19,6 +19,16 @@
                   label="Tipo"
                 ></v-autocomplete>
               </v-flex>
+              <v-flex cols="2" md3 class="px-1" v-if="editedIndex!=-1">
+                <v-autocomplete
+                  v-model="tipo"
+                  item-text="nombre"
+                  item-value="id"
+                  :items="tipos"
+                  cache-items
+                  label="Tipo"
+                ></v-autocomplete>
+              </v-flex>
               <v-flex cols="2" class="px-1" md3 v-if="suplemento">
                 <v-autocomplete
                   v-model="contratoId"
@@ -29,16 +39,12 @@
                   label="Contrato al que pertenece"
                 ></v-autocomplete>
               </v-flex>
-
-              <v-flex cols="2" md3 class="px-1" v-if="editedIndex!=-1">
-                <v-autocomplete
-                  v-model="tipo"
-                  item-text="nombre"
-                  item-value="id"
-                  :items="tipos"
-                  cache-items
-                  label="Tipo"
-                ></v-autocomplete>
+              <v-flex cols="2" class="px-1" md12 v-if="suplemento">
+                <v-textarea
+                  v-model="contrato.motivoSuplemento"
+                  label="Motivo del Suplemento "
+                  rows="1"
+                ></v-textarea>
               </v-flex>
               <v-flex
                 cols="2"
@@ -286,7 +292,7 @@
         </v-form>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="save(method)">Aceptar</v-btn>
+          <v-btn color="green darken-1" text @click="save(method)" :loading="loading">Aceptar</v-btn>
           <v-btn color="blue darken-1" text @click=" close()">Cancelar</v-btn>
         </v-card-actions>
       </v-flex>
@@ -415,12 +421,13 @@ export default {
     textFormaPago: "",
     loading: false,
     suplemento: false,
-    contratoId:null
+    contratoId: null
   }),
   computed: {
     formTitle() {
       if (this.contrato.id != null) {
         this.editedIndex = this.contrato.id;
+        this.contratoId = this.contrato.contratoId;
       }
       if (this.editedIndex != -1) {
         this.entidad = this.contrato.entidad;
@@ -428,7 +435,9 @@ export default {
           this.entidad = this.entidad.id;
         }
       }
-      return this.editedIndex === -1 ? "Nueva Oferta" : "Editar Oferta";
+      if (this.contrato.tipo == 12) {
+        return "Suplementar Contrato";
+      } else return this.editedIndex === -1 ? "Nueva Oferta" : "Editar Oferta";
     },
     method() {
       return this.editedIndex === -1 ? "POST" : "PUT";
@@ -458,7 +467,12 @@ export default {
     tipo: function() {
       if (this.tipo == 12) {
         this.suplemento = true;
+      } else {
+        this.suplemento = false;
       }
+    },
+    contratoId: function() {
+      this.contrato.contratoId = this.contratoId;
     }
   },
 
@@ -478,6 +492,7 @@ export default {
     this.roles = this.$store.getters.roles;
     this.username = this.$store.getters.usuario;
     this.montos = this.contrato.montos;
+    this.tipo = this.contrato.tipo;
   },
 
   methods: {
@@ -498,9 +513,10 @@ export default {
       );
     },
     getContratosFromApi() {
+      var username = this.$store.getters.usuario;
       const url = api.getUrl(
         "contratacion",
-        `Contratos?tipoTramite=contrato&cliente=true&username=${this.username}&roles=${this.roles}`
+        `Contratos?tipoTramite=contrato&cliente=true&username=${username}&roles=${this.roles}`
       );
       this.axios.get(url).then(
         response => {
@@ -644,7 +660,6 @@ export default {
       );
     },
     save(method) {
-      this.loading = true;
       const url = api.getUrl("contratacion", "Contratos");
       var fechaporDefecto = new Date("01/01/0001");
       this.contrato.entidad = this.entidad;
@@ -665,6 +680,8 @@ export default {
           }
           if (this.$refs.form.validate()) {
             this.contrato.username = this.username;
+            this.contrato.tipo = this.tipo;
+            this.loading = true;
             this.axios.post(url, this.contrato).then(
               response => {
                 this.getResponse(response);
@@ -708,6 +725,7 @@ export default {
             this.montos.push(this.montoAndMoneda);
           }
           this.contrato.montos = this.montos;
+          this.contrato.tipo = this.tipo;
           const url = api.getUrl("contratacion", "Contratos");
           this.axios
             .put(`${url}/${this.contrato.id}`, this.contrato)
@@ -774,8 +792,8 @@ export default {
       if (index >= 0) this.contrato.formasDePago.splice(index, 1);
     },
     removeDictaminadores(item) {
-      const index = this.contrato.dictaminadores.indexOf(item.id);
-      if (index >= 0) this.contrato.dictaminadores.splice(index, 1);
+      const index = this.contrato.departamentos.indexOf(item.id);
+      if (index >= 0) this.contrato.departamentos.splice(index, 1);
     },
     agregar() {
       if (

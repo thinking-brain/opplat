@@ -270,7 +270,7 @@
               </v-btn>
             </template>
             <span>Editar</span>
-          </v-tooltip>       
+          </v-tooltip>
           <v-tooltip top color="black">
             <template v-slot:activator="{ on }">
               <v-btn
@@ -372,7 +372,7 @@ export default {
       montos: [],
       username: "",
       roles: null,
-      fechaDeFirmado:null
+      fechaDeFirmado: null
     },
     file: null,
     estados: [],
@@ -396,8 +396,9 @@ export default {
     roles: [],
     username: {},
     headers: [
-      { text: "Número", sortable: true, value: "numero" },
+      { text: "Id", sortable: true, value: "id" },
       { text: "Nombre", align: "left", sortable: true, value: "nombre" },
+      { text: "Número", sortable: true, value: "numero" },
       { text: "Tipo", value: "tipoNombre" },
       { text: "Vence en", value: "ofertVence" },
       // { text: "Estado del Jurídico", value: "estadoJuridicoNombre" },
@@ -419,7 +420,7 @@ export default {
     },
     estadoComiteCont: function() {
       this.getOfertasFromApi();
-    },
+    }
   },
 
   created() {
@@ -494,7 +495,6 @@ export default {
         especialistasExternos: [],
         username: null
       };
-      contrato;
       this.$router.push({
         name: "Nuevo_Contrato",
         query: {
@@ -525,8 +525,8 @@ export default {
       this.oferta.username = this.username;
       this.oferta.roles = this.roles;
       this.oferta.entidad = item.entidad[0];
-      this.oferta.fechaDeFirmado = new Date("01/01/0001");
       this.oferta.adminContrato = item.adminContrato.id;
+      this.oferta.contratoId = item.id;
 
       for (let index = 0; index < this.oferta.formasDePago.length; index++) {
         this.oferta.formasDePago[index] = item.formasDePago[index].id;

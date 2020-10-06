@@ -84,7 +84,7 @@
                 <v-date-picker v-model="contrato.fechaDeFirmado" @input="menu = false"></v-date-picker>
               </v-menu>
             </v-flex>
-            <v-flex cols="2" md4 class="px-3" v-if="roles.includes('juridico')">
+            <v-flex cols="2" md3 class="px-3" v-if="roles.includes('juridico')">
               <v-menu
                 v-model="menu1"
                 :close-on-content-click="false"
@@ -101,9 +101,10 @@
                     clearable
                     v-on="on"
                     required
+                    class="px-3"
                   ></v-text-field>
                 </template>
-                <v-date-picker v-model="contrato.fechaDeVencimiento" @input="menu1 = false"></v-date-picker>
+                <v-date-picker v-model="contrato.fechaVenContrato" @input="menu1 = false"></v-date-picker>
               </v-menu>
             </v-flex>
           </v-layout>
@@ -146,7 +147,6 @@ export default {
     this.roles = this.$store.getters.roles;
     this.username = this.$store.getters.usuario;
     this.contrato.id = this.contrato.id;
-    this.contrato.fechaDeFirmado = null;
     this.getEstadosParaAprobarFromApi();
     this.getEstadoByRool();
     this.getDictamenesByContratoId();
@@ -246,7 +246,6 @@ export default {
         }
       );
     },
-
     close() {
       if (this.contrato.cliente == true) {
         this.$router.push({

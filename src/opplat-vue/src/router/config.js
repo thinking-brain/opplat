@@ -489,7 +489,7 @@ export const protectedRoute = [
         path: '/contratacion/contrato/nuevo',
         name: 'Nuevo_Contrato',
         props: route => ({
-          contrato: route.query.contrato,
+          contrato: route.query.contrato
         }),
         meta: {
           title: 'Nuevo_Contrato',

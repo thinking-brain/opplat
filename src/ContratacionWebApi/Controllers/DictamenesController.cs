@@ -53,17 +53,19 @@ namespace ContratacionWebApi.Controllers {
             }
             if (file != null) {
                 var contrato = context.Contratos.FirstOrDefault (c => c.Id == ContratoId);
-
+                if (contrato.FilePath == null) {
+                return BadRequest ("No tiene un documento de contrato guardado por lo que no se puede dictaminar");
+                }
                 var dictamen = new Dictamen {
-                    ContratoId = ContratoId,
-                    Numero = NumeroDeDictamen,
-                    Observaciones = Observaciones,
-                    FundamentosDeDerecho = FundamentosDeDerecho,
-                    Consideraciones = Consideraciones,
-                    Recomendaciones = Recomendaciones,
-                    Username = Username,
-                    FechaDictamen = DateTime.Now,
-                    OtrosSi = OtrosSi
+                ContratoId = ContratoId,
+                Numero = NumeroDeDictamen,
+                Observaciones = Observaciones,
+                FundamentosDeDerecho = FundamentosDeDerecho,
+                Consideraciones = Consideraciones,
+                Recomendaciones = Recomendaciones,
+                Username = Username,
+                FechaDictamen = DateTime.Now,
+                OtrosSi = OtrosSi
                 };
                 string folderName = Path.Combine (_hostingEnvironment.WebRootPath, "Contratos");
                 string subFolder = System.IO.Path.Combine (folderName, departamento.Nombre);
