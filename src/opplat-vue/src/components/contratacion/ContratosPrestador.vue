@@ -127,34 +127,53 @@
         <!-- /Cantidad de Contratos Vencidos -->
       </v-toolbar>
     </template>
+    <!-- Actions -->
     <template v-slot:item.action="{ item }">
-      <v-tooltip top color="teal">
-        <template v-slot:activator="{ on }">
-          <v-btn
-            class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
-            small
-            v-on="on"
-            @click="getDetalles(item)"
-          >
-            <v-icon>mdi-format-list-bulleted</v-icon>
-          </v-btn>
-        </template>
-        <span>Detalles</span>
-      </v-tooltip>
-      <v-tooltip top color="black">
-        <template v-slot:activator="{ on }">
-          <v-btn
-            class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
-            small
-            v-on="on"
-            @click="download(item)"
-          >
-            <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
-          </v-btn>
-        </template>
-        <span>Descargar Documento</span>
-      </v-tooltip>
+      <v-row>
+        <v-tooltip top color="primary">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+              small
+              v-on="on"
+              @click="newSuplemento(item)"
+              slot="activator"
+              v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+            >
+              <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+            </v-btn>
+          </template>
+          <span>Suplementar Contrato</span>
+        </v-tooltip>
+        <v-tooltip top color="teal">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+              small
+              v-on="on"
+              @click="getDetalles(item)"
+            >
+              <v-icon>mdi-format-list-bulleted</v-icon>
+            </v-btn>
+          </template>
+          <span>Detalles</span>
+        </v-tooltip>
+        <v-tooltip top color="black">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+              small
+              v-on="on"
+              @click="download(item)"
+            >
+              <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+            </v-btn>
+          </template>
+          <span>Descargar Documento</span>
+        </v-tooltip>
+      </v-row>
     </template>
+    <!-- /Actions -->
   </v-data-table>
 </template>
 <script>
@@ -166,7 +185,9 @@ export default {
     editedIndex: -1,
     tabs: null,
     contratos: [],
-    contrato: {},
+    contrato: {
+      esContrato: true
+    },
     cantContratos: 0,
     enTiempo: 0,
     casiVenc: 0,
@@ -193,7 +214,8 @@ export default {
       { text: "Número", align: "left", sortable: true, value: "numero" },
       { text: "Nombre", sortable: true, value: "nombre" },
       { text: "Tipo", value: "tipoNombre" },
-      { text: "Entidad", value: "entidad.nombre" },
+      { text: "Entidad", value: "entidad[0].nombre" },
+      { text: "Sector", value: "entidad[0].sectorNombre" },
       { text: "Vence", value: "contVence" },
       { text: "Acciones", value: "action", sortable: false }
     ]
@@ -208,17 +230,16 @@ export default {
 
   created() {
     this.roles = this.$store.getters.roles;
-
+    this.username = this.$store.getters.usuario;
     this.getContratosFromApi();
+    this.getTiempoVenContratosFromApi();
   },
 
   methods: {
     getContratosFromApi() {
-      var username = this.$store.getters.usuario;
-
       const url = api.getUrl(
         "contratacion",
-        `Contratos?tipoTramite=contrato&false=true&username=${username}&roles=${this.roles}`
+        `Contratos?tipoTramite=contrato&cliente=false&username=${this.username}&roles=${this.roles}`
       );
       this.axios.get(url).then(
         response => {
@@ -235,6 +256,7 @@ export default {
       this.contrato = Object.assign({}, item);
       this.contrato.entidad = item.entidad[0];
       this.contrato.adminContrato = item.adminContrato;
+      this.contrato.esContrato = true;
       const contrato = this.contrato;
       this.$router.push({
         name: "Detalles_Contrato",
@@ -286,7 +308,7 @@ export default {
     GetVencimientoContrato() {
       const url = api.getUrl(
         "contratacion",
-        "contratos/VencimientoContrato?cliente=false"
+        `contratos/VencimientoContrato?cliente=false&username=${this.username}&roles=${this.roles}`
       );
       this.axios.get(url).then(
         response => {
@@ -305,28 +327,28 @@ export default {
       if (filtro == "contratoTiempo") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratoTiempo&cliente=false"
+          `Contratos?tipoTramite=contrato&filtro=contratoTiempo&cliente=false&username=${this.username}&roles=${this.roles}`
         );
         this.textByfiltro = "Contratos en Tiempo";
       }
       if (filtro == "contratosProxVencer") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratosProxVencer&cliente=false"
+          `Contratos?tipoTramite=contrato&filtro=contratosProxVencer&cliente=false&username=${this.username}&roles=${this.roles}`
         );
         this.textByfiltro = "Contratos Próximos a Vencer";
       }
       if (filtro == "contratosCasiVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratosCasiVenc&cliente=false"
+          `Contratos?tipoTramite=contrato&filtro=contratosCasiVenc&cliente=false&username=${this.username}&roles=${this.roles}`
         );
         this.textByfiltro = "Contratos Casi Vencidos";
       }
       if (filtro == "contratosVenc") {
         this.urlByfiltro = api.getUrl(
           "contratacion",
-          "Contratos?tipoTramite=contrato&filtro=contratosVenc&cliente=false"
+          `Contratos?tipoTramite=contrato&filtro=contratosVenc&cliente=false&username=${this.username}&roles=${this.roles}`
         );
         this.textByfiltro = "Contratos Vencidos";
       }
@@ -340,6 +362,25 @@ export default {
           console.log(error);
         }
       );
+    },
+    newSuplemento(item) {
+      const contrato = {
+        id: item.id,
+        cliente: false,
+        adminContrato: {},
+        dictaminadores: [],
+        montos: [],
+        especialistasExternos: [],
+        username: null,
+        contratoId: item.id,
+        tipo: 12
+      };
+      this.$router.push({
+        name: "Nuevo_Contrato",
+        query: {
+          contrato
+        }
+      });
     }
   }
 };

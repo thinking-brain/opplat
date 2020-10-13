@@ -136,7 +136,7 @@
               class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
               small
               v-on="on"
-              @click="newContrato(item)"
+              @click="newSuplemento(item)"
               slot="activator"
               v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
             >
@@ -214,7 +214,8 @@ export default {
       { text: "Número", align: "left", sortable: true, value: "numero" },
       { text: "Nombre", sortable: true, value: "nombre" },
       { text: "Tipo", value: "tipoNombre" },
-      { text: "Entidad", value: "entidad.nombre" },
+      { text: "Entidad", value: "entidad[0].nombre" },
+      { text: "Sector", value: "entidad[0].sectorNombre" },
       { text: "Vence", value: "contVence" },
       { text: "Acciones", value: "action", sortable: false }
     ]
@@ -362,7 +363,7 @@ export default {
         }
       );
     },
-    newContrato(item) {
+    newSuplemento(item) {
       const contrato = {
         id: item.id,
         cliente: true,

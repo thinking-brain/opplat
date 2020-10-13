@@ -5,8 +5,18 @@
         <h3>{{ formTitle }}</h3>
         <v-form ref="form">
           <v-container grid-list-md text-xs-center>
+            <v-row>
+              <v-flex
+                cols="2"
+                md3
+                class="px-1"
+                v-if="editedIndex!=-1&& (roles.includes('juridico')||roles.includes('administrador'))"
+              >
+                <v-text-field v-model="contrato.numero" label="Número" prefix="#"></v-text-field>
+              </v-flex>
+            </v-row>
             <v-layout row wrap>
-              <v-flex cols="2" md6 class="px-1">
+              <v-flex cols="2" md8 class="px-1">
                 <v-text-field v-model="contrato.nombre" label="Nombre" clearable required></v-text-field>
               </v-flex>
               <v-flex cols="2" class="px-1" md3 v-if="editedIndex==-1">
@@ -19,7 +29,8 @@
                   label="Tipo"
                 ></v-autocomplete>
               </v-flex>
-              <v-flex cols="2" md3 class="px-1" v-if="editedIndex!=-1">
+              <v-spacer></v-spacer>
+              <v-flex cols="2" class="px-1" md3 v-if="editedIndex!=-1">
                 <v-autocomplete
                   v-model="tipo"
                   item-text="nombre"
@@ -29,7 +40,7 @@
                   label="Tipo"
                 ></v-autocomplete>
               </v-flex>
-              <v-flex cols="2" class="px-1" md3 v-if="suplemento">
+              <v-flex cols="2" class="px-1 pt-4" md v-if="suplemento">
                 <v-autocomplete
                   v-model="contratoId"
                   item-text="nombre"
@@ -39,20 +50,12 @@
                   label="Contrato al que pertenece"
                 ></v-autocomplete>
               </v-flex>
-              <v-flex cols="2" class="px-1" md12 v-if="suplemento">
+              <v-flex cols="2" class="px-1 pt-1" md7 v-if="suplemento">
                 <v-textarea
                   v-model="contrato.motivoSuplemento"
                   label="Motivo del Suplemento "
                   rows="1"
                 ></v-textarea>
-              </v-flex>
-              <v-flex
-                cols="2"
-                md3
-                class="px-1"
-                v-if="editedIndex!=-1&& (roles.includes('juridico')||roles.includes('administrador'))"
-              >
-                <v-text-field v-model="contrato.numero" label="Número" prefix="#"></v-text-field>
               </v-flex>
             </v-layout>
             <v-layout row wrap>
@@ -477,6 +480,10 @@ export default {
   },
 
   created() {
+    this.roles = this.$store.getters.roles;
+    this.username = this.$store.getters.usuario;
+    this.montos = this.contrato.montos;
+    this.tipo = this.contrato.tipo;
     this.getOfertasFromApi();
     this.getContratosFromApi();
     this.getEstadosFromApi();
@@ -489,10 +496,6 @@ export default {
     this.getTrabajadoresFromApi();
     this.getTiempoVenOfertasFromApi();
     this.getDepartamentosFromApi();
-    this.roles = this.$store.getters.roles;
-    this.username = this.$store.getters.usuario;
-    this.montos = this.contrato.montos;
-    this.tipo = this.contrato.tipo;
   },
 
   methods: {
@@ -514,10 +517,11 @@ export default {
     },
     getContratosFromApi() {
       var username = this.$store.getters.usuario;
-      const url = api.getUrl(
-        "contratacion",
-        `Contratos?tipoTramite=contrato&cliente=true&username=${username}&roles=${this.roles}`
-      );
+      var direccion = `Contratos?tipoTramite=contrato&cliente=${this.contrato.cliente}&username=${username}&roles=${this.roles}`;
+      if (this.roles == "administrador") {
+        direccion = `Contratos?tipoTramite=contrato&cliente=${this.contrato.cliente}`;
+      }
+      const url = api.getUrl("contratacion", direccion);
       this.axios.get(url).then(
         response => {
           this.contratos = response.data;
