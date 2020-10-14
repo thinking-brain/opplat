@@ -720,8 +720,8 @@ namespace ContratacionWebApi.Controllers {
             return NotFound ($"No tiene un documento guardado");
         }
 
-        [HttpGet ("/contratacion/contratos/Dashboard")]
-        public async Task<IActionResult> Dashboard () {
+        [HttpGet ("Dashboard")]
+        public async Task<IActionResult> Dashboard (string username, string roles) {
             var dashboard = new Dashboard ();
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             var cantOfertas_x_Mes = new int[12];
@@ -732,10 +732,24 @@ namespace ContratacionWebApi.Controllers {
 
             var ofertasContratos = context.Contratos.Where (c => c.FechaDeRecepcion.Year == DateTime.Now.Year);
             var contratos = context.Contratos.Where (c => c.FechaDeFirmado != FechaPorDefecto &&
-                c.EstadoComitContratacion == Estado.Aprobado && c.EstadoContrato == Estado.Aprobado).ToList ();
+                c.EstadoComitContratacion == Estado.Aprobado && c.EstadoContrato == Estado.Aprobado);
 
             var ofertas = context.Contratos.Where (c => c.FechaDeFirmado == FechaPorDefecto && c.EstadoContrato != Estado.Aprobado);
 
+            if (roles != null) {
+                var data = roles.Split (",");
+                if (data.Contains (("administrador contratacion")) || data.Contains (("administrador")) ||
+                    data.Contains (("juridico")) || data.Contains (("economico")) ||
+                    data.Contains (("secretario comite de contratacion"))) {
+                    username = null;
+                }
+            }
+            if (username != null) {
+                var trab = context_rh.Trabajador.FirstOrDefault (t => t.Username == username);
+                contratos = contratos.Where (c => c.AdminContratoId == trab.Id);
+                ofertas = ofertas.Where (c => c.AdminContratoId == trab.Id);
+                ofertasContratos = ofertasContratos.Where (c => c.AdminContratoId == trab.Id);
+            }
             if (ofertas != null) {
                 // Grafico Lineal Ofertas //
                 for (int i = 0; i < 12; i++) {

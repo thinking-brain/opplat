@@ -54,12 +54,7 @@ export default {
             enabled: false
           },
           // labels para mostrar en eje x
-          categories: [
-            "6 Meses",
-            "3 Meses",
-            "Mes Actual",
-           
-          ]
+          categories: ["6 Meses", "3 Meses", "Mes Actual"]
         },
         yaxis: {
           // valor minimo para emezar en eje y
@@ -73,13 +68,18 @@ export default {
     };
   },
   created() {
+    this.roles = this.$store.getters.roles;
+    this.username = this.$store.getters.usuario;
     const d = new Date();
     const year = d.getFullYear();
     this.getOfertasFromApi();
   },
   methods: {
     getOfertasFromApi() {
-      const url = api.getUrl("contratacion", "contratos/Dashboard");
+      const url = api.getUrl(
+        "contratacion",
+        `Contratos/Dashboard?username=${this.username}&roles=${this.roles} `
+      );
       this.axios.get(url).then(
         response => {
           this.ofertas = [

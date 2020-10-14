@@ -119,19 +119,19 @@ export default {
           // mostrar el boton de exportar
           toolbar: {
             show: true,
-            offsetX:0,
-            offsetY:0,
-            tools:{
-              download:false,
-              selection:true,
-              zoom:true,
-              zoomin:true,
-              zoomout:true,
-              pan:true,
-              reset:true,
-              customIcons:[]
+            offsetX: 0,
+            offsetY: 0,
+            tools: {
+              download: false,
+              selection: true,
+              zoom: true,
+              zoomin: true,
+              zoomout: true,
+              pan: true,
+              reset: true,
+              customIcons: []
             },
-            autoSelected:'zoom'
+            autoSelected: "zoom"
           },
           // definir color de fondo general
           background: ""
@@ -171,11 +171,13 @@ export default {
   created() {
     const d = new Date();
     const year = d.getFullYear();
+    this.roles = this.$store.getters.roles;
+    this.username = this.$store.getters.usuario;
     this.getDashboardFromApi();
   },
   methods: {
     getDashboardFromApi() {
-      const url = api.getUrl("contratacion", "contratos/Dashboard");
+      const url = api.getUrl("contratacion", `Contratos/Dashboard?username=${this.username}&roles=${this.roles} `);     
       this.axios.get(url).then(
         response => {
           this.ofertas = [

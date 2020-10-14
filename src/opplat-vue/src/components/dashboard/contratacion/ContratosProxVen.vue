@@ -4,7 +4,7 @@
       <v-col cols="6">
         <VueApexCharts type="bar" :options="contratosOptions" :series="contratosProximosVencer" />
       </v-col>
-        <v-col cols="6">
+      <v-col cols="6">
         <v-card flat class="mr-3 mt-12">
           <table>
             <thead>
@@ -89,8 +89,8 @@ export default {
       contratosProximosVencer: [
         {
           name: "Contratos Próximos a Vencer",
-          data: [0, 0, 0, 0,0]
-        },
+          data: [0, 0, 0, 0, 0]
+        }
       ],
       contratosOptions: {
         title: {
@@ -125,7 +125,7 @@ export default {
             "En 3 Meses",
             "En 6 Meses",
             "Este Año",
-            "Próximo Año",
+            "Próximo Año"
           ]
         },
         yaxis: {
@@ -139,20 +139,25 @@ export default {
     };
   },
   created() {
+    this.roles = this.$store.getters.roles;
+    this.username = this.$store.getters.usuario;
     const d = new Date();
     const year = d.getFullYear();
-        this.getDashboardFromApi();
+    this.getDashboardFromApi();
   },
- methods: {
+  methods: {
     getDashboardFromApi() {
-      const url = api.getUrl("contratacion", "contratos/Dashboard");
+      const url = api.getUrl(
+        "contratacion",
+        `Contratos/Dashboard?username=${this.username}&roles=${this.roles} `
+      );
       this.axios.get(url).then(
         response => {
           this.contratosProximosVencer = [
             {
               name: "Contratos Próximos a Vencer",
               data: response.data.contratosProximosVencer
-            },
+            }
           ];
         },
         error => {
@@ -160,5 +165,6 @@ export default {
         }
       );
     }
-  }};
+  }
+};
 </script>
