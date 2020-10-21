@@ -24,6 +24,7 @@
     "vue": "^2.6.11",
     "vue-apexcharts": "^1.5.2",
     "vue-axios": "^2.1.4",
+    "vue-js-popover": "^1.2.1",
     "vue-perfect-scrollbar": "^0.2.1",
     "vue-router": "^3.1.5",
     "vue-snotify": "^3.2.1",

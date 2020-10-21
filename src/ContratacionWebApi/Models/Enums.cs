@@ -50,7 +50,8 @@ namespace ContratacionWebApi.Models {
         Sin_Definir,
         USD,
         CUP,
-        CUC
+        CUC,
+        MLC
     }
     public enum Sector {
         Sin_Definir,

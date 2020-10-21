@@ -36,7 +36,7 @@
               </v-toolbar-items>
             </v-toolbar>
             <v-form ref="form">
-                <p
+              <p
                 class="text-center title font-italic mt-12"
               >Seleccione los, o el Miembro del Comité de Contratación</p>
               <v-container grid-list-md text-xs-center>
@@ -94,7 +94,9 @@
             </v-toolbar-items>
           </v-toolbar>
           <v-card>
-            <v-card-title class="headline text-center">Seguro que deseas eliminar el Comité de Contratación</v-card-title>
+            <v-card-title
+              class="headline text-center"
+            >Seguro que deseas eliminar el Comité de Contratación</v-card-title>
             <v-card-text class="text-center">{{trabComiteContratacion.nombre}}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -107,13 +109,26 @@
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
-      <v-btn
-        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
-        small
-        @click="confirmDelete(item)"
-      >
-        <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
-      </v-btn>
+      <v-menu v-model="menu" :close-on-content-click="false" :nudge-width="20" offset-x>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+            small
+            dark
+            v-on="on"
+          >
+            <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+          </v-btn>
+        </template>
+        <v-card color="white" persistent>
+          <p class="text-center title font-italic mt-3">¿Estas Seguro?</p>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-btn color="red" text @click="deleteItem(item)">Sí</v-btn>
+            <v-btn color="primary" text @click="menu = false">No</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
     </template>
   </v-data-table>
 </template>
@@ -219,17 +234,14 @@ export default {
           );
       }
     },
-    confirmDelete(item) {
-      this.trabComiteContratacion=item.trabComiteContratacion;
-      this.dialog2 = true;
-    },
-    deleteItem() {
+    deleteItem(item) {
+      this.trabComiteContratacion = item.trabComiteContratacion;
       const url = api.getUrl("contratacion", "ComiteContratacion");
       this.axios.delete(`${url}/${this.trabComiteContratacion.id}`).then(
         response => {
           this.getResponse(response);
           this.getComiteContratacionFromApi();
-          this.dialog2 = false;
+          this.menu = false;
         },
         error => {
           console.log(error);

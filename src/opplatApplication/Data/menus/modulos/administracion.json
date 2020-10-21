@@ -3,20 +3,32 @@
         "title": "Usuarios",
         "group": "modulos",
         "icon": "mdi-account-multiple",
-        "component": "UserList",
         "name": "Usuarios",
+        "component": "UserList",
         "roles": [
             "administrador"
-        ]
-    },
-    {
-        "title": "Usuarios VS Trabajadores",
-        "group": "modulos",
-        "icon": "mdi-account-multiple",
-        "component": "Users_VS_Trab",
-        "name": "Users_VS_Trab",
-        "roles": [
-            "administrador"
+        ],
+        "items": [
+            {
+                "title": "Usuarios",
+                "group": "modulos",
+                "icon": "mdi-account-multiple",
+                "component": "UserList",
+                "name": "Usuarios",
+                "roles": [
+                    "administrador"
+                ]
+            },
+            {
+                "title": "Usuario VS Trabajador",
+                "group": "modulos",
+                "icon": "mdi-account-multiple",
+                "component": "Users_VS_Trab",
+                "name": "Users_VS_Trab",
+                "roles": [
+                    "administrador"
+                ]
+            }
         ]
     },
     {

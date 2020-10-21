@@ -140,7 +140,7 @@
               slot="activator"
               v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
             >
-              <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+              <v-icon>mdi-file-replace-outline</v-icon>
             </v-btn>
           </template>
           <span>Suplementar Contrato</span>
@@ -365,16 +365,16 @@ export default {
     },
     newSuplemento(item) {
       const contrato = {
-        id: item.id,
         cliente: true,
-        adminContrato: {},
+        adminContrato: item.adminContrato.id,
         dictaminadores: [],
         montos: [],
         especialistasExternos: [],
         username: null,
         contratoId: item.id,
-        tipo: 12
+        tipo: 12,
       };
+
       this.$router.push({
         name: "Nuevo_Contrato",
         query: {

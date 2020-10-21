@@ -6,7 +6,9 @@
           <h3>Usuarios VS Trabajadores</h3>
         </v-flex>
         <v-flex sm12 md3 class="px-6">
-          <UserTrabajador></UserTrabajador>
+          <p>
+            <UserTrabajador></UserTrabajador> Nuevo
+          </p>
         </v-flex>
         <v-flex lg12>
           <v-card>

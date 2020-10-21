@@ -432,8 +432,7 @@ export default {
         this.editedIndex = this.contrato.id;
         this.contratoId = this.contrato.contratoId;
       }
-      if (this.editedIndex != -1) {
-        this.entidad = this.contrato.entidad;
+      if (this.editedIndex != -1 && this.tipo != 12) {
         if (this.montoAndMoneda.cantidad != null) {
           this.entidad = this.entidad.id;
         }
@@ -443,7 +442,9 @@ export default {
       } else return this.editedIndex === -1 ? "Nueva Oferta" : "Editar Oferta";
     },
     method() {
-      return this.editedIndex === -1 ? "POST" : "PUT";
+      if (this.contrato.tipo == 12) {
+        return "POST";
+      } else return this.editedIndex === -1 ? "POST" : "PUT";
     }
   },
   watch: {
@@ -667,7 +668,6 @@ export default {
       const url = api.getUrl("contratacion", "Contratos");
       var fechaporDefecto = new Date("01/01/0001");
       this.contrato.entidad = this.entidad;
-
       if (method === "POST") {
         if (
           this.montoAndMoneda.cantidad != null &&
@@ -730,6 +730,7 @@ export default {
           }
           this.contrato.montos = this.montos;
           this.contrato.tipo = this.tipo;
+
           const url = api.getUrl("contratacion", "Contratos");
           this.axios
             .put(`${url}/${this.contrato.id}`, this.contrato)

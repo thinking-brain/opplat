@@ -266,7 +266,7 @@
                 slot="activator"
                 v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
               >
-                <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+                <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
               </v-btn>
             </template>
             <span>Editar</span>
@@ -299,16 +299,16 @@
             </template>
             <span>Descargar Documento</span>
           </v-tooltip>
-          <v-tooltip top color="red darken-3">
+          <v-tooltip top color="warning">
             <template v-slot:activator="{ on }">
               <v-btn
-                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small red darken-3--text"
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small warning darken-3--text"
                 small
                 v-on="on"
                 @click="download(item)"
                 v-if="item.filePath ==null"
               >
-                <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+              <v-icon>mdi-file-question-outline</v-icon>
               </v-btn>
             </template>
             <span>No tiene un documento guardado</span>
@@ -401,7 +401,6 @@ export default {
       { text: "Número", sortable: true, value: "numero" },
       { text: "Tipo", value: "tipoNombre" },
       { text: "Vence en", value: "ofertVence" },
-      // { text: "Estado del Jurídico", value: "estadoJuridicoNombre" },
       { text: "Estado", value: "estadoNombre" },
       { text: "Acciones", value: "action", sortable: false }
     ],

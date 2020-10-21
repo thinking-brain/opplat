@@ -79,14 +79,26 @@
       >
         <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
       </v-btn>
-      <v-btn
-        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
-        small
-        @click="confirmDelete(item)"
-        v-if="item.nombre!='Jurídico' && item.nombre!='Económico' "
-      >
-        <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
-      </v-btn>
+      <v-menu v-model="menu" :close-on-content-click="false" :nudge-width="20" offset-x>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+            small
+            dark
+            v-on="on"
+          >
+            <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+          </v-btn>
+        </template>
+        <v-card color="white" persistent>
+          <p class="text-center title font-italic mt-3">¿Estas Seguro?</p>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-btn color="red" text @click="deleteItem(item)">Sí</v-btn>
+            <v-btn color="primary" text @click="menu = false">No</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
     </template>
   </v-data-table>
 </template>
@@ -184,17 +196,14 @@ export default {
           );
       }
     },
-    confirmDelete(item) {
-      this.departamento = Object.assign({}, item);
-      this.dialog2 = true;
-    },
-    deleteItem(departamento) {
+    deleteItem(item) {
+      var departamento = item;
       const url = api.getUrl("contratacion", "Departamentos");
       this.axios.delete(`${url}/${departamento.id}`).then(
         response => {
           this.getResponse(response);
           this.getDepartamentosFromApi();
-          this.dialog2 = false;
+          this.menu = false;
         },
         error => {
           console.log(error);

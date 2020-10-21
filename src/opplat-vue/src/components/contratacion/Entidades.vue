@@ -63,7 +63,7 @@
                   </v-flex>
                   <v-flex cols="2" class="px-2">
                     <v-text-field
-                      v-model="entidad.nit"
+                      v-model="nit"
                       label="NIT"
                       :error-messages="textNit"
                       :rules="NitRules"
@@ -105,6 +105,7 @@
                     <v-text-field
                       v-model="entidad.correo"
                       label="Correo"
+                      placeholder="nombre correo@subdominio.dominio"
                       clearable
                       :rules="emailRules"
                     ></v-text-field>
@@ -631,13 +632,26 @@
         <v-icon>mdi-format-list-bulleted</v-icon>
       </v-btn>
 
-      <v-btn
-        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
-        small
-        @click="confirmDelete(item)"
-      >
-        <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
-      </v-btn>
+      <v-menu v-model="menu" :close-on-content-click="false" :nudge-width="20" offset-x>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+            small
+            dark
+            v-on="on"
+          >
+            <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+          </v-btn>
+        </template>
+        <v-card color="white" persistent>
+          <p class="text-center title font-italic mt-3">¿Estas Seguro?</p>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-btn color="red" text @click="deleteItem(item)">Sí</v-btn>
+            <v-btn color="primary" text @click="menu = false">No</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
     </template>
   </v-data-table>
 </template>
@@ -714,7 +728,8 @@ export default {
     emailRules: [v => /.+@.+\..+/.test(v) || "No tiene la estructura correcta"],
     NombreRules: [v => !!v || "El Nombre es Requerido"],
     DireccionRules: [v => !!v || "La Dirección es Requerida"],
-    NitRules: [v => !!v || "El NIT es Requerido"],
+    NitRules: [v => /^[0-9]*$/.test(v) || "Este campo solo acepta números"],
+    nit: null,
     textNit: "",
     errors: [],
     errorController: null,
@@ -726,21 +741,11 @@ export default {
         value: "nombre"
       },
       { text: "Dirección", value: "direccion" },
-      { text: "NIT", value: "nit" },
+      // { text: "NIT", value: "nit" },
       { text: "Correo", value: "correo" },
       { text: "Sector", value: "sectorNombre" },
       { text: "Acciones", value: "action", sortable: false }
     ],
-    // headerstelefonos: [
-    //   {
-    //     text: "Número",
-    //     align: "left",
-    //     sortable: true,
-    //     value: "numero"
-    //   },
-    //   { text: "Extensión ", value: "ext" },
-    //   { text: "Acciones", value: "action", sortable: false }
-    // ],
     headersCuentas: [
       {
         text: "Número de Cuenta",
@@ -768,8 +773,13 @@ export default {
   watch: {
     dialog(val) {
       val || this.close();
-      this.$refs.form.reset();
-    }
+    },
+    // nit: function() {
+    //   if (this.entidades.find(x => x.nit === this.entidad.nit) != null) {
+    //     vm.$snotify.error("Ya hay un proveedor con este NIT");
+    //     this.textNit = "Ya hay un proveedor con este NIT";
+    //   }
+    // }
   },
 
   created() {
@@ -1260,9 +1270,11 @@ export default {
         ];
       }
       // --Asinar los 6 valores del arreglo en dependecia de lo que venga del controller
+      this.nit = this.entidad.nit;
       this.dialog = true;
     },
     save(method) {
+      this.entidad.nit = this.nit;
       const url = api.getUrl("contratacion", "entidades");
       this.modelstate = {};
       if (method === "POST") {
@@ -1336,23 +1348,28 @@ export default {
           ) {
             vm.$snotify.error("Faltan Datos de la Cuenta #6 por Llenar");
           } else {
-            if (this.entidades.find(x => x.nit === this.entidad.nit) != null) {
-              vm.$snotify.error("Ya hay un proveedor con este NIT");
-              this.textNit = "Ya hay un proveedor con este NIT";
+            if (this.nit == null) {
+              this.textNit = "El campo Nit es requerido";
             } else {
-              this.axios.post(url, this.entidad).then(
-                response => {
-                  this.getResponse(response);
-                  this.resetDatos();
-                  this.dialog = false;
-                  this.errorController = null;
-                },
-                error => {
-                  this.errorController = error.response.data;
-                  vm.$snotify.error(error.response.data);
-                  console.log(error);
-                }
-              );
+              if (
+                this.entidades.find(x => x.nit === this.entidad.nit) != null
+              ) {
+                vm.$snotify.error("Ya hay un proveedor con este NIT");
+                this.textNit = "Ya hay un proveedor con este NIT";
+              } else {
+                this.axios.post(url, this.entidad).then(
+                  response => {
+                    this.getResponse(response);
+                    this.getEntidadesFromApi();
+                    this.dialog = false;
+                    this.errorController = null;
+                  },
+                  error => {
+                    this.errorController = error.response.data;
+                    console.log(error);
+                  }
+                );
+              }
             }
           }
         } else {
@@ -1360,16 +1377,87 @@ export default {
         }
       }
       if (method === "PUT") {
-        this.axios.put(`${url}/${this.entidad.id}`, this.entidad).then(
-          response => {
-            this.getResponse(response);
-            this.resetDatos();
-            this.dialog = false;
-          },
-          error => {
-            console.log(error);
-          }
-        );
+        const errors = [];
+        if (
+          this.entidad.cuentasBancarias[0].numeroCuenta == null ||
+          this.entidad.cuentasBancarias[0].numeroSucursal == null ||
+          this.entidad.cuentasBancarias[0].nombreSucursal == null ||
+          this.entidad.cuentasBancarias[0].moneda == null
+        ) {
+          vm.$snotify.error("Faltan Datos de la Cuenta #1 por Llenar");
+        }
+        if (
+          (this.cantCuentas >= 2 &&
+            this.entidad.cuentasBancarias[1].numeroCuenta == null) ||
+          (this.cantCuentas >= 2 &&
+            this.entidad.cuentasBancarias[1].numeroSucursal == null) ||
+          (this.cantCuentas >= 2 &&
+            this.entidad.cuentasBancarias[1].nombreSucursal == null) ||
+          (this.cantCuentas >= 2 &&
+            this.entidad.cuentasBancarias[1].moneda == null)
+        ) {
+          vm.$snotify.error("Faltan Datos de la Cuenta #2 por Llenar");
+        }
+        if (
+          (this.cantCuentas >= 3 &&
+            this.entidad.cuentasBancarias[2].numeroCuenta == null) ||
+          (this.cantCuentas >= 3 &&
+            this.entidad.cuentasBancarias[2].numeroSucursal == null) ||
+          (this.cantCuentas >= 3 &&
+            this.entidad.cuentasBancarias[2].nombreSucursal == null) ||
+          (this.cantCuentas >= 3 &&
+            this.entidad.cuentasBancarias[2].moneda == null)
+        ) {
+          vm.$snotify.error("Faltan Datos de la Cuenta #3 por Llenar");
+        }
+        if (
+          (this.cantCuentas >= 4 &&
+            this.entidad.cuentasBancarias[3].numeroCuenta == null) ||
+          (this.cantCuentas >= 4 &&
+            this.entidad.cuentasBancarias[3].numeroSucursal == null) ||
+          (this.cantCuentas >= 4 &&
+            this.entidad.cuentasBancarias[3].nombreSucursal == null) ||
+          (this.cantCuentas >= 4 &&
+            this.entidad.cuentasBancarias[3].moneda == null)
+        ) {
+          vm.$snotify.error("Faltan Datos de la Cuenta #4 por Llenar");
+        }
+        if (
+          (this.cantCuentas >= 5 &&
+            this.entidad.cuentasBancarias[4].numeroCuenta == null) ||
+          (this.cantCuentas >= 5 &&
+            this.entidad.cuentasBancarias[4].numeroSucursal == null) ||
+          (this.cantCuentas >= 5 &&
+            this.entidad.cuentasBancarias[4].nombreSucursal == null) ||
+          (this.cantCuentas >= 5 &&
+            this.entidad.cuentasBancarias[4].moneda == null)
+        ) {
+          vm.$snotify.error("Faltan Datos de la Cuenta #5 por Llenar");
+        }
+        if (
+          (this.cantCuentas >= 6 &&
+            this.entidad.cuentasBancarias[5].numeroCuenta == null) ||
+          (this.cantCuentas >= 6 &&
+            this.entidad.cuentasBancarias[5].numeroSucursal == null) ||
+          (this.cantCuentas >= 6 &&
+            this.entidad.cuentasBancarias[5].nombreSucursal == null) ||
+          (this.cantCuentas >= 6 &&
+            this.entidad.cuentasBancarias[5].moneda == null)
+        ) {
+          vm.$snotify.error("Faltan Datos de la Cuenta #6 por Llenar");
+        } else {
+          this.axios.put(`${url}/${this.entidad.id}`, this.entidad).then(
+            response => {
+              this.getResponse(response);
+              this.getEntidadesFromApi();
+              this.dialog = false;
+            },
+            error => {
+              vm.$snotify.error(error.response.data);
+              console.log(error);
+            }
+          );
+        }
       }
     },
     getDetalles(item) {
@@ -1392,12 +1480,10 @@ export default {
       this.cantTelefonos = 1;
       this.dialog3 = true;
     },
-    confirmDelete(item) {
+    deleteItem(item) {
       this.entidad.id = item.id;
       this.entidad.nombre = item.nombre;
-      this.dialog2 = true;
-    },
-    deleteItem() {
+
       const url = api.getUrl("contratacion", "entidades");
       this.axios.delete(`${url}/${this.entidad.id}`).then(
         response => {
@@ -1414,6 +1500,7 @@ export default {
       this.dialog = false;
       this.dialog2 = false;
       this.dialog3 = false;
+      this.nit = null;
       this.entidad = {
         codigo: null,
         cuentasBancarias: [
@@ -1468,66 +1555,13 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
-    resetDatos() {
-      this.getEntidadesFromApi();
-      this.cantTelefonos = 1;
-      this.cantCuentas = 1;
-      this.entidad = {
-        nombre: null,
-        direccion: null,
-        nit: null,
-        correo: null,
-        sector: null,
-        cuentasBancarias: [
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          },
-          {
-            numeroCuenta: null,
-            numeroSucursal: null,
-            nombreSucursal: 0,
-            moneda: 0
-          }
-        ],
-        telefonos: [
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null },
-          { numero: null, extension: null }
-        ]
-      };
-      this.textNit = "";
-      this.errorController = null;
-    },
+    // resetDatos() {
+    //   this.getEntidadesFromApi();
+    //   this.cantTelefonos = 1;
+    //   this.cantCuentas = 1;
+    //   this.textNit = "";
+    //   this.errorController = null;
+    // },
     getResponse(response) {
       if (response.status === 200 || response.status === 201) {
         vm.$snotify.success("Exito al realizar la operación");

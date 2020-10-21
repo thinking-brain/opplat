@@ -491,6 +491,9 @@ namespace ContratacionWebApi.Controllers {
                     }
                     c.EstadoComitContratacion = contrato.Estado;
                     c.EstadoContrato = contrato.Estado;
+                    if (c.Tipo == Tipo.Suplemento && contrato.Estado == Estado.Aprobado) {
+                        c.FechaVenContrato = contrato.FechaDeVencimiento;
+                    }
                     HistoricoEstadoContrato.Estado = contrato.Estado;
                     text = "El secretario del comité de contratación modificó la oferta";
                 } else {

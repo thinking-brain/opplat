@@ -12,9 +12,6 @@
         <v-flex sm12 md3>
           <v-btn @click="dialog=true">Importar de AD o LDAP</v-btn>
         </v-flex>
-        <!-- <v-flex sm12 md3 class="pt-6">
-          <UserTrabajador></UserTrabajador>
-        </v-flex> -->
         <v-flex lg12>
           <v-card>
             <v-card-title>
@@ -65,6 +62,7 @@
                       >
                         <v-icon>mdi-format-list-bulleted</v-icon>
                       </v-btn>
+                      <UserTrabajador v-bind:usuario="item"></UserTrabajador>
                       <ResetPassword v-bind:usuario="item"></ResetPassword>
                       <EditarUsuario v-bind:usuario="item"></EditarUsuario>
                       <CambiarEstadoUsuario v-bind:usuario="item"></CambiarEstadoUsuario>
@@ -127,7 +125,7 @@
                     </v-flex>
                     <v-flex xs12 md9>
                       <v-text-field
-                        label="UNIDAD ORGANIZATIVA"
+                        label="UBICACIÓN"
                         required
                         v-model="userImportForm.UnidadOrganizativa"
                       ></v-text-field>
@@ -268,7 +266,7 @@ export default {
           usuario
         }
       });
-    }
+    },
   }
 };
 </script>

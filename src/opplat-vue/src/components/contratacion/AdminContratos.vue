@@ -20,9 +20,11 @@
           dense
         ></v-text-field>
         <v-spacer></v-spacer>
+
         <template>
           <v-btn color="primary" dark @click="dialog=true" class="mx-1">Nuevo Administrador</v-btn>
         </template>
+
         <!-- Agregar Administrador de Contratos -->
         <v-dialog v-model="dialog" persistent max-width="800">
           <v-card>
@@ -41,7 +43,7 @@
               >Seleccione los Administradores de Contratos</p>
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
-                  <v-flex xs8 class="px-3">
+                  <v-flex xs7 class="px-3">
                     <v-autocomplete
                       v-model="newAdminContratos.administradores"
                       item-text="nombre_Completo"
@@ -83,6 +85,41 @@
                       label="Departamento"
                     ></v-autocomplete>
                   </v-flex>
+                  <v-flex xs1 class="pt-7">
+                    <v-menu
+                      v-model="menu1"
+                      :close-on-content-click="false"
+                      :nudge-width="20"
+                      offset-x
+                    >
+                      <template v-slot:activator="{ on }">
+                        <v-icon v-on="on" slot="append" color="primary">mdi-plus</v-icon>
+                      </template>
+                      <v-card>
+                        <v-toolbar dark fadeOnScroll color="blue darken-3">
+                          <v-flex>Nuevo Departamento</v-flex>
+                        </v-toolbar>
+                        <v-form ref="form">
+                          <v-container grid-list-md text-xs-center>
+                            <v-layout row wrap>
+                              <v-flex xs12 class="px-3">
+                                <v-text-field
+                                  label="Nombre"
+                                  v-model="departamento.nombre"
+                                  clearable
+                                  required
+                                ></v-text-field>
+                              </v-flex>
+                            </v-layout>
+                          </v-container>
+                        </v-form>
+                        <v-card-actions>
+                          <v-btn color="green darken-1" text @click="newDepartamento()">Aceptar</v-btn>
+                          <v-btn color="blue darken-1" text @click="menu1 = false">Cancelar</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-menu>
+                  </v-flex>
                 </v-layout>
               </v-container>
             </v-form>
@@ -94,6 +131,7 @@
           </v-card>
         </v-dialog>
         <!-- /Agregar Administrador de Contratos -->
+
         <!-- Editar Administrador de Contratos -->
         <v-dialog v-model="dialog1" persistent max-width="800">
           <v-card>
@@ -112,15 +150,15 @@
               >Seleccione los Administradores de Contratos</p>
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
-                  <v-flex xs8 class="px-3">
-                    <p-field
+                  <v-flex xs6 class="px-3">
+                    <v-text-field
                       v-model="adminContrato.nombreCompleto"
                       item-value="id"
                       label="Administradores"
                       readonly
-                    ></p-field>
+                    ></v-text-field>
                   </v-flex>
-                  <v-flex xs4 class="px-3">
+                  <v-flex xs6 class="px-3">
                     <v-autocomplete
                       v-model="adminContrato.departamentoId"
                       item-text="nombre"
@@ -275,29 +313,43 @@
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
-      <v-btn
-        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
-        small
-        @click="editItem(item)"
-      >
-        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
-      </v-btn>
+      <v-row>
+        <v-btn
+          class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+          small
+          @click="editItem(item)"
+        >
+          <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+        </v-btn>
 
-      <v-btn
-        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
-        small
-        @click="getDetalles(item)"
-      >
-        <v-icon>mdi-format-list-bulleted</v-icon>
-      </v-btn>
-
-      <v-btn
-        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
-        small
-        @click="confirmDelete(item)"
-      >
-        <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
-      </v-btn>
+        <v-btn
+          class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+          small
+          @click="getDetalles(item)"
+        >
+          <v-icon>mdi-format-list-bulleted</v-icon>
+        </v-btn>
+        <v-menu v-model="menu" :close-on-content-click="false" :nudge-width="20" offset-x>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small pink--text"
+              small
+              dark
+              v-on="on"
+            >
+              <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
+            </v-btn>
+          </template>
+          <v-card color="white" persistent>
+            <p class="text-center title font-italic mt-3">¿Estas Seguro?</p>
+            <v-divider></v-divider>
+            <v-card-actions>
+              <v-btn color="red" text @click="deleteItem(item)">Sí</v-btn>
+              <v-btn color="primary" text @click="menu = false">No</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+      </v-row>
     </template>
   </v-data-table>
 </template>
@@ -306,6 +358,7 @@ import api from "@/api";
 
 export default {
   data: () => ({
+    menu1: false,
     dialog: false,
     dialog1: false,
     dialog2: false,
@@ -323,6 +376,7 @@ export default {
     trabajadores: [],
     tabs: null,
     errors: [],
+    // menu: false,
     headers: [
       {
         text: "Nombre",
@@ -451,18 +505,15 @@ export default {
           );
       }
     },
-    confirmDelete(item) {
+    deleteItem(item) {
       this.adminContrato = item.administrador;
-      this.dialog3 = true;
-    },
-    deleteItem() {
       const url = api.getUrl("contratacion", "AdminContratos");
       this.axios.delete(`${url}/${this.adminContrato.id}`).then(
         response => {
           this.getResponse(response);
           this.getAdminContratosFromApi();
           this.adminContrato = {};
-          this.dialog3 = false;
+          this.menu = false;
         },
         error => {
           console.log(error);
@@ -492,6 +543,21 @@ export default {
     removeAdministradoresContratos(item) {
       const index = this.administradores.indexOf(item.id);
       if (index >= 0) this.administradores.splice(index, 1);
+    },
+    newDepartamento() {
+      const url = api.getUrl("contratacion", "Departamentos");
+      this.axios.post(url, this.departamento).then(
+        response => {
+          this.getResponse(response);
+          this.getDepartamentosFromApi();
+          this.departamento = {};
+          this.menu1 = false;
+        },
+        error => {
+          vm.$snotify.error(error.response.data);
+          console.log(error);
+        }
+      );
     }
   }
 };

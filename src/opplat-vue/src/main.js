@@ -14,6 +14,7 @@ import App from './App.vue';
 import notificationsHub from './notificationsHub';
 import Vuelidate from 'vuelidate';
 import moment from 'moment';
+import Popover from 'vue-js-popover'
 
 const options = {
   toast: {
@@ -31,6 +32,7 @@ Vue.use(VueAxios, axios);
 Vue.use(notificationsHub);
 Vue.use(Vuelidate);
 Vue.use(moment);
+Vue.use(Popover);
 
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 const token = sessionStorage.getItem('token');

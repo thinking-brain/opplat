@@ -221,6 +221,7 @@ namespace ContratacionWebApi.Controllers {
                 new { Id = Moneda.CUP, Nombre = "CUP" },
                 new { Id = Moneda.CUC, Nombre = "CUC" },
                 new { Id = Moneda.USD, Nombre = "USD" },
+                new { Id = Moneda.MLC, Nombre = "MLC" },
             };
             return Ok (tipo);
         }
