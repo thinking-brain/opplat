@@ -266,10 +266,10 @@
                 slot="activator"
                 v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
               >
-                <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+                <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
               </v-btn>
             </template>
-            <span>Editar</span>
+            <span>Dictaminar y Aprobar Contrato</span>
           </v-tooltip>
           <v-tooltip top color="black">
             <template v-slot:activator="{ on }">

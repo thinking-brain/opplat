@@ -259,16 +259,16 @@
                     </template>
                     <span>Descargar Documento</span>
                   </v-tooltip>
-                  <v-tooltip top color="red darken-3">
+                  <v-tooltip top color="warning">
                     <template v-slot:activator="{ on }">
                       <v-btn
-                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small red darken-3--text"
+                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small warning darken-3--text"
                         small
                         v-on="on"
                         @click="download(item)"
                         v-if="item.filePath ==null"
                       >
-                        <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+                        <v-icon>mdi-file-question-outline</v-icon>
                       </v-btn>
                     </template>
                     <span>No tiene un documento guardado</span>
@@ -320,10 +320,11 @@
                     <v-layout row wrap class="px-3">
                       <v-flex cols="2" md3 class="px-3 pt-3">
                         <v-text-field
-                          v-model="dictamen.numero"
+                          v-model="dictamen.id"
                           label="Número de Dictamen"
                           :error-messages="messagesNumDictamen"
                           prefix="#"
+                          readonly
                         ></v-text-field>
                       </v-flex>
                       <v-flex cols="2" md9 class="px-3">
@@ -388,7 +389,7 @@
                   <v-row class="mx-1">
                     <v-col cols="12" md="6" class="pa-2">
                       <strong>Número :</strong>
-                      {{dictamen.numero}}
+                      {{dictamen.id}}
                     </v-col>
                     <v-col cols="12" md="6" class="pa-2">
                       <strong>Pertenece al contrato :</strong>
@@ -518,7 +519,7 @@ export default {
         text: "Número",
         align: "left",
         sortable: true,
-        value: "numero"
+        value: "id"
       },
       { text: "Observaciones", value: "observaciones" },
       { text: "Dictaminó", value: "dictaminador.nombreCompleto" },

@@ -269,7 +269,7 @@
                 <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
               </v-btn>
             </template>
-            <span>Editar</span>
+            <span>Dictaminar y Aprobar Contrato</span>
           </v-tooltip>
           <v-tooltip top color="black">
             <template v-slot:activator="{ on }">

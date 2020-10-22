@@ -40,17 +40,13 @@ namespace ContratacionWebApi.Controllers {
 
         // POST contratacion/Dictamenes
         [HttpPost ("/contratacion/Dictamenes/UploadFile")]
-        public async Task<IActionResult> POST (IFormFile file, int ContratoId, string NumeroDeDictamen, string Observaciones,
+        public async Task<IActionResult> POST (IFormFile file, int ContratoId, string Observaciones,
             string FundamentosDeDerecho, string Consideraciones, string Recomendaciones, string Username, string OtrosSi) {
-            var d = context.Dictamenes.FirstOrDefault (x => x.Numero == NumeroDeDictamen);
 
             var cont = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
             var adminContrato = context.AdminContratos.FirstOrDefault (c => c.AdminContratoId == cont.AdminContratoId);
             var departamento = context.Departamentos.FirstOrDefault (dep => dep.Id == adminContrato.DepartamentoId);
 
-            if (d != null) {
-                return BadRequest ("Ya hay un dictamen con este numero " + NumeroDeDictamen);
-            }
             if (file != null) {
                 var contrato = context.Contratos.FirstOrDefault (c => c.Id == ContratoId);
                 if (contrato.FilePath == null) {
@@ -58,7 +54,6 @@ namespace ContratacionWebApi.Controllers {
                 }
                 var dictamen = new Dictamen {
                 ContratoId = ContratoId,
-                Numero = NumeroDeDictamen,
                 Observaciones = Observaciones,
                 FundamentosDeDerecho = FundamentosDeDerecho,
                 Consideraciones = Consideraciones,
@@ -90,7 +85,7 @@ namespace ContratacionWebApi.Controllers {
 
         // PUT contratacion/dictamenes/id
         [HttpPut]
-        public async Task<IActionResult> PUT (IFormFile file, int ContratoId, string NumeroDeDictamen, string Observaciones,
+        public async Task<IActionResult> PUT (IFormFile file, int ContratoId, string Observaciones,
             string FundamentosDeDerecho, string Consideraciones, string Recomendaciones, string Username, string OtrosSi, int Id) {
             var d = context.Dictamenes.FirstOrDefault (x => x.Id == Id);
             d.ContratoId = ContratoId;
@@ -99,7 +94,6 @@ namespace ContratacionWebApi.Controllers {
             d.Recomendaciones = Recomendaciones;
             d.FechaDictamen = DateTime.Now;
             d.FundamentosDeDerecho = FundamentosDeDerecho;
-            d.Numero = NumeroDeDictamen;
             d.Username = Username;
             d.OtrosSi = OtrosSi;
             if (file != null) {

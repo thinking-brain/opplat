@@ -432,10 +432,8 @@ export default {
         this.editedIndex = this.contrato.id;
         this.contratoId = this.contrato.contratoId;
       }
-      if (this.editedIndex != -1 && this.tipo != 12) {
-        if (this.montoAndMoneda.cantidad != null) {
-          this.entidad = this.entidad.id;
-        }
+      if (this.editedIndex != -1) {
+          this.entidad = this.contrato.entidad.id;
       }
       if (this.contrato.tipo == 12) {
         return "Suplementar Contrato";

@@ -13,14 +13,6 @@
         >Este Contrato ya ha sido dictaminado puede consultar en los detalles del mismo para mas información</p>
         <v-row>
           <v-layout row wrap class="px-3">
-            <v-flex cols="2" md3 class="px-3 pt-3">
-              <v-text-field
-                v-model="dictamen.numero"
-                label="Número de Dictamen"
-                :error-messages="messagesNumDictamen"
-                prefix="#"
-              ></v-text-field>
-            </v-flex>
             <v-flex cols="2" md9 class="px-3">
               <v-textarea v-model="dictamen.observaciones" label="Observaciones" rows="1"></v-textarea>
             </v-flex>

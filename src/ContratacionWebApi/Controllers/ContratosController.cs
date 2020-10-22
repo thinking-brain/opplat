@@ -88,7 +88,6 @@ namespace ContratacionWebApi.Controllers {
                     }),
                     Dictamenes = c.Dictamenes.Select (d => new {
                         Id = d.Id,
-                            Numero = d.Numero,
                             Observaciones = d.Observaciones,
                             Recomendaciones = d.Recomendaciones,
                             Consideraciones = d.Consideraciones,

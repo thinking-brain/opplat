@@ -5,8 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ContratacionWebApi.Models {
     public class Dictamen {
         public int Id { get; set; }
-        [Required]
-        public string Numero { get; set; }
         public string FilePath { get; set; }
         public string Observaciones { get; set; }
         public string FundamentosDeDerecho { get; set; }
