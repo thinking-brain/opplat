@@ -83,29 +83,6 @@
           </v-card>
         </v-dialog>
         <!-- /Agregar y Editar Comité de Contratación -->
-        <!-- Delete Comité de Contratación -->
-        <v-dialog v-model="dialog2" persistent max-width="350px">
-          <v-toolbar dark fadeOnScroll color="red">
-            <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-btn icon dark @click="close()">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </v-toolbar-items>
-          </v-toolbar>
-          <v-card>
-            <v-card-title
-              class="headline text-center"
-            >Seguro que deseas eliminar el Comité de Contratación</v-card-title>
-            <v-card-text class="text-center">{{trabComiteContratacion.nombre}}</v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="red" dark @click="deleteItem(trabComiteContratacion)">Aceptar</v-btn>
-              <v-btn color="primary" @click="close()">Cancelar</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-        <!-- /Delete Comité de Contratación -->
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">

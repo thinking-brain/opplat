@@ -19,7 +19,7 @@
               <v-flex cols="2" md8 class="px-1">
                 <v-text-field v-model="contrato.nombre" label="Nombre" clearable required></v-text-field>
               </v-flex>
-              <v-flex cols="2" class="px-1" md3 v-if="editedIndex==-1">
+              <v-flex cols="2" class="px-1" md3 v-if="!suplemento">
                 <v-autocomplete
                   v-model="tipo"
                   item-text="nombre"
@@ -30,7 +30,7 @@
                 ></v-autocomplete>
               </v-flex>
               <v-spacer></v-spacer>
-              <v-flex cols="2" class="px-1" md3 v-if="editedIndex!=-1">
+              <v-flex cols="2" class="px-1" md3 v-if="suplemento">
                 <v-autocomplete
                   v-model="tipo"
                   item-text="nombre"
@@ -38,6 +38,7 @@
                   :items="tipos"
                   cache-items
                   label="Tipo"
+                  readonly
                 ></v-autocomplete>
               </v-flex>
               <v-flex cols="2" class="px-1 pt-4" md v-if="suplemento">
@@ -48,6 +49,7 @@
                   :items="contratos"
                   cache-items
                   label="Contrato al que pertenece"
+                  readonly
                 ></v-autocomplete>
               </v-flex>
               <v-flex cols="2" class="px-1 pt-1" md7 v-if="suplemento">
@@ -433,15 +435,20 @@ export default {
         this.contratoId = this.contrato.contratoId;
       }
       if (this.editedIndex != -1) {
-          this.entidad = this.contrato.entidad.id;
+        this.entidad = this.contrato.entidad;
       }
       if (this.contrato.tipo == 12) {
-        return "Suplementar Contrato";
+        this.entidad = this.contrato.entidad.id;
+        return "Suplementar Contrato: " + this.contrato.contratoPertenece;
       } else return this.editedIndex === -1 ? "Nueva Oferta" : "Editar Oferta";
     },
     method() {
       if (this.contrato.tipo == 12) {
-        return "POST";
+        if (!this.contrato.edit) {
+          return "POST";
+        } else {
+          return "PUT";
+        }
       } else return this.editedIndex === -1 ? "POST" : "PUT";
     }
   },
@@ -483,6 +490,7 @@ export default {
     this.username = this.$store.getters.usuario;
     this.montos = this.contrato.montos;
     this.tipo = this.contrato.tipo;
+    this.contratoId = this.contrato.contratoId;
     this.getOfertasFromApi();
     this.getContratosFromApi();
     this.getEstadosFromApi();
@@ -664,58 +672,64 @@ export default {
     },
     save(method) {
       const url = api.getUrl("contratacion", "Contratos");
-      var fechaporDefecto = new Date("01/01/0001");
-      this.contrato.entidad = this.entidad;
-      if (method === "POST") {
+      this.contrato.entidad = this.entidad.id;
+      if (this.contrato.tipo == 12) {
+        this.contrato.entidad = this.entidad;
+      }
+      this.contrato.username = this.username;
+      if (
+        this.montoAndMoneda.cantidad == null &&
+        this.montoAndMoneda.moneda == null
+      ) {
         if (
           this.montoAndMoneda.cantidad != null &&
           this.montoAndMoneda.moneda != null
         ) {
           this.montos.push(this.montoAndMoneda);
-          this.contrato.montos = this.montos;
+        }
+        this.contrato.montos = this.montos;
+        this.contrato.tipo = this.tipo;
+        if (this.$refs.form.validate()) {
+          this.contrato.username = this.username;
+          // this.loading = true;
 
-          if (this.contrato.fechaDeRecepcion == null) {
-            this.contrato.fechaDeRecepcion = fechaporDefecto;
-          }
-          if (this.contrato.fechaDeVenOferta == null) {
-            this.contrato.fechaDeVenOferta = fechaporDefecto;
-          }
-          if (this.$refs.form.validate()) {
-            this.contrato.username = this.username;
-            this.contrato.tipo = this.tipo;
-            this.loading = true;
-            this.axios.post(url, this.contrato).then(
-              response => {
-                this.getResponse(response);
-                this.loading = false;
-                if (this.contrato.cliente == true) {
-                  this.$router.push({
-                    name: "OfertasClientes"
-                  });
-                } else
-                  this.$router.push({
-                    name: "OfertasPrestador"
-                  });
-              },
-              error => {
-                vm.$snotify.error(error.response.data);
-                console.log(error);
-              }
-            );
-          }
-        } else if (
-          this.montoAndMoneda.cantidad == null &&
-          this.montoAndMoneda.moneda != null
-        ) {
-          this.messagesCantidad = "Faltan datos por llenar";
-        } else if (
-          this.montoAndMoneda.moneda == null &&
-          this.montoAndMoneda.cantidad != null
-        ) {
-          this.messagesMoneda = "Faltan datos por llenar";
+          this.axios.post(url, this.contrato).then(
+            response => {
+              this.getResponse(response);
+              this.loading = false;
+              if (
+                this.contrato.cliente == true &&
+                this.contrato.esContrato == true
+              ) {
+                this.$router.push({
+                  name: "ContratosCliente"
+                });
+              } else if (
+                this.contrato.cliente == false &&
+                this.contrato.esContrato == true
+              ) {
+                this.$router.push({
+                  name: "ContratosPrestador"
+                });
+              } else if (this.contrato.cliente == true) {
+                this.$router.push({
+                  name: "OfertasClientes"
+                });
+              } else
+                this.$router.push({
+                  name: "OfertasPrestador"
+                });
+            },
+            error => {
+              vm.$snotify.error(error.response.data);
+              console.log(error);
+            }
+          );
         }
       }
       if (method === "PUT") {
+        this.contrato.entidad = this.entidad.id;
+        this.contrato.username = this.username;
         if (
           this.montoAndMoneda.cantidad == null &&
           this.montoAndMoneda.moneda == null
@@ -728,7 +742,6 @@ export default {
           }
           this.contrato.montos = this.montos;
           this.contrato.tipo = this.tipo;
-
           const url = api.getUrl("contratacion", "Contratos");
           this.axios
             .put(`${url}/${this.contrato.id}`, this.contrato)
@@ -765,11 +778,25 @@ export default {
       }
     },
     close() {
-      if (this.contrato.cliente == true) {
+      if (this.contrato.cliente == true && this.contrato.esContrato == true) {
+        this.$router.push({
+          name: "ContratosCliente"
+        });
+      } else if (
+        this.contrato.cliente == false &&
+        this.contrato.esContrato == true
+      )
+        this.$router.push({
+          name: "ContratosPrestador"
+        });
+      if (this.contrato.cliente == true && this.contrato.esContrato == false) {
         this.$router.push({
           name: "OfertasClientes"
         });
-      } else
+      } else if (
+        this.contrato.cliente == false &&
+        this.contrato.esContrato == false
+      )
         this.$router.push({
           name: "OfertasPrestador"
         });

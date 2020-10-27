@@ -459,6 +459,15 @@ export const protectedRoute = [
         component: () => import(/* webpackChunkName: "table" */ '@/components/contratacion/ContratosPrestador.vue'),
       },
       {
+        path: '/contratacion/ContratosSinFecha',
+        name: 'ContratosSinFecha',
+        meta: {
+          title: 'ContratosSinFecha',
+          requiresAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "table" */ '@/components/contratacion/ContratosSinFecha.vue'),
+      },
+      {
         path: '/contratacion/OfertasClientes',
         name: 'OfertasClientes',
         meta: {

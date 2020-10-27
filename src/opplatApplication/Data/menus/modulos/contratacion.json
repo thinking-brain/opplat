@@ -37,6 +37,19 @@
                     "administrador contratacion",
                     "contratacion"
                 ]
+            },
+            {
+                "title": "Contratos sin Fecha",
+                "group": "contratacion",
+                "icon": "mdi-note-multiple",
+                "cant": 0,
+                "component": "ContratosSinFecha",
+                "name": "ContratosSinFecha",
+                "roles": [
+                    "administrador",
+                    "administrador contratacion",
+                    "juridico"
+                ]
             }
         ]
     },

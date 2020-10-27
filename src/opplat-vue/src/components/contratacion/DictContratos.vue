@@ -244,34 +244,6 @@
           </v-card>
         </v-dialog>
         <!-- Detalles del Dictaminador -->
-
-        <!-- Delete Dictaminador de Contratos -->
-        <v-dialog v-model="dialog3" persistent max-width="500px">
-          <v-toolbar dark fadeOnScroll color="red">
-            <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-btn icon dark @click="close()">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </v-toolbar-items>
-          </v-toolbar>
-          <v-card>
-            <p class="text-center pt-5">
-              Seguro de Eliminar a
-              <strong>
-                <b>
-                  <u>{{dictaminador.nombre}}</u>
-                </b>
-              </strong> como Dictaminador de Contratos
-            </p>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="red" dark @click="deleteItem(dictaminador)">Aceptar</v-btn>
-              <v-btn color="primary" @click="close()">Cancelar</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-        <!-- /Delete Dictaminador de Contratos -->
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">

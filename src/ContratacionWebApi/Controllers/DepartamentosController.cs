@@ -22,7 +22,7 @@ namespace ContratacionWebApi.Controllers {
         // GET contratacion/Departamentos/
         [HttpGet ("/contratacion/Departamentos/ForNewContract")]
         public IEnumerable<Departamento> GetForNewContract () {
-            return context.Departamentos.Where (d => d.Nombre != "Jurídico" && d.Nombre != "Económico").ToList ();
+            return context.Departamentos.Where (d => d.Nombre != "JURÍDICO" && d.Nombre != "ECONÓMICO").ToList ();
         }
 
         // GET: contratacion/Departamentos/Id

@@ -11,9 +11,13 @@
             <v-col cols="12" md="12" class="pa-2 headline">
               <h3>Datos {{subTitle}}</h3>
             </v-col>
-            <v-col cols="12" md="6" class="pa-2">
+            <v-col cols="12" md="6" class="pa-2" v-if="!contrato.esContrato">
               <strong>Vence en:</strong>
               {{contrato.ofertVence}} Días
+            </v-col>
+            <v-col cols="12" md="6" class="pa-2" v-if="contrato.esContrato">
+              <strong>Vence en:</strong>
+              {{contrato.contVence}} Días
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Tipo:</strong>
@@ -37,9 +41,13 @@
               <strong>Fecha de Recepción:</strong>
               {{contrato.fechaDeRece}}
             </v-col>
-            <v-col cols="12" md="6" class="pa-2">
+            <v-col cols="12" md="6" class="pa-2" v-if="!contrato.esContrato">
               <strong>La Oferta Vence el:</strong>
               {{contrato.fechaDeVenOfer}}
+            </v-col>
+            <v-col cols="12" md="6" class="pa-2" v-if="contrato.esContrato">
+              <strong>El Contrato Vence el:</strong>
+              {{contrato.fechaVenCont}}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Objeto del Contrato :</strong>
@@ -54,8 +62,7 @@
               <v-spacer></v-spacer>
               <span v-for="item in contrato.montos" :key="item.nombre">
                 <v-spacer></v-spacer>
-                -
-                ${{item.cantidad}} en
+                $ {{item.cantidad}} en
                 {{item.nombreString}}
               </span>
             </v-col>
@@ -224,7 +231,7 @@
                         v-on="on"
                         @click="editItem(item)"
                         slot="activator"
-                        v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
+                        v-if="(roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador'))&&item.username==username"
                       >
                         <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
                       </v-btn>
@@ -238,7 +245,7 @@
                         small
                         v-on="on"
                         @click="confirmUpload(item)"
-                        v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
+                        v-if="(roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador'))&&item.username==username"
                       >
                         <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
                       </v-btn>
@@ -459,6 +466,83 @@
                   <v-spacer></v-spacer>
                 </v-toolbar>
               </template>
+              <!-- Actions -->
+              <template v-slot:item.action="{ item }">
+                <v-row>
+                  <v-tooltip top color="primary">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+                        small
+                        v-on="on"
+                        @click="editItemSuplemento(item)"
+                        slot="activator"
+                        v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+                      >
+                        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Editar</span>
+                  </v-tooltip>
+                  <v-tooltip top color="primary">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+                        small
+                        v-on="on"
+                        @click="editNoAdmin(item)"
+                        slot="activator"
+                        v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
+                      >
+                        <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Dictaminar y Aprobar Contrato</span>
+                  </v-tooltip>
+                  <v-tooltip top color="black">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
+                        small
+                        v-on="on"
+                        @click="downloadSuplemento(item)"
+                        v-if="item.filePath !=null"
+                      >
+                        <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Descargar Documento</span>
+                  </v-tooltip>
+                  <v-tooltip top color="warning">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small warning darken-3--text"
+                        small
+                        v-on="on"
+                        @click="downloadSuplemento(item)"
+                        v-if="item.filePath ==null"
+                      >
+                        <v-icon>mdi-file-question-outline</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>No tiene un documento guardado</span>
+                  </v-tooltip>
+                  <v-tooltip top color="teal">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small teal--text"
+                        small
+                        v-on="on"
+                        @click="getDetallesSuplemento(item)"
+                      >
+                        <v-icon>mdi-format-list-bulleted</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Detalles</span>
+                  </v-tooltip>
+                </v-row>
+              </template>
+              <!-- /Actions -->
             </v-data-table>
           </v-col>
         </v-row>
@@ -468,7 +552,7 @@
     <v-row>
       <v-col>
         <div class="text-center">
-          <v-btn color="blue darken-1" text @click=" close()">Volver al Listado</v-btn>
+          <v-btn color="blue darken-1" text @click="close()">Volver al Listado</v-btn>
         </div>
       </v-col>
     </v-row>
@@ -527,17 +611,18 @@ export default {
       { text: "Acciones", value: "action", sortable: false }
     ],
     headerSuplementos: [
-      { text: "Identificador", sortable: true, value: "id" },
+      { text: "Id", sortable: true, value: "id" },
       { text: "Nombre", sortable: true, value: "nombre" },
       { text: "Motivo Suplemento", value: "motivoSuplemento" },
       { text: "Fecha de Recepción", value: "fechaDeRece" },
-      { text: "Vence", value: "ofertVence" }
-      // { text: "Acciones", value: "action", sortable: false }
+      { text: "Vence", value: "contVence" },
+      { text: "Acciones", value: "action", sortable: false }
     ],
     message: "",
     messagesNumDictamen: "",
     roles: [],
-    username: ""
+    username: "",
+    errors: []
   }),
   computed: {
     Title() {
@@ -602,30 +687,31 @@ export default {
       );
     },
     close() {
-      if (
-        this.contrato.cliente == true &&
-        this.contrato.aprobComitContratacion == true &&
-        this.contrato.estadoNombre == "Aprobado"
-      ) {
+      if (this.contrato.sinFechaVen == true) {
         this.$router.push({
-          name: "ContratosCliente"
+          name: "ContratosSinFecha"
         });
-      } else if (
-        this.contrato.cliente == false &&
-        this.contrato.aprobComitContratacion == true &&
-        this.contrato.estadoNombre == "Aprobado"
-      ) {
-        this.$router.push({
-          name: "ContratosPrestador"
-        });
-      } else if (this.contrato.cliente == true) {
-        this.$router.push({
-          name: "OfertasClientes"
-        });
-      } else
-        this.$router.push({
-          name: "OfertasPrestador"
-        });
+      } else {
+        if (this.contrato.cliente == true && this.contrato.esContrato == true) {
+          this.$router.push({
+            name: "ContratosCliente"
+          });
+        } else if (
+          this.contrato.cliente == false &&
+          this.contrato.esContrato == true
+        ) {
+          this.$router.push({
+            name: "ContratosPrestador"
+          });
+        } else if (this.contrato.cliente == true) {
+          this.$router.push({
+            name: "OfertasClientes"
+          });
+        } else
+          this.$router.push({
+            name: "OfertasPrestador"
+          });
+      }
     },
     getSuplementosFromApi() {
       var username = this.$store.getters.usuario;
@@ -674,7 +760,93 @@ export default {
           console.log(error);
         }
       );
-    }
+    },
+    editItemSuplemento(item) {
+      this.editedIndex = this.ofertas.indexOf(item);
+      this.oferta = Object.assign({}, item);
+      this.oferta.entidad = item.entidad[0];
+      this.oferta.adminContrato = item.adminContrato.id;
+      this.oferta.edit = true;
+      for (let index = 0; index < this.oferta.formasDePago.length; index++) {
+        this.oferta.formasDePago[index] = item.formasDePago[index].id;
+      }
+      const contrato = this.oferta;
+      this.$router.push({
+        name: "Nuevo_Contrato",
+        query: {
+          contrato
+        }
+      });
+    },
+    editNoAdmin(item) {
+      this.editedIndex = this.ofertas.indexOf(item);
+      this.oferta = Object.assign({}, item);
+      this.oferta.username = this.username;
+      this.oferta.roles = this.roles;
+      this.oferta.entidad = item.entidad[0];
+      this.oferta.adminContrato = item.adminContrato.id;
+      this.oferta.contratoId = item.id;
+
+      for (let index = 0; index < this.oferta.formasDePago.length; index++) {
+        this.oferta.formasDePago[index] = item.formasDePago[index].id;
+      }
+      const contrato = this.oferta;
+      this.$router.push({
+        name: "EditNoAdmin",
+        query: {
+          contrato
+        }
+      });
+    },
+    getDetallesSuplemento(item) {
+      this.contrato = Object.assign({}, item);
+      this.contrato.entidad = item.entidad[0];
+      this.contrato.adminContrato = item.adminContrato;
+      this.getSuplementosFromApi();
+    },
+    confirmUploadSuplemento(item) {
+      this.oferta = Object.assign({}, item);
+      this.dialog3 = true;
+    },
+    uploadSuplemento() {
+      if (!this.file) {
+        this.message = "Por favor seleccione un archivo!";
+        return;
+      }
+      this.message = "";
+      const formData = new FormData();
+      formData.append("file", this.file);
+      const url = api.getUrl("contratacion", "contratos/UploadFile");
+      this.axios
+        .post(`${url}/${this.oferta.id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(
+          response => {
+            this.getResponse(response);
+            location.reload();
+            this.close();
+          },
+          error => {
+            vm.$snotify.error(error.response.data);
+            console.log(error);
+          }
+        );
+    },
+   downloadSuplemento(item) {
+      const url = api.getUrl("contratacion", "contratos/DownloadFile");
+      this.axios.get(`${url}/${item.id}`).then(
+        response => {
+          window.open(url + "/" + item.id);
+        },
+        error => {
+          vm.$snotify.error(error.response.data);
+          console.log(error);
+        }
+      );
+    },
   }
 };
 </script>

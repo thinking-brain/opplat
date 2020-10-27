@@ -138,7 +138,7 @@
               v-on="on"
               @click="newSuplemento(item)"
               slot="activator"
-              v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+              v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))&&item.tipo!=12"
             >
               <v-icon>mdi-file-replace-outline</v-icon>
             </v-btn>
@@ -364,16 +364,39 @@ export default {
       );
     },
     newSuplemento(item) {
-      const contrato = {
-        cliente: true,
-        adminContrato: item.adminContrato.id,
-        dictaminadores: [],
-        montos: [],
-        especialistasExternos: [],
-        username: null,
-        contratoId: item.id,
-        tipo: 12,
-      };
+      var contrato = {};
+      contrato.entidad = item.entidad[0];
+      contrato.adminContrato = item.adminContrato.id;
+      contrato.contratoId = item.id;
+      contrato.formasDePago = [];
+      contrato.especialistasExternos = [];
+      contrato.departamentos = [];
+      contrato.terminoDePago = item.terminoDePago;
+      contrato.objetoDeContrato = item.objetoDeContrato;
+      contrato.montos = item.montos;
+
+      for (let index = 0; index < item.formasDePago.length; index++) {
+        contrato.formasDePago[index] = item.formasDePago[index].id;
+      }
+      for (
+        let index = 0;
+        index < contrato.especialistasExternos.length;
+        index++
+      ) {
+        contrato.especialistasExternos[index] =
+          item.especialistasExternos[index].id;
+      }
+      for (let index = 0; index < item.departamentos.length; index++) {
+        contrato.departamentos[index] = item.departamentos[index].id;
+      }
+
+      contrato.nombre = null;
+      contrato.tipo = 12;
+      contrato.cliente = true;
+      contrato.esContrato = true;
+      contrato.contratoPertenece = item.nombre;
+      contrato.fechaDeVenOferta = null;
+      contrato.fechaDeRecepcion = null;
 
       this.$router.push({
         name: "Nuevo_Contrato",

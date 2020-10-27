@@ -12,7 +12,7 @@ namespace ContratacionWebApi.Models {
         public string Codigo { get; set; }
         public Tipo Tipo { get; set; }
         public int AdminContrato { get; set; }
-        public Entidad Entidad { get; set; }
+        public int Entidad { get; set; }
         public string ObjetoDeContrato { get; set; }
         public string Numero { get; set; }
         public List<Monto> Montos { get; set; }
@@ -37,7 +37,7 @@ namespace ContratacionWebApi.Models {
         [Display (Name = "Término de Pago")]
         public int TerminoDePago { get; set; }
         public Estado Estado { get; set; }
-        public string Usuario { get; set; }
+        public string Username { get; set; }
         public List<Departamento> Departamentos { get; set; }
         public List<EspecialistaExterno> EspecialistasExternos { get; set; }
         public bool AprobJurico { get; set; }

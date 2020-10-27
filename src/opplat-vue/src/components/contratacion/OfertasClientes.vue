@@ -308,7 +308,7 @@
                 @click="download(item)"
                 v-if="item.filePath ==null"
               >
-              <v-icon>mdi-file-question-outline</v-icon>
+                <v-icon>mdi-file-question-outline</v-icon>
               </v-btn>
             </template>
             <span>No tiene un documento guardado</span>
@@ -488,6 +488,7 @@ export default {
     newContrato() {
       const contrato = {
         cliente: true,
+        esContrato: false,
         adminContrato: {},
         dictaminadores: [],
         montos: [],
@@ -506,7 +507,9 @@ export default {
       this.oferta = Object.assign({}, item);
       this.oferta.entidad = item.entidad[0];
       this.oferta.adminContrato = item.adminContrato.id;
-
+      this.oferta.esContrato = false;
+      this.oferta.cliente = true;
+      this.oferta.edit = true;
       for (let index = 0; index < this.oferta.formasDePago.length; index++) {
         this.oferta.formasDePago[index] = item.formasDePago[index].id;
       }

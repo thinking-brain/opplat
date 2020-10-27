@@ -140,7 +140,7 @@
               slot="activator"
               v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
             >
-              <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+              <v-icon>mdi-file-replace-outline</v-icon>
             </v-btn>
           </template>
           <span>Suplementar Contrato</span>
@@ -363,18 +363,19 @@ export default {
         }
       );
     },
-    newSuplemento(item) {
-      const contrato = {
-        cliente: false,
-        adminContrato: item.adminContrato.id,
-        dictaminadores: [],
-        montos: [],
-        especialistasExternos: [],
-        username: null,
-        contratoId: item.id,
-        tipo: 12,
-      };
-
+      newSuplemento(item) {
+      var contrato = Object.assign({}, item);
+      contrato.entidad = item.entidad[0];
+      contrato.adminContrato = item.adminContrato.id;
+      for (let index = 0; index < contrato.formasDePago.length; index++) {
+        contrato.formasDePago[index] = item.formasDePago[index].id;
+      }
+      contrato.nombre = null;
+      contrato.tipo = 12;
+      contrato.cliente= false;
+      contrato.contratoId = item.id;
+      contrato.fechaDeVenOferta = null;
+      contrato.fechaDeRecepcion = null;
       this.$router.push({
         name: "Nuevo_Contrato",
         query: {

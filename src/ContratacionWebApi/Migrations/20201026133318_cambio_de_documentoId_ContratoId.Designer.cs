@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContratacionWebApi.Migrations
 {
     [DbContext(typeof(ContratacionDbContext))]
-    [Migration("20200912231522_sinDictaminadorId")]
-    partial class sinDictaminadorId
+    [Migration("20201026133318_cambio_de_documentoId_ContratoId")]
+    partial class cambio_de_documentoId_ContratoId
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -60,6 +60,8 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<bool>("Cliente");
 
+                    b.Property<int?>("ContratoId");
+
                     b.Property<int>("EntidadId");
 
                     b.Property<int>("EstadoComitContratacion");
@@ -80,6 +82,8 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<string>("FilePath");
 
+                    b.Property<string>("MotivoSuplemento");
+
                     b.Property<string>("Nombre");
 
                     b.Property<string>("Numero");
@@ -91,6 +95,8 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("Tipo");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ContratoId");
 
                     b.HasIndex("EntidadId");
 
@@ -165,12 +171,12 @@ namespace ContratacionWebApi.Migrations
                         new
                         {
                             Id = 1,
-                            Nombre = "Económico"
+                            Nombre = "ECONÓMICO"
                         },
                         new
                         {
                             Id = 2,
-                            Nombre = "Jurídico"
+                            Nombre = "JURÍDICO"
                         });
                 });
 
@@ -190,8 +196,6 @@ namespace ContratacionWebApi.Migrations
                     b.Property<string>("FilePath");
 
                     b.Property<string>("FundamentosDeDerecho");
-
-                    b.Property<string>("NumeroDeDictamen");
 
                     b.Property<string>("Observaciones");
 
@@ -375,9 +379,11 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int>("ContratoId");
+
                     b.Property<string>("Detalles");
 
-                    b.Property<int>("DocumentoId");
+                    b.Property<int?>("DocumentoId");
 
                     b.Property<DateTime>("Fecha");
 
@@ -385,6 +391,8 @@ namespace ContratacionWebApi.Migrations
                         .IsRequired();
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ContratoId");
 
                     b.HasIndex("DocumentoId");
 
@@ -529,6 +537,10 @@ namespace ContratacionWebApi.Migrations
 
             modelBuilder.Entity("ContratacionWebApi.Models.Contrato", b =>
                 {
+                    b.HasOne("ContratacionWebApi.Models.Contrato")
+                        .WithMany("Contratos")
+                        .HasForeignKey("ContratoId");
+
                     b.HasOne("ContratacionWebApi.Models.Entidad", "Entidad")
                         .WithMany()
                         .HasForeignKey("EntidadId")
@@ -567,7 +579,7 @@ namespace ContratacionWebApi.Migrations
             modelBuilder.Entity("ContratacionWebApi.Models.Dictamen", b =>
                 {
                     b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
-                        .WithMany()
+                        .WithMany("Dictamenes")
                         .HasForeignKey("ContratoId")
                         .OnDelete(DeleteBehavior.Cascade);
 
@@ -630,10 +642,14 @@ namespace ContratacionWebApi.Migrations
 
             modelBuilder.Entity("ContratacionWebApi.Models.HistoricoDeDocumento", b =>
                 {
-                    b.HasOne("ContratacionWebApi.Models.Documento", "Documento")
-                        .WithMany("Historicos")
-                        .HasForeignKey("DocumentoId")
+                    b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
+                        .WithMany()
+                        .HasForeignKey("ContratoId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("ContratacionWebApi.Models.Documento")
+                        .WithMany("Historicos")
+                        .HasForeignKey("DocumentoId");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.HistoricoEstadoContrato", b =>

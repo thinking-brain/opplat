@@ -23,7 +23,7 @@ namespace ContratacionWebApi.Controllers {
         }
         // GET contratacion/Dictamenes
         [HttpGet]
-        public IEnumerable<Dictamen> GetAll () {
+        public IEnumerable<Dictamen> GetAll (string Username) {
             return context.Dictamenes.ToList ();
         }
 

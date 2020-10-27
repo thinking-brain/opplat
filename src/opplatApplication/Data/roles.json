@@ -6,6 +6,8 @@
             "usuario",
             "auditor",
             "consultor",
+            "economico",
+            "juridico",
             "recursos humanos",
             "contratacion"
         ]
@@ -13,15 +15,12 @@
     {
         "Modulo": "Reportes",
         "Roles": [
-            "economico",
             "contador"
         ]
     },
     {
         "Modulo": "Contratación",
         "Roles": [
-            "economico",
-            "juridico",
             "secretario comite de contratacion",
             "dictaminador",
             "administrador de contratos",

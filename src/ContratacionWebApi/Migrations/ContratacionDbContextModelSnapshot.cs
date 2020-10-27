@@ -377,9 +377,11 @@ namespace ContratacionWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int>("ContratoId");
+
                     b.Property<string>("Detalles");
 
-                    b.Property<int>("DocumentoId");
+                    b.Property<int?>("DocumentoId");
 
                     b.Property<DateTime>("Fecha");
 
@@ -387,6 +389,8 @@ namespace ContratacionWebApi.Migrations
                         .IsRequired();
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ContratoId");
 
                     b.HasIndex("DocumentoId");
 
@@ -636,10 +640,14 @@ namespace ContratacionWebApi.Migrations
 
             modelBuilder.Entity("ContratacionWebApi.Models.HistoricoDeDocumento", b =>
                 {
-                    b.HasOne("ContratacionWebApi.Models.Documento", "Documento")
-                        .WithMany("Historicos")
-                        .HasForeignKey("DocumentoId")
+                    b.HasOne("ContratacionWebApi.Models.Contrato", "Contrato")
+                        .WithMany()
+                        .HasForeignKey("ContratoId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("ContratacionWebApi.Models.Documento")
+                        .WithMany("Historicos")
+                        .HasForeignKey("DocumentoId");
                 });
 
             modelBuilder.Entity("ContratacionWebApi.Models.HistoricoEstadoContrato", b =>
