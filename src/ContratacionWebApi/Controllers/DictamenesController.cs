@@ -44,23 +44,28 @@ namespace ContratacionWebApi.Controllers {
             string FundamentosDeDerecho, string Consideraciones, string Recomendaciones, string Username, string OtrosSi) {
 
             var cont = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
+            var dict = context.Dictamenes.FirstOrDefault (d => d.ContratoId == ContratoId && d.Username == Username);
+            if (dict != null) {
+                return BadRequest ("Ya usted ya ha dictaminado el contrato si desea lo que puede es editar dicho dictamen");
+            }
+
             var adminContrato = context.AdminContratos.FirstOrDefault (c => c.AdminContratoId == cont.AdminContratoId);
             var departamento = context.Departamentos.FirstOrDefault (dep => dep.Id == adminContrato.DepartamentoId);
 
             if (file != null) {
                 var contrato = context.Contratos.FirstOrDefault (c => c.Id == ContratoId);
                 if (contrato.FilePath == null) {
-                return BadRequest ("No tiene un documento de contrato guardado por lo que no se puede dictaminar");
+                    return BadRequest ("No tiene un documento de contrato guardado por lo que no se puede dictaminar");
                 }
                 var dictamen = new Dictamen {
-                ContratoId = ContratoId,
-                Observaciones = Observaciones,
-                FundamentosDeDerecho = FundamentosDeDerecho,
-                Consideraciones = Consideraciones,
-                Recomendaciones = Recomendaciones,
-                Username = Username,
-                FechaDictamen = DateTime.Now,
-                OtrosSi = OtrosSi
+                    ContratoId = ContratoId,
+                    Observaciones = Observaciones,
+                    FundamentosDeDerecho = FundamentosDeDerecho,
+                    Consideraciones = Consideraciones,
+                    Recomendaciones = Recomendaciones,
+                    Username = Username,
+                    FechaDictamen = DateTime.Now,
+                    OtrosSi = OtrosSi
                 };
                 string folderName = Path.Combine (_hostingEnvironment.WebRootPath, "Contratos");
                 string subFolder = System.IO.Path.Combine (folderName, departamento.Nombre);

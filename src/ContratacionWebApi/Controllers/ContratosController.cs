@@ -423,7 +423,7 @@ namespace ContratacionWebApi.Controllers {
                 foreach (var item in contrato.Departamentos) {
                     var contratoId_DepartamentoId = new ContratoId_DepartamentoId {
                         ContratoId = contrato.Id,
-                        DepartamentoId = item.Id
+                        DepartamentoId = item
                     };
                     context.ContratoId_DepartamentoId.Add (contratoId_DepartamentoId);
                     context.SaveChanges ();
@@ -441,7 +441,7 @@ namespace ContratacionWebApi.Controllers {
                 foreach (var item in contrato.EspecialistasExternos) {
                     var espExternoId_ContratoId = new EspExternoId_ContratoId {
                         ContratoId = contrato.Id,
-                        EspecialistaExternoId = item.Id
+                        EspecialistaExternoId = item
                     };
                     context.EspExternoId_ContratoId.Add (espExternoId_ContratoId);
                     context.SaveChanges ();
@@ -503,7 +503,7 @@ namespace ContratacionWebApi.Controllers {
                     c.EstadoEconomico = contrato.Estado;
                     c.EstadoContrato = Estado.Circulando;
                     HistoricoEstadoContrato.Estado = contrato.Estado;
-                    text = "El económico modificó la oferta";
+                    text = "El económico dictaminó la oferta";
                 } else if (contrato.roles.Contains ("juridico")) {
                     c.Numero = contrato.Numero;
                     c.EstadoJuridico = contrato.Estado;
@@ -513,7 +513,7 @@ namespace ContratacionWebApi.Controllers {
                     c.FechaVenContrato = contrato.FechaDeVencimiento;
                     c.EstadoContrato = Estado.Circulando;
                     HistoricoEstadoContrato.Estado = contrato.Estado;
-                    text = "El jurídico modificó la oferta";
+                    text = "El jurídico dictaminó la oferta";
                 } else if (contrato.roles.Contains ("secretario comite de contratacion")) {
                     if (c.EstadoEconomico == Estado.No_Aprobado && c.EstadoJuridico == Estado.No_Aprobado && contrato.Estado == Estado.Aprobado) {
                         return BadRequest ($"No está aprobado por el jurídico y el económico");
@@ -524,7 +524,7 @@ namespace ContratacionWebApi.Controllers {
                         c.FechaVenContrato = contrato.FechaDeVencimiento;
                     }
                     HistoricoEstadoContrato.Estado = contrato.Estado;
-                    text = "El secretario del comité de contratación modificó la oferta";
+                    text = "El secretario del comité de contratación dictaminó la oferta";
                 } else {
                     return BadRequest ($"Los roles de este usuario no tienen permiso para aprobar la oferta");
                 }

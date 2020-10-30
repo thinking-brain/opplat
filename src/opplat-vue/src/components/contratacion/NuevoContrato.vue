@@ -672,10 +672,7 @@ export default {
     },
     save(method) {
       const url = api.getUrl("contratacion", "Contratos");
-      this.contrato.entidad = this.entidad.id;
-      if (this.contrato.tipo == 12) {
-        this.contrato.entidad = this.entidad;
-      }
+      this.contrato.entidad = this.entidad;
       this.contrato.username = this.username;
       if (
         this.montoAndMoneda.cantidad == null &&
@@ -691,7 +688,7 @@ export default {
         this.contrato.tipo = this.tipo;
         if (this.$refs.form.validate()) {
           this.contrato.username = this.username;
-          // this.loading = true;
+          this.loading = true;
 
           this.axios.post(url, this.contrato).then(
             response => {

@@ -513,6 +513,12 @@ export default {
       for (let index = 0; index < this.oferta.formasDePago.length; index++) {
         this.oferta.formasDePago[index] = item.formasDePago[index].id;
       }
+      for (let index = 0; index < item.especialistasExternos.length; index++) {
+        this.oferta.especialistasExternos[index] = item.especialistasExternos[index].id;
+      }
+      for (let index = 0; index < item.departamentos.length; index++) {
+        this.oferta.departamentos[index] = item.departamentos[index].id;
+      }
       const contrato = this.oferta;
       this.$router.push({
         name: "Nuevo_Contrato",

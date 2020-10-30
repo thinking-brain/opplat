@@ -38,8 +38,8 @@ namespace ContratacionWebApi.Models {
         public int TerminoDePago { get; set; }
         public Estado Estado { get; set; }
         public string Username { get; set; }
-        public List<Departamento> Departamentos { get; set; }
-        public List<EspecialistaExterno> EspecialistasExternos { get; set; }
+        public List<int> Departamentos { get; set; }
+        public List<int> EspecialistasExternos { get; set; }
         public bool AprobJurico { get; set; }
         public bool AprobEconomico { get; set; }
         public bool AprobComitContratacion { get; set; }

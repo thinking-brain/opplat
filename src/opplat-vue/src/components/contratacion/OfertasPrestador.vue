@@ -238,7 +238,7 @@
         </template>
         <!-- /Filtro segun aprobacion de los dictaminadores -->
       </template>
-       <!-- Actions -->
+      <!-- Actions -->
       <template v-slot:item.action="{ item }">
         <v-row>
           <v-tooltip top color="primary">
@@ -489,7 +489,7 @@ export default {
     newContrato() {
       const contrato = {
         cliente: false,
-                esContrato:false,
+        esContrato: false,
         adminContrato: {},
         dictaminadores: [],
         montos: [],
@@ -511,7 +511,7 @@ export default {
       this.oferta.adminContrato = item.adminContrato.id;
       this.oferta.esContrato = false;
       this.oferta.cliente = false;
-
+      this.oferta.edit = true;
       for (let index = 0; index < this.oferta.formasDePago.length; index++) {
         this.oferta.formasDePago[index] = item.formasDePago[index].id;
       }
