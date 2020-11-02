@@ -229,11 +229,11 @@
                         class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
                         small
                         v-on="on"
-                        @click="editItem(item)"
+                        @click="editDictamen(item)"
                         slot="activator"
                         v-if="(roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador'))&&item.username==username"
                       >
-                        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+                        <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
                       </v-btn>
                     </template>
                     <span>Editar</span>
@@ -370,6 +370,20 @@
                       </v-flex>
                     </v-layout>
                   </v-row>
+                  <p class="text-left title">Datos a llenar del Contrato:</p>
+                  <v-row>
+                    <v-layout row wrap class="px-3">
+                      <v-flex cols="2" md3 class="px-3">
+                        <v-autocomplete
+                          v-model="contrato.estado"
+                          item-text="nombre"
+                          item-value="id"
+                          :items="estados"
+                          label="Estado del contrato"
+                        ></v-autocomplete>
+                      </v-flex>
+                    </v-layout>
+                  </v-row>
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="green darken-1" dark text @click="save()">Aceptar</v-btn>
@@ -490,7 +504,7 @@
                         class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
                         small
                         v-on="on"
-                        @click="editNoAdmin(item)"
+                        @click="editDictamen(item)"
                         slot="activator"
                         v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
                       >
@@ -778,18 +792,13 @@ export default {
         }
       });
     },
-    editNoAdmin(item) {
-      this.editedIndex = this.ofertas.indexOf(item);
+    editDictamen(item) {
+      this.editedIndex = item.id;
       this.oferta = Object.assign({}, item);
       this.oferta.username = this.username;
       this.oferta.roles = this.roles;
-      this.oferta.entidad = item.entidad[0];
-      this.oferta.adminContrato = item.adminContrato.id;
       this.oferta.contratoId = item.id;
 
-      for (let index = 0; index < this.oferta.formasDePago.length; index++) {
-        this.oferta.formasDePago[index] = item.formasDePago[index].id;
-      }
       const contrato = this.oferta;
       this.$router.push({
         name: "EditNoAdmin",
@@ -835,7 +844,7 @@ export default {
           }
         );
     },
-   downloadSuplemento(item) {
+    downloadSuplemento(item) {
       const url = api.getUrl("contratacion", "contratos/DownloadFile");
       this.axios.get(`${url}/${item.id}`).then(
         response => {
@@ -846,7 +855,7 @@ export default {
           console.log(error);
         }
       );
-    },
+    }
   }
 };
 </script>

@@ -5,16 +5,6 @@
         <h3>{{ formTitle }}</h3>
         <v-form ref="form">
           <v-container grid-list-md text-xs-center>
-            <v-row>
-              <v-flex
-                cols="2"
-                md3
-                class="px-1"
-                v-if="editedIndex!=-1&& (roles.includes('juridico')||roles.includes('administrador'))"
-              >
-                <v-text-field v-model="contrato.numero" label="Número" prefix="#"></v-text-field>
-              </v-flex>
-            </v-row>
             <v-layout row wrap>
               <v-flex cols="2" md8 class="px-1">
                 <v-text-field v-model="contrato.nombre" label="Nombre" clearable required></v-text-field>
@@ -141,7 +131,6 @@
                   v-model="montoAndMoneda.cantidad"
                   label="Monto"
                   :error-messages="messagesCantidad"
-                  :disabled="disabled"
                   clearable
                   prefix="$"
                 ></v-text-field>
@@ -153,7 +142,6 @@
                   item-value="id"
                   :items="monedas"
                   :error-messages="messagesMoneda"
-                  :disabled="disabled"
                   label="Moneda"
                 ></v-select>
               </v-flex>
@@ -187,7 +175,6 @@
                 <v-autocomplete
                   v-model="contrato.formasDePago"
                   :items="formasDePagos"
-                  :disabled="disabled"
                   label="Formas de Pago"
                   item-text="nombre"
                   item-value="id"
@@ -453,26 +440,26 @@ export default {
     }
   },
   watch: {
-    entidad: function() {
-      this.disabled = false;
-      this.textFormaPago = "";
-      this.getFormasDePagosFromApi();
-      this.getMonedasEntidad();
-    },
-    monedas: function() {
-      console.log(this.monedas.length);
-      if (this.monedas.length === 0) {
-        this.textFormaPago =
-          "Este proveedor no tiene cuenta bancaria asociada, la única forma de pago que va a admitir es pago en efectivo";
-        var formadepago = {
-          id: 2,
-          nombre: "Efectivo"
-        };
-        this.formasDePagos = [];
-        this.formasDePagos.push(formadepago);
-        this.getMonedasFromApi();
-      }
-    },
+    // entidad: function() {
+    //   this.disabled = false;
+    //   this.textFormaPago = "";
+    //   this.getFormasDePagosFromApi();
+    //   this.getMonedasEntidad();
+    // },
+    // monedas: function() {
+    //   console.log(this.monedas.length);
+    //   if (this.monedas.length === 0) {
+    //     this.textFormaPago =
+    //       "Este proveedor no tiene cuenta bancaria asociada, la única forma de pago que va a admitir es pago en efectivo";
+    //     var formadepago = {
+    //       id: 2,
+    //       nombre: "Efectivo"
+    //     };
+    //     this.formasDePagos = [];
+    //     this.formasDePagos.push(formadepago);
+    //     this.getMonedasFromApi();
+    //   }
+    // },
     tipo: function() {
       if (this.tipo == 12) {
         this.suplemento = true;
@@ -503,6 +490,7 @@ export default {
     this.getTrabajadoresFromApi();
     this.getTiempoVenOfertasFromApi();
     this.getDepartamentosFromApi();
+    this.getMonedasFromApi();
   },
 
   methods: {
@@ -659,37 +647,44 @@ export default {
         }
       );
     },
-    getMonedasEntidad() {
-      const url = api.getUrl("contratacion", "Entidades/Monedas");
-      this.axios.get(`${url}/${this.entidad}`).then(
-        response => {
-          this.monedas = response.data;
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    },
+    // getMonedasEntidad() {
+    //   const url = api.getUrl("contratacion", "Entidades/Monedas");
+    //   this.axios.get(`${url}/${this.entidad}`).then(
+    //     response => {
+    //       this.monedas = response.data;
+    //     },
+    //     error => {
+    //       console.log(error);
+    //     }
+    //   );
+    // },
     save(method) {
       const url = api.getUrl("contratacion", "Contratos");
       this.contrato.entidad = this.entidad;
       this.contrato.username = this.username;
       if (
         this.montoAndMoneda.cantidad == null &&
-        this.montoAndMoneda.moneda == null
+        this.montoAndMoneda.moneda != null
       ) {
-        if (
-          this.montoAndMoneda.cantidad != null &&
-          this.montoAndMoneda.moneda != null
-        ) {
-          this.montos.push(this.montoAndMoneda);
-        }
-        this.contrato.montos = this.montos;
-        this.contrato.tipo = this.tipo;
+        this.messagesCantidad = "Faltan datos por llenar";
+      } else if (
+        this.montoAndMoneda.moneda == null &&
+        this.montoAndMoneda.cantidad != null
+      ) {
+        this.messagesMoneda = "Faltan datos por llenar";
+      } else if (
+        this.montoAndMoneda.cantidad != null &&
+        this.montoAndMoneda.moneda != null
+      ) {
+        this.montos.push(this.montoAndMoneda);
+      }
+      this.contrato.montos = this.montos;
+      this.contrato.tipo = this.tipo;
+
+      if (method === "POST") {
         if (this.$refs.form.validate()) {
           this.contrato.username = this.username;
           this.loading = true;
-
           this.axios.post(url, this.contrato).then(
             response => {
               this.getResponse(response);
@@ -727,51 +722,31 @@ export default {
       if (method === "PUT") {
         this.contrato.entidad = this.entidad.id;
         this.contrato.username = this.username;
-        if (
-          this.montoAndMoneda.cantidad == null &&
-          this.montoAndMoneda.moneda == null
-        ) {
-          if (
-            this.montoAndMoneda.cantidad != null &&
-            this.montoAndMoneda.moneda != null
-          ) {
-            this.montos.push(this.montoAndMoneda);
-          }
-          this.contrato.montos = this.montos;
-          this.contrato.tipo = this.tipo;
-          const url = api.getUrl("contratacion", "Contratos");
-          this.axios
-            .put(`${url}/${this.contrato.id}`, this.contrato)
-            .then(
-              response => {
-                this.getResponse(response);
-                if (this.contrato.cliente == true) {
-                  this.$router.push({
-                    name: "OfertasClientes"
-                  });
-                } else
-                  this.$router.push({
-                    name: "OfertasPrestador"
-                  });
-              },
-              error => {
-                console.log(error);
-              }
-            )
-            .catch(e => {
-              vm.$snotify.error(e.response.data.errors);
-            });
-        } else if (
-          this.montoAndMoneda.cantidad == null &&
-          this.montoAndMoneda.moneda != null
-        ) {
-          this.messagesCantidad = "Faltan datos por llenar";
-        } else if (
-          this.montoAndMoneda.moneda == null &&
-          this.montoAndMoneda.cantidad != null
-        ) {
-          this.messagesMoneda = "Faltan datos por llenar";
-        }
+        this.contrato.montos = this.montos;
+        this.contrato.tipo = this.tipo;
+         this.loading = false;
+        const url = api.getUrl("contratacion", "Contratos");
+        this.axios
+          .put(`${url}/${this.contrato.id}`, this.contrato)
+          .then(
+            response => {
+              this.getResponse(response);
+              if (this.contrato.cliente == true) {
+                this.$router.push({
+                  name: "OfertasClientes"
+                });
+              } else
+                this.$router.push({
+                  name: "OfertasPrestador"
+                });
+            },
+            error => {
+              console.log(error);
+            }
+          )
+          .catch(e => {
+            vm.$snotify.error(e.response.data.errors);
+          });
       }
     },
     close() {
@@ -827,9 +802,7 @@ export default {
         this.montoAndMoneda.cantidad != null &&
         this.montoAndMoneda.moneda != null
       ) {
-        const m = this.monedas.find(
-          x => x.nombre === this.montoAndMoneda.moneda
-        );
+        const m = this.monedas.find(x => x.id === this.montoAndMoneda.moneda);
         this.montoAndMoneda.nombreString = m.nombre;
         this.montos.push(this.montoAndMoneda);
         this.montoAndMoneda = {

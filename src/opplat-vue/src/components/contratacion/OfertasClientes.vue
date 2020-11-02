@@ -264,12 +264,43 @@
                 v-on="on"
                 @click="editNoAdmin(item)"
                 slot="activator"
-                v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
+                v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('dictaminador')"
               >
                 <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
               </v-btn>
             </template>
             <span>Dictaminar y Aprobar Contrato</span>
+          </v-tooltip>
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+                small
+                v-on="on"
+                @click="editNoAdmin(item)"
+                slot="activator"
+                v-if="roles.includes('secretario comite de contratacion')&&(item.estadoEconomico==3&&item.estadoJuridico==3)"
+              >
+                <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
+              </v-btn>
+            </template>
+            <span>Dictaminar y Aprobar Contrato</span>
+          </v-tooltip>
+          <v-tooltip top color="warning">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small warning--text"
+                small
+                v-on="on"
+                slot="activator"
+                v-if="roles.includes('secretario comite de contratacion')&&(item.estadoEconomico!=3||item.estadoJuridico!=3)"
+              >
+                <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
+              </v-btn>
+            </template>
+            <span>
+              <h3>No está aprobado por el económico o el jurídico vea los detalles del contrato para más información</h3>
+            </span>
           </v-tooltip>
           <v-tooltip top color="black">
             <template v-slot:activator="{ on }">
@@ -396,9 +427,9 @@ export default {
     roles: [],
     username: {},
     headers: [
-      { text: "Id", sortable: true, value: "id" },
-      { text: "Nombre", align: "left", sortable: true, value: "nombre" },
-      { text: "Número", sortable: true, value: "numero" },
+      { text: "Id", sortable: true, align: "left", value: "id" },
+      { text: "Nombre", align: "left", value: "nombre" },
+      { text: "Número", value: "numero" },
       { text: "Tipo", value: "tipoNombre" },
       { text: "Vence en", value: "ofertVence" },
       { text: "Estado", value: "estadoNombre" },
@@ -407,7 +438,8 @@ export default {
     message: "",
     estadoJuridico: 0,
     estadoEconomico: 0,
-    estadoComiteCont: 0
+    estadoComiteCont: 0,
+    existsDictamen: false
   }),
   computed: {},
   watch: {
@@ -514,7 +546,8 @@ export default {
         this.oferta.formasDePago[index] = item.formasDePago[index].id;
       }
       for (let index = 0; index < item.especialistasExternos.length; index++) {
-        this.oferta.especialistasExternos[index] = item.especialistasExternos[index].id;
+        this.oferta.especialistasExternos[index] =
+          item.especialistasExternos[index].id;
       }
       for (let index = 0; index < item.departamentos.length; index++) {
         this.oferta.departamentos[index] = item.departamentos[index].id;
@@ -528,22 +561,25 @@ export default {
       });
     },
     editNoAdmin(item) {
-      this.editedIndex = this.ofertas.indexOf(item);
-      this.oferta = Object.assign({}, item);
-      this.oferta.username = this.username;
-      this.oferta.roles = this.roles;
-      this.oferta.entidad = item.entidad[0];
-      this.oferta.adminContrato = item.adminContrato.id;
-      this.oferta.contratoId = item.id;
-
-      for (let index = 0; index < this.oferta.formasDePago.length; index++) {
-        this.oferta.formasDePago[index] = item.formasDePago[index].id;
-      }
-      const contrato = this.oferta;
-      this.$router.push({
-        name: "EditNoAdmin",
-        query: {
-          contrato
+      this.existsDictamen == false;
+      const url = api.getUrl(
+        "contratacion",
+        `Dictamenes/DictamenExists?contratoId=${item.id}&username=${this.username}`
+      );
+      this.axios.get(url).then(response => {
+        if (response.data == "existe") {
+          vm.$snotify.warning(
+            "El contrato ya usted lo dictaminó si desea puede editarlo en los detalles del contrato"
+          );
+          this.existsDictamen = true;
+        } else {
+          const contrato = this.oferta;
+          this.$router.push({
+            name: "EditNoAdmin",
+            query: {
+              contrato
+            }
+          });
         }
       });
     },

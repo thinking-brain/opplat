@@ -161,5 +161,18 @@ namespace ContratacionWebApi.Controllers {
             context.SaveChanges ();
             return Ok (dictamen);
         }
+        // GET: contratacion/Dictamenes/Contrato/contratoId
+        [HttpGet ("DictamenExists")]
+        public string ExistsDictamen (int contratoId, string Username) {
+            var respuesta = "";
+            var dict = context.Dictamenes.FirstOrDefault (d => d.ContratoId == contratoId && d.Username == Username);
+            if (dict != null) {
+                respuesta = "existe";
+            } else {
+                respuesta = "no existe";
+            }
+            return respuesta;
+        }
+
     }
 }

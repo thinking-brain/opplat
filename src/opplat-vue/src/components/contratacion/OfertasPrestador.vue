@@ -264,12 +264,43 @@
                 v-on="on"
                 @click="editNoAdmin(item)"
                 slot="activator"
-                v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
+                v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('dictaminador')"
               >
                 <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
               </v-btn>
             </template>
             <span>Dictaminar y Aprobar Contrato</span>
+          </v-tooltip>
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
+                small
+                v-on="on"
+                @click="editNoAdmin(item)"
+                slot="activator"
+                v-if="roles.includes('secretario comite de contratacion')&&(item.estadoEconomico==3&&item.estadoJuridico==3)"
+              >
+                <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
+              </v-btn>
+            </template>
+            <span>Dictaminar y Aprobar Contrato</span>
+          </v-tooltip>
+          <v-tooltip top color="warning">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small warning--text"
+                small
+                v-on="on"
+                slot="activator"
+                v-if="roles.includes('secretario comite de contratacion')&&(item.estadoEconomico!=3||item.estadoJuridico!=3)"
+              >
+                <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
+              </v-btn>
+            </template>
+            <span>
+              <h3>No está aprobado por el económico o el jurídico vea los detalles del contrato para más información</h3>
+            </span>
           </v-tooltip>
           <v-tooltip top color="black">
             <template v-slot:activator="{ on }">
@@ -514,6 +545,13 @@ export default {
       this.oferta.edit = true;
       for (let index = 0; index < this.oferta.formasDePago.length; index++) {
         this.oferta.formasDePago[index] = item.formasDePago[index].id;
+      }
+      for (let index = 0; index < item.especialistasExternos.length; index++) {
+        this.oferta.especialistasExternos[index] =
+          item.especialistasExternos[index].id;
+      }
+      for (let index = 0; index < item.departamentos.length; index++) {
+        this.oferta.departamentos[index] = item.departamentos[index].id;
       }
       const contrato = this.oferta;
       this.$router.push({

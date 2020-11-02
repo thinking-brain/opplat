@@ -244,7 +244,7 @@ namespace ContratacionWebApi.Controllers {
                     EstadoContrato = Estado.Nuevo,
                     MotivoSuplemento = contratoDto.MotivoSuplemento
                 };
-                DateTime FechaPorDefecto = new DateTime (2001, 01, 01, 05, 00, 00);
+                DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
                 if (contratoDto.FechaDeRecepcion == FechaPorDefecto) {
                     contrato.FechaDeRecepcion = DateTime.Now;
                 } else {
