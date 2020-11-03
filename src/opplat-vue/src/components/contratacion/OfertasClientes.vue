@@ -2,19 +2,25 @@
   <v-container>
     <v-data-table :headers="headers" :items="ofertas" :search="search" dense>
       <template v-slot:item.ofertVence="{ item }">
-        <v-chip :color="getColor(item.ofertVence)" dark>{{ item.ofertVence }} días</v-chip>
+        <v-chip :color="getColor(item.ofertVence)" dark
+          >{{ item.ofertVence }} días</v-chip
+        >
       </template>
       <template v-slot:top>
         <v-toolbar flat color="white">
-          <v-toolbar-title>{{textByfiltro}}</v-toolbar-title>
+          <v-toolbar-title>{{ textByfiltro }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-divider class="mx-5" inset vertical></v-divider>
           <v-btn
             color="primary"
             @click="newContrato()"
             class="px-3"
-            v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
-          >Nueva Oferta</v-btn>
+            v-if="
+              roles.includes('administrador de contratos') ||
+              roles.includes('administrador')
+            "
+            >Nueva Oferta</v-btn
+          >
           <!-- Buscar -->
           <v-spacer></v-spacer>
           <v-text-field
@@ -32,7 +38,13 @@
           <v-spacer></v-spacer>
 
           <!-- Todas las Ofertas -->
-          <v-badge :content="cantOfertas" :value="cantOfertas" color="primary" overlap class="mt-4">
+          <v-badge
+            :content="cantOfertas"
+            :value="cantOfertas"
+            color="primary"
+            overlap
+            class="mt-4"
+          >
             <template v-slot:badge>
               <span v-if="enTiempo > 0">{{ cantOfertas }}</span>
             </template>
@@ -43,7 +55,8 @@
                   v-on="on"
                   color="primary"
                   @click="getOfertasFromApi()"
-                >mdi-file-document-box-multiple-outline</v-icon>
+                  >mdi-file-document-box-multiple-outline</v-icon
+                >
               </template>
               <span>Todas las Ofertas</span>
             </v-tooltip>
@@ -51,7 +64,13 @@
           <!-- /Todas las Ofertas -->
 
           <!-- Cantidad de Ofertas Ok -->
-          <v-badge :content="enTiempo" :value="enTiempo" color="green" overlap class="mt-4 ml-4">
+          <v-badge
+            :content="enTiempo"
+            :value="enTiempo"
+            color="green"
+            overlap
+            class="mt-4 ml-4"
+          >
             <template v-slot:badge>
               <span v-if="enTiempo > 0">{{ enTiempo }}</span>
             </template>
@@ -62,7 +81,8 @@
                   v-on="on"
                   color="green"
                   @click="filtro(ofertaTiempo)"
-                >mdi-file-document-box-multiple-outline</v-icon>
+                  >mdi-file-document-box-multiple-outline</v-icon
+                >
               </template>
               <span>Ofertas en Tiempo</span>
             </v-tooltip>
@@ -78,7 +98,7 @@
             class="mt-4 ml-4"
           >
             <template v-slot:badge>
-              <span v-if="proxVencer > 0">{{ proxVencer}}</span>
+              <span v-if="proxVencer > 0">{{ proxVencer }}</span>
             </template>
             <v-tooltip top color="orange">
               <template v-slot:activator="{ on }">
@@ -87,7 +107,8 @@
                   v-on="on"
                   color="orange"
                   @click="filtro(ofertasProxVencer)"
-                >mdi-file-document-box-multiple-outline</v-icon>
+                  >mdi-file-document-box-multiple-outline</v-icon
+                >
               </template>
               <span>Ofertas Próximas a vencer</span>
             </v-tooltip>
@@ -112,7 +133,8 @@
                   v-on="on"
                   color="deep-orange"
                   @click="filtro(ofertasCasiVenc)"
-                >mdi-file-document-box-multiple-outline</v-icon>
+                  >mdi-file-document-box-multiple-outline</v-icon
+                >
               </template>
               <span>Ofertas casi vencidas</span>
             </v-tooltip>
@@ -120,7 +142,13 @@
           <!-- /Cantidad de Ofertas proxVencer -->
 
           <!-- Cantidad de Ofertas Vencidas -->
-          <v-badge :content="vencidos" :value="vencidos" color="red" overlap class="mt-4 ml-4">
+          <v-badge
+            :content="vencidos"
+            :value="vencidos"
+            color="red"
+            overlap
+            class="mt-4 ml-4"
+          >
             <template v-slot:badge>
               <span v-if="vencidos > 0">{{ vencidos }}</span>
             </template>
@@ -131,7 +159,8 @@
                   v-on="on"
                   color="red"
                   @click="filtro(ofertasVenc)"
-                >mdi-file-document-box-multiple-outline</v-icon>
+                  >mdi-file-document-box-multiple-outline</v-icon
+                >
               </template>
               <span>Ofertas Vencidas</span>
             </v-tooltip>
@@ -148,11 +177,15 @@
               </v-toolbar-items>
             </v-toolbar>
             <v-card>
-              <v-card-title class="headline text-center">Seguro que deseas eliminar la Oferta</v-card-title>
-              <v-card-text class="text-center">{{oferta.nombre}}</v-card-text>
+              <v-card-title class="headline text-center"
+                >Seguro que deseas eliminar la Oferta</v-card-title
+              >
+              <v-card-text class="text-center">{{ oferta.nombre }}</v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="red" dark @click="deleteItem(oferta)">Aceptar</v-btn>
+                <v-btn color="red" dark @click="deleteItem(oferta)"
+                  >Aceptar</v-btn
+                >
                 <v-btn color="primary" @click="close()">Cancelar</v-btn>
               </v-card-actions>
             </v-card>
@@ -166,7 +199,7 @@
                 <v-toolbar dark fadeOnScroll color="blue darken-3">
                   <v-spacer></v-spacer>
                   <v-toolbar-items>
-                    <v-btn icon dark @click=" close()">
+                    <v-btn icon dark @click="close()">
                       <v-icon>mdi-close</v-icon>
                     </v-btn>
                   </v-toolbar-items>
@@ -180,12 +213,18 @@
                   ></v-file-input>
                 </v-flex>
                 <v-flex cols="2" class="px-1">
-                  <v-alert v-if="message" border="left" color="red" dark>{{ message }}</v-alert>
+                  <v-alert v-if="message" border="left" color="red" dark>{{
+                    message
+                  }}</v-alert>
                 </v-flex>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="green darken-1" text @click="upload()">Aceptar</v-btn>
-                  <v-btn color="blue darken-1" text @click=" close()">Cancelar</v-btn>
+                  <v-btn color="green darken-1" text @click="upload()"
+                    >Aceptar</v-btn
+                  >
+                  <v-btn color="blue darken-1" text @click="close()"
+                    >Cancelar</v-btn
+                  >
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -249,7 +288,10 @@
                 v-on="on"
                 @click="editItem(item)"
                 slot="activator"
-                v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+                v-if="
+                  roles.includes('administrador de contratos') ||
+                  roles.includes('administrador')
+                "
               >
                 <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
               </v-btn>
@@ -262,9 +304,13 @@
                 class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
                 small
                 v-on="on"
-                @click="editNoAdmin(item)"
+                @click="Dictaminar(item)"
                 slot="activator"
-                v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('dictaminador')"
+                v-if="
+                  roles.includes('juridico') ||
+                  roles.includes('economico') ||
+                  roles.includes('dictaminador')
+                "
               >
                 <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
               </v-btn>
@@ -277,9 +323,13 @@
                 class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small primary--text"
                 small
                 v-on="on"
-                @click="editNoAdmin(item)"
+                @click="Dictaminar(item)"
                 slot="activator"
-                v-if="roles.includes('secretario comite de contratacion')&&(item.estadoEconomico==3&&item.estadoJuridico==3)"
+                v-if="
+                  roles.includes('secretario comite de contratacion') &&
+                  item.estadoEconomico == 3 &&
+                  item.estadoJuridico == 3
+                "
               >
                 <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
               </v-btn>
@@ -293,13 +343,19 @@
                 small
                 v-on="on"
                 slot="activator"
-                v-if="roles.includes('secretario comite de contratacion')&&(item.estadoEconomico!=3||item.estadoJuridico!=3)"
+                v-if="
+                  roles.includes('secretario comite de contratacion') &&
+                  (item.estadoEconomico != 3 || item.estadoJuridico != 3)
+                "
               >
                 <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
               </v-btn>
             </template>
             <span>
-              <h3>No está aprobado por el económico o el jurídico vea los detalles del contrato para más información</h3>
+              <h3>
+                No está aprobado por el económico o el jurídico vea los detalles
+                del contrato para más información
+              </h3>
             </span>
           </v-tooltip>
           <v-tooltip top color="black">
@@ -309,7 +365,10 @@
                 small
                 v-on="on"
                 @click="confirmUpload(item)"
-                v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+                v-if="
+                  roles.includes('administrador de contratos') ||
+                  roles.includes('administrador')
+                "
               >
                 <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
               </v-btn>
@@ -323,7 +382,7 @@
                 small
                 v-on="on"
                 @click="download(item)"
-                v-if="item.filePath !=null"
+                v-if="item.filePath != null"
               >
                 <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
               </v-btn>
@@ -337,7 +396,7 @@
                 small
                 v-on="on"
                 @click="download(item)"
-                v-if="item.filePath ==null"
+                v-if="item.filePath == null"
               >
                 <v-icon>mdi-file-question-outline</v-icon>
               </v-btn>
@@ -364,7 +423,10 @@
                 small
                 v-on="on"
                 @click="confirmDelete(item)"
-                v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+                v-if="
+                  roles.includes('administrador de contratos') ||
+                  roles.includes('administrador')
+                "
               >
                 <v-icon>v-icon notranslate mdi mdi-delete theme--dark</v-icon>
               </v-btn>
@@ -375,15 +437,22 @@
       </template>
       <!-- /Actions -->
     </v-data-table>
+    <!-- Load -->
+    <div class="text-center">
+      <v-overlay :value="overlay">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
+    </div>
+    <!-- /Load -->
   </v-container>
 </template>
 <script>
 import api from "@/api";
-import EditNoAdmin from "@/components/contratacion/EditNoAdmin.vue";
+import Dictaminar from "@/components/contratacion/Dictaminar.vue";
 
 export default {
   components: {
-    EditNoAdmin
+    Dictaminar,
   },
   data: () => ({
     dialog1: false,
@@ -403,7 +472,7 @@ export default {
       montos: [],
       username: "",
       roles: null,
-      fechaDeFirmado: null
+      fechaDeFirmado: null,
     },
     file: null,
     estados: [],
@@ -433,25 +502,26 @@ export default {
       { text: "Tipo", value: "tipoNombre" },
       { text: "Vence en", value: "ofertVence" },
       { text: "Estado", value: "estadoNombre" },
-      { text: "Acciones", value: "action", sortable: false }
+      { text: "Acciones", value: "action", sortable: false },
     ],
     message: "",
     estadoJuridico: 0,
     estadoEconomico: 0,
     estadoComiteCont: 0,
-    existsDictamen: false
+    existsDictamen: false,
+    overlay: false,
   }),
   computed: {},
   watch: {
-    estadoJuridico: function() {
+    estadoJuridico: function () {
       this.getOfertasFromApi();
     },
-    estadoEconomico: function() {
+    estadoEconomico: function () {
       this.getOfertasFromApi();
     },
-    estadoComiteCont: function() {
+    estadoComiteCont: function () {
       this.getOfertasFromApi();
-    }
+    },
   },
 
   created() {
@@ -469,17 +539,19 @@ export default {
 
   methods: {
     getOfertasFromApi() {
+      this.overlay = true;
       const url = api.getUrl(
         "contratacion",
         `Contratos?tipoTramite=oferta&cliente=true&username=${this.username}&roles=${this.roles}&estadoJuridico=${this.estadoJuridico}&estadoEconomico=${this.estadoEconomico}&estadoComiteCont=${this.estadoComiteCont}`
       );
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.textByfiltro = "Ofertas de los Clientes";
           this.ofertas = response.data;
           this.cantOfertas = this.ofertas.length;
+          this.overlay = false;
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -487,10 +559,10 @@ export default {
     getTiempoVenOfertasFromApi() {
       const url = api.getUrl("contratacion", "TiempoVenOfertas");
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.tiempoVenOfertas = response.data[0];
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -498,10 +570,10 @@ export default {
     getMonedasFromApi() {
       const url = api.getUrl("contratacion", "Entidades/Monedas");
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.monedas = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -509,10 +581,10 @@ export default {
     getEstadosParaAprobarFromApi() {
       const url = api.getUrl("contratacion", "contratos/EstadosParaAprobar");
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.estados = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -525,13 +597,13 @@ export default {
         dictaminadores: [],
         montos: [],
         especialistasExternos: [],
-        username: null
+        username: null,
       };
       this.$router.push({
         name: "Nuevo_Contrato",
         query: {
-          contrato
-        }
+          contrato,
+        },
       });
     },
     editItem(item) {
@@ -556,29 +628,37 @@ export default {
       this.$router.push({
         name: "Nuevo_Contrato",
         query: {
-          contrato
-        }
+          contrato,
+        },
       });
     },
-    editNoAdmin(item) {
+    Dictaminar(item) {
+      this.editedIndex = this.ofertas.indexOf(item);
+      this.oferta = Object.assign({}, item);
+      this.oferta.username = this.username;
+      this.oferta.roles = this.roles;
+      this.oferta.entidad = item.entidad[0];
+      this.oferta.adminContrato = item.adminContrato.id;
+      this.oferta.contratoId = item.id;
+      var contrato = {};
+      contrato = this.oferta;
       this.existsDictamen == false;
       const url = api.getUrl(
         "contratacion",
         `Dictamenes/DictamenExists?contratoId=${item.id}&username=${this.username}`
       );
-      this.axios.get(url).then(response => {
+      this.axios.get(url).then((response) => {
         if (response.data == "existe") {
           vm.$snotify.warning(
             "El contrato ya usted lo dictaminó si desea puede editarlo en los detalles del contrato"
           );
           this.existsDictamen = true;
         } else {
-          const contrato = this.oferta;
           this.$router.push({
-            name: "EditNoAdmin",
+            name: "Dictaminar",
             query: {
-              contrato
-            }
+              contrato,
+            },
           });
         }
       });
@@ -591,8 +671,8 @@ export default {
       this.$router.push({
         name: "Detalles_Contrato",
         query: {
-          contrato
-        }
+          contrato,
+        },
       });
     },
     getUsuarioFromApi() {
@@ -610,7 +690,7 @@ export default {
             this.usuario = p.data;
           }
         )
-        .catch(e => {
+        .catch((e) => {
           vm.$snotify.error(e.response.data.errors);
         });
     },
@@ -630,16 +710,16 @@ export default {
       this.axios
         .post(`${url}/${this.oferta.id}`, formData, {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
         .then(
-          response => {
+          (response) => {
             this.getResponse(response);
             location.reload();
             this.close();
           },
-          error => {
+          (error) => {
             vm.$snotify.error(error.response.data);
             console.log(error);
           }
@@ -648,10 +728,10 @@ export default {
     download(item) {
       const url = api.getUrl("contratacion", "contratos/DownloadFile");
       this.axios.get(`${url}/${item.id}`).then(
-        response => {
+        (response) => {
           window.open(url + "/" + item.id);
         },
-        error => {
+        (error) => {
           vm.$snotify.error(error.response.data);
           console.log(error);
         }
@@ -664,12 +744,12 @@ export default {
     deleteItem(oferta) {
       const url = api.getUrl("contratacion", "Contratos/cancelar");
       this.axios.put(`${url}/${oferta.id}`).then(
-        response => {
+        (response) => {
           this.getResponse(response);
           this.getOfertasFromApi();
           this.dialog2 = false;
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -713,14 +793,14 @@ export default {
         `Contratos/VencimientoOferta?cliente=true&username=${this.username}&roles=${this.roles}`
       );
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.vencimientoOfertas = response.data;
           this.vencidos = this.vencimientoOfertas[0];
           this.casiVenc = this.vencimientoOfertas[1];
           this.proxVencer = this.vencimientoOfertas[2];
           this.enTiempo = this.vencimientoOfertas[3];
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -756,12 +836,12 @@ export default {
         this.textByfiltro = "Ofertas Vencidas";
       }
       this.axios.get(this.urlByfiltro).then(
-        response => {
+        (response) => {
           this.ofertas = response.data;
           vm.$snotify.success(this.textByfiltro);
           this.todasLasOfertas = true;
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -770,7 +850,7 @@ export default {
       this.estadoJuridico = 0;
       this.estadoEconomico = 0;
       this.estadoComiteCont = 0;
-    }
-  }
+    },
+  },
 };
 </script>

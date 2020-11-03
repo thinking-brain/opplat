@@ -82,7 +82,7 @@
                   item-value="id"
                   :items="departamentos"
                   cache-items
-                  label="Departamentos que van a dictaminar la oferta"
+                  label="Departamentos que van a Dictaminar la oferta"
                   multiple
                 >
                   <template v-slot:selection="data">

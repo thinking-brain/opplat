@@ -41,11 +41,11 @@ namespace ContratacionWebApi.Controllers {
         // POST contratacion/Dictamenes
         [HttpPost ("/contratacion/Dictamenes/UploadFile")]
         public async Task<IActionResult> POST (IFormFile file, int ContratoId, string Observaciones,
-            string FundamentosDeDerecho, string Consideraciones, string Recomendaciones, string Username, string OtrosSi) {
+            string FundamentosDeDerecho, string Consideraciones, string Recomendaciones, string Username, string OtrosSi, bool EditarDictamen) {
 
             var cont = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
             var dict = context.Dictamenes.FirstOrDefault (d => d.ContratoId == ContratoId && d.Username == Username);
-            if (dict != null) {
+            if (dict != null && EditarDictamen == false) {
                 return BadRequest ("Ya usted ya ha dictaminado el contrato si desea lo que puede es editar dicho dictamen");
             }
 
@@ -55,7 +55,7 @@ namespace ContratacionWebApi.Controllers {
             if (file != null) {
                 var contrato = context.Contratos.FirstOrDefault (c => c.Id == ContratoId);
                 if (contrato.FilePath == null) {
-                    return BadRequest ("No tiene un documento de contrato guardado por lo que no se puede dictaminar");
+                    return BadRequest ("No tiene un documento de contrato guardado por lo que no se puede Dictaminar");
                 }
                 var dictamen = new Dictamen {
                     ContratoId = ContratoId,
@@ -88,9 +88,9 @@ namespace ContratacionWebApi.Controllers {
             return NotFound ($"El archivo es null");
         }
 
-        // PUT contratacion/dictamenes/id
-        [HttpPut]
-        public async Task<IActionResult> PUT (IFormFile file, int ContratoId, string Observaciones,
+        // PUT contratacion/dictamenes/EditDictamen
+        [HttpPut ("/contratacion/Dictamenes/EditDictamen")]
+        public async Task<IActionResult> EditDictamen (IFormFile file, int ContratoId, string Observaciones,
             string FundamentosDeDerecho, string Consideraciones, string Recomendaciones, string Username, string OtrosSi, int Id) {
             var d = context.Dictamenes.FirstOrDefault (x => x.Id == Id);
             d.ContratoId = ContratoId;

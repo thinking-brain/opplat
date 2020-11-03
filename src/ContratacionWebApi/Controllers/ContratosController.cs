@@ -343,7 +343,7 @@ namespace ContratacionWebApi.Controllers {
                 //         correos += item.Correo + " ";
                 //     }
                 // }
-                // await _emailSender.SendEmailAsync (correos, "Nuevo Contrato", "Se ha creado un nuevo contrato que debe dictaminar");
+                // await _emailSender.SendEmailAsync (correos, "Nuevo Contrato", "Se ha creado un nuevo contrato que debe Dictaminar");
                 return new CreatedAtRouteResult ("GetContrato", new { id = contrato.Id });
             }
             return BadRequest (ModelState);
@@ -429,7 +429,7 @@ namespace ContratacionWebApi.Controllers {
                     context.SaveChanges ();
                 }
             } else {
-                return BadRequest ($"Tienen que dictaminar el contrato el económico y el jurídico");
+                return BadRequest ($"Tienen que Dictaminar el contrato el económico y el jurídico");
             }
 
             //Agregar Especialistas externos como Dictaminador/es del contrato 
@@ -489,11 +489,11 @@ namespace ContratacionWebApi.Controllers {
         }
         // PUT contratacion/contratos/editNoAdminDto
         [HttpPut ("editNoAdminDto/{id}")]
-        public async Task<IActionResult> EditNoAdminDto (EditNoAdminDto contrato, int id) {
+        public async Task<IActionResult> DictaminarDto (DictaminarDto contrato, int id) {
             DateTime FechaPorDefecto = new DateTime (0001, 01, 01);
             var c = context.Contratos.Find (id);
             var text = "";
-            if (c != null && contrato.roles != null) {
+            if (c != null) {
                 var HistoricoEstadoContrato = new HistoricoEstadoContrato {
                 ContratoId = id,
                 Fecha = DateTime.Now,
@@ -540,10 +540,10 @@ namespace ContratacionWebApi.Controllers {
                 context.Update (c);
                 context.SaveChanges ();
 
-                var admin = context_rh.Trabajador.Find (c.AdminContratoId);
-                if (admin.Correo != null) {
-                    await _emailSender.SendEmailAsync (admin.Correo, "Se ha editado el Contrato", text);
-                }
+                // var admin = context_rh.Trabajador.Find (c.AdminContratoId);
+                // if (admin.Correo != null) {
+                //     await _emailSender.SendEmailAsync (admin.Correo, "Se ha editado el Contrato", text);
+                // }
                 return Ok ();
             }
             return BadRequest ("No exite dicho contrato");

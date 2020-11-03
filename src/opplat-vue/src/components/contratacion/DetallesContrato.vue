@@ -1,69 +1,69 @@
 <template>
   <v-container grid-list-xl fluid>
-    <p
-      class="text-center text-uppercase headline font-weight-black"
-    >{{Title}} DE {{contrato.tipoNombre}} DE {{contrato.nombre}}.</p>
+    <p class="text-center text-uppercase headline font-weight-black">
+      {{ Title }} DE {{ contrato.tipoNombre }} DE {{ contrato.nombre }}.
+    </p>
     <v-row>
       <!-- DATOS DE LA OFERTA -->
       <v-col>
         <v-card xs12 sm12 flat>
           <v-row class="mx-1">
             <v-col cols="12" md="12" class="pa-2 headline">
-              <h3>Datos {{subTitle}}</h3>
+              <h3>Datos {{ subTitle }}</h3>
             </v-col>
             <v-col cols="12" md="6" class="pa-2" v-if="!contrato.esContrato">
               <strong>Vence en:</strong>
-              {{contrato.ofertVence}} Días
+              {{ contrato.ofertVence }} Días
             </v-col>
             <v-col cols="12" md="6" class="pa-2" v-if="contrato.esContrato">
               <strong>Vence en:</strong>
-              {{contrato.contVence}} Días
+              {{ contrato.contVence }} Días
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Tipo:</strong>
-              {{contrato.tipoNombre}}
+              {{ contrato.tipoNombre }}
             </v-col>
           </v-row>
           <v-row class="mx-1">
             <v-col cols="12" md="6" class="pa-2">
               <strong>Número :</strong>
-              {{contrato.numero}}
+              {{ contrato.numero }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Estado :</strong>
-              {{contrato.estadoNombre}}
+              {{ contrato.estadoNombre }}
             </v-col>
             <v-col cols="12" md="12" class="pa-2">
               <strong>Administrador del Contrato :</strong>
-              {{contrato.adminContrato.nombreCompleto}}
+              {{ contrato.adminContrato.nombreCompleto }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Fecha de Recepción:</strong>
-              {{contrato.fechaDeRece}}
+              {{ contrato.fechaDeRece }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2" v-if="!contrato.esContrato">
               <strong>La Oferta Vence el:</strong>
-              {{contrato.fechaDeVenOfer}}
+              {{ contrato.fechaDeVenOfer }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2" v-if="contrato.esContrato">
               <strong>El Contrato Vence el:</strong>
-              {{contrato.fechaVenCont}}
+              {{ contrato.fechaVenCont }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Objeto del Contrato :</strong>
-              {{contrato.objetoDeContrato}}
+              {{ contrato.objetoDeContrato }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Término de Pago :</strong>
-              {{contrato.terminoDePagoDet}}
+              {{ contrato.terminoDePagoDet }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Monto del Contrato :</strong>
               <v-spacer></v-spacer>
               <span v-for="item in contrato.montos" :key="item.nombre">
                 <v-spacer></v-spacer>
-                $ {{item.cantidad}} en
-                {{item.nombreString}}
+                $ {{ item.cantidad }} en
+                {{ item.nombreString }}
               </span>
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
@@ -72,7 +72,7 @@
               <span v-for="item in contrato.formasDePago" :key="item.nombre">
                 <v-spacer></v-spacer>
                 -
-                {{item.nombre}}
+                {{ item.nombre }}
               </span>
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
@@ -84,7 +84,7 @@
               >
                 <v-spacer></v-spacer>
                 -
-                {{item.nombreCompleto}}
+                {{ item.nombreCompleto }}
               </span>
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
@@ -96,24 +96,24 @@
               >
                 <v-spacer></v-spacer>
                 -
-                {{item.nombreCompleto}}
+                {{ item.nombreCompleto }}
               </span>
             </v-col>
             <v-col cols="12" md="12" class="pa-2">
               <hr />
-              <strong>Estado {{subTitle}}:</strong>
+              <strong>Estado {{ subTitle }}:</strong>
             </v-col>
             <v-col cols="12" md="6">
               <strong>Jurídico:</strong>
-              <u>{{contrato.estadoJuridicoNombre}}</u>
+              <u>{{ contrato.estadoJuridicoNombre }}</u>
             </v-col>
             <v-col cols="12" md="6">
               <strong>Económico:</strong>
-              <u>{{contrato.estadoEconomicoNombre}}</u>
+              <u>{{ contrato.estadoEconomicoNombre }}</u>
             </v-col>
             <v-col cols="12" md="12">
               <strong>Comité Contratación:</strong>
-              <u>{{contrato.estadoComitContratacionNombre}}</u>
+              <u>{{ contrato.estadoComitContratacionNombre }}</u>
             </v-col>
           </v-row>
         </v-card>
@@ -128,31 +128,31 @@
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Nombre :</strong>
-              {{contrato.entidad.nombre}}
+              {{ contrato.entidad.nombre }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Dirección :</strong>
-              {{contrato.entidad.direccion}}
+              {{ contrato.entidad.direccion }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>NIT :</strong>
-              {{contrato.entidad.nit}}
+              {{ contrato.entidad.nit }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Sector :</strong>
-              {{contrato.entidad.sectorNombre}}
+              {{ contrato.entidad.sectorNombre }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Fax :</strong>
-              {{contrato.entidad.fax}}
+              {{ contrato.entidad.fax }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
               <strong>Correo :</strong>
-              {{contrato.entidad.correo}}
+              {{ contrato.entidad.correo }}
             </v-col>
             <v-col cols="12" md="12" class="pa-2">
               <strong>Objeto Social :</strong>
-              {{contrato.entidad.objetoSocial}}
+              {{ contrato.entidad.objetoSocial }}
             </v-col>
             <div cols="12" md="12" class="pa-2">
               <strong>Teléfonos :</strong>
@@ -164,9 +164,9 @@
                 class="pt-1"
               >
                 <strong>Número:</strong>
-                {{item.numero}}
+                {{ item.numero }}
                 <strong class="ml-2">Ext:</strong>
-                {{item.extension}}
+                {{ item.extension }}
               </div>
             </div>
             <v-col cols="12" md="12" class="pa-2">
@@ -231,9 +231,20 @@
                         v-on="on"
                         @click="editDictamen(item)"
                         slot="activator"
-                        v-if="(roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador'))&&item.username==username"
+                        v-if="
+                          (roles.includes('juridico') ||
+                            roles.includes('economico') ||
+                            roles.includes(
+                              'secretario comite de contratacion'
+                            ) ||
+                            roles.includes('dictaminador')) &&
+                          item.username == username
+                        "
                       >
-                        <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
+                        <v-icon
+                          >v-icon notranslate mdi mdi-pen-plus
+                          theme--dark</v-icon
+                        >
                       </v-btn>
                     </template>
                     <span>Editar</span>
@@ -245,9 +256,19 @@
                         small
                         v-on="on"
                         @click="confirmUpload(item)"
-                        v-if="(roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador'))&&item.username==username"
+                        v-if="
+                          (roles.includes('juridico') ||
+                            roles.includes('economico') ||
+                            roles.includes(
+                              'secretario comite de contratacion'
+                            ) ||
+                            roles.includes('dictaminador')) &&
+                          item.username == username
+                        "
                       >
-                        <v-icon>v-icon notranslate mdi mdi-upload theme--dark</v-icon>
+                        <v-icon
+                          >v-icon notranslate mdi mdi-upload theme--dark</v-icon
+                        >
                       </v-btn>
                     </template>
                     <span>Guardar Documento</span>
@@ -259,9 +280,12 @@
                         small
                         v-on="on"
                         @click="download(item)"
-                        v-if="item.filePath !=null"
+                        v-if="item.filePath != null"
                       >
-                        <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+                        <v-icon
+                          >v-icon notranslate mdi mdi-download
+                          theme--dark</v-icon
+                        >
                       </v-btn>
                     </template>
                     <span>Descargar Documento</span>
@@ -273,7 +297,7 @@
                         small
                         v-on="on"
                         @click="download(item)"
-                        v-if="item.filePath ==null"
+                        v-if="item.filePath == null"
                       >
                         <v-icon>mdi-file-question-outline</v-icon>
                       </v-btn>
@@ -316,7 +340,7 @@
                 <v-toolbar dark fadeOnScroll color="blue darken-3">
                   <v-spacer></v-spacer>
                   <v-toolbar-items>
-                    <v-btn icon dark @click="dialog=false">
+                    <v-btn icon dark @click="dialog = false">
                       <v-icon>mdi-close</v-icon>
                     </v-btn>
                   </v-toolbar-items>
@@ -335,7 +359,11 @@
                         ></v-text-field>
                       </v-flex>
                       <v-flex cols="2" md9 class="px-3">
-                        <v-textarea v-model="dictamen.observaciones" label="Observaciones" rows="1"></v-textarea>
+                        <v-textarea
+                          v-model="dictamen.observaciones"
+                          label="Observaciones"
+                          rows="1"
+                        ></v-textarea>
                       </v-flex>
                       <v-flex cols="2" md6 class="px-3">
                         <v-textarea
@@ -366,7 +394,13 @@
                         ></v-text-field>
                       </v-flex>
                       <v-flex cols="2" md6 class="px-1">
-                        <v-alert v-if="message" border="left" color="red" dark>{{ message }}</v-alert>
+                        <v-alert
+                          v-if="message"
+                          border="left"
+                          color="red"
+                          dark
+                          >{{ message }}</v-alert
+                        >
                       </v-flex>
                     </v-layout>
                   </v-row>
@@ -386,8 +420,10 @@
                   </v-row>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" dark text @click="save()">Aceptar</v-btn>
-                    <v-btn text @click="dialog=false">Cancelar</v-btn>
+                    <v-btn color="green darken-1" dark text @click="save()"
+                      >Aceptar</v-btn
+                    >
+                    <v-btn text @click="dialog = false">Cancelar</v-btn>
                   </v-card-actions>
                 </v-card-text>
               </v-card>
@@ -400,7 +436,7 @@
                 <v-toolbar dark fadeOnScroll color="blue darken-3">
                   <v-spacer></v-spacer>
                   <v-toolbar-items>
-                    <v-btn icon dark @click="dialog1=false">
+                    <v-btn icon dark @click="dialog1 = false">
                       <v-icon>mdi-close</v-icon>
                     </v-btn>
                   </v-toolbar-items>
@@ -410,31 +446,31 @@
                   <v-row class="mx-1">
                     <v-col cols="12" md="6" class="pa-2">
                       <strong>Número :</strong>
-                      {{dictamen.id}}
+                      {{ dictamen.id }}
                     </v-col>
                     <v-col cols="12" md="6" class="pa-2">
                       <strong>Pertenece al contrato :</strong>
-                      {{contrato.nombre}}
+                      {{ contrato.nombre }}
                     </v-col>
                     <v-col cols="12" md="6" class="pa-2">
                       <strong>Observaciones :</strong>
-                      {{dictamen.observaciones}}
+                      {{ dictamen.observaciones }}
                     </v-col>
                     <v-col cols="12" md="6" class="pa-2">
                       <strong>Consideraciones :</strong>
-                      {{dictamen.consideraciones}}
+                      {{ dictamen.consideraciones }}
                     </v-col>
                     <v-col cols="12" md="6" class="pa-2">
                       <strong>Recomendaciones</strong>
-                      {{dictamen.recomendaciones}}
+                      {{ dictamen.recomendaciones }}
                     </v-col>
                     <v-col cols="12" md="6" class="pa-2">
                       <strong>FundamentosDeDerecho</strong>
-                      {{dictamen.fundamentosDeDerecho}}
+                      {{ dictamen.fundamentosDeDerecho }}
                     </v-col>
                     <v-col cols="12" md="6" class="pa-2">
                       <strong>Fecha del Dictamen :</strong>
-                      {{dictamen.fecha}}
+                      {{ dictamen.fecha }}
                     </v-col>
                   </v-row>
                 </v-card-text>
@@ -459,7 +495,9 @@
               flat
             >
               <template v-slot:item.ofertVence="{ item }">
-                <v-chip :color="getColor(item.ofertVence)" dark>{{ item.ofertVence }} días</v-chip>
+                <v-chip :color="getColor(item.ofertVence)" dark
+                  >{{ item.ofertVence }} días</v-chip
+                >
               </template>
               <template v-slot:top>
                 <v-toolbar flat color="white">
@@ -491,9 +529,14 @@
                         v-on="on"
                         @click="editItemSuplemento(item)"
                         slot="activator"
-                        v-if="(roles.includes('administrador de contratos')||roles.includes('administrador'))"
+                        v-if="
+                          roles.includes('administrador de contratos') ||
+                          roles.includes('administrador')
+                        "
                       >
-                        <v-icon>v-icon notranslate mdi mdi-pen theme--dark</v-icon>
+                        <v-icon
+                          >v-icon notranslate mdi mdi-pen theme--dark</v-icon
+                        >
                       </v-btn>
                     </template>
                     <span>Editar</span>
@@ -506,9 +549,17 @@
                         v-on="on"
                         @click="editDictamen(item)"
                         slot="activator"
-                        v-if="roles.includes('juridico')||roles.includes('economico')||roles.includes('secretario comite de contratacion')||roles.includes('dictaminador')"
+                        v-if="
+                          roles.includes('juridico') ||
+                          roles.includes('economico') ||
+                          roles.includes('secretario comite de contratacion') ||
+                          roles.includes('dictaminador')
+                        "
                       >
-                        <v-icon>v-icon notranslate mdi mdi-pen-plus theme--dark</v-icon>
+                        <v-icon
+                          >v-icon notranslate mdi mdi-pen-plus
+                          theme--dark</v-icon
+                        >
                       </v-btn>
                     </template>
                     <span>Dictaminar y Aprobar Contrato</span>
@@ -520,9 +571,12 @@
                         small
                         v-on="on"
                         @click="downloadSuplemento(item)"
-                        v-if="item.filePath !=null"
+                        v-if="item.filePath != null"
                       >
-                        <v-icon>v-icon notranslate mdi mdi-download theme--dark</v-icon>
+                        <v-icon
+                          >v-icon notranslate mdi mdi-download
+                          theme--dark</v-icon
+                        >
                       </v-btn>
                     </template>
                     <span>Descargar Documento</span>
@@ -534,7 +588,7 @@
                         small
                         v-on="on"
                         @click="downloadSuplemento(item)"
-                        v-if="item.filePath ==null"
+                        v-if="item.filePath == null"
                       >
                         <v-icon>mdi-file-question-outline</v-icon>
                       </v-btn>
@@ -566,7 +620,9 @@
     <v-row>
       <v-col>
         <div class="text-center">
-          <v-btn color="blue darken-1" text @click="close()">Volver al Listado</v-btn>
+          <v-btn color="blue darken-1" text @click="close()"
+            >Volver al Listado</v-btn
+          >
         </div>
       </v-col>
     </v-row>
@@ -595,34 +651,36 @@ export default {
     file: "",
     suplementos: [],
     tiempoVenOfertas: [],
+    estados: [],
+    estadoByRool: {},
     tabs: null,
     tab: null,
     textOfertaVence: {
       text: null,
-      class: null
+      class: null,
     },
     headersCuentas: [
       {
         text: "Número de Cuenta",
         align: "left",
         sortable: true,
-        value: "numeroCuenta"
+        value: "numeroCuenta",
       },
       { text: "Número Sucursal", value: "numeroSucursal" },
       { text: "Nombre Sucursal", value: "nombreSucursalString" },
-      { text: "Moneda", value: "monedaString" }
+      { text: "Moneda", value: "monedaString" },
     ],
     headersDictamen: [
       {
         text: "Número",
         align: "left",
         sortable: true,
-        value: "id"
+        value: "id",
       },
       { text: "Observaciones", value: "observaciones" },
       { text: "Dictaminó", value: "dictaminador.nombreCompleto" },
       { text: "Fecha", value: "fecha" },
-      { text: "Acciones", value: "action", sortable: false }
+      { text: "Acciones", value: "action", sortable: false },
     ],
     headerSuplementos: [
       { text: "Id", sortable: true, value: "id" },
@@ -630,13 +688,13 @@ export default {
       { text: "Motivo Suplemento", value: "motivoSuplemento" },
       { text: "Fecha de Recepción", value: "fechaDeRece" },
       { text: "Vence", value: "contVence" },
-      { text: "Acciones", value: "action", sortable: false }
+      { text: "Acciones", value: "action", sortable: false },
     ],
     message: "",
     messagesNumDictamen: "",
     roles: [],
     username: "",
-    errors: []
+    errors: [],
   }),
   computed: {
     Title() {
@@ -646,13 +704,14 @@ export default {
       return this.contrato.esContrato === true
         ? "del Contrato"
         : "de la Oferta";
-    }
+    },
   },
   created() {
-    this.getSuplementosFromApi();
-    this.getTiempoVenOfertasFromApi();
     this.roles = this.$store.getters.roles;
     this.username = this.$store.getters.usuario;
+    this.getSuplementosFromApi();
+    this.getTiempoVenOfertasFromApi();
+    this.getEstadoByRool();
   },
   methods: {
     editItem(item) {
@@ -671,15 +730,15 @@ export default {
       this.axios
         .put(url, formData, {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
         .then(
-          response => {
+          (response) => {
             this.getResponse(response);
             this.dialog = false;
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         );
@@ -691,10 +750,10 @@ export default {
     download(item) {
       const url = api.getUrl("contratacion", "dictamenes/DownloadFile");
       this.axios.get(`${url}/${item.id}`).then(
-        response => {
+        (response) => {
           window.open(url + "/" + item.id);
         },
-        error => {
+        (error) => {
           vm.$snotify.error(error.response.data);
           console.log(error);
         }
@@ -703,27 +762,27 @@ export default {
     close() {
       if (this.contrato.sinFechaVen == true) {
         this.$router.push({
-          name: "ContratosSinFecha"
+          name: "ContratosSinFecha",
         });
       } else {
         if (this.contrato.cliente == true && this.contrato.esContrato == true) {
           this.$router.push({
-            name: "ContratosCliente"
+            name: "ContratosCliente",
           });
         } else if (
           this.contrato.cliente == false &&
           this.contrato.esContrato == true
         ) {
           this.$router.push({
-            name: "ContratosPrestador"
+            name: "ContratosPrestador",
           });
         } else if (this.contrato.cliente == true) {
           this.$router.push({
-            name: "OfertasClientes"
+            name: "OfertasClientes",
           });
         } else
           this.$router.push({
-            name: "OfertasPrestador"
+            name: "OfertasPrestador",
           });
       }
     },
@@ -734,10 +793,10 @@ export default {
         `Contratos?cliente=true&contratoId=${this.contrato.id}`
       );
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.suplementos = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -767,10 +826,24 @@ export default {
     getTiempoVenOfertasFromApi() {
       const url = api.getUrl("contratacion", "TiempoVenOfertas");
       this.axios.get(url).then(
-        response => {
+        (response) => {
           this.tiempoVenOfertas = response.data[0];
         },
-        error => {
+        (error) => {
+          console.log(error);
+        }
+      );
+    },
+    getEstadoByRool() {
+      const url = api.getUrl(
+        "contratacion",
+        `contratos/EstadoByRool?id=${this.contrato.id}&roles=${this.roles}`
+      );
+      this.axios.get(url).then(
+        (response) => {
+          this.estadoByRool = response.data;
+        },
+        (error) => {
           console.log(error);
         }
       );
@@ -788,23 +861,25 @@ export default {
       this.$router.push({
         name: "Nuevo_Contrato",
         query: {
-          contrato
-        }
+          contrato,
+        },
       });
     },
     editDictamen(item) {
-      this.editedIndex = item.id;
-      this.oferta = Object.assign({}, item);
-      this.oferta.username = this.username;
-      this.oferta.roles = this.roles;
-      this.oferta.contratoId = item.id;
-
-      const contrato = this.oferta;
+      var contrato = {};
+      contrato = Object.assign({}, item);
+      contrato.username = this.username;
+      contrato.roles = this.roles;
+      contrato.estado = this.estadoByRool;
+      contrato.dictamen = item;
+      contrato.id = this.contrato.id;
+      contrato.nombre = this.contrato.nombre;
+      contrato.dictamenEdit = true;
       this.$router.push({
-        name: "EditNoAdmin",
+        name: "Dictaminar",
         query: {
-          contrato
-        }
+          contrato,
+        },
       });
     },
     getDetallesSuplemento(item) {
@@ -829,16 +904,16 @@ export default {
       this.axios
         .post(`${url}/${this.oferta.id}`, formData, {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
         .then(
-          response => {
+          (response) => {
             this.getResponse(response);
             location.reload();
             this.close();
           },
-          error => {
+          (error) => {
             vm.$snotify.error(error.response.data);
             console.log(error);
           }
@@ -847,15 +922,15 @@ export default {
     downloadSuplemento(item) {
       const url = api.getUrl("contratacion", "contratos/DownloadFile");
       this.axios.get(`${url}/${item.id}`).then(
-        response => {
+        (response) => {
           window.open(url + "/" + item.id);
         },
-        error => {
+        (error) => {
           vm.$snotify.error(error.response.data);
           console.log(error);
         }
       );
-    }
-  }
+    },
+  },
 };
 </script>

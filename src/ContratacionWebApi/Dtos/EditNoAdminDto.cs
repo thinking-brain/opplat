@@ -6,7 +6,7 @@ using System.Linq;
 using ContratacionWebApi.Models;
 
 namespace ContratacionWebApi.Dtos {
-    public class EditNoAdminDto {
+    public class DictaminarDto {
         public int ContratoId { get; set; }
         public string Numero { get; set; }
         public DateTime FechaDeFirmado { get; set; }
