@@ -75,6 +75,7 @@
     </v-form>
   </v-card>
 </template>
+
 <script>
 import api from "@/api";
 
@@ -129,39 +130,29 @@ export default {
     save() {
       if (this.file == null) {
         this.message = "Por favor seleccione un archivo!";
-        return;
       } else {
         this.message = "";
         const formData = new FormData();
         formData.append("file", this.file);
         if (this.contrato.dictamenEdit == true) {
-          const url = api.getUrl(
-            "contratacion",
-            `Dictamenes/EditDictamen?ContratoId=${this.contrato.id}&NumeroDeDictamen=${this.dictamen.numero}
-        &Observaciones=${this.dictamen.observaciones}&FundamentosDeDerecho=${this.dictamen.fundamentosDeDerecho}
-        &Consideraciones=${this.dictamen.consideraciones}&Recomendaciones=${this.dictamen.recomendaciones}&Username=${this.username}&editarDictamen=${this.editarDictamen}`
+          const url = api.getUrl("contratacion", "Dictamenes");
+          this.axios.put(`${url}/${this.dictamen.id}`, this.dictamen).then(
+            (response) => {
+              this.Dictaminar();
+              this.uploadDictamen();
+              this.close();
+            },
+            (error) => {
+              vm.$snotify.error(error.response.data);
+              console.log(error);
+            }
           );
-          this.axios
-            .post(url, formData, {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            })
-            .then(
-              (response) => {
-                this.Dictaminar();
-              },
-              (error) => {
-                vm.$snotify.error(error.response.data);
-                console.log(error);
-              }
-            );
         } else {
           const url = api.getUrl(
             "contratacion",
             `Dictamenes/UploadFile?ContratoId=${this.contrato.id}&NumeroDeDictamen=${this.dictamen.numero}
         &Observaciones=${this.dictamen.observaciones}&FundamentosDeDerecho=${this.dictamen.fundamentosDeDerecho}
-        &Consideraciones=${this.dictamen.consideraciones}&Recomendaciones=${this.dictamen.recomendaciones}&Username=${this.username}&editarDictamen=${this.editarDictamen}`
+        &Consideraciones=${this.dictamen.consideraciones}&Recomendaciones=${this.dictamen.recomendaciones}&Username=${this.username}&id=${this.dictamen.id}`
           );
           this.axios
             .post(url, formData, {
@@ -172,6 +163,7 @@ export default {
             .then(
               (response) => {
                 this.Dictaminar();
+                this.close();
               },
               (error) => {
                 vm.$snotify.error(error.response.data);
@@ -192,15 +184,6 @@ export default {
       this.contrato.roles = this.roles;
       this.axios.put(`${url}/${this.contrato.id}`, this.contrato).then(
         (response) => {
-          this.getResponse(response);
-          if (this.contrato.cliente == true) {
-            this.$router.push({
-              name: "OfertasClientes",
-            });
-          } else
-            this.$router.push({
-              name: "OfertasPrestador",
-            });
         },
         (error) => {
           console.log(error);
@@ -209,21 +192,67 @@ export default {
       );
     },
     close() {
-      if (this.contrato.cliente == true) {
+      if (this.contrato.sinFechaVen == true) {
         this.$router.push({
-          name: "OfertasClientes",
+          name: "ContratosSinFecha",
         });
-      } else
-        this.$router.push({
-          name: "OfertasPrestador",
-        });
+      } else {
+        if (this.contrato.cliente == true && this.contrato.esContrato == true) {
+          this.$router.push({
+            name: "ContratosCliente",
+          });
+        } else if (
+          this.contrato.cliente == false &&
+          this.contrato.esContrato == true
+        ) {
+          this.$router.push({
+            name: "ContratosPrestador",
+          });
+        } else if (this.contrato.cliente == true) {
+          this.$router.push({
+            name: "OfertasClientes",
+          });
+        } else
+          this.$router.push({
+            name: "OfertasPrestador",
+          });
+      }
     },
     getResponse(response) {
       if (response.status === 200 || response.status === 201) {
         vm.$snotify.success("Exito al realizar la operación");
       }
     },
+    uploadDictamen() {
+      if (!this.file) {
+        this.message = "Por favor seleccione un archivo!";
+        return;
+      }
+      this.message = "";
+      const formData = new FormData();
+      formData.append("file", this.file);
+      const url = api.getUrl(
+        "contratacion",
+        `Dictamenes/UploadDictamen?ContratoId=${this.contrato.id}&id=${this.dictamen.id}`
+      );
+      this.axios
+        .put(`${url}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(
+          (response) => {
+            this.getResponse(response);          
+          },
+          (error) => {
+            vm.$snotify.error(error.response.data);
+            console.log(error);
+          }
+        );
+    },
   },
 };
 </script>
+
 <style></style>

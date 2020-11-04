@@ -41,11 +41,11 @@ namespace ContratacionWebApi.Controllers {
         // POST contratacion/Dictamenes
         [HttpPost ("/contratacion/Dictamenes/UploadFile")]
         public async Task<IActionResult> POST (IFormFile file, int ContratoId, string Observaciones,
-            string FundamentosDeDerecho, string Consideraciones, string Recomendaciones, string Username, string OtrosSi, bool EditarDictamen) {
+            string FundamentosDeDerecho, string Consideraciones, string Recomendaciones, string Username, string OtrosSi) {
 
             var cont = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
             var dict = context.Dictamenes.FirstOrDefault (d => d.ContratoId == ContratoId && d.Username == Username);
-            if (dict != null && EditarDictamen == false) {
+            if (dict != null) {
                 return BadRequest ("Ya usted ya ha dictaminado el contrato si desea lo que puede es editar dicho dictamen");
             }
 
@@ -88,35 +88,50 @@ namespace ContratacionWebApi.Controllers {
             return NotFound ($"El archivo es null");
         }
 
-        // PUT contratacion/dictamenes/EditDictamen
-        [HttpPut ("/contratacion/Dictamenes/EditDictamen")]
-        public async Task<IActionResult> EditDictamen (IFormFile file, int ContratoId, string Observaciones,
-            string FundamentosDeDerecho, string Consideraciones, string Recomendaciones, string Username, string OtrosSi, int Id) {
-            var d = context.Dictamenes.FirstOrDefault (x => x.Id == Id);
-            d.ContratoId = ContratoId;
-            d.Consideraciones = Consideraciones;
-            d.Observaciones = Observaciones;
-            d.Recomendaciones = Recomendaciones;
-            d.FechaDictamen = DateTime.Now;
-            d.FundamentosDeDerecho = FundamentosDeDerecho;
-            d.Username = Username;
-            d.OtrosSi = OtrosSi;
-            if (file != null) {
-                var cont = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
-                var adminContrato = context.AdminContratos.FirstOrDefault (c => c.AdminContratoId == cont.AdminContratoId);
-                var departamento = context.Departamentos.FirstOrDefault (dep => dep.Id == adminContrato.DepartamentoId);
+        // POST contratacion/Dictamenes
+        [HttpPut ("/contratacion/Dictamenes/UploadDictamen")]
+        public async Task<IActionResult> UploadDictamen (IFormFile file, int ContratoId, int Id) {
 
-                string folderName = Path.Combine (_hostingEnvironment.WebRootPath, "Upload Dictamenes");
+            var cont = context.Contratos.FirstOrDefault (s => s.Id == ContratoId);
+            var adminContrato = context.AdminContratos.FirstOrDefault (c => c.AdminContratoId == cont.AdminContratoId);
+            var departamento = context.Departamentos.FirstOrDefault (dep => dep.Id == adminContrato.DepartamentoId);
+
+            if (file != null) {
+                var contrato = context.Contratos.FirstOrDefault (c => c.Id == ContratoId);
+                var dictamen = context.Dictamenes.FirstOrDefault (d => d.Id == Id);
+                string folderName = Path.Combine (_hostingEnvironment.WebRootPath, "Contratos");
                 string subFolder = System.IO.Path.Combine (folderName, departamento.Nombre);
-                if (!Directory.Exists (subFolder)) {
-                    System.IO.Directory.CreateDirectory (subFolder);
+                FileInfo f = new FileInfo (contrato.FilePath);
+                var name = f.Name.Split (".");
+                string subFolder1 = System.IO.Path.Combine (subFolder, name[0]);
+
+                if (!Directory.Exists (subFolder1)) {
+                    System.IO.Directory.CreateDirectory (subFolder1);
                 }
-                var filePath = Path.Combine (subFolder, file.FileName);
+                var filePath = Path.Combine (subFolder1, file.FileName);
                 using (var fileStream = new FileStream (filePath, FileMode.Create)) {
                     await file.CopyToAsync (fileStream);
                 }
-                d.FilePath = filePath;
+                dictamen.FilePath = filePath;
+                context.Entry (dictamen).State = EntityState.Modified;
+                context.SaveChanges ();
+                return Ok ();
             }
+            return NotFound ($"El archivo es null");
+        }
+
+        // PUT contratacion/dictamenes/{id}
+        [HttpPut ("{id}")]
+        public IActionResult PUT ([FromBody] DictamenDto DictamenDto, int id) {
+            var d = context.Dictamenes.FirstOrDefault (x => x.Id == id);
+            d.ContratoId = DictamenDto.ContratoId;
+            d.Consideraciones = DictamenDto.Consideraciones;
+            d.Observaciones = DictamenDto.Observaciones;
+            d.Recomendaciones = DictamenDto.Recomendaciones;
+            d.FechaDictamen = DateTime.Now;
+            d.FundamentosDeDerecho = DictamenDto.FundamentosDeDerecho;
+            d.Username = DictamenDto.Username;
+            d.OtrosSi = DictamenDto.OtrosSi;
             context.Entry (d).State = EntityState.Modified;
             context.SaveChanges ();
             return Ok ();

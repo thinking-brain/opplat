@@ -249,7 +249,7 @@
                     </template>
                     <span>Editar</span>
                   </v-tooltip>
-                  <v-tooltip top color="black">
+                  <!-- <v-tooltip top color="black">
                     <template v-slot:activator="{ on }">
                       <v-btn
                         class="v-btn v-btn--depressed v-btn--fab v-btn--flat v-btn--icon v-btn--outlined v-btn--round theme--dark v-size--small secondary--text"
@@ -272,7 +272,7 @@
                       </v-btn>
                     </template>
                     <span>Guardar Documento</span>
-                  </v-tooltip>
+                  </v-tooltip> -->
                   <v-tooltip top color="black">
                     <template v-slot:activator="{ on }">
                       <v-btn
@@ -628,6 +628,7 @@
     </v-row>
   </v-container>
 </template>
+
 <script>
 import api from "@/api";
 
@@ -666,9 +667,18 @@ export default {
         sortable: true,
         value: "numeroCuenta",
       },
-      { text: "Número Sucursal", value: "numeroSucursal" },
-      { text: "Nombre Sucursal", value: "nombreSucursalString" },
-      { text: "Moneda", value: "monedaString" },
+      {
+        text: "Número Sucursal",
+        value: "numeroSucursal",
+      },
+      {
+        text: "Nombre Sucursal",
+        value: "nombreSucursalString",
+      },
+      {
+        text: "Moneda",
+        value: "monedaString",
+      },
     ],
     headersDictamen: [
       {
@@ -677,18 +687,52 @@ export default {
         sortable: true,
         value: "id",
       },
-      { text: "Observaciones", value: "observaciones" },
-      { text: "Dictaminó", value: "dictaminador.nombreCompleto" },
-      { text: "Fecha", value: "fecha" },
-      { text: "Acciones", value: "action", sortable: false },
+      {
+        text: "Observaciones",
+        value: "observaciones",
+      },
+      {
+        text: "Dictaminó",
+        value: "dictaminador.nombreCompleto",
+      },
+      {
+        text: "Fecha",
+        value: "fecha",
+      },
+      {
+        text: "Acciones",
+        value: "action",
+        sortable: false,
+      },
     ],
     headerSuplementos: [
-      { text: "Id", sortable: true, value: "id" },
-      { text: "Nombre", sortable: true, value: "nombre" },
-      { text: "Motivo Suplemento", value: "motivoSuplemento" },
-      { text: "Fecha de Recepción", value: "fechaDeRece" },
-      { text: "Vence", value: "contVence" },
-      { text: "Acciones", value: "action", sortable: false },
+      {
+        text: "Id",
+        sortable: true,
+        value: "id",
+      },
+      {
+        text: "Nombre",
+        sortable: true,
+        value: "nombre",
+      },
+      {
+        text: "Motivo Suplemento",
+        value: "motivoSuplemento",
+      },
+      {
+        text: "Fecha de Recepción",
+        value: "fechaDeRece",
+      },
+      {
+        text: "Vence",
+        value: "contVence",
+      },
+      {
+        text: "Acciones",
+        value: "action",
+        sortable: false,
+      },
     ],
     message: "",
     messagesNumDictamen: "",
@@ -875,6 +919,7 @@ export default {
       contrato.id = this.contrato.id;
       contrato.nombre = this.contrato.nombre;
       contrato.dictamenEdit = true;
+      contrato.cliente = this.contrato.cliente;
       this.$router.push({
         name: "Dictaminar",
         query: {
