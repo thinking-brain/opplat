@@ -50,10 +50,10 @@ namespace ContratacionWebApi.Models {
 
         [NotMapped]
         public virtual ICollection<HistoricoEstadoContrato> Estados { get; set; }
-        public Estado EstadoEconomico { get; set; }
-        public Estado EstadoJuridico { get; set; }
-        public Estado EstadoComitContratacion { get; set; }
-        public Estado EstadoContrato { get; set; }
+        public EstadoOrden EstadoEconomico { get; set; }
+        public EstadoOrden EstadoJuridico { get; set; }
+        public EstadoOrden EstadoComitContratacion { get; set; }
+        public EstadoOrden EstadoContrato { get; set; }
         public bool Cliente { get; set; }
         public virtual ICollection<Dictamen> Dictamenes { get; set; }
         public virtual ICollection<Suplemento> Suplementos { get; set; }
@@ -67,13 +67,13 @@ namespace ContratacionWebApi.Models {
         // public string Descripcion => $"{Entidad.Nombre}-{Tipo} ({Numero})";
 
         // [NotMapped]
-        // public Estado EstadoActual {
+        // public EstadoOrden EstadoActual {
         //     get {
         //         var estadoActual = Estados.OrderBy (e => e.Fecha).Last ();
         //         if (estadoActual == null) {
-        //             return Estado.SinEstado;
+        //             return EstadoOrden.SinEstado;
         //         }
-        //         return estadoActual.Estado;
+        //         return estadoActual.EstadoOrden;
         //     }
         // }
     }

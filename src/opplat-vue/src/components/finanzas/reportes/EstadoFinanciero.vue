@@ -25,7 +25,7 @@
     </v-form>
     <v-card v-if="visible" color="basil">
       <v-card-title class="text-center justify-center py-6">
-        <h6 class="font-weight-bold display-1 basil--text">Estado Financiero {{mes.nombre}} {{year}}</h6>
+        <h6 class="font-weight-bold display-1 basil--text">EstadoOrden Financiero {{mes.nombre}} {{year}}</h6>
       </v-card-title>
 
       <v-tabs v-model="tab" background-color="transparent" color="basil" grow>

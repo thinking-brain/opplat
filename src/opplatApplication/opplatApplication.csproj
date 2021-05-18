@@ -27,5 +27,6 @@
         <ProjectReference Include="..\ImportadorDatos\ImportadorDatos.csproj" />
         <ProjectReference Include="..\RhWebApi\RhWebApi.csproj" />
         <ProjectReference Include="..\ContratacionWebApi\ContratacionWebApi.csproj" />
+        <ProjectReference Include="..\TallerWebApi\TallerWebApi.csproj" />
     </ItemGroup>
 </Project>

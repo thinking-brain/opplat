@@ -29,7 +29,7 @@ namespace RhWebApi.Controllers {
                         Sexo = s.CaracteristicasSocio.Sexo.ToString (),
                         PerfilOcupacional = s.CaracteristicasSocio.PerfilOcupacional.Nombre,
                         NivelDeEscolaridad = s.CaracteristicasSocio.NivelDeEscolaridad.ToString (),
-                        Estado = s.EstadosApertura.ToString ()
+                        EstadoOrden = s.EstadosApertura.ToString ()
                 });
             if (aperturaSocios == null) {
                 return NotFound ();
@@ -50,7 +50,7 @@ namespace RhWebApi.Controllers {
                         Sexo = s.CaracteristicasSocio.Sexo.ToString (),
                         PerfilOcupacional = s.CaracteristicasSocio.PerfilOcupacional.Nombre,
                         NivelDeEscolaridad = s.CaracteristicasSocio.NivelDeEscolaridad.ToString (),
-                        Estado = s.EstadosApertura.ToString ()
+                        EstadoOrden = s.EstadosApertura.ToString ()
                 }).ToList ();
             if (aperturaSocio == null) {
                 return NotFound ();

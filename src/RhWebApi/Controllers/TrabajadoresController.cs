@@ -282,7 +282,7 @@ namespace RhWebApi.Controllers {
         [HttpGet ("/recursos_humanos/Trabajadores/Filtro")]
         public IActionResult GetByFiltro (
             bool bolsa, string UnidadOrganizativa = "",
-            string Cargo = "", string Sexo = "", string Estado = "",
+            string Cargo = "", string Sexo = "", string EstadoOrden = "",
             string ColorDePiel = "", string NivelDeEscolaridad = "",
             string EdadDesde = "", string EdadHasta = "",
             string PerfilOcupacional = "", string Municipio = "") {
@@ -330,8 +330,8 @@ namespace RhWebApi.Controllers {
             if (!string.IsNullOrEmpty (Sexo)) {
                 trabajadores = trabajadores.Where (t => t.Sexo.ToString ().Equals (Sexo));
             }
-            if (!string.IsNullOrEmpty (Estado)) {
-                trabajadores = trabajadores.Where (t => t.EstadoTrabajador.ToString ().Equals (Estado));
+            if (!string.IsNullOrEmpty (EstadoOrden)) {
+                trabajadores = trabajadores.Where (t => t.EstadoTrabajador.ToString ().Equals (EstadoOrden));
             }
             if (!string.IsNullOrEmpty (ColorDePiel)) {
                 trabajadores = trabajadores.Where (t => t.ColorDePiel.Equals (ColorDePiel.ToString ()));

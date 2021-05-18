@@ -30,7 +30,7 @@
                 ]
             },
             {
-                "title": "Estado Financiero",
+                "title": "EstadoOrden Financiero",
                 "group": "reportes",
                 "icon": "mdi-chart-areaspline",
                 "component": "EstadoFinanciero",

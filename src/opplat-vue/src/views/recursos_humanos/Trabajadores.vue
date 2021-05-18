@@ -92,7 +92,7 @@
                         :items="estados"
                         cache-items
                         clearable
-                        label="Estado"
+                        label="EstadoOrden"
                         prepend-icon="mdi-database-search"
                       ></v-select>
                     </v-flex>
@@ -378,7 +378,7 @@
                         <v-list-item two-line>
                           <v-list-item-content>
                             <v-list-item-title>
-                              <strong>Estado:</strong>
+                              <strong>EstadoOrden:</strong>
                             </v-list-item-title>
                             <v-list-item-subtitle>{{trabajador.estadoTrabajadorName}}</v-list-item-subtitle>
                           </v-list-item-content>
@@ -869,7 +869,7 @@ export default {
       { text: 'Sexo', value: 'sexoName' },
       { text: 'Cargo', value: 'cargo' },
       { text: 'Edad', value: 'edad' },
-      { text: 'Estado', value: 'estadoTrabajadorName' },
+      { text: 'EstadoOrden', value: 'estadoTrabajadorName' },
       { text: 'Acciones', value: 'action', sortable: false },
     ],
     funciones: [

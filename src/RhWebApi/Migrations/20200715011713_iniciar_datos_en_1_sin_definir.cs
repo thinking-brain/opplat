@@ -570,7 +570,7 @@ namespace RhWebApi.Migrations
                     Fecha = table.Column<DateTime>(nullable: false),
                     TrabajadorId = table.Column<int>(nullable: false),
                     Nombre = table.Column<string>(nullable: true),
-                    Estado = table.Column<int>(nullable: false),
+                    EstadoOrden = table.Column<int>(nullable: false),
                     Desde = table.Column<DateTime>(nullable: false),
                     Hasta = table.Column<DateTime>(nullable: false)
                 },

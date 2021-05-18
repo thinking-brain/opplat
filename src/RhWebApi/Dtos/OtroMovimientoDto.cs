@@ -10,7 +10,7 @@ namespace RhWebApi.Dtos {
         public int TrabajadorId { get; set; }
         public string Trabajador { get; set; }
         public string Nombre { get; set; }
-        public Estados Estado { get; set; }
+        public Estados EstadoOrden { get; set; }
         public DateTime CuandoSeHizo { get; set; }
         public DateTime Desde { get; set; }
         public DateTime Hasta { get; set; }

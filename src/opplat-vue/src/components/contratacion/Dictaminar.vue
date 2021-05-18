@@ -59,7 +59,7 @@
                 item-text="nombre"
                 item-value="id"
                 :items="estados"
-                label="Estado del contrato"
+                label="EstadoOrden del contrato"
               ></v-autocomplete>
             </v-flex>
           </v-layout>

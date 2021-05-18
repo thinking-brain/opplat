@@ -332,7 +332,7 @@ namespace FinanzasWebApi.Controllers {
 
             var package = new ExcelPackage ();
 
-            package.Workbook.Properties.Title = "Estado Financiero Report-" + data.First ().EFE;
+            package.Workbook.Properties.Title = "EstadoOrden Financiero Report-" + data.First ().EFE;
             package.Workbook.Properties.Author = "Opplat";
             package.Workbook.Properties.Subject = "La Concordia";
             package.Workbook.Properties.Keywords = data.First ().EFE;

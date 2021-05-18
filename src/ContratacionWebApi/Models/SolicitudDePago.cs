@@ -19,7 +19,7 @@ namespace ContratacionWebApi.Models {
 
         public virtual ObjetoDeContrato ObjetoDeContrato { get; set; }
 
-        public EstadoSolicitud Estado { get; set; }
+        public EstadoSolicitud EstadoOrden { get; set; }
 
         public decimal ImporteTotalCup { get; set; }
 

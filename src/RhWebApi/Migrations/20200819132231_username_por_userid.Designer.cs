@@ -372,7 +372,7 @@ namespace RhWebApi.Migrations
 
                     b.Property<DateTime>("Desde");
 
-                    b.Property<int>("Estado");
+                    b.Property<int>("EstadoOrden");
 
                     b.Property<DateTime>("Fecha");
 

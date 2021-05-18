@@ -15,6 +15,6 @@ namespace RhWebApi.Dtos {
         public string ColorDePiel { get; set; }
         public string NivelDeEscolaridad { get; set; }
         public string Edad { get; set; }
-        public string Estado { get; set; }
+        public string EstadoOrden { get; set; }
     }
 }

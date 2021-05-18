@@ -33,7 +33,7 @@
               <th colspan="11" class="text-center encabezado1">
                 <img src="img/logo.png" class="float-left" />
                 <h2>CNA La Concordia</h2>
-                <h2>Estado del cumplimiento del plan de ingresos y gastos {{year}} hasta {{mes.nombre}}</h2>
+                <h2>EstadoOrden del cumplimiento del plan de ingresos y gastos {{year}} hasta {{mes.nombre}}</h2>
               </th>
             </tr>
             <tr>

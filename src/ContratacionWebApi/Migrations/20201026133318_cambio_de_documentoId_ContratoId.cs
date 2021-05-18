@@ -332,7 +332,7 @@ namespace ContratacionWebApi.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ContratoId = table.Column<int>(nullable: false),
-                    Estado = table.Column<int>(nullable: false),
+                    EstadoOrden = table.Column<int>(nullable: false),
                     Fecha = table.Column<DateTime>(nullable: false),
                     Usuario = table.Column<string>(nullable: true)
                 },

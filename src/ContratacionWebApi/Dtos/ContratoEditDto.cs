@@ -36,7 +36,7 @@ namespace ContratacionWebApi.Models {
         //Término de pago en días
         [Display (Name = "Término de Pago")]
         public int TerminoDePago { get; set; }
-        public Estado Estado { get; set; }
+        public EstadoOrden EstadoOrden { get; set; }
         public string Username { get; set; }
         public List<int> Departamentos { get; set; }
         public List<int> EspecialistasExternos { get; set; }

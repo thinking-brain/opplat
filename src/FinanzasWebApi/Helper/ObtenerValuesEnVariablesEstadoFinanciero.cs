@@ -55,7 +55,7 @@ namespace FinanzasWebApi.Helper
             decimal pagosAnticipadosASuministradores = Valor("Pagos Anticipados a Suministradores", year, meses);
             decimal pagosAnticipadosDelProcesoInversionista = Valor("Pagos Anticipados del Proceso + Inversionista", year, meses);
             decimal anticiposAJustificar = Valor("Anticipos a Justificar", year, meses);
-            decimal adeudosDelPresupuestoDelEstado = Valor("Adeudos del Presupuesto del Estado", year, meses);
+            decimal adeudosDelPresupuestoDelEstado = Valor("Adeudos del Presupuesto del EstadoOrden", year, meses);
             decimal adeudosDelOrganoUOrganismo = Valor("Adeudos del Organo u Organismo", year, meses);
             decimal ingresosAcumuladosPorCobrar = Valor("Ingresos acumulados por Cobrar", year, meses);
             decimal dividendosYParticipacionesOPorCobrar = Valor("Dividendos y Participaciones o por Cobrar", year, meses);
@@ -243,7 +243,7 @@ namespace FinanzasWebApi.Helper
             decimal cuentasPorPagarDelProcesoInversionista = Valor("Cuentas por Pagar del Proceso Inversionista", year, meses);
             decimal cobrosAnticipados = Valor("Cobros Anticipados", year, meses);
             decimal depositosRecibidos = Valor("Depósitos Recibidos", year, meses);
-            decimal obligacionesConElPresupuestoDelEstado = Valor("Obligaciones con el Presupuesto del Estado", year, meses);
+            decimal obligacionesConElPresupuestoDelEstado = Valor("Obligaciones con el Presupuesto del EstadoOrden", year, meses);
             decimal obligacionesConElOrganoUOrganismo = Valor("Obligaciones con el Organo u Organismo", year, meses);
             decimal nominasPorPagar = Valor("Nóminas por Pagar", year, meses);
             decimal retencionesPorPagar = Valor("Retenciones por Pagar", year, meses);

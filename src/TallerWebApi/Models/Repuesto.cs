@@ -1,0 +1,23 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Web;
+using TallerWebApi.Data;
+using TallerWebApi.Models;
+
+namespace TallerWebApi.Models {
+    public class Repuesto {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public double Precio { get; set; }
+        public double PrecioUnitario { get; set; }
+        public double Cantidad { get; set; }
+        public bool Aceptado { get; set; }
+                public bool Activo { get; set; }
+
+    }
+}

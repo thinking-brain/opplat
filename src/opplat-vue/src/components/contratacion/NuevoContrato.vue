@@ -276,7 +276,7 @@
                   item-value="id"
                   :items="estados"
                   cache-items
-                  label="Estado"
+                  label="EstadoOrden"
                 ></v-autocomplete>
               </v-flex>-->
             </v-layout>

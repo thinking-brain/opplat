@@ -94,7 +94,7 @@ export default {
               valor: 0,
             },
             {
-              razon: 'Adeudos del Presupuesto del Estado (164-166)',
+              razon: 'Adeudos del Presupuesto del EstadoOrden (164-166)',
               valor: -1386610.07,
             },
             {

@@ -10,7 +10,7 @@ namespace ContratacionWebApi.Models
 
         public virtual Contrato Contrato { get; set; }
 
-        public Estado Estado { get; set; }
+        public EstadoOrden EstadoOrden { get; set; }
 
         public DateTime Fecha { get; set; }
 

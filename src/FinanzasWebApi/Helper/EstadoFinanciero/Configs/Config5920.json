@@ -172,7 +172,7 @@
       },
       {
         "id": 18,
-        "name": "Adeudos del Presupuesto del Estado (164-166)",
+        "name": "Adeudos del Presupuesto del EstadoOrden (164-166)",
         "celda": "C22",
         "cuentas": [
           164,
@@ -967,7 +967,7 @@
       },
       {
         "id": 99,
-        "name": "Obligaciones con el Presupuesto del Estado (440-449)",
+        "name": "Obligaciones con el Presupuesto del EstadoOrden (440-449)",
         "celda": "C105",
         "cuentas": [
           440,
@@ -1247,7 +1247,7 @@
       },
       {
         "id": 125,
-        "name": "Obligaciones con el Presupuesto del Estado por Garantía Activada (575)",
+        "name": "Obligaciones con el Presupuesto del EstadoOrden por Garantía Activada (575)",
         "celda": "C131",
         "cuentas": [
           575

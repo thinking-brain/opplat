@@ -501,7 +501,7 @@ export default {
       { text: "Número", value: "numero" },
       { text: "Tipo", value: "tipoNombre" },
       { text: "Vence en", value: "ofertVence" },
-      { text: "Estado", value: "estadoNombre" },
+      { text: "EstadoOrden", value: "estadoNombre" },
       { text: "Acciones", value: "action", sortable: false },
     ],
     message: "",

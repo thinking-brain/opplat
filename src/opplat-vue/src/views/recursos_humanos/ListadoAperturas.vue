@@ -97,7 +97,7 @@ export default {
       { text: "Fecha", value: "fecha" },
       { text: "# Acuerdo Asamblea", value: "numeroAcuerdo" },
       { text: "Cantidad de Socios", value: "cantTrabajadores" },
-      { text: "Estado", value: "estado" },
+      { text: "EstadoOrden", value: "estado" },
       { text: "Acciones", value: "action", sortable: false }
     ]
   }),

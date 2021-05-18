@@ -15,7 +15,7 @@ namespace ContratacionWebApi.Models {
         Suplemento
     }
 
-    public enum Estado {
+    public enum EstadoOrden {
         SinEstado,
         Nuevo,
         Circulando,

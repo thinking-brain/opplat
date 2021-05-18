@@ -404,7 +404,7 @@ namespace ContratacionWebApi.Migrations
 
                     b.Property<int>("ContratoId");
 
-                    b.Property<int>("Estado");
+                    b.Property<int>("EstadoOrden");
 
                     b.Property<DateTime>("Fecha");
 

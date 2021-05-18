@@ -30,7 +30,7 @@
               {{ contrato.numero }}
             </v-col>
             <v-col cols="12" md="6" class="pa-2">
-              <strong>Estado :</strong>
+              <strong>EstadoOrden :</strong>
               {{ contrato.estadoNombre }}
             </v-col>
             <v-col cols="12" md="12" class="pa-2">
@@ -101,7 +101,7 @@
             </v-col>
             <v-col cols="12" md="12" class="pa-2">
               <hr />
-              <strong>Estado {{ subTitle }}:</strong>
+              <strong>EstadoOrden {{ subTitle }}:</strong>
             </v-col>
             <v-col cols="12" md="6">
               <strong>Jurídico:</strong>
@@ -413,7 +413,7 @@
                           item-text="nombre"
                           item-value="id"
                           :items="estados"
-                          label="Estado del contrato"
+                          label="EstadoOrden del contrato"
                         ></v-autocomplete>
                       </v-flex>
                     </v-layout>

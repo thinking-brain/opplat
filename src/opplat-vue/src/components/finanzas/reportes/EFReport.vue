@@ -37,7 +37,7 @@
           <v-card-title class="text-center justify-center py-6">
             <h3
               class="font-weight-bold display-1 basil--text"
-            >Estado Financiero {{mes.nombre}} {{year}}</h3>
+            >EstadoOrden Financiero {{mes.nombre}} {{year}}</h3>
             <v-spacer></v-spacer>
             <v-tooltip top>
               <template v-slot:activator="{ on }">

@@ -1,5 +1,4 @@
-[
-    {
+[{
         "name": "administracion",
         "title": "Admistración",
         "icon": "mdi-settings",
@@ -51,6 +50,16 @@
             "administrador",
             "administrador contratacion",
             "contratacion"
+        ]
+    },
+    {
+        "name": "taller",
+        "title": "Taller",
+        "icon": "mdi-home-flood",
+        "roles": [
+            "administrador",
+            "administrador taller",
+            "taller"
         ]
     }
 ]
