@@ -1,4 +1,14 @@
 [{
+        "title": "Talleres",
+        "group": "taller",
+        "icon": "mdi-warehouse",
+        "name": "Talleres",
+        "component": "Talleres",
+        "roles": [
+            "administrador"
+        ]
+    },
+    {
         "title": "Clientes",
         "group": "taller",
         "icon": "mdi-account-group",
@@ -14,6 +24,16 @@
         "icon": "mdi-devices",
         "name": "Equipos",
         "component": "Equipos",
+        "roles": [
+            "administrador"
+        ]
+    },
+    {
+        "title": "Técnicos",
+        "group": "taller",
+        "icon": "mdi-worker",
+        "name": "Tecnicos",
+        "component": "Tecnicos",
         "roles": [
             "administrador"
         ]

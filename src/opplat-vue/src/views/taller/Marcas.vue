@@ -54,7 +54,7 @@
             v-bind:item="item"
             v-bind:text="text"
             v-bind:dataItem="item.nombre"
-            :urlObject="urlObject"
+            :entity="entity"
             @close="$emit('close')"
           />
         </template>
@@ -99,7 +99,7 @@ export default {
       item: {},
       text: { title: "Estas Seguro de Eliminar a " },
       cardTitle: " Listado de Marcas",
-      urlObject: "Marcas",
+      entity: "Marcas",
       totalItems: 0,
     };
   },
@@ -129,7 +129,7 @@ export default {
       this.loading = true;
       const url = api.getUrl(
         "taller",
-        `${this.urlObject}?order=${this.options.order}&typeOrder=${this.options.sort}&page=${this.options.page}&itemsPerPage=${this.options.itemsPerPage}`
+        `${this.entity}?order=${this.options.order}&typeOrder=${this.options.sort}&page=${this.options.page}&itemsPerPage=${this.options.itemsPerPage}`
       );
       this.axios
         .get(url)
@@ -147,7 +147,7 @@ export default {
       this.loading = true;
       const url = api.getUrl(
         "taller",
-        `${this.urlObject}?&search=${
+        `${this.entity}?&search=${
           this.search
         }&order=${"Id"}&typeOrder=${"ASC"}&page=${1}&itemsPerPage=${10}`
       );

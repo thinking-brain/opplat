@@ -1,11 +1,11 @@
 <template>
-  <v-dialog v-model="dialogEdit" max-width="650px">
+  <v-dialog v-model="dialogEdit" max-width="650px" persistent>
     <v-card>
       <v-card-title>
         <span class="headline">{{ formTitle }}</span>
       </v-card-title>
       <v-card-text>
-        <v-container>
+        <v-container v-if="typeof item === 'object'">
           <v-row>
             <v-col cols="12" sm="6" md="6">
               <v-text-field
@@ -17,7 +17,7 @@
             <v-col cols="12" sm="6" md="6">
               <v-autocomplete
                 auto-select-first
-                v-model="item.marca"
+                v-model="marca"
                 :items="marcas"
                 item-value="id"
                 item-text="nombre"
@@ -28,7 +28,7 @@
             <v-col cols="12" sm="6" md="6">
               <v-autocomplete
                 auto-select-first
-                v-model="item.modelo"
+                v-model="modelo"
                 :items="modelos"
                 item-value="id"
                 item-text="nombre"
@@ -39,7 +39,7 @@
             <v-col cols="12" sm="6" md="6">
               <v-autocomplete
                 auto-select-first
-                v-model="item.tipoEquipo"
+                v-model="tipoEquipo"
                 :items="tiposEquipos"
                 item-value="id"
                 item-text="nombre"
@@ -50,7 +50,7 @@
             <v-col cols="12" sm="6" md="6">
               <v-autocomplete
                 auto-select-first
-                v-model="item.cliente"
+                v-model="cliente"
                 :items="clientes"
                 item-value="id"
                 item-text="nombre"
@@ -61,8 +61,8 @@
             <v-col cols="12" sm="6" md="6">
               <v-autocomplete
                 auto-select-first
-                v-model="item.situacionEquipo"
-                :items="situacionEquipo"
+                v-model="situacionEquipo"
+                :items="situacionEquipos"
                 item-value="id"
                 item-text="nombre"
                 label="Situación del Equipo"
@@ -96,7 +96,7 @@
             </v-col>
             <v-col cols="6">
               <v-text-field
-                v-model="item.obsevaciones"
+                v-model="item.observaciones"
                 label="Obsevaciones"
               ></v-text-field>
             </v-col>
@@ -137,12 +137,22 @@ export default {
     modelos: [],
     tiposEquipos: [],
     clientes: [],
-    situacionEquipo: [],
+    situacionEquipos: [],
     menu: false,
     errors: [],
+    situacionEquipo: {},
+    cliente: {},
+    tipoEquipo: {},
+    modelo: {},
+    marca: {},
   }),
   computed: {
     formTitle() {
+      this.situacionEquipo = this.item.situacionEquipo;
+      this.cliente = this.item.cliente;
+      this.tipoEquipo = this.item.tipoEquipo;
+      this.modelo = this.item.modelo;
+      this.marca = this.item.marca;
       return this.editedIndex === -1 ? "Nuevo" : "Editar";
     },
     method() {
@@ -186,10 +196,17 @@ export default {
     getAllSituacionEquipoFromApi() {
       const url = api.getUrl("taller", "Equipos/SituacionEquipo");
       this.axios.get(url).then((response) => {
-        this.situacionEquipo = response.data;
+        this.situacionEquipos = response.data;
       });
     },
     save(method) {
+      const { situacionEquipo, cliente, tipoEquipo, modelo, marca } = this;
+      this.item.situacionEquipo = typeof situacionEquipo === "object" ? situacionEquipo.id : situacionEquipo;
+      this.item.cliente = typeof cliente === "object" ? cliente.id : cliente;
+      this.item.tipoEquipo = typeof tipoEquipo === "object" ? tipoEquipo.id : tipoEquipo;
+      this.item.modelo = typeof modelo === "object" ? modelo.id : modelo;
+      this.item.marca = typeof marca === "object" ? marca.id : marca;
+
       const url = api.getUrl("taller", "Equipos");
       if (method === "POST") {
         this.item.activo = true;

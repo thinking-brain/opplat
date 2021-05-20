@@ -20,12 +20,10 @@
       <v-data-table
         :headers="headers"
         :items="items"
-        :options.sync="options"
-        :server-items-length="totalItems"
         :loading="loading"
         loading-text="Buscando... Por favor espere"
         class="elevation-1"
-        @getTiposEquiposFromApi="getTiposEquiposFromApi"
+        @getTalleresFromApi="getTalleresFromApi"
         :footer-props="{
           itemsPerPageText: 'Resultados por Página',
         }"
@@ -64,7 +62,7 @@
       :dialogEdit="dialogEdit"
       :item="item"
       :editedIndex="editedIndex"
-      @getTiposEquiposFromApi="getTiposEquiposFromApi"
+      @getTalleresFromApi="getTalleresFromApi"
       @close="close"
     />
   </v-container>
@@ -72,7 +70,7 @@
 
 <script>
 import api from "@/api";
-import AddEdit from "@/components/taller/tipos_equipos/AddEdit.vue";
+import AddEdit from "@/components/taller/talleres/AddEdit.vue";
 import Delete from "@/components/taller/utils/Delete.vue";
 
 export default {
@@ -95,17 +93,17 @@ export default {
           value: "nombre",
         },
         {
-          text: "Código",
+          text: "Direccion",
           align: "left",
           sortable: true,
-          value: "codigo",
+          value: "direccion",
         },
         { text: "Acciones", align: "left", value: "action", sortable: false },
       ],
       item: {},
       text: { title: "Estas Seguro de Eliminar a " },
-      cardTitle: " Listado de Tipos de Equipos",
-      entity: "TiposEquipos",
+      cardTitle: " Listado de Talleres",
+      entity: "Talleres",
       totalItems: 0,
     };
   },
@@ -114,34 +112,18 @@ export default {
       return this.cardTitle;
     },
   },
-  watch: {
-    options: {
-      handler() {
-        this.getTiposEquiposFromApi();
-      },
-      deep: true,
-    },
-    search: function () {
-      if (this.search == null) {
-        this.getTiposEquiposFromApi();
-      }
-    },
-  },
-  mounted() {
-    this.getTiposEquiposFromApi();
+  watch: {},
+  created() {
+    this.getTalleresFromApi();
   },
   methods: {
-    getTiposEquiposFromApi() {
+    getTalleresFromApi() {
       this.loading = true;
-      const url = api.getUrl(
-        "taller",
-        `${this.entity}?order=${this.options.order}&typeOrder=${this.options.sort}&page=${this.options.page}&itemsPerPage=${this.options.itemsPerPage}`
-      );
+      const url = api.getUrl("taller", "Talleres");
       this.axios
         .get(url)
         .then((response) => {
-          this.items = response.data.result;
-          this.totalItems = response.data.totalItems;
+          this.items = response.data;
           this.loading = false;
         })
         .catch((e) => {

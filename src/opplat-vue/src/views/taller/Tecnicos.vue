@@ -25,7 +25,7 @@
         :loading="loading"
         loading-text="Buscando... Por favor espere"
         class="elevation-1"
-        @getTiposEquiposFromApi="getTiposEquiposFromApi"
+        @getTecnicosFromApi="getTecnicosFromApi"
         :footer-props="{
           itemsPerPageText: 'Resultados por Página',
         }"
@@ -64,7 +64,7 @@
       :dialogEdit="dialogEdit"
       :item="item"
       :editedIndex="editedIndex"
-      @getTiposEquiposFromApi="getTiposEquiposFromApi"
+      @getTecnicosFromApi="getTecnicosFromApi"
       @close="close"
     />
   </v-container>
@@ -72,7 +72,7 @@
 
 <script>
 import api from "@/api";
-import AddEdit from "@/components/taller/tipos_equipos/AddEdit.vue";
+import AddEdit from "@/components/taller/tecnicos/AddEdit.vue";
 import Delete from "@/components/taller/utils/Delete.vue";
 
 export default {
@@ -95,17 +95,23 @@ export default {
           value: "nombre",
         },
         {
-          text: "Código",
+          text: "Cargo",
           align: "left",
           sortable: true,
-          value: "codigo",
+          value: "cargo",
+        },
+        {
+          text: "Taller",
+          align: "left",
+          sortable: true,
+          value: "taller.nombre",
         },
         { text: "Acciones", align: "left", value: "action", sortable: false },
       ],
       item: {},
       text: { title: "Estas Seguro de Eliminar a " },
-      cardTitle: " Listado de Tipos de Equipos",
-      entity: "TiposEquipos",
+      cardTitle: " Listado de Técnicos",
+      entity: "Tecnicos",
       totalItems: 0,
     };
   },
@@ -117,21 +123,21 @@ export default {
   watch: {
     options: {
       handler() {
-        this.getTiposEquiposFromApi();
+        this.getTecnicosFromApi();
       },
       deep: true,
     },
     search: function () {
       if (this.search == null) {
-        this.getTiposEquiposFromApi();
+        this.getTecnicosFromApi();
       }
     },
   },
   mounted() {
-    this.getTiposEquiposFromApi();
+    this.getTecnicosFromApi();
   },
   methods: {
-    getTiposEquiposFromApi() {
+    getTecnicosFromApi() {
       this.loading = true;
       const url = api.getUrl(
         "taller",

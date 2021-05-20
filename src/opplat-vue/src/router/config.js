@@ -642,6 +642,28 @@ export const protectedRoute = [{
                 component: () =>
                     import ( /* webpackChunkName: "table" */ '@/views/taller/TiposEquipos.vue'),
             },
+            {
+                path: '/taller/Tecnicos',
+                name: 'Tecnicos',
+
+                meta: {
+                    title: 'Tecnicos',
+                    requiresAuth: true,
+                },
+                component: () =>
+                    import ( /* webpackChunkName: "table" */ '@/views/taller/Tecnicos.vue'),
+            },
+            {
+                path: '/taller/Talleres',
+                name: 'Talleres',
+
+                meta: {
+                    title: 'Talleres',
+                    requiresAuth: true,
+                },
+                component: () =>
+                    import ( /* webpackChunkName: "table" */ '@/views/taller/Talleres.vue'),
+            },
         ]
     }
 

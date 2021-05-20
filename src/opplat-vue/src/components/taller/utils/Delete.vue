@@ -19,9 +19,9 @@
         <v-list-item>
           <v-list-item-content class="headline text-center">
             <v-list-item-title>{{ text.title }}</v-list-item-title>
-            <v-list-item-subtitle class="mt-3"
+            <p class="body-1 mt-3 blue--text"
               >{{ dataItem }}
-            </v-list-item-subtitle>
+            </p>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -53,7 +53,7 @@ export default {
       type: String,
       default: "",
     },
-    urlObject: {
+    entity: {
       type: String,
       default: "",
     },
@@ -69,7 +69,7 @@ export default {
   watch: {},
   methods: {
     updateItem() {
-      const url = api.getUrl("taller", `${this.urlObject}`);
+      const url = api.getUrl("taller", `${this.entity}`);
       this.axios.put(`${url}/${this.item.id}`, this.item).then(
         (response) => {
           this.getResponse(response);

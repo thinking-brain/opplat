@@ -71,8 +71,14 @@
           <Delete
             v-bind:item="item"
             v-bind:text="text"
-            v-bind:dataItem="item.nombre"
-            :urlObject="urlObject"
+            v-bind:dataItem="
+              item.marca.nombre +
+              '-' +
+              item.modelo.nombre +
+              ' #' +
+              item.numeroSerie
+            "
+            :entity="entity"
             @close="$emit('close')"
           />
         </template>
@@ -120,6 +126,12 @@ export default {
           value: "numeroSerie",
         },
         {
+          text: "Dueño",
+          align: "left",
+          sortable: true,
+          value: "cliente.nombre",
+        },
+        {
           text: "Marca",
           align: "left",
           sortable: true,
@@ -137,18 +149,18 @@ export default {
           sortable: true,
           value: "fechaFabricacion",
         },
-        {
-          text: "Observaciones",
-          align: "left",
-          sortable: true,
-          value: "observaciones",
-        },
         { text: "Acciones", value: "action", sortable: false },
       ],
-      item: {},
+      item: {
+        situacionEquipo: {},
+        cliente: { nombre: "" },
+        tipoEquipo: {},
+        modelo: { nombre: "" },
+        marca: { nombre: "" },
+      },
       text: { title: "Estas Seguro de Eliminar a " },
       cardTitle: " Listado de Equipos",
-      urlObject: "Equipos",
+      entity: "Equipos",
       totalItems: 0,
     };
   },
@@ -178,7 +190,7 @@ export default {
       this.loading = true;
       const url = api.getUrl(
         "taller",
-        `${this.urlObject}?order=${this.options.order}&typeOrder=${this.options.sort}&page=${this.options.page}&itemsPerPage=${this.options.itemsPerPage}`
+        `${this.entity}?order=${this.options.order}&typeOrder=${this.options.sort}&page=${this.options.page}&itemsPerPage=${this.options.itemsPerPage}`
       );
       this.axios
         .get(url)
@@ -196,7 +208,7 @@ export default {
       this.loading = true;
       const url = api.getUrl(
         "taller",
-        `${this.urlObject}?&search=${
+        `${this.entity}?&search=${
           this.search
         }&order=${"Id"}&typeOrder=${"ASC"}&page=${1}&itemsPerPage=${10}`
       );
@@ -227,7 +239,13 @@ export default {
       this.dialogEdit = false;
       this.dialogDetails = false;
       this.editedIndex = -1;
-      this.item = {};
+      this.item = {
+        situacionEquipo: {},
+        cliente: { nombre: "" },
+        tipoEquipo: {},
+        modelo: { nombre: "" },
+        marca: { nombre: "" },
+      };
     },
   },
 };
