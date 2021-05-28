@@ -27,7 +27,7 @@ namespace TallerWebApi.Models {
         public IEnumerable<HistoricoEquipo> HistoricoEquipo { get; set; }
         public string Observaciones { get; set; }
         public IEnumerable<DocumentoEquipo> Documentos { get; set; }
-        public SituacionEquipo SituacionEquipo { get; set; }
+        public EstadoEquipo EstadoEquipo { get; set; }
         public bool Activo { get; set; }
     }
 }

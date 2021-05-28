@@ -35,7 +35,7 @@ namespace FinanzasWebApi.Data
                 // Total de Inventario
                 new { Dato = "Materias Primas y Materiales", Valor = "183"},
                 new { Dato = "Combustibles y Lubricantes", Valor = "184"},
-                new { Dato = "Partes y Piezas de Respuesto", Valor = "185"},
+                new { Dato = "Partes y Piezas de Repuesto", Valor = "185"},
                 new { Dato = "Envases y Embalajes", Valor = "186"},
                 new { Dato = "Utiles, Herramientas y Otros", Valor = "187"},
                 new { Dato = "Producción Terminada", Valor = "188"},

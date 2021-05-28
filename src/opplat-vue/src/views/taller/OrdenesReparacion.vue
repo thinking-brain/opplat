@@ -1,10 +1,10 @@
 <template>
   <v-container grid-list-xl fluid>
-    <v-card :flat="isDialog">
+    <v-card>
       <v-card-title>
         {{ title }}
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-btn color="primary" @click="addItem()">Nuevo</v-btn>
+        <v-btn color="primary" @click="addItem">Nuevo</v-btn>
         <v-spacer></v-spacer>
         <div class="flex-grow-1"></div>
         <v-text-field
@@ -18,17 +18,14 @@
         ></v-text-field>
       </v-card-title>
       <v-data-table
-        v-model="selected"
-        :single-select="true"
-        :show-select="isDialog"
         :headers="headers"
         :items="items"
         :options.sync="options"
         :server-items-length="totalItems"
         :loading="loading"
         loading-text="Buscando... Por favor espere"
+        @getOrdenesReparacionFromApi="getOrdenesReparacionFromApi"
         class="elevation-1"
-        @getEquiposFromApi="getEquiposFromApi"
         :footer-props="{
           itemsPerPageText: 'Resultados por Página',
         }"
@@ -74,13 +71,7 @@
           <Delete
             v-bind:item="item"
             v-bind:text="text"
-            v-bind:dataItem="
-              item.marca.nombre +
-              '-' +
-              item.modelo.nombre +
-              ' #' +
-              item.numeroSerie
-            "
+            v-bind:dataItem="item.nombre"
             :entity="entity"
             @close="$emit('close')"
           />
@@ -91,7 +82,7 @@
       :dialogEdit="dialogEdit"
       :item="item"
       :editedIndex="editedIndex"
-      @getEquiposFromApi="getEquiposFromApi"
+      @getOrdenesReparacionFromApi="getOrdenesReparacionFromApi"
       @close="close"
     />
     <Details
@@ -105,18 +96,12 @@
 
 <script>
 import api from "@/api";
-import AddEdit from "@/components/taller/equipos/AddEdit.vue";
-import Details from "@/components/taller/equipos/Details.vue";
+import AddEdit from "@/components/taller/ordenes_reparacion/AddEdit.vue";
+import Details from "@/components/taller/ordenes_reparacion/Details.vue";
 import Delete from "@/components/taller/utils/Delete.vue";
 
 export default {
   components: { AddEdit, Details, Delete },
-  props: {
-    isDialog: {
-      type: Boolean,
-      default: false,
-    },
-  },
   data() {
     return {
       search: "",
@@ -127,53 +112,37 @@ export default {
       items: [],
       errors: [],
       options: {},
-      selected: [],
       headers: [
         {
-          text: "Número Serie",
+          text: "Nombre",
           align: "left",
           sortable: true,
-          value: "numeroSerie",
+          value: "nombre",
         },
         {
-          text: "Dueño",
+          text: "Teléfono",
           align: "left",
           sortable: true,
-          value: "cliente.nombre",
+          value: "telefono",
         },
         {
-          text: "Marca",
+          text: "Correo",
           align: "left",
           sortable: true,
-          value: "marca.nombre",
+          value: "correo",
         },
         {
-          text: "Modelo",
+          text: "CI",
           align: "left",
           sortable: true,
-          value: "modelo.nombre",
-        },
-        {
-          text: "Fecha Fabricación",
-          align: "left",
-          sortable: true,
-          value: "fechaFabricacion",
+          value: "ci",
         },
         { text: "Acciones", value: "action", sortable: false },
       ],
-      item: {
-        numeroSerie: null,
-        estadoEquipo: {},
-        cliente: { nombre: "" },
-        tipoEquipo: {},
-        modelo: { nombre: "" },
-        marca: { nombre: "" },
-        fechaFabricacion: "",
-        observaciones: "",
-      },
+      item: {},
       text: { title: "Estas Seguro de Eliminar a " },
-      cardTitle: " Listado de Equipos",
-      entity: "Equipos",
+      cardTitle: " Listado de Órdenes",
+      entity: "OrdenesReparacion",
       totalItems: 0,
     };
   },
@@ -185,24 +154,21 @@ export default {
   watch: {
     options: {
       handler() {
-        this.getEquiposFromApi();
+        this.getOrdenesReparacionFromApi();
       },
       deep: true,
     },
     search: function () {
       if (this.search == null) {
-        this.getEquiposFromApi();
+        this.getOrdenesReparacionFromApi();
       }
-    },
-    selected() {
-      this.$emit("close", this.selected);
     },
   },
   mounted() {
-    this.getEquiposFromApi();
+    this.getOrdenesReparacionFromApi();
   },
   methods: {
-    getEquiposFromApi() {
+    getOrdenesReparacionFromApi() {
       this.loading = true;
       const url = api.getUrl(
         "taller",
@@ -255,13 +221,7 @@ export default {
       this.dialogEdit = false;
       this.dialogDetails = false;
       this.editedIndex = -1;
-      this.item = {
-        estadoEquipo: {},
-        cliente: { nombre: "" },
-        tipoEquipo: {},
-        modelo: { nombre: "" },
-        marca: { nombre: "" },
-      };
+      this.item = {};
     },
   },
 };

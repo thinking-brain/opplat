@@ -21,7 +21,7 @@ namespace TallerWebApi.Controllers {
         /// </summary>
         /// <param name="search">Texto de búsqueda.</param>
         /// <param name="order">NumeroSerie de campo por el cual ordenar (distingue mayúsculas).</param>
-        /// <param name="typeOrder">SituacionEquipo de orden: ASC (ascendente) / DESC (descendente).</param>
+        /// <param name="typeOrder">EstadoEquipo de orden: ASC (ascendente) / DESC (descendente).</param>
         /// <param name="page">Número de página a obtener.</param>
         /// <param name="itemsPerPage">Número de registros por página.</param>
         /// <returns></returns>
@@ -131,7 +131,10 @@ namespace TallerWebApi.Controllers {
         // GET: TallerWebApi/Equipos/Id
         [HttpGet ("{id}", Name = "GetEquipo")]
         public IActionResult GetbyId (int id) {
-            var equipo = context.Equipos.FirstOrDefault (s => s.Id == id);
+            var equipo = context.Equipos.Include (e => e.TipoEquipo)
+                .Include (e => e.Marca)
+                .Include (e => e.Modelo)
+                .Include (e => e.Cliente).FirstOrDefault (s => s.Id == id);
             if (equipo == null) {
                 return NotFound ();
             }
@@ -146,7 +149,7 @@ namespace TallerWebApi.Controllers {
                 NumeroSerie = equipo.NumeroSerie,
                 FechaFabricacion = equipo.FechaFabricacion,
                 TipoEquipoId = equipo.TipoEquipo,
-                SituacionEquipo = equipo.SituacionEquipo,
+                EstadoEquipo = equipo.EstadoEquipo,
                 ClienteId = equipo.Cliente,
                 MarcaId = equipo.Marca,
                 ModeloId = equipo.Modelo,
@@ -172,7 +175,7 @@ namespace TallerWebApi.Controllers {
                 NumeroSerie = equipo.NumeroSerie,
                 FechaFabricacion = equipo.FechaFabricacion,
                 TipoEquipoId = equipo.TipoEquipo,
-                SituacionEquipo = equipo.SituacionEquipo,
+                EstadoEquipo = equipo.EstadoEquipo,
                 ClienteId = equipo.Cliente,
                 MarcaId = equipo.Marca,
                 ModeloId = equipo.Modelo,
@@ -197,13 +200,13 @@ namespace TallerWebApi.Controllers {
             return Ok (equipo);
         }
         // GET: contratacion/contratos/Tipos
-        [HttpGet ("SituacionEquipo")]
+        [HttpGet ("EstadoEquipo")]
         public IActionResult GetSituacionEquipo () {
             var situacion = new List<dynamic> () {
-                new { Id = SituacionEquipo.Ninguno, Nombre = "Ninguno" },
-                new { Id = SituacionEquipo.Dañado, Nombre = "Dañado" },
-                new { Id = SituacionEquipo.Sin_Reparacion, Nombre = "Sin Reparacion" },
-                new { Id = SituacionEquipo.Ok, Nombre = "Ok" },
+                new { Id = EstadoEquipo.Ninguno, Nombre = "Ninguno" },
+                new { Id = EstadoEquipo.Dañado, Nombre = "Dañado" },
+                new { Id = EstadoEquipo.Sin_Reparacion, Nombre = "Sin Reparacion" },
+                new { Id = EstadoEquipo.Ok, Nombre = "Ok" },
             };
             return Ok (situacion);
         }

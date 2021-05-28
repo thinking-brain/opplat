@@ -10,8 +10,8 @@ using TallerWebApi.Data;
 namespace TallerWebApi.Migrations
 {
     [DbContext(typeof(TallerWebApiDbContext))]
-    [Migration("20210511201913_arregloModels")]
-    partial class arregloModels
+    [Migration("20210528020521_SituacionEquipo_EstadoEquipo")]
+    partial class SituacionEquipo_EstadoEquipo
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -26,6 +26,8 @@ namespace TallerWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("Activo");
+
                     b.Property<string>("CI");
 
                     b.Property<string>("Correo");
@@ -33,6 +35,8 @@ namespace TallerWebApi.Migrations
                     b.Property<string>("Direccion");
 
                     b.Property<string>("Nombre");
+
+                    b.Property<int>("Sexo");
 
                     b.Property<string>("Telefono");
 
@@ -45,6 +49,8 @@ namespace TallerWebApi.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Activo");
 
                     b.Property<int?>("EquipoId");
 
@@ -64,7 +70,11 @@ namespace TallerWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("Activo");
+
                     b.Property<int>("ClienteId");
+
+                    b.Property<int>("EstadoEquipo");
 
                     b.Property<DateTime>("FechaFabricacion");
 
@@ -75,8 +85,6 @@ namespace TallerWebApi.Migrations
                     b.Property<int>("NumeroSerie");
 
                     b.Property<string>("Observaciones");
-
-                    b.Property<int>("SituacionEquipo");
 
                     b.Property<int>("TipoEquipoId");
 
@@ -100,6 +108,8 @@ namespace TallerWebApi.Migrations
 
                     b.Property<string>("Accion");
 
+                    b.Property<bool>("Activo");
+
                     b.Property<string>("Descripcion");
 
                     b.Property<int>("EquipoId");
@@ -120,6 +130,8 @@ namespace TallerWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("Activo");
+
                     b.Property<string>("Nombre");
 
                     b.HasKey("Id");
@@ -131,6 +143,8 @@ namespace TallerWebApi.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Activo");
 
                     b.Property<int>("MarcaId");
 
@@ -149,6 +163,8 @@ namespace TallerWebApi.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Accion");
+
+                    b.Property<bool>("Activo");
 
                     b.Property<string>("Causa");
 
@@ -202,13 +218,15 @@ namespace TallerWebApi.Migrations
 
                     b.HasIndex("TecnicoRxEquipoId");
 
-                    b.ToTable("OrdenesReparaciones");
+                    b.ToTable("OrdenesReparacion");
                 });
 
             modelBuilder.Entity("TallerWebApi.Models.OrdenReparacion_Repuesto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Activo");
 
                     b.Property<int>("Cantidad");
 
@@ -222,7 +240,7 @@ namespace TallerWebApi.Migrations
 
                     b.HasIndex("RepuestoId");
 
-                    b.ToTable("OrdenesReparaciones_Repuestos");
+                    b.ToTable("OrdenesReparaciones_Repuesto");
                 });
 
             modelBuilder.Entity("TallerWebApi.Models.Presupuesto", b =>
@@ -230,9 +248,11 @@ namespace TallerWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("Activo");
+
                     b.Property<string>("DetalleManoObra");
 
-                    b.Property<string>("DetalledeRespuesto");
+                    b.Property<string>("DetalledeRepuesto");
 
                     b.Property<int>("EstadoPresupuesto");
 
@@ -260,6 +280,8 @@ namespace TallerWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("Activo");
+
                     b.Property<string>("Direccion");
 
                     b.Property<string>("Nombre");
@@ -273,6 +295,8 @@ namespace TallerWebApi.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Activo");
 
                     b.Property<int>("EquipoId");
 
@@ -300,6 +324,8 @@ namespace TallerWebApi.Migrations
 
                     b.Property<bool>("Aceptado");
 
+                    b.Property<bool>("Activo");
+
                     b.Property<double>("Cantidad");
 
                     b.Property<string>("Descripcion");
@@ -320,6 +346,8 @@ namespace TallerWebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("Activo");
+
                     b.Property<string>("Direccion");
 
                     b.Property<string>("Nombre");
@@ -333,6 +361,8 @@ namespace TallerWebApi.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Activo");
 
                     b.Property<string>("Cargo");
 
@@ -351,6 +381,8 @@ namespace TallerWebApi.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Activo");
 
                     b.Property<string>("Codigo");
 
@@ -380,7 +412,7 @@ namespace TallerWebApi.Migrations
                         .HasForeignKey("MarcaId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("TallerWebApi.Models.Marca", "Modelo")
+                    b.HasOne("TallerWebApi.Models.Modelo", "Modelo")
                         .WithMany()
                         .HasForeignKey("ModeloId")
                         .OnDelete(DeleteBehavior.Cascade);

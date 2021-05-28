@@ -1,4 +1,14 @@
 [{
+        "title": "Ordenes de Reparación",
+        "group": "taller",
+        "icon": "mdi-clipboard-list",
+        "name": "OrdenesReparacion",
+        "component": "OrdenesReparacion",
+        "roles": [
+            "administrador"
+        ]
+    },
+    {
         "title": "Talleres",
         "group": "taller",
         "icon": "mdi-warehouse",
@@ -39,8 +49,28 @@
         ]
     },
     {
-        "title": "Clasificadores",
+        "title": "Proveedores",
         "group": "taller",
+        "icon": "mdi-account-tie",
+        "name": "Proveedores",
+        "component": "Proveedores",
+        "roles": [
+            "administrador"
+        ]
+    },
+    {
+        "title": "Repuestos",
+        "group": "taller",
+        "icon": "mdi-card-bulleted-settings",
+        "name": "Repuestos",
+        "component": "Repuestos",
+        "roles": [
+            "administrador"
+        ]
+    },
+    {
+        "title": "Clasificadores",
+        "group": "config",
         "icon": "mdi-cogs",
         "cant": 0,
         "name": "Clasificadores",
@@ -50,7 +80,7 @@
         ],
         "items": [{
                 "title": "Marcas",
-                "group": "taller",
+                "group": "config",
                 "name": "Marcas",
                 "component": "Marcas",
                 "roles": [
@@ -59,7 +89,7 @@
             },
             {
                 "title": "Modelos",
-                "group": "taller",
+                "group": "config",
                 "name": "Modelos",
                 "component": "Modelos",
                 "roles": [
@@ -68,7 +98,7 @@
             },
             {
                 "title": "Tipos de Equipos",
-                "group": "taller",
+                "group": "config",
                 "name": "TiposEquipos",
                 "component": "TiposEquipos",
                 "roles": [

@@ -10,8 +10,8 @@ using TallerWebApi.Data;
 namespace TallerWebApi.Migrations
 {
     [DbContext(typeof(TallerWebApiDbContext))]
-    [Migration("20210516190637_ActivoAllModels")]
-    partial class ActivoAllModels
+    [Migration("20210521205922_OrdenesReparacion")]
+    partial class OrdenesReparacion
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -84,7 +84,7 @@ namespace TallerWebApi.Migrations
 
                     b.Property<string>("Observaciones");
 
-                    b.Property<int>("SituacionEquipo");
+                    b.Property<int>("EstadoEquipo");
 
                     b.Property<int>("TipoEquipoId");
 
@@ -218,7 +218,7 @@ namespace TallerWebApi.Migrations
 
                     b.HasIndex("TecnicoRxEquipoId");
 
-                    b.ToTable("OrdenesReparaciones");
+                    b.ToTable("OrdenesReparacion");
                 });
 
             modelBuilder.Entity("TallerWebApi.Models.OrdenReparacion_Repuesto", b =>
@@ -240,7 +240,7 @@ namespace TallerWebApi.Migrations
 
                     b.HasIndex("RepuestoId");
 
-                    b.ToTable("OrdenesReparaciones_Repuestos");
+                    b.ToTable("OrdenesReparaciones_Repuesto");
                 });
 
             modelBuilder.Entity("TallerWebApi.Models.Presupuesto", b =>
@@ -252,7 +252,7 @@ namespace TallerWebApi.Migrations
 
                     b.Property<string>("DetalleManoObra");
 
-                    b.Property<string>("DetalledeRespuesto");
+                    b.Property<string>("DetalledeRepuesto");
 
                     b.Property<int>("EstadoPresupuesto");
 
@@ -412,7 +412,7 @@ namespace TallerWebApi.Migrations
                         .HasForeignKey("MarcaId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("TallerWebApi.Models.Marca", "Modelo")
+                    b.HasOne("TallerWebApi.Models.Modelo", "Modelo")
                         .WithMany()
                         .HasForeignKey("ModeloId")
                         .OnDelete(DeleteBehavior.Cascade);

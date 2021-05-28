@@ -18,7 +18,7 @@ namespace TallerWebApi.Models {
         public Proveedor Proveedor { get; set; }
         public int EquipoId { get; set; }
         public Equipo Equipo { get; set; }
-                public bool Activo { get; set; }
+        public bool Activo { get; set; }
 
     }
 }

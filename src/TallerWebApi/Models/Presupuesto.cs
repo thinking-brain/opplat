@@ -14,14 +14,14 @@ namespace TallerWebApi.Models {
         public double ManoObra { get; set; }
         public double Impuesto { get; set; }
         public string DetalleManoObra { get; set; }
-        public string DetalledeRespuesto { get; set; }
+        public string DetalledeRepuesto { get; set; }
         public DateTime Fecha { get; set; }
         public bool NotificadoCliente { get; set; }
         public EstadoPresupuesto EstadoPresupuesto { get; set; }
         public string InformeCliente { get; set; }
         public bool Garantia { get; set; }
         public DateTime FechaGarantia { get; set; }
-                public bool Activo { get; set; }
+        public bool Activo { get; set; }
 
     }
 }

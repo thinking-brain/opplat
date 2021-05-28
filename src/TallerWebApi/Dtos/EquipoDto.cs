@@ -18,7 +18,7 @@ namespace TallerWebApi.Models {
         public int Modelo { get; set; }
         public int Cliente { get; set; }
         public string Observaciones { get; set; }
-        public SituacionEquipo SituacionEquipo { get; set; }
+        public EstadoEquipo EstadoEquipo { get; set; }
         public bool Activo { get; set; }
     }
 }

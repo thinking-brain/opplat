@@ -177,7 +177,7 @@ namespace FinanzasWebApi.Helper
         {
             decimal materiasPrimasYMateriales = Valor("Materias Primas y Materiales", year, meses);
             decimal combustiblesYLubricantes = Valor("Combustibles y Lubricantes", year, meses);
-            decimal partesYPiezasDeRespuesto = Valor("Partes y Piezas de Respuesto", year, meses);
+            decimal partesYPiezasDeRepuesto = Valor("Partes y Piezas de Repuesto", year, meses);
             decimal envasesYEmbalajes = Valor("Envases y Embalajes", year, meses);
             decimal utilesHerramientasYOtros = Valor("Utiles, Herramientas y Otros", year, meses);
             decimal produccionTerminada = Valor("Producción Terminada", year, meses);
@@ -207,7 +207,7 @@ namespace FinanzasWebApi.Helper
               (
               materiasPrimasYMateriales
             + combustiblesYLubricantes
-            + partesYPiezasDeRespuesto
+            + partesYPiezasDeRepuesto
             + envasesYEmbalajes
             + utilesHerramientasYOtros
             + produccionTerminada

@@ -129,7 +129,7 @@ export default {
               valor: 0,
             },
             {
-              razon: 'Partes y Piezas de Respuesto (185)',
+              razon: 'Partes y Piezas de Repuesto (185)',
               valor: 0,
             },
             {

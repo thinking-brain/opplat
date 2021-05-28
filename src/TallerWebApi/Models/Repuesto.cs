@@ -17,7 +17,7 @@ namespace TallerWebApi.Models {
         public double PrecioUnitario { get; set; }
         public double Cantidad { get; set; }
         public bool Aceptado { get; set; }
-                public bool Activo { get; set; }
+        public bool Activo { get; set; }
 
     }
 }

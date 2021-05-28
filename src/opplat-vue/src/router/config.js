@@ -664,6 +664,39 @@ export const protectedRoute = [{
                 component: () =>
                     import ( /* webpackChunkName: "table" */ '@/views/taller/Talleres.vue'),
             },
+            {
+                path: '/taller/Proveedores',
+                name: 'Proveedores',
+
+                meta: {
+                    title: 'Proveedores',
+                    requiresAuth: true,
+                },
+                component: () =>
+                    import ( /* webpackChunkName: "table" */ '@/views/taller/Proveedores.vue'),
+            },
+            {
+                path: '/taller/Repuestos',
+                name: 'Repuestos',
+
+                meta: {
+                    title: 'Repuestos',
+                    requiresAuth: true,
+                },
+                component: () =>
+                    import ( /* webpackChunkName: "table" */ '@/views/taller/Repuestos.vue'),
+            },
+            {
+                path: '/taller/OrdenesReparacion',
+                name: 'OrdenesReparacion',
+
+                meta: {
+                    title: 'OrdenesReparacion',
+                    requiresAuth: true,
+                },
+                component: () =>
+                    import ( /* webpackChunkName: "table" */ '@/views/taller/OrdenesReparacion.vue'),
+            },
         ]
     }
 

@@ -2,7 +2,7 @@
 
 namespace TallerWebApi.Migrations
 {
-    public partial class arregloModels1 : Migration
+    public partial class SituacionEquipo_EstadoEquipo : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

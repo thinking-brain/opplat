@@ -72,6 +72,8 @@ namespace TallerWebApi.Migrations
 
                     b.Property<int>("ClienteId");
 
+                    b.Property<int>("EstadoEquipo");
+
                     b.Property<DateTime>("FechaFabricacion");
 
                     b.Property<int>("MarcaId");
@@ -81,8 +83,6 @@ namespace TallerWebApi.Migrations
                     b.Property<int>("NumeroSerie");
 
                     b.Property<string>("Observaciones");
-
-                    b.Property<int>("SituacionEquipo");
 
                     b.Property<int>("TipoEquipoId");
 
@@ -216,7 +216,7 @@ namespace TallerWebApi.Migrations
 
                     b.HasIndex("TecnicoRxEquipoId");
 
-                    b.ToTable("OrdenesReparaciones");
+                    b.ToTable("OrdenesReparacion");
                 });
 
             modelBuilder.Entity("TallerWebApi.Models.OrdenReparacion_Repuesto", b =>
@@ -238,7 +238,7 @@ namespace TallerWebApi.Migrations
 
                     b.HasIndex("RepuestoId");
 
-                    b.ToTable("OrdenesReparaciones_Repuestos");
+                    b.ToTable("OrdenesReparaciones_Repuesto");
                 });
 
             modelBuilder.Entity("TallerWebApi.Models.Presupuesto", b =>
@@ -250,7 +250,7 @@ namespace TallerWebApi.Migrations
 
                     b.Property<string>("DetalleManoObra");
 
-                    b.Property<string>("DetalledeRespuesto");
+                    b.Property<string>("DetalledeRepuesto");
 
                     b.Property<int>("EstadoPresupuesto");
 

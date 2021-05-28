@@ -17,8 +17,8 @@ namespace TallerWebApi.Data {
         public DbSet<HistoricoEquipo> HistoricoEquipos { get; set; }
         public DbSet<Marca> Marcas { get; set; }
         public DbSet<Modelo> Modelos { get; set; }
-        public DbSet<OrdenReparacion_Repuesto> OrdenesReparaciones_Repuestos { get; set; }
-        public DbSet<OrdenReparacion> OrdenesReparaciones { get; set; }
+        public DbSet<OrdenReparacion_Repuesto> OrdenesReparaciones_Repuesto { get; set; }
+        public DbSet<OrdenReparacion> OrdenesReparacion { get; set; }
         public DbSet<Presupuesto> Presupuestos { get; set; }
         public DbSet<Proveedor> Proveedores { get; set; }
         public DbSet<Repuesto> Repuestos { get; set; }

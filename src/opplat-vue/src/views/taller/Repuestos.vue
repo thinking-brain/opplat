@@ -1,6 +1,6 @@
 <template>
   <v-container grid-list-xl fluid>
-    <v-card :flat="isDialog">
+    <v-card>
       <v-card-title>
         {{ title }}
         <v-divider class="mx-4" inset vertical></v-divider>
@@ -18,17 +18,12 @@
         ></v-text-field>
       </v-card-title>
       <v-data-table
-        v-model="selected"
-        :single-select="true"
-        :show-select="isDialog"
         :headers="headers"
         :items="items"
-        :options.sync="options"
-        :server-items-length="totalItems"
         :loading="loading"
         loading-text="Buscando... Por favor espere"
         class="elevation-1"
-        @getEquiposFromApi="getEquiposFromApi"
+        @getRepuestosFromApi="getRepuestosFromApi"
         :footer-props="{
           itemsPerPageText: 'Resultados por Página',
         }"
@@ -53,34 +48,10 @@
             </template>
             <span>Editar</span>
           </v-tooltip>
-          <v-tooltip top color="teal">
-            <template v-slot:activator="{ on }">
-              <v-btn
-                depressed
-                outlined
-                icon
-                fab
-                dark
-                color="teal"
-                small
-                v-on="on"
-                @click="details(item)"
-              >
-                <v-icon>mdi-format-list-bulleted</v-icon>
-              </v-btn>
-            </template>
-            <span>Detalles</span>
-          </v-tooltip>
           <Delete
             v-bind:item="item"
             v-bind:text="text"
-            v-bind:dataItem="
-              item.marca.nombre +
-              '-' +
-              item.modelo.nombre +
-              ' #' +
-              item.numeroSerie
-            "
+            v-bind:dataItem="item.nombre"
             :entity="entity"
             @close="$emit('close')"
           />
@@ -91,13 +62,7 @@
       :dialogEdit="dialogEdit"
       :item="item"
       :editedIndex="editedIndex"
-      @getEquiposFromApi="getEquiposFromApi"
-      @close="close"
-    />
-    <Details
-      :dialogDetails="dialogDetails"
-      :item="item"
-      :editedIndex="editedIndex"
+      @getRepuestosFromApi="getRepuestosFromApi"
       @close="close"
     />
   </v-container>
@@ -105,18 +70,11 @@
 
 <script>
 import api from "@/api";
-import AddEdit from "@/components/taller/equipos/AddEdit.vue";
-import Details from "@/components/taller/equipos/Details.vue";
+import AddEdit from "@/components/taller/repuestos/AddEdit.vue";
 import Delete from "@/components/taller/utils/Delete.vue";
 
 export default {
-  components: { AddEdit, Details, Delete },
-  props: {
-    isDialog: {
-      type: Boolean,
-      default: false,
-    },
-  },
+  components: { AddEdit, Delete },
   data() {
     return {
       search: "",
@@ -127,53 +85,34 @@ export default {
       items: [],
       errors: [],
       options: {},
-      selected: [],
       headers: [
         {
-          text: "Número Serie",
+          text: "Nombre",
           align: "left",
           sortable: true,
-          value: "numeroSerie",
+          value: "nombre",
         },
         {
-          text: "Dueño",
-          align: "left",
+          text: "Descripción",
           sortable: true,
-          value: "cliente.nombre",
+          value: "descripcion",
         },
         {
-          text: "Marca",
-          align: "left",
+          text: "Precio",
           sortable: true,
-          value: "marca.nombre",
+          value: "precio",
         },
         {
-          text: "Modelo",
-          align: "left",
+          text: "Cantidad",
           sortable: true,
-          value: "modelo.nombre",
+          value: "cantidad",
         },
-        {
-          text: "Fecha Fabricación",
-          align: "left",
-          sortable: true,
-          value: "fechaFabricacion",
-        },
-        { text: "Acciones", value: "action", sortable: false },
+        { text: "Acciones", align: "left", value: "action", sortable: false },
       ],
-      item: {
-        numeroSerie: null,
-        estadoEquipo: {},
-        cliente: { nombre: "" },
-        tipoEquipo: {},
-        modelo: { nombre: "" },
-        marca: { nombre: "" },
-        fechaFabricacion: "",
-        observaciones: "",
-      },
+      item: {},
       text: { title: "Estas Seguro de Eliminar a " },
-      cardTitle: " Listado de Equipos",
-      entity: "Equipos",
+      cardTitle: " Listado de Repuestos",
+      entity: "Repuestos",
       totalItems: 0,
     };
   },
@@ -182,37 +121,18 @@ export default {
       return this.cardTitle;
     },
   },
-  watch: {
-    options: {
-      handler() {
-        this.getEquiposFromApi();
-      },
-      deep: true,
-    },
-    search: function () {
-      if (this.search == null) {
-        this.getEquiposFromApi();
-      }
-    },
-    selected() {
-      this.$emit("close", this.selected);
-    },
-  },
-  mounted() {
-    this.getEquiposFromApi();
+  watch: {},
+  created() {
+    this.getRepuestosFromApi();
   },
   methods: {
-    getEquiposFromApi() {
+    getRepuestosFromApi() {
       this.loading = true;
-      const url = api.getUrl(
-        "taller",
-        `${this.entity}?order=${this.options.order}&typeOrder=${this.options.sort}&page=${this.options.page}&itemsPerPage=${this.options.itemsPerPage}`
-      );
+      const url = api.getUrl("taller", "Repuestos");
       this.axios
         .get(url)
         .then((response) => {
           this.items = response.data.result;
-          this.totalItems = response.data.totalItems;
           this.loading = false;
         })
         .catch((e) => {
@@ -247,21 +167,11 @@ export default {
       this.item = item;
       this.dialogEdit = true;
     },
-    details(item) {
-      this.dialogDetails = true;
-      this.item = item;
-    },
     close() {
       this.dialogEdit = false;
       this.dialogDetails = false;
       this.editedIndex = -1;
-      this.item = {
-        estadoEquipo: {},
-        cliente: { nombre: "" },
-        tipoEquipo: {},
-        modelo: { nombre: "" },
-        marca: { nombre: "" },
-      };
+      this.item = {};
     },
   },
 };

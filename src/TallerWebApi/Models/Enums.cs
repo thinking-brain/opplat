@@ -5,7 +5,7 @@ namespace TallerWebApi.Models {
         En_Reparacion,
         Entregado,
     }
-    public enum SituacionEquipo {
+    public enum EstadoEquipo {
         Ninguno,
         Dañado,
         Sin_Reparacion,

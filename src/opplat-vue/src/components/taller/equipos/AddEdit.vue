@@ -16,7 +16,6 @@
             </v-col>
             <v-col cols="12" sm="6" md="6">
               <v-autocomplete
-                auto-select-first
                 v-model="marca"
                 :items="marcas"
                 item-value="id"
@@ -61,7 +60,7 @@
             <v-col cols="12" sm="6" md="6">
               <v-autocomplete
                 auto-select-first
-                v-model="situacionEquipo"
+                v-model="estadoEquipo"
                 :items="situacionEquipos"
                 item-value="id"
                 item-text="nombre"
@@ -76,7 +75,7 @@
                 :nudge-right="40"
                 transition="scale-transition"
                 offset-y
-                min-width="auto"
+                min-width="290px"
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field
@@ -84,12 +83,12 @@
                     label="Fecha de Fabricacion"
                     prepend-icon="mdi-calendar"
                     readonly
-                    v-bind="attrs"
                     v-on="on"
                   ></v-text-field>
                 </template>
                 <v-date-picker
                   v-model="item.fechaFabricacion"
+                  locale="esp-es"
                   @input="menu = false"
                 ></v-date-picker>
               </v-menu>
@@ -140,7 +139,7 @@ export default {
     situacionEquipos: [],
     menu: false,
     errors: [],
-    situacionEquipo: {},
+    estadoEquipo: {},
     cliente: {},
     tipoEquipo: {},
     modelo: {},
@@ -148,7 +147,7 @@ export default {
   }),
   computed: {
     formTitle() {
-      this.situacionEquipo = this.item.situacionEquipo;
+      this.estadoEquipo = this.item.estadoEquipo;
       this.cliente = this.item.cliente;
       this.tipoEquipo = this.item.tipoEquipo;
       this.modelo = this.item.modelo;
@@ -194,16 +193,20 @@ export default {
       });
     },
     getAllSituacionEquipoFromApi() {
-      const url = api.getUrl("taller", "Equipos/SituacionEquipo");
+      const url = api.getUrl("taller", "Equipos/EstadoEquipo");
       this.axios.get(url).then((response) => {
         this.situacionEquipos = response.data;
       });
     },
     save(method) {
-      const { situacionEquipo, cliente, tipoEquipo, modelo, marca } = this;
-      this.item.situacionEquipo = typeof situacionEquipo === "object" ? situacionEquipo.id : situacionEquipo;
+      const { estadoEquipo, cliente, tipoEquipo, modelo, marca } = this;
+      this.item.estadoEquipo =
+        typeof estadoEquipo === "object"
+          ? estadoEquipo.id
+          : estadoEquipo;
       this.item.cliente = typeof cliente === "object" ? cliente.id : cliente;
-      this.item.tipoEquipo = typeof tipoEquipo === "object" ? tipoEquipo.id : tipoEquipo;
+      this.item.tipoEquipo =
+        typeof tipoEquipo === "object" ? tipoEquipo.id : tipoEquipo;
       this.item.modelo = typeof modelo === "object" ? modelo.id : modelo;
       this.item.marca = typeof marca === "object" ? marca.id : marca;
 
