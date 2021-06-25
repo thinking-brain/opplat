@@ -30,6 +30,9 @@
           itemsPerPageText: 'Resultados por Página',
         }"
       >
+        <template v-slot:item.fechaIngreso="{ item }">
+          {{ item.fechaIngreso | moment("DD [de] MMMM YYYY") }}
+        </template>
         <template v-slot:no-data>
           <v-row justify="center">
             <h2 class="heading">No hay datos disponibles</h2>
@@ -114,28 +117,34 @@ export default {
       options: {},
       headers: [
         {
-          text: "Nombre",
+          text: "No Orden",
           align: "left",
           sortable: true,
-          value: "nombre",
+          value: "id",
         },
         {
-          text: "Teléfono",
+          text: "Técnico",
           align: "left",
           sortable: true,
-          value: "telefono",
+          value: "tecnico.nombre",
         },
         {
-          text: "Correo",
+          text: "Técnico Rx Equipo",
           align: "left",
           sortable: true,
-          value: "correo",
+          value: "tecnicoRxEquipo.nombre",
         },
         {
-          text: "CI",
+          text: "Fecha de Ingreso",
           align: "left",
           sortable: true,
-          value: "ci",
+          value: "fechaIngreso",
+        },
+        {
+          text: "Defecto",
+          align: "left",
+          sortable: true,
+          value: "defecto",
         },
         { text: "Acciones", value: "action", sortable: false },
       ],

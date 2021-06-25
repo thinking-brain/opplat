@@ -1,9 +1,10 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TallerWebApi.Models {
     public class OrdenReparacion {
         public int Id { get; set; }
-        public int NoOrden { get; set; }
         public int ClienteId { get; set; }
         public Cliente Cliente { get; set; }
         public int TecnicoRxEquipoId { get; set; }
@@ -25,11 +26,11 @@ namespace TallerWebApi.Models {
         public EstadoOrdenReparacion EstadoOrden { get; set; }
         public int TallerId { get; set; }
         public Taller Taller { get; set; }
-        public int PresupuestoId { get; set; }
+        public int? PresupuestoId { get; set; }
         public Presupuesto Presupuesto { get; set; }
         public string InformeTecnico { get; set; }
         public LugarReparacion LugarReparacion { get; set; }
-                public bool Activo { get; set; }
+        public bool Activo { get; set; }
 
     }
 }

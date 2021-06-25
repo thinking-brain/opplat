@@ -25,25 +25,28 @@ namespace TallerWebApi.Controllers {
         /// <param name="itemsPerPage">Número de registros por página.</param>
         /// <returns></returns>
         [HttpGet]
-        public ActionResult<PaginadorGenerico<OrdenReparacion>> GetOrdenesReparacion (string search,
+        public ActionResult GetOrdenesReparacion (string search,
             string order = "Id",
             string typeOrder = "ASC",
             int page = 1,
             int itemsPerPage = 10) {
-            List<OrdenReparacion> _OrdenesReparacion;
             PaginadorGenerico<OrdenReparacion> _Paginador;
 
             ////////////////////////
             // FILTRO DE BÚSQUEDA //
             ////////////////////////
             // Recuperamos el 'DbSet' completo
-            _OrdenesReparacion = context.OrdenesReparacion.ToList ();
-
+            var equipos = context.Equipos.Include (e => e.Marca).Include (e => e.Modelo);
+            var ordenesReparacion = context.OrdenesReparacion.Include (x => x.Cliente).Include (x => x.Equipo)
+                .Include (x => x.Tecnico).Include (x => x.TecnicoRxEquipo).Select (x => new OrdenReparacion {
+                    Id = x.Id,
+                        Equipo = equipos.FirstOrDefault (e => e.Id == x.EquipoId)
+                }).ToList ();
             // Filtramos el resultado por el 'texto de búqueda'
             if (!string.IsNullOrEmpty (search)) {
                 foreach (var item in search.Split (new char[] { ' ' },
                         StringSplitOptions.RemoveEmptyEntries)) {
-                    _OrdenesReparacion = _OrdenesReparacion.Where (x => x.NoOrden.Equals (item)).ToList ();
+                    ordenesReparacion = ordenesReparacion.Where (x => x.Id.Equals (item)).ToList ();
                 }
             }
 
@@ -53,15 +56,15 @@ namespace TallerWebApi.Controllers {
             switch (order) {
                 case "Id":
                     if (typeOrder.ToLower () == "desc")
-                        _OrdenesReparacion = _OrdenesReparacion.OrderByDescending (x => x.Id).ToList ();
+                        ordenesReparacion = ordenesReparacion.OrderByDescending (x => x.Id).ToList ();
                     else if (typeOrder.ToLower () == "asc")
-                        _OrdenesReparacion = _OrdenesReparacion.OrderBy (x => x.Id).ToList ();
+                        ordenesReparacion = ordenesReparacion.OrderBy (x => x.Id).ToList ();
                     break;
                 default:
                     if (typeOrder.ToLower () == "desc")
-                        _OrdenesReparacion = _OrdenesReparacion.OrderByDescending (x => x.Id).ToList ();
+                        ordenesReparacion = ordenesReparacion.OrderByDescending (x => x.Id).ToList ();
                     else if (typeOrder.ToLower () == "asc")
-                        _OrdenesReparacion = _OrdenesReparacion.OrderBy (x => x.Id).ToList ();
+                        ordenesReparacion = ordenesReparacion.OrderBy (x => x.Id).ToList ();
                     break;
             }
 
@@ -71,9 +74,9 @@ namespace TallerWebApi.Controllers {
             int _TotalRegistros = 0;
             int _TotalPaginas = 0;
             // Número total de registros de la tabla OrdenesReparacion
-            _TotalRegistros = _OrdenesReparacion.Count ();
+            _TotalRegistros = ordenesReparacion.Count ();
             // Obtenemos la 'página de registros' de la tabla OrdenesReparacion
-            _OrdenesReparacion = _OrdenesReparacion.Skip ((page - 1) * itemsPerPage)
+            ordenesReparacion = ordenesReparacion.Skip ((page - 1) * itemsPerPage)
                 .Take (itemsPerPage)
                 .ToList ();
             // Número total de páginas de la tabla OrdenesReparacion
@@ -88,9 +91,9 @@ namespace TallerWebApi.Controllers {
                 Search = search,
                 Order = order,
                 TypeOrder = typeOrder,
-                Result = _OrdenesReparacion
+                Result = ordenesReparacion
             };
-            return _Paginador;
+            return Ok (_Paginador);
         }
         // GET TallerWebApi/OrdenesReparacion
         [HttpGet ("getAll")]
@@ -115,7 +118,6 @@ namespace TallerWebApi.Controllers {
             if (ModelState.IsValid) {
                 var o = new OrdenReparacion () {
                     Id = ordenReparacion.Id,
-                    NoOrden = ordenReparacion.NoOrden,
                     ClienteId = ordenReparacion.Cliente,
                     TecnicoRxEquipoId = ordenReparacion.TecnicoRxEquipo,
                     TecnicoId = ordenReparacion.Tecnico,
@@ -153,7 +155,6 @@ namespace TallerWebApi.Controllers {
             }
             var o = new OrdenReparacion () {
                 Id = ordenReparacion.Id,
-                NoOrden = ordenReparacion.NoOrden,
                 ClienteId = ordenReparacion.Cliente,
                 TecnicoRxEquipoId = ordenReparacion.TecnicoRxEquipo,
                 TecnicoId = ordenReparacion.Tecnico,

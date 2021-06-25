@@ -25,7 +25,7 @@
               <p><strong>Modelo: </strong>{{ item.modelo.nombre }}</p>
               <p>
                 <strong>Fecha de Fabricación: </strong
-                >{{ item.fechaFabricacion }}
+                >{{ item.fechaFabricacion | moment("DD [de] MMMM YYYY")}}
               </p>
               <p><strong>Obsevaciones: </strong>{{ item.observaciones }}</p>
             </v-card-text>

@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace TallerWebApi.Migrations
 {
-    public partial class OrdenesReparacion : Migration
+    public partial class NOnumeroOrden : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -268,7 +268,6 @@ namespace TallerWebApi.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    NoOrden = table.Column<int>(nullable: false),
                     ClienteId = table.Column<int>(nullable: false),
                     TecnicoRxEquipoId = table.Column<int>(nullable: false),
                     TecnicoId = table.Column<int>(nullable: false),
@@ -285,7 +284,7 @@ namespace TallerWebApi.Migrations
                     Garantía = table.Column<DateTime>(nullable: false),
                     EstadoOrden = table.Column<int>(nullable: false),
                     TallerId = table.Column<int>(nullable: false),
-                    PresupuestoId = table.Column<int>(nullable: false),
+                    PresupuestoId = table.Column<int>(nullable: true),
                     InformeTecnico = table.Column<string>(nullable: true),
                     LugarReparacion = table.Column<int>(nullable: false),
                     Activo = table.Column<bool>(nullable: false)
@@ -310,7 +309,7 @@ namespace TallerWebApi.Migrations
                         column: x => x.PresupuestoId,
                         principalTable: "Presupuestos",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_OrdenesReparacion_Talleres_TallerId",
                         column: x => x.TallerId,

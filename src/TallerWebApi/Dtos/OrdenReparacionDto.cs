@@ -3,7 +3,6 @@ using System;
 namespace TallerWebApi.Models {
     public class OrdenReparacionDto {
         public int Id { get; set; }
-        public int NoOrden { get; set; }
         public int Cliente { get; set; }
         public int TecnicoRxEquipo { get; set; }
         public int Tecnico { get; set; }
@@ -20,7 +19,7 @@ namespace TallerWebApi.Models {
         public DateTime Garantía { get; set; }
         public EstadoOrdenReparacion EstadoOrden { get; set; }
         public int Taller { get; set; }
-        public int Presupuesto { get; set; }
+        public int? Presupuesto { get; set; }
         public string InformeTecnico { get; set; }
         public LugarReparacion LugarReparacion { get; set; }
         public bool Activo { get; set; }

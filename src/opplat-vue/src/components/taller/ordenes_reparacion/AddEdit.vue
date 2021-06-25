@@ -50,52 +50,56 @@
           </v-col>
           <v-row dense>
             <v-col cols="7">
-                <v-row>
-                  <v-col cols="6">
-                    <h3 class="ml-2">Datos del Equipo</h3>
-                    <v-layout class="pa-2">
-                      Número de Serie: {{ equipoDetail.numeroSerie }}
-                    </v-layout>
-                    <v-layout class="pa-2">
-                      Marca: {{ equipoDetail.marca.nombre }}
-                    </v-layout>
-                    <v-layout class="pa-2">
-                      Modelo: {{ equipoDetail.modelo.nombre }}
-                    </v-layout>
-                    <v-layout class="pa-2">
-                      Tipo de Equipo: {{ equipoDetail.tipoEquipo.nombre }}
-                    </v-layout>
-                  </v-col>
-                  <v-col cols="6" class="mt-6">
-                    <v-layout class="pa-2">
-                      Fecha de Fabricación: {{ equipoDetail.fechaFabricacion }}
-                    </v-layout>
-                    <v-layout class="pa-2">
-                      Observaciones: {{ equipoDetail.observaciones }}
-                    </v-layout>
-                    <v-layout class="pa-2">
-                      Estado del Equipo: {{ equipoDetail.estadoEquipo }}
-                    </v-layout>
-                  </v-col>
-                </v-row>
+              <v-row>
+                <v-col cols="6">
+                  <h3 class="ml-2">Datos del Equipo</h3>
+                  <v-layout class="pa-2">
+                    Número de Serie: {{ equipoDetail.numeroSerie }}
+                  </v-layout>
+                  <v-layout class="pa-2">
+                    Marca: {{ equipoDetail.marca.nombre }}
+                  </v-layout>
+                  <v-layout class="pa-2">
+                    Modelo: {{ equipoDetail.modelo.nombre }}
+                  </v-layout>
+                  <v-layout class="pa-2">
+                    Tipo de Equipo: {{ equipoDetail.tipoEquipo.nombre }}
+                  </v-layout>
+                </v-col>
+                <v-col cols="6" class="mt-6">
+                  <v-layout class="pa-2">
+                    Fecha de Fabricación:
+                    {{
+                      equipoDetail.fechaFabricacion
+                        | moment("DD [de] MMMM YYYY")
+                    }}
+                  </v-layout>
+                  <v-layout class="pa-2">
+                    Observaciones: {{ equipoDetail.observaciones }}
+                  </v-layout>
+                  <v-layout class="pa-2">
+                    Estado del Equipo: {{ equipoDetail.estadoEquipo }}
+                  </v-layout>
+                </v-col>
+              </v-row>
             </v-col>
             <v-col cols="5">
-                <h3 class="ml-2">Datos del Cliente</h3>
-                <v-layout class="pa-2">
-                  Nombre: {{ equipoDetail.cliente.nombre }}
-                </v-layout>
-                <v-layout class="pa-2">
-                  Carnet de Identidad: {{ equipoDetail.cliente.ci }}
-                </v-layout>
-                <v-layout class="pa-2">
-                  Teléfono: {{ equipoDetail.cliente.telefono }}
-                </v-layout>
-                <v-layout class="pa-2">
-                  Correo: {{ equipoDetail.cliente.correo }}
-                </v-layout>
-                <v-layout class="pa-2">
-                  Dirrección: {{ equipoDetail.cliente.direccion }}
-                </v-layout>
+              <h3 class="ml-2">Datos del Cliente</h3>
+              <v-layout class="pa-2">
+                Nombre: {{ equipoDetail.cliente.nombre }}
+              </v-layout>
+              <v-layout class="pa-2">
+                Carnet de Identidad: {{ equipoDetail.cliente.ci }}
+              </v-layout>
+              <v-layout class="pa-2">
+                Teléfono: {{ equipoDetail.cliente.telefono }}
+              </v-layout>
+              <v-layout class="pa-2">
+                Correo: {{ equipoDetail.cliente.correo }}
+              </v-layout>
+              <v-layout class="pa-2">
+                Dirrección: {{ equipoDetail.cliente.direccion }}
+              </v-layout>
             </v-col>
           </v-row>
         </v-card>
@@ -186,6 +190,7 @@ export default {
     equipo: null,
     cliente: 0,
     equipoDetail: {
+      id: 0,
       numeroSerie: null,
       fechaFabricacion: "",
       tipoEquipo: {
@@ -245,6 +250,10 @@ export default {
   },
   methods: {
     save(method) {
+      this.item.cliente = this.equipoDetail.cliente.id;
+      this.item.equipo = this.equipoDetail.id;
+      var tecnico = this.tecnicos.find((x) => x.id === this.item.tecnico);
+      this.item.taller = tecnico.tallerId;
       const url = api.getUrl("taller", "OrdenesReparacion");
       if (method === "POST") {
         this.item.activo = true;

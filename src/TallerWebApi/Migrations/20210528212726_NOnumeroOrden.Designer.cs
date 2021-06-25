@@ -10,8 +10,8 @@ using TallerWebApi.Data;
 namespace TallerWebApi.Migrations
 {
     [DbContext(typeof(TallerWebApiDbContext))]
-    [Migration("20210528020521_SituacionEquipo_EstadoEquipo")]
-    partial class SituacionEquipo_EstadoEquipo
+    [Migration("20210528212726_NOnumeroOrden")]
+    partial class NOnumeroOrden
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -192,9 +192,7 @@ namespace TallerWebApi.Migrations
 
                     b.Property<int>("LugarReparacion");
 
-                    b.Property<int>("NoOrden");
-
-                    b.Property<int>("PresupuestoId");
+                    b.Property<int?>("PresupuestoId");
 
                     b.Property<int>("TallerId");
 
@@ -453,8 +451,7 @@ namespace TallerWebApi.Migrations
 
                     b.HasOne("TallerWebApi.Models.Presupuesto", "Presupuesto")
                         .WithMany()
-                        .HasForeignKey("PresupuestoId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("PresupuestoId");
 
                     b.HasOne("TallerWebApi.Models.Taller", "Taller")
                         .WithMany()

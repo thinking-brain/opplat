@@ -3,7 +3,7 @@ import axios from 'axios';
 import VueAxios from 'vue-axios';
 import 'vue-snotify/styles/material.css';
 import snotify, {
-  SnotifyPosition,
+    SnotifyPosition,
 } from 'vue-snotify';
 import numeral from 'numeral';
 import vuetify from './plugins/vuetify';
@@ -17,13 +17,13 @@ import moment from 'moment';
 import Popover from 'vue-js-popover'
 
 const options = {
-  toast: {
-    position: SnotifyPosition.rightBottom,
-    timeout: 3000,
-    showProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-  },
+    toast: {
+        position: SnotifyPosition.rightBottom,
+        timeout: 3000,
+        showProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+    },
 };
 
 Vue.use(snotify, options);
@@ -31,13 +31,13 @@ Vue.config.productionTip = false;
 Vue.use(VueAxios, axios);
 Vue.use(notificationsHub);
 Vue.use(Vuelidate);
-Vue.use(moment);
+Vue.use(require('vue-moment'));
 Vue.use(Popover);
 
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 const token = sessionStorage.getItem('token');
 if (token) {
-  axios.defaults.headers.common.Authorization = token;
+    axios.defaults.headers.common.Authorization = token;
 }
 
 // const format = '0,0 $';
@@ -75,22 +75,22 @@ if (token) {
 // });
 // load a locale
 numeral.register('locale', 'fr', {
-  delimiters: {
-    thousands: ' ',
-    decimal: ',',
-  },
-  abbreviations: {
-    thousand: 'k',
-    million: 'm',
-    billion: 'b',
-    trillion: 't',
-  },
-  ordinal(number) {
-    return number === 1 ? 'er' : 'ème';
-  },
-  currency: {
-    symbol: '$',
-  },
+    delimiters: {
+        thousands: ' ',
+        decimal: ',',
+    },
+    abbreviations: {
+        thousand: 'k',
+        million: 'm',
+        billion: 'b',
+        trillion: 't',
+    },
+    ordinal(number) {
+        return number === 1 ? 'er' : 'ème';
+    },
+    currency: {
+        symbol: '$',
+    },
 });
 
 // switch between locales
@@ -99,11 +99,11 @@ Vue.filter('format_money', value => numeral(value).format('$ 0,0.00'));
 Vue.filter('format_two_decimals', value => numeral(value).format('0,0.00'));
 
 const vm = new Vue({
-  router,
-  store,
-  vuetify,
-  snotify,
-  render: h => h(App),
+    router,
+    store,
+    vuetify,
+    snotify,
+    render: h => h(App),
 }).$mount('#app');
 
 global.vm = vm;

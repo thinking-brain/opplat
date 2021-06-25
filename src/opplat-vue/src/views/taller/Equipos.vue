@@ -33,6 +33,9 @@
           itemsPerPageText: 'Resultados por Página',
         }"
       >
+        <template v-slot:item.fechaFabricacion="{ item }">
+          {{ item.fechaFabricacion | moment("DD [de] MMMM YYYY")}}
+        </template>
         <template v-slot:no-data>
           <v-row justify="center">
             <h2 class="heading">No hay datos disponibles</h2>

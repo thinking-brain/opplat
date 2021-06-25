@@ -190,9 +190,7 @@ namespace TallerWebApi.Migrations
 
                     b.Property<int>("LugarReparacion");
 
-                    b.Property<int>("NoOrden");
-
-                    b.Property<int>("PresupuestoId");
+                    b.Property<int?>("PresupuestoId");
 
                     b.Property<int>("TallerId");
 
@@ -451,8 +449,7 @@ namespace TallerWebApi.Migrations
 
                     b.HasOne("TallerWebApi.Models.Presupuesto", "Presupuesto")
                         .WithMany()
-                        .HasForeignKey("PresupuestoId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("PresupuestoId");
 
                     b.HasOne("TallerWebApi.Models.Taller", "Taller")
                         .WithMany()
