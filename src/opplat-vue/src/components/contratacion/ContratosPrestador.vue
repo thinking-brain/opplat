@@ -1,7 +1,7 @@
 <template>
 <v-container>
     <v-data-table :headers="headers" :items="contratos" :search="search" class="elevation-1 pa-5">
-        <template v-slot:item.contVence="{ item }">
+        <template v-slot:[`item.contVence`]="{ item }">
             <v-chip :color="getColor(item.contVence)" dark>{{ item.contVence }} días</v-chip>
         </template>
         <template v-slot:top>
@@ -84,7 +84,7 @@
             </v-toolbar>
         </template>
         <!-- Actions -->
-        <template v-slot:item.action="{ item }">
+        <template v-slot:[`item.action`]="{ item }">
             <v-row>
                 <v-tooltip top color="primary">
                     <template v-slot:activator="{ on }">
