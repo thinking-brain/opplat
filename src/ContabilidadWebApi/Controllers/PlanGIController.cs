@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using CsvHelper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ContabilidadWebApi.Data;
-using ContabilidadWebApi.Helper;
 using ContabilidadWebApi.Models;
 using Newtonsoft.Json;
+using OfficeOpenXml;
+using ContabilidadWebApi.Helpers;
 
 namespace ContabilidadWebApi.Controllers
 {
@@ -44,61 +44,60 @@ namespace ContabilidadWebApi.Controllers
 
 
         /// <summary>
-        /// Subir Plan de Gastos e Ingresos del Año
-        /// </summary>
-        /// <param name="File"></param>
-        /// <param name="year"></param>
-        /// <returns></returns>
-        // GET api/values
-        [HttpPost, Route("UploadPlanGI/")]
-        public async Task<IActionResult> UploadPlanGI(IFormFile File, [FromForm]string year)
-        {
-            try
-            {
-                using (StreamReader reader = new StreamReader(File.OpenReadStream()))
-                {
-                    var csvReader = new CsvReader(reader);
-                    var planHelper = new PlanGICsvHelper(_context);
-                    csvReader.Configuration.Delimiter = "|";
-                    planHelper.readCsv(csvReader, year);
-                }
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return Ok();
-            }
-        }
-
-        /// <summary>
-        /// Devuelve los datos necesarios para crear un Plan IG
+        /// Eliminar Plan
         /// </summary>
         /// <returns></returns>
-        [HttpGet("PlanGIDatos/")]
-        public List<dynamic> PlanGIDatos()
+        // GET: api/DeletePlanesGI
+        [HttpDelete("{id}")]
+        public ActionResult DeletePlanesGI(int id)
         {
-            var datos = new List<dynamic>();
-            foreach (var item in DatosPlanGI.Datos())
-            {
-                datos.Add(new { Valor = item.Valor, Dato = item.Dato });
-            }
-            return datos;
-        }
-
-        /// <summary>
-        /// /Crear Planes GI
-        /// </summary>
-        /// <param name="planes"></param>
-        /// <returns></returns>
-        [HttpPost("PlanGICreate/")]
-        public IActionResult PlanGICreate([FromRoute] List<PlanGI> planes)
-        {
-            foreach (var item in planes)
-            {
-                _context.Set<PlanGI>().Add(item);
-                _context.SaveChanges();
-            }
+            var planes = _context.Set<PlanGI>().Find(id);
+            _context.Set<PlanGI>().Remove(planes);
+            _context.SaveChanges();
             return Ok();
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult Get(int id)
+        {
+            var detalles = _context.Set<DetallePlanGI>().Include(d => d.Concepto)
+            .Where(d => d.PlanId == id).OrderBy(d => d.Id).ToList();
+
+            return Ok(detalles);
+
+        }
+
+
+
+        [HttpPost, Route("UploadPlanGI/")]
+        public async Task<IActionResult> FileUpload(IFormFile file, [FromForm]string year)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return RedirectToAction("Index");
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream).ConfigureAwait(false);
+                try
+                {
+
+                    using (var package = new ExcelPackage(memoryStream))
+                    {
+                        var worksheet = package.Workbook.Worksheets[0]; // Tip: To access the first worksheet, try index 1, not 0
+                        var planHelper = new ReadExcelHelper(_context);
+                        planHelper.readExcelPackageToString(package, worksheet, year);
+
+                    }
+                    return Ok();
+                }
+                catch (System.Exception)
+                {
+                    return BadRequest();
+                }
+
+            }
         }
     }
 }

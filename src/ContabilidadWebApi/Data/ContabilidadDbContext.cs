@@ -22,10 +22,21 @@ namespace ContabilidadWebApi.Data
             //new MovimientoConfig().Configure(modelBuilder.Entity<Movimiento>());
             modelBuilder.ForNpgsqlUseIdentityColumns();
             base.OnModelCreating(modelBuilder);
+
+
+
         }
 
         public DbSet<Cuenta> Cuentas { get; set; }
         public DbSet<PlanGI> PlanesIngresosGastos { get; set; }
+        //gastos
+        public DbSet<ElementoDeGasto> ElementoDeGastos { get; set; }
+        public DbSet<SubElementoDeGasto> SubElementoDeGastos { get; set; }
+        public DbSet<CuentaElementoDeGasto> CuentaElementoDeGastos { get; set; }
+        public DbSet<RegistroDeGasto> RegistroDeGastos { get; set; }
+        public DbSet<PartidaDeGasto> PartidaDeGastos { get; set; }
+        public DbSet<CentroDeCosto> CentroDeCostos { get; set; }
+        //fin gastos
 
         // public DbSet<ContabilidadWebApi.Models.Area> Area { get; set; }
 

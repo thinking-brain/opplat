@@ -1,4 +1,4 @@
-<template>
+ <template>
   <v-dialog v-model="dialog" persistent max-width="600px">
     <template v-slot:activator="{ on }">
       <v-btn depressed outlined icon fab dark color="pink" small v-on="on" v-if="usuario.activo">

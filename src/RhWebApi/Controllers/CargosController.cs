@@ -6,9 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RhWebApi.Dtos;
 using RhWebApi.Models;
+using RhWebApi.Data;
 
 namespace RhWebApi.Controllers {
-    [Route ("api/[controller]")]
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
     public class CargosController : Controller {
         private readonly RhWebApiDbContext context;
@@ -16,13 +17,13 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // GET api/cargo
+        // GET recursos_humanos/cargo
         [HttpGet]
         public IEnumerable<Cargo> GetAll () {
             return context.Cargo.ToList ();
         }
 
-        // GET: api/cargo/Id
+        // GET: recursos_humanos/cargo/Id
         [HttpGet ("{id}", Name = "GetCargo")]
         public IActionResult GetbyId (int id) {
             var cargo = context.Cargo.FirstOrDefault (s => s.Id == id);
@@ -34,7 +35,7 @@ namespace RhWebApi.Controllers {
 
         }
 
-        // POST api/areas
+        // POST recursos_humanos/areas
         [HttpPost]
         public IActionResult POST ([FromBody] CargoDto cargoDto) {
             if (ModelState.IsValid) {
@@ -50,7 +51,7 @@ namespace RhWebApi.Controllers {
             return BadRequest (ModelState);
         }
 
-        // PUT api/areas/id
+        // PUT recursos_humanos/areas/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] Cargo cargo, int id) {
             if (cargo.Id != id) {
@@ -62,7 +63,7 @@ namespace RhWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE api/areas/id
+        // DELETE recursos_humanos/areas/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var cargo = context.Cargo.FirstOrDefault (s => s.Id == id);

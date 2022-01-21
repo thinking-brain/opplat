@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-divider class="d-print-none"></v-divider>
-    <v-row class="my-4 mb-4 d-print-none">
+    <v-row v-if="visible" class="my-4 mb-4 d-print-none">
       <v-tooltip top>
         <template v-slot:activator="{ on }">
           <v-btn class="mx-2" fab small>
@@ -33,7 +33,7 @@
               <th colspan="11" class="text-center encabezado1">
                 <img src="img/logo.png" class="float-left" />
                 <h2>CNA La Concordia</h2>
-                <h2>Estado del cumplimiento del plan de ingresos y gastos {{year}} hasta {{mes.nombre}}</h2>
+                <h2>EstadoOrden del cumplimiento del plan de ingresos y gastos {{year}} hasta {{mes.nombre}}</h2>
               </th>
             </tr>
             <tr>
@@ -122,7 +122,7 @@
       <table class="firmas">
         <tr>
           <th class="text-left">
-            <p>______________________________</p>
+            <p class="text-center">______________________________</p>
             <p v-if="economico" class="text-center">{{economico.nombre}}</p>
             <p v-if="!economico" class="text-center">Nombre:</p>
             <p v-if="economico" class="text-center">{{economico.cargo}}</p>
@@ -130,7 +130,7 @@
           </th>
           <th class="space"></th>
           <th class="text-right">
-            <p>______________________________</p>
+            <p class="text-center">______________________________</p>
             <p v-if="jefe" class="text-center">{{jefe.nombre}}</p>
             <p v-if="!jefe" class="text-center">Nombre:</p>
             <p v-if="jefe" class="text-center">{{jefe.cargo}}</p>
@@ -204,8 +204,9 @@ td {
   text-align: center;
 }
 table {
-  table-layout: fixed;
+  /* table-layout: fixed; */
   max-width: 100%;
+  min-width: 100%;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
 }
@@ -246,63 +247,71 @@ th {
 import api from '@/api';
 
 export default {
-  
   data() {
     return {
-      mes:{id:0,nombre:'Ninguno'},
-      year:0,
+      mes: { id: 0, nombre: 'Ninguno' },
+      year: 0,
       ingresos: null,
       egresos: null,
       utilidades: null,
-      errors:[],
+      errors: [],
+      visible: false
     };
   },
   computed: {
     jefe() {
       if (!this.$store.getters.jefe) {
-            this.$store
-              .dispatch('cargar')
-              .then(() => {})
-              .catch((err) => {console.log(err)});
-      }      
+        this.$store
+          .dispatch('cargar')
+          .then(() => {})
+          .catch((err) => {
+            console.log(err);
+          });
+      }
       return this.$store.getters.jefe;
     },
     economico() {
       if (!this.$store.getters.economico) {
-            this.$store
-              .dispatch('cargar')
-              .then(() => {})
-              .catch((err) => {console.log(err)});
-      }      
+        this.$store
+          .dispatch('cargar')
+          .then(() => {})
+          .catch((err) => {
+            console.log(err);
+          });
+      }
       return this.$store.getters.economico;
     },
-    hasdata(){
+    hasdata() {
       let hd = false;
-      if(this.egresos && this.ingresos && this.utilidades){
-        if(this.ingresos.length > 0 && this.egresos.length > 0 && this.utilidades.length > 0){
+      if (this.egresos && this.ingresos && this.utilidades) {
+        if (
+          this.ingresos.length > 0
+          && this.egresos.length > 0
+          && this.utilidades.length > 0
+        ) {
           hd = true;
         }
-      }      
+      }
       return hd;
     },
-    notloading(){
+    notloading() {
       let hd = false;
-      if(this.egresos && this.ingresos && this.utilidades){
-          hd = true;
-      }      
+      if (this.egresos && this.ingresos && this.utilidades) {
+        hd = true;
+      }
       return hd;
-    }
-  },  
+    },
+  },
   methods: {
-    loadReporte(mes,year){
-        this.mes = mes;
-        this.year = year;
-        this.ingresos = [];        
-        this.utilidades = []; 
-        this.egresos = [];       
-        this.getIngresosFromApi();
-        this.getEgresosFromApi();
-        this.getUtilidadesFromApi();     
+    loadReporte(mes, year) {
+      this.mes = mes;
+      this.year = year;
+      this.ingresos = [];
+      this.utilidades = [];
+      this.egresos = [];
+      this.getIngresosFromApi();
+      this.getEgresosFromApi();
+      this.getUtilidadesFromApi();
     },
     getIngresosFromApi() {
       const url = api.getUrl(
@@ -313,6 +322,7 @@ export default {
         .get(url)
         .then((response) => {
           this.ingresos = response.data;
+          this.visible = true;
         })
         .catch((e) => {
           this.errors.push(e);
@@ -355,26 +365,26 @@ export default {
           );
         });
     },
-    imprimir(){
+    imprimir() {
       window.print();
     },
     imprimirviejo() {
       // Get HTML to print from element
-      const prtHtml = document.getElementById("print").innerHTML;
+      const prtHtml = document.getElementById('print').innerHTML;
 
       // Get all stylesheets HTML
-      let stylesHtml = "";
+      let stylesHtml = '';
       for (const node of [
-        ...document.querySelectorAll('link[rel="stylesheet"], style')
+        ...document.querySelectorAll('link[rel="stylesheet"], style'),
       ]) {
         stylesHtml += node.outerHTML;
       }
 
       // Open the print window
       const WinPrint = window.open(
-        "",
-        "",
-        "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
+        '',
+        '',
+        'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0',
       );
 
       WinPrint.document.write(`<!DOCTYPE html>
@@ -392,36 +402,35 @@ export default {
       WinPrint.print();
       WinPrint.close();
     },
-    exportTableToExcel(tableID = "table1", filename = "Reportee") {
-      var downloadLink;
-      var dataType = "application/vnd.ms-excel";
-      var tableSelect = document.getElementById("table1");
-      var tableHTML = tableSelect.outerHTML.replace(/ /g, "%20");
+    exportTableToExcel(tableID = 'table1', filename = 'Reportee') {
+      let downloadLink;
+      const dataType = 'application/vnd.ms-excel';
+      const tableSelect = document.getElementById('table1');
+      const tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
 
       // Specify file name
-      filename = filename ? filename + ".xls" : "excel_data.xls";
-
+      filename = filename ? `${filename}.xls` : 'excel_data.xls';
 
       // Create download link element
-      downloadLink = document.createElement("a");
+      downloadLink = document.createElement('a');
 
       document.body.appendChild(downloadLink);
 
       if (navigator.msSaveOrOpenBlob) {
-        var blob = new Blob(["\ufeff", tableHTML], {
-          type: dataType
+        const blob = new Blob(['\ufeff', tableHTML], {
+          type: dataType,
         });
         navigator.msSaveOrOpenBlob(blob, filename);
       } else {
         // Create a link to the file
-        downloadLink.href = "data:" + dataType + ", " + tableHTML;
+        downloadLink.href = `data:${dataType}, ${tableHTML}`;
 
         // Setting the file name
         downloadLink.download = filename;
-        //triggering the function
+        // triggering the function
         downloadLink.click();
       }
-    }
-  }
+    },
+  },
 };
 </script>

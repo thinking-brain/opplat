@@ -12,7 +12,7 @@ namespace opplatApplication.Hubs
     /// <summary>
     /// Hub que se encarga de las Notificaciones
     /// </summary>
-    [EnableCors()]
+    [DisableCors]
     public class NotificationsHub : Hub
     {
         private readonly notificationsDbContext _context;
@@ -53,7 +53,7 @@ namespace opplatApplication.Hubs
             {
                 usernotification.IsRead = true;
                 _context.Update(usernotification);
-               await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             var notifications = await _context.Set<UserNotification>().Include(u => u.Notification)
                 .Where(u => u.UsuarioId == userId && u.IsRead == false)
@@ -71,7 +71,7 @@ namespace opplatApplication.Hubs
             await Clients.Group(name).SendAsync("GetNotifications", notifications);
         }
 
-
+        [DisableCors]
         public override Task OnConnectedAsync()
         {
             string name = "";

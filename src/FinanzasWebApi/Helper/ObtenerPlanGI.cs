@@ -124,6 +124,11 @@ namespace FinanzasWebApi.Helper
             return plan.Sum(s => s.Importe);
 
         }
+        public decimal ObtenerTotalIngresosEnCuenta(int year, int meses, string cuenta)
+        {
+            decimal Importe = GetMovimientoDeCuentaPeriodo.Get(year, meses, cuenta, _config);
+            return Importe;
+        }
         public decimal ObtenerTotalPlanIngresos(int year, int meses)
         {
             var plan = new List<MovimientoCuentaPeriodoVM>();
@@ -276,7 +281,7 @@ namespace FinanzasWebApi.Helper
         {
             var plan = new List<MovimientoCuentaPeriodoVM>();
             var modelo = DatosPlanGI.Datos();
-            var planes = GetPlanIngresosPeriodo.Get(year, _config);
+            var planes = GetPlanEgresosPeriodo.Get(year, _config);
             foreach (var item in modelo.Where(s => s.Tipo.Equals("Egresos")))
             {
                 string cta = item.Valor.ToString();
@@ -483,5 +488,7 @@ namespace FinanzasWebApi.Helper
             var total = planIngresos - planEgresos;
             return total;
         }
+
+
     }
 }

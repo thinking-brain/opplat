@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RhWebApi.Data;
 using RhWebApi.Dtos;
 using RhWebApi.Models;
 
 namespace RhWebApi.Controllers {
-    [Route ("api/[controller]")]
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
     public class EntradasController : Controller {
         private readonly RhWebApiDbContext context;
@@ -15,7 +16,7 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // GET api/EntradasController
+        // GET recursos_humanos/EntradasController
         [HttpGet]
         public ActionResult GetAll () {
 
@@ -26,10 +27,14 @@ namespace RhWebApi.Controllers {
                     Cargo = e.Cargo.Nombre,
                     UnidadOrganizativa = e.UnidadOrganizativa.Nombre,
             }).ToList ();
-            return Ok (entrada);
+            if (entrada == null) {
+                return NotFound ();
+            } else {
+                return Ok (entrada);
+            }
         }
 
-        // GET: api/Entradas/Id
+        // GET: recursos_humanos/Entradas/Id
         [HttpGet ("{id}", Name = "GetEntrada")]
         public IActionResult GetbyId (int id) {
             var entrada = context.Entrada.FirstOrDefault (s => s.Id == id);
@@ -48,39 +53,54 @@ namespace RhWebApi.Controllers {
             return Ok (result);
         }
 
-        // POST api/Entradas
+        // POST recursos_humanos/Entradas
         [HttpPost]
         public IActionResult POST ([FromBody] EntradaDto entradaDto) {
             if (ModelState.IsValid) {
                 var trabajador = context.Trabajador.FirstOrDefault (s => s.Id == entradaDto.TrabajadorId);
-                var puesto = context.PuestoDeTrabajo.SingleOrDefault (p => p.CargoId == entradaDto.CargoId && p.UnidadOrganizativaId == entradaDto.UnidadOrganizativaId);
+                if (trabajador != null) {
+                    var puesto = context.PuestoDeTrabajo.FirstOrDefault (p => p.CargoId == entradaDto.CargoId && p.UnidadOrganizativaId == entradaDto.UnidadOrganizativaId);
+                    if (puesto == null) {
+                        var puestoNew = new PuestoDeTrabajo () {
+                        CargoId = entradaDto.CargoId,
+                        UnidadOrganizativaId = entradaDto.UnidadOrganizativaId,
+                        Descripcion = entradaDto.Descripcion,
+                        PlantillaOcupada = +1
+                        };
+                        context.PuestoDeTrabajo.Add (puestoNew);
+                        trabajador.PuestoDeTrabajoId = puestoNew.Id;
+                        context.Entry (trabajador).State = EntityState.Modified;
+                    } else {
+                        puesto.PlantillaOcupada++;
+                        trabajador.PuestoDeTrabajoId = puesto.Id;
+                        context.Entry (trabajador).State = EntityState.Modified;
+                    }
+                    var entrada = new Entrada () {
+                        TrabajadorId = entradaDto.TrabajadorId,
+                        CargoId = entradaDto.CargoId,
+                        Fecha = entradaDto.Fecha,
+                        UnidadOrganizativaId = entradaDto.UnidadOrganizativaId,
+                    };
+                    context.Entrada.Add (entrada);
+                    trabajador.EstadoTrabajador = Estados.Activo;
+                    context.SaveChanges ();
 
-                var entrada = new Entrada () {
-                    TrabajadorId = entradaDto.TrabajadorId,
-                    CargoId = entradaDto.CargoId,
-                    Fecha = entradaDto.Fecha,
-                    UnidadOrganizativaId = entradaDto.UnidadOrganizativaId,
-                };
-                context.Entrada.Add (entrada);
-                trabajador.PuestoDeTrabajoId = puesto.Id;
-                puesto.CantidadPorPlantilla++;
-                trabajador.EstadoTrabajador = "Activo";
-                context.Entry (trabajador).State = EntityState.Modified;
-
-                var historico = new HistoricoPuestoDeTrabajo () {
-                    TrabajadorId = trabajador.Id,
-                    PuestoDeTrabajoId = trabajador.PuestoDeTrabajoId,
-                    FechaInicio = DateTime.Now,
-                };
-                context.HistoricoPuestoDeTrabajo.Add (historico);
-                context.SaveChanges ();
-
-                return new CreatedAtRouteResult ("GetEntrada", new { id = entradaDto.Id });
+                    var historico = new HistoricoPuestoDeTrabajo () {
+                        TrabajadorId = trabajador.Id,
+                        PuestoDeTrabajoId = trabajador.PuestoDeTrabajoId,
+                        FechaInicio = DateTime.Now,
+                    };
+                    context.HistoricoPuestoDeTrabajo.Add (historico);
+                    context.SaveChanges ();
+                    return new CreatedAtRouteResult ("GetEntrada", new { id = entradaDto.Id });
+                } else {
+                    return BadRequest ($"El trabajador no está en el Sistema debe agregarlo");
+                }
             }
             return BadRequest (ModelState);
         }
 
-        // PUT api/Entradas/id
+        // PUT recursos_humanos/Entradas/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] EntradaDto entradaDto, int id) {
             if (entradaDto.Id != id) {
@@ -92,7 +112,7 @@ namespace RhWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE api/Entradas/id
+        // DELETE recursos_humanos/Entradas/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var entrada = context.Entrada.FirstOrDefault (s => s.Id == id);

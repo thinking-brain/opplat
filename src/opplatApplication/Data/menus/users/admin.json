@@ -3,8 +3,8 @@
         "title": "Usuarios",
         "group": "modulos",
         "icon": "mdi-account-multiple",
-        "component": "UserList",
         "name": "Usuarios",
+        "component": "UserList",
         "roles": [
             "administrador"
         ]

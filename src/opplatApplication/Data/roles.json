@@ -6,14 +6,25 @@
             "usuario",
             "auditor",
             "consultor",
-            "recursos_humanos"
+            "economico",
+            "juridico",
+            "recursos humanos",
+            "contratacion"
         ]
     },
     {
         "Modulo": "Reportes",
         "Roles": [
-            "economico",
             "contador"
+        ]
+    },
+    {
+        "Modulo": "Contratación",
+        "Roles": [
+            "secretario comite de contratacion",
+            "dictaminador",
+            "administrador de contratos",
+            "administrador contratacion"
         ]
     }
 ]

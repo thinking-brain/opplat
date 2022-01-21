@@ -1,13 +1,58 @@
 [
     {
-        "title": "Planes",
-        "group": "contabilidad",
-        "icon": "mdi-file-chart",
-        "component": "Planes",
-        "name": "Planes",
+        "title": "Listado de Trabajadores",
+        "group": "recursos humanos",
+        "icon": "mdi-worker",
+        "name": "Trabajadores",
+        "component": "Trabajadores",
         "roles": [
             "administrador",
-            "economico"
-        ]        
+            "recursos humanos"
+        ]
+    },
+    {
+        "title": "Trabajadores en la Bolsa",
+        "group": "recursos humanos",
+        "icon": "mdi-clipboard-account",
+        "component": "Bolsa",
+        "name": "Bolsa",
+        "roles": [
+            "administrador",
+            "recursos humanos"
+        ]
+    },
+    {
+        "title": "Apertura de Socios",
+        "group": "recursos humanos",
+        "icon": "mdi-account-tie",
+        "name": "Apertura",
+        "roles": [
+            "administrador",
+            "recursos humanos"
+        ],
+        "items": [
+            {
+                "title": "Listado de Aperturas",
+                "group": "recursos humanos",
+                "icon": "mdi-account-tie",
+                "component": "Apertura",
+                "name": "ListadoAperturas",
+                "roles": [
+                    "administrador",
+                    "recursos humanos"
+                ]
+            },
+            {
+                "title": "Nueva Apertura",
+                "group": "recursos humanos",
+                "icon": "mdi-account-tie",
+                "component": "Apertura",
+                "name": "Apertura",
+                "roles": [
+                    "administrador",
+                    "recursos humanos"
+                ]
+            }
+        ]
     }
 ]

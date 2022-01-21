@@ -7,96 +7,110 @@
 </template>
 
 <script>
-import VueApexCharts from "vue-apexcharts";
-import api from "@/api";
+import VueApexCharts from 'vue-apexcharts';
+import api from '@/api';
 
 export default {
   components: {
-    VueApexCharts
+    VueApexCharts,
   },
-  data: function() {
+  data() {
     return {
+      ingresos_series: [
+        {
+          name: 'Real',
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        },
+        {
+          name: 'Plan',
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        },
+      ],
       ingresos_reales: [],
       ingresos_planes: [],
       ingresosOptions: {
         title: {
-          text: "Ingresos",
-          align: "center",
+          text: 'Ingresos',
+          align: 'center',
           margin: 10,
           offsetX: 0,
           offsetY: 0,
           floating: false,
           style: {
-            fontSize: "20px",
-            color: "rgba(96, 89, 89, 0.87)"
-          }
+            fontSize: '20px',
+            color: 'rgba(96, 89, 89, 0.87)',
+          },
         },
         chart: {
-          id: "vuechart",
-          //mostrar el boton de exportar
+          id: 'vuechart',
+          // mostrar el boton de exportar
           toolbar: {
-            show: false
+            show: false,
           },
-          //definir color de fondo general
-          background: ""
+          // definir color de fondo general
+          background: '',
         },
         xaxis: {
-          //mostrar tooltip para eje x
+          // mostrar tooltip para eje x
           tooltip: {
-            enabled: false
+            enabled: false,
           },
-          //labels para mostrar en eje x
+          // labels para mostrar en eje x
           categories: [
-            "Enero",
-            "Febrero",
-            "Marzo",
-            "Abril",
-            "Mayo",
-            "Junio",
-            "Julio",
-            "Agosto",
-            "Septiembre",
-            "Octubre",
-            "Noviembre",
-            "Diciembre"
-          ]
+            'Enero',
+            'Febrero',
+            'Marzo',
+            'Abril',
+            'Mayo',
+            'Junio',
+            'Julio',
+            'Agosto',
+            'Septiembre',
+            'Octubre',
+            'Noviembre',
+            'Diciembre',
+          ],
         },
         yaxis: {
-          //valor minimo para emezar en eje y
+          // valor minimo para emezar en eje y
           min: 0,
-          //valores redondeados
-          forceNiceScale: true
-        }
+          // valores redondeados
+          forceNiceScale: true,
+        },
       },
       ingresos_series: [],
-      errors:[]
+      errors: [],
     };
   },
   created() {
+    const d = new Date();
+    const year = d.getFullYear();
+
     const url = api.getUrl(
-      "finanzas",
-      `ReporteIngresosGastos/ingresosTotal/${2019}`
+      'finanzas',
+      `ReporteIngresosGastos/ingresosTotal/${year}`,
     );
     this.axios
       .get(url)
-      .then(response => {
+      .then((response) => {
         this.ingresos_series = [
           {
-            name: "Real",
-            data: response.data.reales
+            name: 'Real',
+            data: response.data.reales,
           },
           {
-            name: "Plan",
-            data: response.data.planes
+            name: 'Plan',
+            data: response.data.planes,
           },
         ];
+        this.loading = false;
       })
-      .catch(e => {
+      .catch((e) => {
         this.errors.push(e);
         vm.$snotify.error(
-          "No nos podemos comunicar con el servicio de usuarios, contacte al administrador."
+          'No nos podemos comunicar con el servicio de usuarios, contacte al administrador.',
         );
       });
-  }
+  },
 };
 </script>

@@ -1,84 +1,159 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
+using System.Web;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RhWebApi.Data;
+using RhWebApi.Dtos;
 using RhWebApi.Models;
 
-namespace RhWebApi.Controllers
-{
-    [Route("api/[controller]")]
+namespace RhWebApi.Controllers {
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
-    public class CaracteristicasTrabController : Controller
-    {
+    public class CaracteristicasTrabController : Controller {
         private readonly RhWebApiDbContext context;
-        public CaracteristicasTrabController(RhWebApiDbContext context)
-        {
+        public CaracteristicasTrabController (RhWebApiDbContext context) {
             this.context = context;
         }
 
-        // GET api/CaracteristicasTrab
-        [HttpGet]
-        public IEnumerable<CaracteristicasTrab> GetAll()
-        {                            
-            return context.CaracteristicasTrab.ToList();            
-        }       
-       
-      // GET: api/CaracteristicasTrab/Id
-        [HttpGet("{id}", Name = "GetCaracteristicasTrab")]
-        public IActionResult GetbyId(int id)
-        {
-            var caractTrab = context.CaracteristicasTrab.FirstOrDefault(s => s.TrabajadorId == id);
-
-            if (caractTrab == null)
-            {
-                return NotFound();
-            }
-            return Ok(caractTrab);
-           
+        // GET: recursos_humanos/CaracteristicasTrab/Sexo
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/Sexo")]
+        public IActionResult GetAllSexo () {
+            var sexo = new List<dynamic> () {
+                new { Id = Sexo.M, Nombre = Sexo.M.ToString () },
+                new { Id = Sexo.F, Nombre = Sexo.F.ToString () },
+            };
+            return Ok (sexo);
+        }
+        // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/ColordePiel")]
+        public IActionResult GetAllColorDePiel () {
+            var colorDePiel = new List<dynamic> () {
+                new { Id = ColorDePiel.Blanca, Nombre = ColorDePiel.Blanca.ToString () },
+                new { Id = ColorDePiel.Negra, Nombre = ColorDePiel.Negra.ToString () },
+                new { Id = ColorDePiel.Mestiza, Nombre = ColorDePiel.Mestiza.ToString () },
+            };
+            return Ok (colorDePiel);
+        }
+        // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/ColordeOjos")]
+        public IActionResult GetAllColorDeOjos () {
+            var colorDeOjos = new List<dynamic> () {
+                new { Id = ColorDeOjos.Azules, Nombre = ColorDeOjos.Azules.ToString () },
+                new { Id = ColorDeOjos.Verdes, Nombre = ColorDeOjos.Verdes.ToString () },
+                new { Id = ColorDeOjos.Negros, Nombre = ColorDeOjos.Negros.ToString () },
+                new { Id = ColorDeOjos.Marron, Nombre = ColorDeOjos.Marron.ToString () },
+                new { Id = ColorDeOjos.Pardos, Nombre = ColorDeOjos.Pardos.ToString () },
+            };
+            return Ok (colorDeOjos);
+        }
+        // GET: recursos_humanos/CaracteristicasTrab/ColordePiel
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/TallaDeCamisa")]
+        public IActionResult GetAllTallaDeCamisa () {
+            var tallaDeCamisa = new List<dynamic> () {
+                new { Id = TallaDeCamisa.S, Nombre = TallaDeCamisa.S.ToString () },
+                new { Id = TallaDeCamisa.M, Nombre = TallaDeCamisa.M.ToString () },
+                new { Id = TallaDeCamisa.L, Nombre = TallaDeCamisa.L.ToString () },
+                new { Id = TallaDeCamisa.X, Nombre = TallaDeCamisa.X.ToString () },
+                new { Id = TallaDeCamisa.XL, Nombre = TallaDeCamisa.XL.ToString () },
+                new { Id = TallaDeCamisa.XXL, Nombre = TallaDeCamisa.XXL.ToString () },
+                new { Id = TallaDeCamisa.XXXL, Nombre = TallaDeCamisa.XXXL.ToString () },
+            };
+            return Ok (tallaDeCamisa);
+        }
+        // GET: recursos_humanos/CaracteristicasTrab/Estados
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/Estados")]
+        public IActionResult GetAllEstados () {
+            var colorDePiel = new List<dynamic> () {
+                new { Id = Estados.Activo, Nombre = Estados.Activo.ToString () },
+                new { Id = Estados.Baja, Nombre = Estados.Baja.ToString () },
+                new { Id = Estados.Interrupto, Nombre = Estados.Interrupto.ToString () },
+                new { Id = Estados.Disponible, Nombre = Estados.Disponible.ToString () },
+                new { Id = Estados.Licencia_Maternidad, Nombre = "Licencia de Maternidad" },
+                new { Id = Estados.Licencia_Sin_Sueldo, Nombre = "Licencia sin Sueldo" },
+                new { Id = Estados.Certificado, Nombre = Estados.Certificado.ToString () },
+                new { Id = Estados.Bolsa, Nombre = Estados.Bolsa.ToString () },
+                new { Id = Estados.Descartado, Nombre = Estados.Descartado.ToString () },
+            };
+            return Ok (colorDePiel);
+        }
+        // GET: recursos_humanos/CaracteristicasTrab/NivelEscolaridad
+        [HttpGet ("/recursos_humanos/CaracteristicasTrab/NivelEscolaridad")]
+        public IActionResult GetAllEscolaridad () {
+            var nivelEscolaridad = new List<dynamic> () {
+                new { Id = NivelDeEscolaridad.TecnicoMedio, Nombre = "Técnico Medio" },
+                new { Id = NivelDeEscolaridad.NivelSuperior, Nombre = "Nivel Superior" },
+                new { Id = NivelDeEscolaridad.DoceGrado, Nombre = "Doce Grado" },
+                new { Id = NivelDeEscolaridad.NovenoGrado, Nombre = "Noveno Grado" },
+                new { Id = NivelDeEscolaridad.SextoGrado, Nombre = "Sexto Grado" },
+                new { Id = NivelDeEscolaridad.MenosDeSextoGrado, Nombre = "Menos de Sexto Grado" },
+            };
+            return Ok (nivelEscolaridad);
         }
 
-        // POST api/CaracteristicasTrab
-       [HttpPost]
-        public IActionResult POST([FromBody] CaracteristicasTrab caractTrab)
-        {            
-            if (ModelState.IsValid)
-            {
-                context.CaracteristicasTrab.Add(caractTrab);
-                context.SaveChanges();
-                return new CreatedAtRouteResult("GetCaracteristicasTrab", new { id = caractTrab.TrabajadorId });
+        // GET: recursos_humanos/CaracteristicasTrab/Id
+        [HttpGet ("{id}", Name = "GetCaracteristicasTrab")]
+        public IActionResult GetbyId (int id) {
+            var caractTrab = context.CaracteristicasTrab.Where (s => s.TrabajadorId == id)
+                .Select (t => new {
+                    Trabajador = t.Trabajador.Nombre + " " + t.Trabajador.Apellidos,
+                        ColorDePiel = t.ColorDePiel.ToString (),
+                        ColorDeOjos = t.ColorDeOjos.ToString (),
+                        TallaDeCamisa = t.TallaDeCamisa.ToString (),
+                        Resumen = t.Resumen,
+                });
+
+            if (caractTrab == null) {
+                return NotFound ();
             }
-            return BadRequest(ModelState);
+            return Ok (caractTrab);
+
         }
 
-        // PUT api/CaracteristicasTrab/id
-       [HttpPut("{id}")]
-        public IActionResult PUT([FromBody] CaracteristicasTrab caractTrab, int id)
-        {
-            if (caractTrab.TrabajadorId != id)
-            {
-                return BadRequest(ModelState);
-
+        // POST recursos_humanos/CaracteristicasTrab
+        [HttpPost]
+        public IActionResult POST ([FromBody] CaracteristicasTrabDto caractTrabDto) {
+            if (ModelState.IsValid) {
+                var caractTrab = new CaracteristicasTrab () {
+                    TrabajadorId = caractTrabDto.TrabajadorId,
+                    ColorDePiel = caractTrabDto.ColorDePiel,
+                    ColorDeOjos = caractTrabDto.ColorDeOjos,
+                    TallaDeCamisa = caractTrabDto.TallaDeCamisa,
+                    TallaPantalon = caractTrabDto.TallaPantalon,
+                    TallaCalzado = caractTrabDto.TallaCalzado,
+                    OtrasCaracteristicas = caractTrabDto.OtrasCaracteristicas,
+                };
+                context.CaracteristicasTrab.Add (caractTrab);
+                context.SaveChanges ();
+                return new CreatedAtRouteResult ("GetCaracteristicasTrab", new { id = caractTrabDto.TrabajadorId });
             }
-            context.Entry(caractTrab).State = EntityState.Modified;
-            context.SaveChanges();
-            return Ok();
+            return BadRequest (ModelState);
         }
 
-        // DELETE api/CaracteristicasTrab/id
-       [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-              var caractTrab = context.CaracteristicasTrab.FirstOrDefault(s => s.TrabajadorId == id);
-
-            if (caractTrab.TrabajadorId != id)
-            {
-                return NotFound();
+        // PUT recursos_humanos/CaracteristicasTrab/id
+        [HttpPut ("{id}")]
+        public IActionResult PUT ([FromBody] CaracteristicasTrab caractTrab, int id) {
+            if (caractTrab.TrabajadorId != id) {
+                return BadRequest (ModelState);
             }
-            context.CaracteristicasTrab.Remove(caractTrab);
-            context.SaveChanges();
-            return Ok(caractTrab);
-       }
+            context.Entry (caractTrab).State = EntityState.Modified;
+            context.SaveChanges ();
+            return Ok ();
+        }
+
+        // DELETE recursos_humanos/CaracteristicasTrab/id
+        [HttpDelete ("{id}")]
+        public IActionResult Delete (int id) {
+            var caractTrab = context.CaracteristicasTrab.FirstOrDefault (s => s.TrabajadorId == id);
+
+            if (caractTrab.TrabajadorId != id) {
+                return NotFound ();
+            }
+            context.CaracteristicasTrab.Remove (caractTrab);
+            context.SaveChanges ();
+            return Ok (caractTrab);
+        }
     }
 }

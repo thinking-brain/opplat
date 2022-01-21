@@ -9,9 +9,12 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="LicenceChecker" Version="1.0.0" />
+        <PackageReference Include="mailkit" Version="2.8.0" />
         <PackageReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="*" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0-dev-00037" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
         <PackageReference Include="VueCliMiddleware" Version="2.2.1" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.0" />
     </ItemGroup>
@@ -22,5 +25,8 @@
         <ProjectReference Include="..\FinanzasWebApi\FinanzasWebApi.csproj" />
         <ProjectReference Include="..\InventarioWebApi\InventarioWebApi.csproj" />
         <ProjectReference Include="..\ImportadorDatos\ImportadorDatos.csproj" />
+        <ProjectReference Include="..\RhWebApi\RhWebApi.csproj" />
+        <ProjectReference Include="..\ContratacionWebApi\ContratacionWebApi.csproj" />
+        <ProjectReference Include="..\TallerWebApi\TallerWebApi.csproj" />
     </ItemGroup>
 </Project>

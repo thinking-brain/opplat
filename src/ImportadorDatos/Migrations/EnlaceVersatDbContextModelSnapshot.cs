@@ -16,7 +16,7 @@ namespace ImportadorDatos.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Asientos", b =>
@@ -35,6 +35,38 @@ namespace ImportadorDatos.Migrations
                     b.ToTable("Asientos");
                 });
 
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.CentroDeCosto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CentroId");
+
+                    b.Property<int>("CentroVersatId");
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CentrosDeCostos");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.CuentaBancaria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CtaBancoEntidadVersatId");
+
+                    b.Property<int>("CuentaBancariaId");
+
+                    b.Property<string>("NumeroCta");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CuentasBancarias");
+                });
+
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Cuentas", b =>
                 {
                     b.Property<int>("Id")
@@ -51,6 +83,56 @@ namespace ImportadorDatos.Migrations
                     b.ToTable("Cuentas");
                 });
 
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.ElementoDeGasto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("ElementoId");
+
+                    b.Property<int>("ElementoVersatId");
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ElementoDeGastos");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Entidad", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Codigo");
+
+                    b.Property<int>("EntidadId");
+
+                    b.Property<int>("EntidadVersatId");
+
+                    b.Property<string>("NIT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Entidades");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.PartidaDeGasto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.Property<int>("PartidaId");
+
+                    b.Property<int>("PartidaVersatId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PartidaDeGastos");
+                });
+
             modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.PeriodosContables", b =>
                 {
                     b.Property<int>("Id")
@@ -65,6 +147,70 @@ namespace ImportadorDatos.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PeriodosContables");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.RegistroDeGasto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.Property<int>("RegistroId");
+
+                    b.Property<int>("RegistroVersatId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RegistroDeGastos");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.SubElementoDeGasto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.Property<int>("SubElementoId");
+
+                    b.Property<int>("SubElementoVersatId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubElementoDeGastos");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.Trabajador", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Ci");
+
+                    b.Property<int>("TrabajadorId");
+
+                    b.Property<int>("TrabajadorVersatId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Trabajadores");
+                });
+
+            modelBuilder.Entity("ImportadorDatos.Models.EnlaceVersat.UnidadOrganizativa", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AreaVersatId");
+
+                    b.Property<DateTime>("Fecha");
+
+                    b.Property<int>("UnidadOrganizativaId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UnidadesOrganizativas");
                 });
 #pragma warning restore 612, 618
         }

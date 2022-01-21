@@ -53,7 +53,10 @@
             </v-list-item>
           </template>
         </div>
-        <v-subheader>Modulo Actual</v-subheader>
+        <v-subheader>
+          Modulo Actual
+          <span class="text-uppercase pl-4">{{nombreModuloActual}}</span>
+        </v-subheader>
         <template v-for="item in menus_modulo_actual">
           <!--group with subitems-->
           <v-list-group
@@ -98,12 +101,20 @@
             <v-list-item-icon v-if="item.icon">
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list-item-title>
+              {{ item.title }}
+              <v-span v-if="item.cant>0">{{item.cant}}</v-span>
+            </v-list-item-title>
           </v-list-item>
         </template>
         <v-subheader>Modulos</v-subheader>
         <template v-for="item in modulos">
-          <v-list-item :key="item.title" ripple="ripple" @click="getMenusDeModulo(item.name)">
+          <v-list-item
+            link
+            :to="'/'+item.name"
+            :key="item.title"
+            @click="getMenusDeModulo(item.name)"
+          >
             <v-list-item-icon>
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-icon>
@@ -116,22 +127,22 @@
 </template>
 
 <script>
-import VuePerfectScrollbar from 'vue-perfect-scrollbar';
-import api from '@/api';
+import VuePerfectScrollbar from "vue-perfect-scrollbar";
+import api from "@/api";
 
 export default {
   components: {
-    VuePerfectScrollbar,
+    VuePerfectScrollbar
   },
   props: {
     expanded: {
       type: Boolean,
-      default: true,
+      default: true
     },
     drawWidth: {
       type: [Number, String],
-      default: '260',
-    },
+      default: "260"
+    }
   },
   computed: {
     drawer: {
@@ -139,11 +150,11 @@ export default {
         return this.$store.getters.drawerVisibility;
       },
       set(value) {
-          this.$store
-          .dispatch('changeVisibility', value)
+        this.$store
+          .dispatch("changeVisibility", value)
           .then(() => {})
           .catch(() => {});
-      },
+      }
     },
     computeGroupActive() {
       return true;
@@ -151,7 +162,7 @@ export default {
 
     sideToolbarColor() {
       return this.$vuetify.options.extra.sideNav;
-    },
+    }
   },
   data() {
     return {
@@ -159,20 +170,21 @@ export default {
       modulos: [],
       personalizados: [],
       menus_modulo_actual: [],
+      nombreModuloActual: null,
       scrollSettings: {
-        maxScrollbarLength: 160,
-      },
+        maxScrollbarLength: 160
+      }
     };
   },
   created() {
-    const url = api.getUrl('opplat-app', 'menus');
+    const url = api.getUrl("opplat-app", "menus");
     this.axios
       .get(url)
-      .then((response) => {
+      .then(response => {
         this.modulos = response.data.modulos;
         this.personalizados = response.data.personalizados;
       })
-      .catch((e) => {
+      .catch(e => {
         this.errors.push(e);
         this.$snotify.error(`Error cargando los menus. ${e}`);
       });
@@ -183,23 +195,24 @@ export default {
       if (subItem.href) return;
       if (subItem.component) {
         return {
-          name: subItem.component,
+          name: subItem.component
         };
       }
       return { name: `${item.group}/${subItem.name}` };
     },
     getMenusDeModulo(modulo) {
-      const url = api.getUrl('opplat-app', `menus/frommodulo?modulo=${modulo}`);
+      const url = api.getUrl("opplat-app", `menus/frommodulo?modulo=${modulo}`);
       this.axios
         .get(url)
-        .then((response) => {
+        .then(response => {
           this.menus_modulo_actual = response.data;
+          this.nombreModuloActual = this.menus_modulo_actual[0].group;
         })
-        .catch((e) => {
+        .catch(e => {
           this.errors.push(e);
           vm.$snotify.error(`Error cargando los menus. ${e}`);
         });
-    },
-  },
+    }
+  }
 };
 </script>

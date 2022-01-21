@@ -1,0 +1,346 @@
+﻿[
+  {
+    "concepto": "Ventas Netas",
+    "conceptos": [
+      {
+        "name": "Ventas (900-913)",
+        "celda": "C9",
+        "cuentas": [
+          900,
+          901,
+          902,
+          903,
+          904,
+          906,
+          907,
+          908,
+          909,
+          910,
+          911,
+          912,
+          913
+        ]
+      },
+      {
+        "name": "Más: Venta de Bienes con Destino a la Exportacion (914)",
+        "celda": "C10",
+        "cuentas": [
+          914
+        ]
+      },
+      {
+        "name": "Ventas por Exportación de Servicios (915)",
+        "celda": "C11",
+        "cuentas": [
+          915
+        ]
+      },
+      {
+        "name": "Subvenciones (916-919)",
+        "celda": "C12",
+        "cuentas": [
+          916,
+          917,
+          918,
+          919
+        ]
+      },
+      {
+        "name": "Menos: Devoluciones y Rebajas en Ventas (800-804)",
+        "celda": "C13",
+        "cuentas": [
+          800,
+          801,
+          802,
+          803,
+          804
+        ]
+      },
+      {
+        "name": "Impuesto por las ventas (805-809)",
+        "celda": "C14",
+        "cuentas": [
+          805,
+          806,
+          807,
+          808,
+          809
+        ]
+      }
+    ]
+  },
+  {
+    "concepto": "Utilidad o Pérdida Bruta en Ventas",
+    "conceptos": [
+      {
+        "name": "Menos: Costo de Ventas de la Produccion (810-813)",
+        "celda": "C16",
+        "cuentas": [
+          810,
+          811,
+          812,
+          813
+        ]
+      },
+      {
+        "name": "Costo de Ventas de Mercancias (814-817)",
+        "celda": "C17",
+        "cuentas": [
+          814,
+          815,
+          816,
+          817
+        ]
+      },
+      {
+        "name": "Costo por Exportación de Servicios (818)",
+        "celda": "C18",
+        "cuentas": [
+          818
+        ]
+      }
+    ]
+  },
+  {
+    "concepto": "Utilidad o Pérdida Neta en Ventas",
+    "conceptos": [
+      {
+        "name": "Menos: Gastos de Distribución y ventas (819-821)",
+        "celda": "C20",
+        "cuentas": [
+          819,
+          820,
+          821
+        ]
+      }
+    ]
+  },
+  {
+    "concepto": "Utilidad o Pérdida en Operaciones",
+    "conceptos": [
+      {
+        "name": "Menos: Gastos Generales y de Administración (822-824)",
+        "celda": "C22",
+        "cuentas": [
+          822,
+          823,
+          824
+        ]
+      },
+      {
+        "name": "Gastos de Operación (826-833)",
+        "celda": "C23",
+        "cuentas": [
+          826,
+          827,
+          828,
+          829,
+          830,
+          831,
+          832,
+          833
+        ]
+      },
+      {
+        "name": "Gastos de Administración de la OSDE (834)",
+        "celda": "C24",
+        "cuentas": [
+          834
+        ]
+      }
+    ]
+  },
+  {
+    "concepto": "Utilidad o Pérdida antes de Impuesto",
+    "conceptos": [
+      {
+        "name": "Menos: Gastos de Proyectos (825)",
+        "celda": "C26",
+        "cuentas": [
+          825
+        ]
+      },
+      {
+        "name": "Gastos Financieros (835-838)",
+        "celda": "C27",
+        "cuentas": [
+          835,
+          336,
+          837,
+          838
+        ]
+      },
+      {
+        "name": "Gastos por Perdida en Tasa de Cambio (839)",
+        "celda": "C28",
+        "cuentas": [
+          839
+        ]
+      },
+      {
+        "name": "GFinanciamiento entregado a la OSDE (840)",
+        "celda": "C29",
+        "cuentas": [
+          840
+        ]
+      },
+      {
+        "name": "Gastos por Estadía-Importadores (841)",
+        "celda": "C30",
+        "cuentas": [
+          841
+        ]
+      },
+      {
+        "name": "Gastos por Estadía-Otras Entidades (843)",
+        "celda": "C31",
+        "cuentas": [
+          843
+        ]
+      },
+      {
+        "name": "Gastos por Pérdidas (845-848)",
+        "celda": "C32",
+        "cuentas": [
+          845,
+          846,
+          847,
+          848
+        ]
+      },
+      {
+        "name": "Pérdidas por Desastres (849)",
+        "celda": "C33",
+        "cuentas": [
+          849
+        ]
+      },
+      {
+        "name": "Gastos por Faltantes de Bienes (850-854)",
+        "celda": "C34",
+        "cuentas": [
+          850,
+          851,
+          852,
+          853,
+          854
+        ]
+      },
+      {
+        "name": "Otros Impuestos, Tasas y Contribuciones (855-864)",
+        "celda": "C35",
+        "cuentas": [
+          855,
+          856,
+          857,
+          858,
+          859,
+          860,
+          861,
+          862,
+          863,
+          864
+        ]
+      },
+      {
+        "name": "Otros Gastos (865-866)",
+        "celda": "C36",
+        "cuentas": [
+          865,
+          866
+        ]
+      },
+      {
+        "name": "Gastos de Eventos (867)",
+        "celda": "C37",
+        "cuentas": [
+          867
+        ]
+      },
+      {
+        "name": "Gastos de Recuperación de Desastres (873)",
+        "celda": "C38",
+        "cuentas": [
+          873
+        ]
+      },
+      {
+        "name": "Más: Ingresos Financieros (920-922)",
+        "celda": "C39",
+        "cuentas": [
+          920,
+          921,
+          922
+        ]
+      },
+      {
+        "name": "Financiamiento Recibido de la Empresa (923)",
+        "celda": "C40",
+        "cuentas": [
+          923
+        ]
+      },
+      {
+        "name": "Ingresos por Variacion de Tasa de Cambio (924)",
+        "celda": "C41",
+        "cuentas": [
+          924
+        ]
+      },
+      {
+        "name": "Ingresos por Dividendos Ganados (925)",
+        "celda": "C42",
+        "cuentas": [
+          925
+        ]
+      },
+      {
+        "name": "Ingresos por Estadía (navieras y operadores) (926-927)",
+        "celda": "C43",
+        "cuentas": [
+          926,
+          927
+        ]
+      },
+      {
+        "name": "Ingresos por Recobro de Estadía (importadores  y otras entidades) (928-929)",
+        "celda": "C44",
+        "cuentas": [
+          928,
+          929
+        ]
+      },
+      {
+        "name": "Ingresos por Sobrante de Bienes (930-939)",
+        "celda": "C45",
+        "cuentas": [
+          930,
+          931,
+          932,
+          933,
+          934,
+          935,
+          936,
+          937,
+          938
+        ]
+      },
+      {
+        "name": "Otros Ingresos (950-952)",
+        "celda": "C46",
+        "cuentas": [
+          950,
+          951,
+          952
+        ]
+      },
+      {
+        "name": "Ingresos por Donaciones Recibidas (953)",
+        "celda": "C47",
+        "cuentas": [
+          953
+        ]
+      }
+    ]
+  }
+]

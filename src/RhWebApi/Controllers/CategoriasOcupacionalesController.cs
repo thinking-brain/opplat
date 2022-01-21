@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RhWebApi.Models;
+using RhWebApi.Data;
 
 namespace RhWebApi.Controllers {
-    [Route ("api/[controller]")]
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
     public class CategoriasOcupacionalesController : Controller {
         private readonly RhWebApiDbContext context;
@@ -15,13 +16,13 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // GET api/CategoriaOcupacional
+        // GET recursos_humanos/CategoriaOcupacional
         [HttpGet]
         public IEnumerable<CategoriaOcupacional> GetAll () {
             return context.CategoriaOcupacional.ToList ();
         }
 
-        // GET: api/CategoriaOcupacional/Id
+        // GET: recursos_humanos/CategoriaOcupacional/Id
         [HttpGet ("{id}", Name = "GetCategoriaOcupacional")]
         public IActionResult GetbyId (int id) {
             var categoriaOcupacional = context.CategoriaOcupacional.FirstOrDefault (s => s.Id == id);
@@ -33,7 +34,7 @@ namespace RhWebApi.Controllers {
 
         }
 
-        // POST api/CategoriaOcupacional
+        // POST recursos_humanos/CategoriaOcupacional
         [HttpPost]
         public IActionResult POST ([FromBody] CategoriaOcupacional categoriaOcupacional) {
             if (ModelState.IsValid) {
@@ -44,7 +45,7 @@ namespace RhWebApi.Controllers {
             return BadRequest (ModelState);
         }
 
-        // PUT api/CategoriaOcupacional/id
+        // PUT recursos_humanos/CategoriaOcupacional/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] CategoriaOcupacional categoriaOcupacional, int id) {
             if (categoriaOcupacional.Id != id) {
@@ -56,7 +57,7 @@ namespace RhWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE api/CategoriaOcupacional/id
+        // DELETE recursos_humanos/CategoriaOcupacional/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var categoriaOcupacional = context.CategoriaOcupacional.FirstOrDefault (s => s.Id == id);

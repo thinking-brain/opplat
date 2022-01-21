@@ -6,9 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RhWebApi.Models;
 using RhWebApi.Dtos;
+using RhWebApi.Data;
 
 namespace RhWebApi.Controllers {
-    [Route ("api/[controller]")]
+    [Route ("recursos_humanos/[controller]")]
     [ApiController]
     public class GrupoEscalaController : Controller {
         private readonly RhWebApiDbContext context;
@@ -16,13 +17,13 @@ namespace RhWebApi.Controllers {
             this.context = context;
         }
 
-        // GET api/GrupoEscala
+        // GET recursos_humanos/GrupoEscala
         [HttpGet]
         public IEnumerable<GrupoEscala> GetAll () {
             return context.GrupoEscala.ToList ();
         }
 
-        // GET: api/GrupoEscala/Id
+        // GET: recursos_humanos/GrupoEscala/Id
         [HttpGet ("{id}", Name = "GetGrupoEscala")]
         public IActionResult GetbyId (int id) {
             var grupoEscala = context.GrupoEscala.FirstOrDefault (s => s.Id == id);
@@ -34,7 +35,7 @@ namespace RhWebApi.Controllers {
 
         }
 
-        // POST api/GrupoEscala
+        // POST recursos_humanos/GrupoEscala
         [HttpPost]
         public IActionResult POST ([FromBody] GrupoEscalaDto grupoEscalaDto) {
             if (ModelState.IsValid) {
@@ -50,7 +51,7 @@ namespace RhWebApi.Controllers {
             return BadRequest (ModelState);
         }
 
-        // PUT api/grupoEscala/id
+        // PUT recursos_humanos/grupoEscala/id
         [HttpPut ("{id}")]
         public IActionResult PUT ([FromBody] GrupoEscala grupoEscala, int id) {
             if (grupoEscala.Id != id) {
@@ -62,7 +63,7 @@ namespace RhWebApi.Controllers {
             return Ok ();
         }
 
-        // DELETE api/grupoEscala/id
+        // DELETE recursos_humanos/grupoEscala/id
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
             var grupoEscala = context.GrupoEscala.FirstOrDefault (s => s.Id == id);

@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using RhWebApi.Models;
+using RhWebApi.Data;
+
 
 namespace RhWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("recursos_humanos/[controller]")]
     [ApiController]
     public class ActividadLaboralController : Controller
     {
@@ -18,28 +20,28 @@ namespace RhWebApi.Controllers
             this.context = context;
         }
 
-        // GET api/ActividadLaboral
+        // GET recursos_humanos/ActividadLaboral
         [HttpGet]
         public IEnumerable<ActividadLaboral> GetAll()
         {                            
             return context.ActividadLaboral.ToList();            
         }       
        
-      // GET: api/ActividadLaboral/Id
+      // GET: recursos_humanos/ActividadLaboral/Id
         [HttpGet("{id}", Name = "GetActividadLaboral")]
         public IActionResult GetbyId(int id)
         {
-            var actividadContrato = context.ActividadLaboral.FirstOrDefault(s => s.Id == id);
+            var actividadContratoTrab = context.ActividadLaboral.FirstOrDefault(s => s.Id == id);
 
-            if (actividadContrato == null)
+            if (actividadContratoTrab == null)
             {
                 return NotFound();
             }
-            return Ok(actividadContrato);
+            return Ok(actividadContratoTrab);
            
         }
 
-        // POST api/ActividadLaboral
+        // POST recursos_humanos/ActividadLaboral
        [HttpPost]
         public IActionResult POST([FromBody] ActividadLaboral actividadLaboral)
         {            
@@ -52,7 +54,7 @@ namespace RhWebApi.Controllers
             return BadRequest(ModelState);
         }
 
-        // PUT api/actividadLaboral/id
+        // PUT recursos_humanos/actividadLaboral/id
        [HttpPut("{id}")]
         public IActionResult PUT([FromBody] ActividadLaboral actividadLaboral, int id)
         {
@@ -66,7 +68,7 @@ namespace RhWebApi.Controllers
             return Ok();
         }
 
-        // DELETE api/actividadLaboral/id
+        // DELETE recursos_humanos/actividadLaboral/id
        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

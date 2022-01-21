@@ -10,6 +10,7 @@ namespace RhWebApi.Dtos {
         public int TrabajadorId { get; set; }
         public int CargoId { get; set; }
         public int UnidadOrganizativaId { get; set; }
+        public string Descripcion { get; set; }
         public DateTime Fecha { get; set; }
     }
 }

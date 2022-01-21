@@ -24,6 +24,12 @@ namespace FinanzasWebApi.Data
 
         public DbSet<ConfiguracionFirmas> ConfiguracionesFirmas { get; set; }
         public DbSet<ConfiguracionPorciento> ConfiguracionesPorcientos { get; set; }
+        public DbSet<CacheCuentaPeriodo> CachesCuentasEnPeriodos { get; set; }
+        public DbSet<CacheEstadoFinanciero> CachesEstadosFinancieros { get; set; }
+        public DbSet<CacheSubElementoPeriodo> CachesSubElementosPeriodos { get; set; }
+        public DbSet<ReporteEstadoFinanciero> ReporteEstadoFinancieros { get; set; }
+        public DbSet<ElementosDelReporteEF> ElementosDelReporteEFs { get; set; }
+        public DbSet<SubElementosEfReport> SubElementosEfReports { get; set; }
 
 
     }

@@ -2,13 +2,13 @@
   <v-app id="inspire">
     <NavigationDrawer class="d-print-none" :drawer="drawer" />
     <AppBar />
-    <v-content>
-      <div class="page-wrapper">
-        <router-view></router-view>
-      </div>
+    <v-content flat wraper>
+      <!-- <div class="page-wrapper"> -->
+      <router-view class="content" />
+      <!-- </div> -->
       <vue-snotify></vue-snotify>
       <!-- App Footer -->
-      <v-footer height="auto" class="white pa-3 app--footer d-print-none">
+      <v-footer height="auto" absolute class="white pa-3 app--footer d-print-none">
         <span class="caption">EFAVAI Tech &copy; {{ new Date().getFullYear() }}</span>
         <v-spacer></v-spacer>
         <span
@@ -75,6 +75,10 @@ export default {
 .page-wrapper {
   min-height: calc(100vh - 64px - 50px - 1px);
 }
+.content {
+  padding-bottom: 50px;
+}
+
 @media print {
   .v-content {
     padding: 0 !important;

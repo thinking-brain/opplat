@@ -1,5 +1,4 @@
-[
-    {
+[{
         "name": "administracion",
         "title": "Admistración",
         "icon": "mdi-settings",
@@ -37,10 +36,30 @@
     {
         "name": "recursos_humanos",
         "title": "Recursos Humanos",
-        "icon": "mdi-domain",
+        "icon": "mdi-human-male-female",
         "roles": [
             "administrador",
             "recursos_humanos"
+        ]
+    },
+    {
+        "name": "contratacion",
+        "title": "Contratacion",
+        "icon": "mdi-folder-open",
+        "roles": [
+            "administrador",
+            "administrador contratacion",
+            "contratacion"
+        ]
+    },
+    {
+        "name": "taller",
+        "title": "Taller",
+        "icon": "mdi-home-flood",
+        "roles": [
+            "administrador",
+            "administrador taller",
+            "taller"
         ]
     }
 ]
