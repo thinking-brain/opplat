@@ -1,0 +1,110 @@
+[
+    {
+        "title": "Contratos",
+        "group": "contratacion",
+        "icon": "mdi-note-multiple-outline",
+        "cant": 0,
+        "name": "Contratos",
+        "component": "Contratos",
+        "roles": [
+            "administrador",
+            "administrador contratacion",
+            "contratacion"
+        ],
+        "items": [
+            {
+                "title": "Como Cliente",
+                "group": "contratacion",
+                "icon": "mdi-note-multiple",
+                "cant": 0,
+                "component": "ContratosCliente",
+                "name": "ContratosCliente",
+                "roles": [
+                    "administrador",
+                    "administrador contratacion",
+                    "contratacion"
+                ]
+            },
+            {
+                "title": "Como Prestador",
+                "group": "contratacion",
+                "icon": "mdi-note-multiple",
+                "cant": 0,
+                "component": "ContratosPrestador",
+                "name": "ContratosPrestador",
+                "roles": [
+                    "administrador",
+                    "administrador contratacion",
+                    "contratacion"
+                ]
+            },
+            {
+                "title": "Contratos sin Fecha",
+                "group": "contratacion",
+                "icon": "mdi-note-multiple",
+                "cant": 0,
+                "component": "ContratosSinFecha",
+                "name": "ContratosSinFecha",
+                "roles": [
+                    "administrador",
+                    "administrador contratacion",
+                    "juridico"
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Ofertas",
+        "group": "contratacion",
+        "icon": "mdi-note-multiple",
+        "cant": 0,
+        "component": "Ofertas",
+        "name": "Ofertas",
+        "roles": [
+            "administrador",
+            "administrador contratacion",
+            "contratacion"
+        ],
+        "items": [
+            {
+                "title": "Como Cliente",
+                "group": "contratacion",
+                "icon": "mdi-note-multiple",
+                "cant": 0,
+                "component": "OfertasClientes",
+                "name": "OfertasClientes",
+                "roles": [
+                    "administrador",
+                    "administrador contratacion",
+                    "contratacion"
+                ]
+            },
+            {
+                "title": "Como Prestador",
+                "group": "contratacion",
+                "icon": "mdi-note-multiple",
+                "cant": 0,
+                "component": "OfertasPrestador",
+                "name": "OfertasPrestador",
+                "roles": [
+                    "administrador",
+                    "administrador contratacion",
+                    "contratacion"
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Configuraciones",
+        "group": "contratacion",
+        "icon": "mdi-cogs",
+        "cant": 0,
+        "component": "Config",
+        "name": "Config",
+        "roles": [
+            "administrador",
+            "administrador contratacion",
+            "contratacion"
+        ]
+    }
+]

@@ -1,0 +1,78 @@
+[{
+        "title": "Reportes",
+        "group": "finanzas",
+        "icon": "mdi-file-chart",
+        "name": "Reportes",
+        "roles": [
+            "administrador",
+            "economico"
+        ],
+        "items": [{
+                "title": "Ingresos y Gastos",
+                "group": "reportes",
+                "icon": "mdi-chart-areaspline",
+                "component": "ReporteIngresosGastos",
+                "name": "ReporteIngresosGastos",
+                "roles": [
+                    "administrador",
+                    "economico"
+                ]
+            },
+            {
+                "title": "Razones Financieras",
+                "group": "reportes",
+                "icon": "mdi-chart-areaspline",
+                "component": "RazonesFinancieras",
+                "name": "RazonesFinancieras",
+                "roles": [
+                    "administrador",
+                    "economico"
+                ]
+            },
+            {
+                "title": "EstadoOrden Financiero",
+                "group": "reportes",
+                "icon": "mdi-chart-areaspline",
+                "component": "EstadoFinanciero",
+                "name": "EstadoFinanciero",
+                "roles": [
+                    "administrador",
+                    "economico"
+                ]
+            },
+            {
+                "title": "EFReport",
+                "group": "reportes",
+                "icon": "mdi-chart-areaspline",
+                "component": "EFReport",
+                "name": "EstadoFinancieroReport",
+                "roles": [
+                    "administrador",
+                    "economico"
+                ]
+            },
+            {
+                "title": "Config EFReport",
+                "group": "reportes",
+                "icon": "mdi-chart-areaspline",
+                "component": "EFReport",
+                "name": "ConfiguradorEFReport",
+                "roles": [
+                    "administrador",
+                    "economico"
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Configuraciones",
+        "group": "finanzas",
+        "icon": "mdi-cogs",
+        "name": "Configuraciones",
+        "component": "Configuraciones",
+        "roles": [
+            "administrador",
+            "economico"
+        ]
+    }
+]

@@ -1,42 +1,39 @@
-using System.IO;
 using System.IO.Compression;
-using Microsoft.Extensions.Configuration;
 
-namespace opplatApplication.Models
+namespace opplatApplication.Models;
+
+public class ModuleFileManager
 {
-    public class ModuleFileManager
+    IConfiguration _configuration;
+    public ModuleFileManager(IConfiguration config)
     {
-        IConfiguration _configuration;
-        public ModuleFileManager(IConfiguration config)
-        {
-            _configuration = config;
-        }
+        _configuration = config;
+    }
 
-        public void UnZipModule(string file, string moduleName)
+    public void UnZipModule(string file, string moduleName)
+    {
+        var path = Path.Combine(_configuration.GetValue<string>("ModulesDirectory"), moduleName);
+        var directory = new DirectoryInfo(path);
+        if (!directory.Exists)
         {
-            var path = Path.Combine(_configuration.GetValue<string>("ModulesDirectory"), moduleName);
-            var directory = new DirectoryInfo(path);
-            if (!directory.Exists)
-            {
-                directory.Create();
-            }
-            else
-            {
-                directory.Delete(true);
-                directory.Create();
-            }
-            ZipFile.ExtractToDirectory(file, path);
-            File.Delete(file);
+            directory.Create();
         }
-
-        public void RunModuleRequirements()
+        else
         {
-            //todo: codigo para ejecutar los requisitos necesarios para carcar un modulo
+            directory.Delete(true);
+            directory.Create();
         }
+        ZipFile.ExtractToDirectory(file, path);
+        File.Delete(file);
+    }
 
-        public void ReloadApplication()
-        {
+    public void RunModuleRequirements()
+    {
+        //todo: codigo para ejecutar los requisitos necesarios para carcar un modulo
+    }
 
-        }
+    public void ReloadApplication()
+    {
+
     }
 }

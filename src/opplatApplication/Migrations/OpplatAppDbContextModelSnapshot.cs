@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using opplatApplication.Data;
 
+#nullable disable
+
 namespace opplatApplication.Migrations
 {
     [DbContext(typeof(OpplatAppDbContext))]
@@ -15,22 +17,33 @@ namespace opplatApplication.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "6.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("opplatApplication.Models.Licencia", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Aplicacion");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<byte[]>("Hash");
+                    b.Property<string>("Aplicacion")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<string>("Subscriptor");
+                    b.Property<byte[]>("Hash")
+                        .IsRequired()
+                        .HasColumnType("bytea");
 
-                    b.Property<DateTime>("Vencimiento");
+                    b.Property<string>("Subscriptor")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Vencimiento")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 

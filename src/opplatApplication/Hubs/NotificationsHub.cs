@@ -38,13 +38,13 @@ namespace opplatApplication.Hubs
             await Clients.Group(name).SendAsync("GetNotifications", notifications);
         }
 
-        //public async Task Show(string userId, Notification notificaion)
-        //{
-        //    string name = Context.User.Identity.Name;
-        //    var notification = new Notification { Texto = "Hola", Link = "#" };
+        public async Task Show(string userId, Notification notificaion)
+        {
+            string name = Context.User.Identity.Name;
+            var notification = new Notification { Texto = "Hola", Link = "#" };
 
-        //    await Clients.Group(name).SendAsync("ShowNotification", notification);
-        //}
+            await Clients.Group(name).SendAsync("ShowNotification", notification);
+        }
 
         public async Task UserNotificationViewed(string userId, int id)
         {

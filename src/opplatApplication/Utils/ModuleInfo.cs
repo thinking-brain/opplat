@@ -1,31 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 
-namespace opplatApplication.Utils
+namespace opplatApplication.Utils;
+
+public class ModuleInfo
 {
-    public class ModuleInfo
+    public string Id { get; set; } = string.Empty;
+
+    public string Name { get; set; } = string.Empty;
+
+    public Assembly Assembly { get; set; } = null!;
+
+    public bool IsBundledWithHost { get; set; }
+
+    public Version Version { get; set; } = null!;
+
+    public string ShortName
     {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public Assembly Assembly { get; set; }
-
-        public bool IsBundledWithHost { get; set; }
-
-        public Version Version { get; set; }
-
-        public string ShortName
+        get
         {
-            get
-            {
-                return Name.Split('.').Last();
-            }
+            return Name.Split('.').Last();
         }
-
-        public string Path { get; set; }
     }
+
+    public string Path { get; set; } = string.Empty;
 }

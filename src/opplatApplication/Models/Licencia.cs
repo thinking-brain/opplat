@@ -1,13 +1,9 @@
-using System;
-
-namespace opplatApplication.Models
+namespace opplatApplication.Models;
+public class Licencia
 {
-    public class Licencia
-    {
-        public int Id { get; set; }
-        public string Aplicacion { get; set; }
-        public string Subscriptor { get; set; }
-        public DateTime Vencimiento { get; set; }
-        public byte[] Hash { get; set; }
-    }
+    public int Id { get; set; }
+    public string Aplicacion { get; set; } = String.Empty;
+    public string Subscriptor { get; set; } = String.Empty;
+    public DateTime Vencimiento { get; set; }
+    public byte[] Hash { get; set; } = null!;
 }

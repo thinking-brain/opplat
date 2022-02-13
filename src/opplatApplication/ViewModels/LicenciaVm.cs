@@ -1,10 +1,7 @@
-using System;
+namespace opplatApplication.ViewModels;
 
-namespace opplatApplication.ViewModels
+public class LicenciaVm
 {
-    public class LicenciaVm
-    {
-        public string Subscriptor { get; set; }
-        public string FechaVencimiento { get; set; }
-    }
+    public string Subscriptor { get; set; } = string.Empty;
+    public string FechaVencimiento { get; set; } = string.Empty;
 }

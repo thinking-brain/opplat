@@ -1,4 +1,4 @@
-using LicenceChecker;
+// using LicenceChecker;
 using Microsoft.EntityFrameworkCore;
 using opplatApplication.Models;
 
@@ -11,11 +11,12 @@ namespace opplatApplication.Data
 
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            modelBuilder.ForNpgsqlUseIdentityColumns();
+            builder.UseIdentityColumns();
+            // modelBuilder.ForNpgsqlUseIdentityColumns();
         }
 
-        public DbSet<Licencia> Licencias { get; set; }
+        public DbSet<Licencia> Licencias { get; set; } = null!;
     }
 }
