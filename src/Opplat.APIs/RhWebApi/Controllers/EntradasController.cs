@@ -10,7 +10,7 @@ using RhWebApi.Models;
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
     [ApiController]
-    public class EntradasController : Controller {
+    public class EntradasController : ControllerBase {
         private readonly RhWebApiDbContext context;
         public EntradasController (RhWebApiDbContext context) {
             this.context = context;

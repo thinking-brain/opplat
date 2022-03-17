@@ -11,7 +11,7 @@ using RhWebApi.Data;
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
     [ApiController]
-    public class GrupoEscalaController : Controller {
+    public class GrupoEscalaController : ControllerBase {
         private readonly RhWebApiDbContext context;
         public GrupoEscalaController (RhWebApiDbContext context) {
             this.context = context;

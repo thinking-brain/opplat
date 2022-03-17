@@ -10,7 +10,7 @@ using RhWebApi.Models;
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
     [ApiController]
-    public class AperturaSociosController : Controller {
+    public class AperturaSociosController : ControllerBase {
         private readonly RhWebApiDbContext context;
         public AperturaSociosController (RhWebApiDbContext context) {
             this.context = context;

@@ -9,7 +9,7 @@ namespace ContratacionWebApi.Controllers
 {
     [Route("contratacion/[controller]")]
     [ApiController]
-    public class DocumentosController : Controller
+    public class DocumentosController : ControllerBase
     {
         private readonly ContratacionDbContext context;
         public DocumentosController(ContratacionDbContext context)

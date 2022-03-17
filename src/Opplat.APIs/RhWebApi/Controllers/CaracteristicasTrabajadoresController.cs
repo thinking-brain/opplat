@@ -12,7 +12,7 @@ using RhWebApi.Models;
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
     [ApiController]
-    public class CaracteristicasTrabController : Controller {
+    public class CaracteristicasTrabController : ControllerBase {
         private readonly RhWebApiDbContext context;
         public CaracteristicasTrabController (RhWebApiDbContext context) {
             this.context = context;

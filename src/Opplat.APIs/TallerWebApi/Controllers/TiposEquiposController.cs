@@ -9,7 +9,7 @@ using TallerWebApi.Models;
 namespace TallerWebApi.Controllers {
     [Route ("taller/[controller]")]
     [ApiController]
-    public class TiposEquiposController : Controller {
+    public class TiposEquiposController : ControllerBase {
         private readonly TallerWebApiDbContext context;
         public TiposEquiposController (TallerWebApiDbContext context) {
             this.context = context;

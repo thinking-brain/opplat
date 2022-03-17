@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
     [ApiController]
-    public class TiempoVenOfertasController : Controller {
+    public class TiempoVenOfertasController : ControllerBase {
         private readonly ContratacionDbContext context;
         public TiempoVenOfertasController (ContratacionDbContext context) {
             this.context = context;

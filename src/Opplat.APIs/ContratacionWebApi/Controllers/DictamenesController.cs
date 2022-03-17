@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
     [ApiController]
-    public class DictamenesController : Controller {
+    public class DictamenesController : ControllerBase {
         private readonly ContratacionDbContext context;
         private IHostingEnvironment _hostingEnvironment;
 

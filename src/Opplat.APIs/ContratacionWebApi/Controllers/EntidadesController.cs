@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
     [ApiController]
-    public class EntidadesController : Controller {
+    public class EntidadesController : ControllerBase {
         private readonly ContratacionDbContext context;
         public EntidadesController (ContratacionDbContext context) {
             this.context = context;

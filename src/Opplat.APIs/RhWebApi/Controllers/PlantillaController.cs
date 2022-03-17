@@ -10,7 +10,7 @@ using RhWebApi.Models;
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
     [ApiController]
-    public class PlantillaController : Controller {
+    public class PlantillaController : ControllerBase {
         private readonly RhWebApiDbContext context;
         public PlantillaController (RhWebApiDbContext context) {
             this.context = context;

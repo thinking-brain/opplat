@@ -12,7 +12,7 @@ namespace RhWebApi.Controllers
 {
     [Route("recursos_humanos/[controller]")]
     [ApiController]
-    public class HistoricoPuestoDeTrabajoController : Controller
+    public class HistoricoPuestoDeTrabajoController : ControllerBase
     {
         private readonly RhWebApiDbContext context;
         public HistoricoPuestoDeTrabajoController(RhWebApiDbContext context)

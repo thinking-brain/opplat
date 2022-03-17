@@ -18,7 +18,7 @@ using RhWebApi.Models;
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
     [ApiController]
-    public class ContratosController : Controller {
+    public class ContratosController : ControllerBase {
         private IHostingEnvironment _hostingEnvironment;
         private readonly IEmailSender _emailSender;
         private readonly ContratacionDbContext context;

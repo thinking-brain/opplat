@@ -6,7 +6,7 @@ using RhWebApi.Data;
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
     [ApiController]
-    public class UnidadOrganizativaController : Controller {
+    public class UnidadOrganizativaController : ControllerBase {
         private readonly RhWebApiDbContext context;
         public UnidadOrganizativaController (RhWebApiDbContext context) {
             this.context = context;

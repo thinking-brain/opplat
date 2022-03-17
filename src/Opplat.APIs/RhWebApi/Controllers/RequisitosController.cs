@@ -11,7 +11,7 @@ using RhWebApi.Data;
 namespace RhWebApi.Controllers {
     [Route ("recursos_humanos/[controller]")]
     [ApiController]
-    public class RequisitosController : Controller {
+    public class RequisitosController : ControllerBase {
         private readonly RhWebApiDbContext context;
         public RequisitosController (RhWebApiDbContext context) {
             this.context = context;

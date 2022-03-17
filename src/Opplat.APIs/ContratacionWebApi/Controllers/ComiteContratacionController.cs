@@ -12,7 +12,7 @@ using RhWebApi.Models;
 namespace ContratacionWebApi.Controllers {
     [Route ("contratacion/[controller]")]
     [ApiController]
-    public class ComiteContratacionController : Controller {
+    public class ComiteContratacionController : ControllerBase {
         private readonly ContratacionDbContext context;
         private readonly RhWebApiDbContext context_rh;
 

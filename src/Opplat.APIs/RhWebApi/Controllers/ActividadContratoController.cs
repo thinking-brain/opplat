@@ -11,7 +11,7 @@ namespace RhWebApi.Controllers
 {
     [Route("recursos_humanos/[controller]")]
     [ApiController]
-    public class ActividadContratoTrabController : Controller
+    public class ActividadContratoTrabController : ControllerBase
     {
         private readonly RhWebApiDbContext context;
         public ActividadContratoTrabController(RhWebApiDbContext context)

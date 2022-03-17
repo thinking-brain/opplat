@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace TallerWebApi.Controllers {
     [Route ("taller/[controller]")]
     [ApiController]
-    public class TalleresController : Controller {
+    public class TalleresController : ControllerBase {
         private readonly TallerWebApiDbContext context;
         public TalleresController (TallerWebApiDbContext context) {
             this.context = context;

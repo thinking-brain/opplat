@@ -12,7 +12,7 @@ namespace RhWebApi.Controllers
 {
     [Route("recursos_humanos/[controller]")]
     [ApiController]
-    public class ActividadLaboralController : Controller
+    public class ActividadLaboralController : ControllerBase
     {
         private readonly RhWebApiDbContext context;
         public ActividadLaboralController(RhWebApiDbContext context)
