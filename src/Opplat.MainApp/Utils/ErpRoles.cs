@@ -7,7 +7,7 @@ namespace Opplat.MainApp.Utils;
 
 public class ErpRoles
 {
-    public static const string Administrador = "ADMINISTRADOR";
-    public static const string Almacen = "ALMACEN";
-    public static const string Cajera = "CAJERA";
+    public static readonly string Administrador = "ADMINISTRADOR";
+    public static readonly string Almacen = "ALMACEN";
+    public static readonly string Cajera = "CAJERA";
 }
