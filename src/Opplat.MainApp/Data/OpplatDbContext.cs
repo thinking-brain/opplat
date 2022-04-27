@@ -5,6 +5,7 @@ using Opplat.MainApp.Models;
 using Duende.IdentityServer.EntityFramework.Options;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.Extensions.Options;
+using Opplat.Domain.Sales.Entities;
 
 
 namespace Opplat.MainApp.Data;
@@ -54,4 +55,6 @@ public class OpplatDbContext : ApiAuthorizationDbContext<Usuario>
     public DbSet<Usuario> Usuarios { get; set; } = null!;
     public DbSet<Notification> Notifications { get; set; } = null!;
     public DbSet<UserNotification> UserNotifications { get; set; } = null!;
+
+    public DbSet<Product> Products { get; set; } = null!;
 }

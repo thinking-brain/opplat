@@ -12,8 +12,9 @@ public class RepositoryResponse
 public interface IRepository<TEntity> where TEntity: IEntity
 {
 
-    Task<TEntity> Find(string id);
+    Task<TEntity> Find(object id);
     Task<IEnumerable<TEntity>> List(int page = 0, int pageSize = 0);
+    IQueryable<TEntity> Query();
     Task<RepositoryResponse> Create(TEntity entity);
     Task<RepositoryResponse> Update(TEntity entity);
     Task<RepositoryResponse> Delete(string id);

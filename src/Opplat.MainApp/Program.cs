@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Opplat.MainApp.Data;
 using Opplat.MainApp.Models;
+using Opplat.Domain.Sales.Services;
+using Opplat.Domain.Sales.Repositories;
+using Opplat.Infrastructure.Sales.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,10 @@ builder.Services.AddIdentity<Usuario, IdentityRole>(options => options.SignIn.Re
 
 builder.Services.AddIdentityServer()
     .AddApiAuthorization<Usuario, OpplatDbContext>();
+
+builder.Services.AddScoped<DbContext, OpplatDbContext>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductRepository, ProductsRepository>();
 
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
@@ -83,6 +90,11 @@ app.UseSwaggerUI(c =>
 app.UseAuthentication();
 app.UseIdentityServer();
 app.UseAuthorization();
+
+app.MapAreaControllerRoute(
+            name: "SalesArea",
+            areaName: "Sales",
+            pattern: "Sales/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

@@ -2,7 +2,7 @@
 
 public interface IEntity
 {
-
+    public string User { get; set; }
 }
 
 public interface IEntity<T>: IEntity
@@ -13,6 +13,7 @@ public interface IEntity<T>: IEntity
 public class Entity : IEntity<Guid>
 {
     public Guid Id { get; set; }
+    public string User { get; set; }
 
     protected void AutoGenerateId()
     {
