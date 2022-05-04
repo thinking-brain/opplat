@@ -17,13 +17,13 @@ public class ServiceResponse<T> where T : IEntity
 }
 public interface IService<T> where T : IEntity
 {
-    public Task<ServiceResponse<T>> Get(object id);
-    public Task<ServiceResponse<T>> List(int? page, int? itemsPerPage);
+    public Task<ServiceResponse<T>> Get(string id);
+    public Task<ServiceResponse<T>> List(int? page = null, int? itemsPerPage = null);
     public Task<ServiceResponse<T>> Create(T entity, string user);
     public Task<ServiceResponse<T>> Update(T entity, string user);
-    public Task<ServiceResponse<T>> Delete(T entity, string user);
+    public Task<ServiceResponse<T>> DeleteEntity(T entity, string user);
 
-    public Task<ServiceResponse<T>> Delete(object id, string user);
+    public Task<ServiceResponse<T>> Delete(string id, string user);
 }
 
 public class BaseService<T> where T : IEntity
@@ -35,9 +35,10 @@ public class BaseService<T> where T : IEntity
         _repo = repo;
     }
 
-    public async Task<ServiceResponse<T>> Get(object id)
+    public async Task<ServiceResponse<T>> Get(string id)
     {
-        var entity = await _repo.Find(id);
+
+        var entity = await _repo.Find(new Guid(id));
         if (entity != null)
         {
             return new ServiceResponse<T>
@@ -91,16 +92,37 @@ public class BaseService<T> where T : IEntity
 
     public async Task<ServiceResponse<T>> Update(T entity, string user)
     {
-        throw new NotImplementedException();
+        entity.User = user;
+        var response = await _repo.Update(entity);
+        var result = new ServiceResponse<T>
+        {
+            Status = response.IsOk ? ServiceStatus.Ok : ServiceStatus.Error,
+            Message = response.Message,
+            Value = entity,
+        };
+        return result;
     }
 
-    public async Task<ServiceResponse<T>> Delete(T entity, string user)
+    public async Task<ServiceResponse<T>> DeleteEntity(T entity, string user)
     {
-        throw new NotImplementedException();
+        var response = await _repo.Delete(entity);
+        var result = new ServiceResponse<T>
+        {
+            Status = response.IsOk ? ServiceStatus.Ok : ServiceStatus.Error,
+            Message = response.Message,
+            Value = entity,
+        };
+        return result;
     }
 
-    public async Task<ServiceResponse<T>> Delete(object id, string user)
+    public async Task<ServiceResponse<T>> Delete(string id, string user)
     {
-        throw new NotImplementedException();
+        var response = await _repo.Delete(new Guid(id));
+        var result = new ServiceResponse<T>
+        {
+            Status = response.IsOk ? ServiceStatus.Ok : ServiceStatus.Error,
+            Message = response.Message,
+        };
+        return result;
     }
 }

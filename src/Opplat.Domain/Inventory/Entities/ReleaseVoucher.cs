@@ -13,7 +13,7 @@ public class ReleaseVoucher: Entity
 
     public Guid? DestinationId { get; set; }
 
-    public virtual Storage? Destination { get; set; }
+    public virtual Storage Destination { get; set; }
 
     public string Description { get; set; }
 

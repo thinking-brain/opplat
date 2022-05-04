@@ -27,7 +27,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
             var result = new RepositoryResponse
             {
                 IsOk = true,
-                Message = String.Format("Entity of type {0} created successfully.", typeof(T).ToString())
+                Message = String.Format("Entity of type {0} created successfully.", typeof(T).Name)
             };
             return result;
         }
@@ -36,23 +36,23 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
             var result = new RepositoryResponse
             {
                 IsOk = false,
-                Message = String.Format("Error creating Entity of type {0}. {1}", typeof(T).ToString(), ex.Message)
+                Message = String.Format("Error creating Entity of type {0}. {1}", typeof(T).Name, ex.Message)
             };
             return result;
         }
     }
 
-    public async Task<RepositoryResponse> Delete(string id)
+    public async Task<RepositoryResponse> Delete(Guid id)
     {
         try
         {
-            var entity = await _db.Set<T>().FindAsync(typeof(T), id);
+            var entity = await _db.Set<T>().FindAsync(id);
             _db.Set<T>().Remove(entity);
             await _db.SaveChangesAsync();
             var result = new RepositoryResponse
             {
                 IsOk = true,
-                Message = String.Format("Entity of type {0} deleted successfully.", typeof(T).ToString())
+                Message = String.Format("Entity of type {0} deleted successfully.", typeof(T).Name)
             };
             return result;
         }
@@ -61,7 +61,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
             var result = new RepositoryResponse
             {
                 IsOk = false,
-                Message = String.Format("Error deleting Entity of type {0}. {1}", typeof(T).ToString(), ex.Message)
+                Message = String.Format("Error deleting Entity of type {0}. {1}", typeof(T).Name, ex.Message)
             };
             return result;
         }
@@ -76,7 +76,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
             var result = new RepositoryResponse
             {
                 IsOk = true,
-                Message = String.Format("Entity of type {0} deleted successfully.", typeof(T).ToString())
+                Message = String.Format("Entity of type {0} deleted successfully.", typeof(T).Name)
             };
             return result;
         }
@@ -85,17 +85,17 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
             var result = new RepositoryResponse
             {
                 IsOk = false,
-                Message = String.Format("Error deleting Entity of type {0}. {1}", typeof(T).ToString(), ex.Message)
+                Message = String.Format("Error deleting Entity of type {0}. {1}", typeof(T).Name, ex.Message)
             };
             return result;
         }
     }
 
-    public async Task<T> Find(object id)
+    public async Task<T> Find(Guid id)
     {
         try
         {
-            var entity = await _db.Set<T>().FindAsync(typeof(T), id);
+            var entity = await _db.Set<T>().FindAsync(id);
             return entity;
         }
         catch (System.Exception ex)
@@ -140,7 +140,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
             var result = new RepositoryResponse
             {
                 IsOk = true,
-                Message = String.Format("Entity of type {0} updated successfully.", typeof(T).ToString())
+                Message = String.Format("Entity of type {0} updated successfully.", typeof(T).Name)
             };
             return result;
         }
@@ -149,7 +149,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
             var result = new RepositoryResponse
             {
                 IsOk = false,
-                Message = String.Format("Error updating Entity of type {0}. {1}", typeof(T).ToString(), ex.Message)
+                Message = String.Format("Error updating Entity of type {0}. {1}", typeof(T).Name, ex.Message)
             };
             return result;
         }

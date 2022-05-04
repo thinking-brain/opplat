@@ -18,14 +18,14 @@
 		},
 			{
 				"name": "Launch index.html",
-				"type": "firefox",
+				"type": "chrome",
 				"request": "launch",
 				"reAttach": true,
 				"file": "${workspaceFolder}/index.html"
 			},
 			{
 				"name": "Launch localhost",
-				"type": "firefox",
+				"type": "chrome",
 				"request": "launch",
 				"reAttach": true,
 				"url": "http://localhost/index.html",
@@ -33,12 +33,12 @@
 			},
 			{
 				"name": "Attach",
-				"type": "firefox",
+				"type": "chrome",
 				"request": "attach"
 			},
 			{
 				"name": "Launch WebExtension",
-				"type": "firefox",
+				"type": "chrome",
 				"request": "launch",
 				"reAttach": true,
 				"addonPath": "${workspaceFolder}"

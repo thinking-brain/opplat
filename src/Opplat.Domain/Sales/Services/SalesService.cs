@@ -33,9 +33,9 @@ public class SalesService : BaseService<Sale> ,ISalesService
         throw new NotImplementedException();
     }
 
-    public async Task<ServiceResponse<Sale>> Get(object id)
+    public async Task<ServiceResponse<Sale>> Get(string id)
     {
-        var entity = await _repo.Find(id);
+        var entity = await _repo.Find(new Guid(id));
         var result = new ServiceResponse<Sale>
         {
             Status = entity != null ? ServiceStatus.Ok : ServiceStatus.Error,

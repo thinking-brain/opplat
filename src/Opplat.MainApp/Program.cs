@@ -27,6 +27,10 @@ builder.Services.AddIdentityServer()
 builder.Services.AddScoped<DbContext, OpplatDbContext>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductRepository, ProductsRepository>();
+builder.Services.AddScoped<IToppingService, ToppingService>();
+builder.Services.AddScoped<IToppingRepository, ToppingRepository>();
+// builder.Services.AddScoped<IProductService, ProductService>();
+// builder.Services.AddScoped<IProductRepository, ProductsRepository>();
 
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
