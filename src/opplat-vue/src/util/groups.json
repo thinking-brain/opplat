@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "descripcion": "Aceites"
+  },
+  {
+    "id": 2,
+    "descripcion": "Verduras"
+  },
+  {
+    "id": 3,
+    "descripcion": "Aguas"
+  }
+]

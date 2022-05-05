@@ -1,0 +1,10 @@
+[
+  {
+    "Modulo": "Generales",
+    "Roles": ["administrador", "usuario", "economico"]
+  },
+  {
+    "Modulo": "Reportes",
+    "Roles": ["contador"]
+  }
+]

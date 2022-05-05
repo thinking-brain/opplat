@@ -8,7 +8,7 @@ namespace Opplat.MainApp.Controllers;
 
 [Route("admin/[controller]")]
 [ApiController]
-[Authorize]
+// [Authorize]
 public class MenusController : Controller
 {
     private MenuLoader _menuLoader;

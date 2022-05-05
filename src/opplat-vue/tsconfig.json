@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "strict": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "allowJs": true,
+    "baseUrl": ".",
+    "types": [
+      "webpack-env",
+      "jest",
+      "vuetify",
+      "webpack",
+    ],
+
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "tests/**/*.tsx", "src/util/menus.js", "src/store/getters.js", "src/store/modules/drawer.js", "src/store/actions.js", "src/store/mutations.js", "src/store/index.js", "src/store/modules/drawer.js", "src/store.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "resolve": {
+    "extensions": [
+      ".ts",
+      ".js"
+    ]
+  }
+}

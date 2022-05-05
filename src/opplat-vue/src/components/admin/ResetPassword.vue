@@ -7,7 +7,9 @@
     </template>
     <v-card ref="form">
       <v-card-title>
-        <span class="headline">Resetear contraseña al usuario: {{usuario.username}}</span>
+        <span class="headline"
+          >Resetear contraseña al usuario: {{ dataModel.username }}</span
+        >
       </v-card-title>
       <v-card-text>
         <v-text-field
@@ -25,7 +27,10 @@
           label="Confirmar Contraseña"
           v-model="confirmarContraseña"
           :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'"
-          :rules="[!!confirmarContraseña || 'Este campo es obligatorio.',confirmPasswordCheck]"
+          :rules="[
+            !!confirmarContraseña || 'Este campo es obligatorio.',
+            confirmPasswordCheck,
+          ]"
           :type="show_password ? 'text' : 'password'"
           name="confirmarContraseña"
           counter
@@ -37,80 +42,75 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" @click="dialog = false">Cerrar</v-btn>
-        <v-btn color="primary" @click="submit">Guardar</v-btn>
+        <v-btn color="error" @click="dialog = false" elevation="8"
+          >Cerrar</v-btn
+        >
+        <v-btn color="primary" @click="submit" elevation="8">Guardar</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
-<script>
-import api from '@/api';
+<script lang="ts">
+import { Component, PropSync, Vue, Watch } from "vue-property-decorator";
 
-export default {
-  props: ['usuario'],
-  data: () => ({
-    dialog: false,
-    show_password: false,
-    errorMessages: [],
-    errorMessagesPassword: [],
-    contraseña: null,
-    confirmarContraseña: null,
-    rules: {
-      required: value => !!value || 'Obligatorio.',
-      min: v => (!!v && v.length >= 8) || 'Min 8 caracteres',
-    },
-    formHasErrors: false,
-    errors: [],
-  }),
-  computed: {
-    form() {
-      return {
-        usuarioId: this.usuario.userId,
-        contraseña: this.contraseña,
-        confirmarContraseña: this.confirmarContraseña,
-      };
-    },
-  },
-  created() {},
-  watch: {
-    nombres() {
-      this.errorMessages = [];
-    },
-  },
+@Component({
+  components: {},
+})
+export default class ResetPassword extends Vue {
+  @PropSync("usuario") public dataModel!: any;
+  // Data
+  dialog: boolean = false;
+  show_password: boolean = false;
+  errorMessages: string[] = [];
+  errorMessagesPassword: string[] = [];
+  contraseña = null;
+  confirmarContraseña = null;
+  rules = {
+    required: (value) => !!value || "Obligatorio.",
+    min: (v) => (!!v && v.length >= 8) || "Min 8 caracteres",
+  };
+  formHasErrors: boolean = false;
+  errors = [];
+  // Computed
+  get form() {
+    return {
+      usuarioId: this.dataModel.userId,
+      contraseña: this.contraseña,
+      confirmarContraseña: this.confirmarContraseña,
+    };
+  }
+  created() {}
+  @Watch("nombres")
+  async onPropertyChanged(value: any, oldValue: any) {
+    this.errorMessages = [];
+  }
 
-  methods: {
-    confirmPasswordCheck() {
-      this.errorMessagesPassword = this.contraseña !== this.confirmarContraseña
-        ? ['No coinciden la contraseña y la confirmacion.']
+  // Methods
+  confirmPasswordCheck() {
+    this.errorMessagesPassword =
+      this.contraseña !== this.confirmarContraseña
+        ? ["No coinciden la contraseña y la confirmacion."]
         : [];
 
-      return true;
-    },
-    resetForm() {
-      this.errorMessages = [];
-      this.formHasErrors = false;
+    return true;
+  }
 
-      Object.keys(this.form).forEach((f) => {
-        this.$refs[f].reset();
-      });
-    },
-    submit() {
-      this.formHasErrors = false;
-      if (!this.formHasErrors) {
-        const url = api.getUrl('api-account', 'account/reset-password');
-        this.axios
-          .post(url, this.form)
-          .then(() => {
-            this.dialog = false;
-            vm.$snotify.success('Contraseña reseteada correctamente.');
-          })
-          .catch((err) => {
-            this.dialog = false;
-            vm.$snotify.error(`Error reseteando la contraseña. ${err}`);
-          });
-      }
-    },
-  },
-};
+  submit() {
+    this.formHasErrors = false;
+    // if (!this.formHasErrors) {
+    //   const url = api.getUrl("api-account", "account/reset-password");
+    //   this.axios
+    //     .post(url, this.form)
+    //     .then(() => {
+    //       this.dialog = false;
+    //       this.$toast.success("Contraseña reseteada correctamente.");
+    //     })
+    //     .catch((err) => {
+    //       this.dialog = false;
+    //       this.$toast.error(`Error reseteando la contraseña. ${err}`);
+    //     });
+    // }
+  }
+}
 </script>
 <style></style>

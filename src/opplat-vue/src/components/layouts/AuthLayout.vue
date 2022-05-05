@@ -6,7 +6,7 @@
           <v-flex xs12 sm8 md4>
             <router-view></router-view>
           </v-flex>
-          <vue-snotify></vue-snotify>
+          <!-- <vue-snotify></vue-snotify> -->
         </v-layout>
       </v-container>
     </v-content>
