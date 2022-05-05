@@ -2,15 +2,11 @@
 
 public interface IEntity
 {
+    public Guid Id { get; set; }
     public string User { get; set; }
 }
 
-public interface IEntity<T>: IEntity
-{
-    public T Id { get; set; }
-}
-
-public class Entity : IEntity<Guid>
+public class Entity : IEntity
 {
     public Guid Id { get; set; }
     public string User { get; set; }

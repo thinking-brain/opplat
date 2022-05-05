@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Opplat.MainApp.Data;
@@ -11,9 +12,10 @@ using Opplat.MainApp.Data;
 namespace Opplat.MainApp.Migrations
 {
     [DbContext(typeof(OpplatDbContext))]
-    partial class OpplatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220430170537_AddSales")]
+    partial class AddSales
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -6,7 +6,7 @@ using Opplat.Shared.Entities;
 
 namespace Opplat.Domain.Sales.Entities;
 
-public class Discount: IEntity<int>
+public class Discount
 {
     public int Id { get; set; }
 
@@ -18,21 +18,6 @@ public class Discount: IEntity<int>
 
     public bool IsPercent { get; set; }
     public string User { get; set; }
-}
-
-public class SaleDetail
-{
-    public Guid ProductId { get; set; }
-
-    public Product Product { get; set; }
-
-    public Guid SaleId { get; set; }
-
-    public Sale Sale { get; set; }
-
-    public int Quatity { get; set; }
-
-    public decimal Amount { get; set; }
 }
 
 public class Sale: Entity

@@ -31,11 +31,11 @@ public class InventoryService
     private IUnitOfMeasurementRepository _unitRepo;
     private IMovementTypeRepository _movTypeRepo;
 
-    public InventoryService(IStorageRepository storageRepo, IInventoryRepository _inventoryRepo,
+    public InventoryService(IStorageRepository storageRepo, IInventoryRepository inventoryRepo,
         IProductRepository prodRepo, IUnitOfMeasurementRepository unitRepo, IMovementTypeRepository movTypeRepo)
     {
         _storageRepo = storageRepo;
-        _inventoryRepo = _inventoryRepo;
+        _inventoryRepo = inventoryRepo;
         _prodRepo = prodRepo;
         _unitRepo = unitRepo;
         _movTypeRepo = movTypeRepo;

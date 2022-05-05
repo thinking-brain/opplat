@@ -23,6 +23,7 @@ public class OpplatDbContext : ApiAuthorizationDbContext<Usuario>
         builder.UseIdentityColumns();
         base.OnModelCreating(builder);
         builder.Entity<UserNotification>().HasKey(s => new { s.NotificationId, s.UsuarioId });
+        builder.Entity<AddedTopping>().HasKey(s => new { s.ToppingId, s.SaleDetailId });
         builder.Entity<IdentityRole>().HasData(new IdentityRole[] {
                     new IdentityRole {Id = "1", Name = "administrador", NormalizedName = "ADMINISTRADOR" },
             });
@@ -57,4 +58,7 @@ public class OpplatDbContext : ApiAuthorizationDbContext<Usuario>
     public DbSet<UserNotification> UserNotifications { get; set; } = null!;
 
     public DbSet<Product> Products { get; set; } = null!;
+    public DbSet<Topping> Toppings { get; set; } = null!;
+    public DbSet<Annotation> Annotations { get; set; } = null!;
+    public DbSet<Sale> Sales { get; set; } = null!;
 }

@@ -14,31 +14,42 @@ namespace Opplat.MainApp.Areas.Sales.Controllers;
 // [Authorize]
 [Area("Sales")]
 [Route("[area]/[controller]/")]
-public class ProductsController : ControllerBase
+public class ToppingsController : ControllerBase
 {
-    private IProductService _prodService;
+    private IToppingService _service;
 
-    public ProductsController(IProductService prodService)
+    public ToppingsController(IToppingService service)
     {
-        _prodService = prodService;
+        _service = service;
     }
 
     [HttpGet()]
-    public async Task<IEnumerable<Product>> List()
+    public async Task<IEnumerable<Topping>> List()
     {
-        var result = await _prodService.List();
+        var result = await _service.List();
         if(result.Status == ServiceStatus.Ok)
         {
             return result.List;
         }
-        return new List<Product>();
+        return new List<Topping>();
+    }
+
+    [HttpGet("{id}")]
+    public async Task<Topping?> Get(string id)
+    {
+        var result = await _service.Get(id);
+        if(result.Status == ServiceStatus.Ok)
+        {
+            return result.Value;
+        }
+        return null;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Post(Product prod)
+    public async Task<IActionResult> Post(Topping topping)
     {
         var user = User?.Identity?.Name;
-        var result = await _prodService.Create(prod, user);
+        var result = await _service.Create(topping, user);
         if(result.Status == ServiceStatus.Ok)
         {
             return Ok();
@@ -47,10 +58,10 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Put(Product prod)
+    public async Task<IActionResult> Put(Topping topping)
     {
         var user = User?.Identity?.Name;
-        var result = await _prodService.Update(prod, user);
+        var result = await _service.Update(topping, user);
         if(result.Status == ServiceStatus.Ok)
         {
             return Ok(result.Message);
@@ -62,7 +73,7 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> Delete(string id)
     {
         var user = User?.Identity?.Name;
-        var result = await _prodService.Delete(id, user);
+        var result = await _service.Delete(id, user);
         if(result.Status == ServiceStatus.Ok)
         {
             return Ok(result.Message);

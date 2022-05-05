@@ -27,6 +27,10 @@ builder.Services.AddIdentityServer()
 builder.Services.AddScoped<DbContext, OpplatDbContext>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductRepository, ProductsRepository>();
+builder.Services.AddScoped<IToppingService, ToppingService>();
+builder.Services.AddScoped<IToppingRepository, ToppingRepository>();
+// builder.Services.AddScoped<IProductService, ProductService>();
+// builder.Services.AddScoped<IProductRepository, ProductsRepository>();
 
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
@@ -58,6 +62,15 @@ builder.Services.AddSwaggerGen(c =>
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "CorsPolicy",
+        policy =>
+        {
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        });
 });
 
 builder.Services.AddSignalR();
@@ -100,6 +113,9 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+
+app.UseCors("CorsPolicy");
 
 app.MapFallbackToFile("index.html"); ;
 
