@@ -6,7 +6,7 @@
     <IsPackable>false</IsPackable>
     <SpaRoot>..\opplat-vue\</SpaRoot>
     <SpaProxyServerUrl>https://localhost:44422</SpaProxyServerUrl>
-    <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
+    <SpaProxyLaunchCommand>npm run serve</SpaProxyLaunchCommand>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <PropertyGroup>
