@@ -6,18 +6,13 @@
     class="d-print-none"
     dark
   >
-    <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
-      <v-app-bar-nav-icon @click.stop="changeDrawer"></v-app-bar-nav-icon>
+    <v-toolbar-title style="width: 300px">
+      <v-app-bar-nav-icon
+        @click.stop="changeDrawer"
+        v-model="drawer"
+      ></v-app-bar-nav-icon>
       <span class="hidden-sm-and-down">Opplat</span>
     </v-toolbar-title>
-    <!-- <v-text-field
-      flat
-      solo-inverted
-      hide-details
-      prepend-inner-icon="mdi-magnify"
-      label="Search"
-      class="hidden-sm-and-down"
-    ></v-text-field>-->
     <v-spacer></v-spacer>
     <v-btn icon @click="handleFullScreen()">
       <v-icon>mdi-fullscreen</v-icon>
@@ -43,7 +38,9 @@
             <v-icon>mdi-account</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Perfil del usuario {{username}}</v-list-item-title>
+            <v-list-item-title
+              >Perfil del usuario {{ username }}</v-list-item-title
+            >
           </v-list-item-content>
         </v-list-item>
         <v-list-item @click="handleLogut" ripple="ripple" rel="noopener">
@@ -58,35 +55,47 @@
     </v-menu>
   </v-app-bar>
 </template>
-
-<script>
+<script lang="ts">
+import { Component, Vue, Watch } from "vue-property-decorator";
 import Util from "@/util";
+import store from "@/store";
 
-export default {
-  data: () => ({
-    username: null
-  }),
-  created() {
-    this.username = this.$store.getters.usuario;
-  },
-  methods: {
-    changeDrawer() {
-      const visibility = !this.$store.getters.drawerVisibility;
-      this.$store
-        .dispatch("changeVisibility", visibility)
-        .then(() => {})
-        .catch(err => {});
-    },
-    handleFullScreen() {
-      Util.toggleFullScreen();
-    },
-    handleLogut() {
-      this.$router.push("/auth/login");
-    },
-    handleSetting() {},
-    handleProfile() {
-      this.$router.push("/account/perfil");
-    }
+@Component({
+  components: {},
+})
+export default class AppBar extends Vue {
+  public username: string = "";
+  public isMobile: boolean = false;
+  public drawer: boolean = false;
+
+  public async created() {
+    // this.username = this.$store.getters.usuario;
+    scrollTo(5, 5);
   }
-};
+
+  public async mounted() {}
+  handleBackButton() {}
+  onResize() {
+    this.isMobile = window.innerWidth < 600;
+  }
+  // Methods
+  public changeDrawer() {
+    const visibility = !store.state.visibility;
+    store
+      .dispatch("changeVisibility", visibility)
+      .then(() => {})
+      .catch((err) => {});
+  }
+  public handleLogut() {
+    this.$router.push("/auth/login");
+  }
+  public handleSetting() {}
+  public handleFullScreen() {
+    Util.toggleFullScreen();
+  }
+  public handleProfile() {
+    this.$router.push("/account/perfil");
+  }
+}
 </script>
+<style lang="scss" scoped></style>

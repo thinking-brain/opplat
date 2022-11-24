@@ -1,15 +1,27 @@
 <template>
-  <router-view></router-view>
+  <v-app>
+    <router-view></router-view>
+  </v-app>
 </template>
 
-<script>
-import Layout from './components/layouts/DefaultLayout';
+<script lang="ts">
+import Vue from "vue";
 
-export default {
-  name: 'App',
-  components: {},
+export default Vue.extend({
+  name: "App",
+  created() {
+    document.addEventListener(
+      "backbutton",
+      (e) => {
+        e.preventDefault();
+        this.$router.back();
+      },
+      false
+    );
+  },
   data: () => ({
     //
   }),
-};
+});
 </script>
+<style></style>

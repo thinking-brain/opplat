@@ -1,6 +1,6 @@
 <template>
   <v-container fluid fill-height class="pa-0 ma-0 white" id="profile">
-    <v-layout column class="pa-0 ma-0">
+    <!-- <v-layout column class="pa-0 ma-0">
       <v-card class="elevation-0">
         <v-responisve height="380" src="/static/bg/4.jpg">
           <v-layout column align-center justify-center>
@@ -108,29 +108,29 @@
           </v-tabs>
         </v-card-text>
       </v-card>
-    </v-layout>
+    </v-layout> -->
   </v-container>
 </template>
 
 <script>
-import { getUserById } from '@/api/user';
+import { getUserById } from "@/api/user";
 
-export default {
-  data() {
-    return {
-      chat: null,
-      selectedTab: null,
-    };
-  },
-  computed: {
-    user() {
-      const Origin = {
-        name: 'Chat',
-        avatar: '',
-      };
-      const user = getUserById(this.$route.params.uuid);
-      return Object.assign(Origin, user);
-    },
-  },
-};
+// export default {
+//   data() {
+//     return {
+//       chat: null,
+//       selectedTab: null,
+//     };
+//   },
+//   computed: {
+//     user() {
+//       const Origin = {
+//         name: 'Chat',
+//         avatar: '',
+//       };
+//       const user = getUserById(this.$route.params.uuid);
+//       return Object.assign(Origin, user);
+//     },
+//   },
+// };
 </script>

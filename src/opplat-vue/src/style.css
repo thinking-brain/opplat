@@ -1,0 +1,92 @@
+.bg-success {
+  background-color: #28a745 !important;
+  color: white;
+}
+.bg-info {
+  background-color: #17a2b8 !important;
+  color: white;
+}
+.bg-warning {
+  background-color: #ffc107 !important;
+}
+.bg-danger {
+  background-color: #dc3545 !important;
+  color: white;
+}
+
+.small-box {
+  border-radius: 0.25rem;
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.125), 0 1px 3px rgba(0, 0, 0, 0.2);
+  display: block;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.small-box > .inner {
+  padding: 10px;
+}
+
+.small-box > .small-box-footer {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  display: block;
+  padding: 3px 0;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  z-index: 10;
+}
+
+.small-box > .small-box-footer:hover {
+  background-color: rgba(0, 0, 0, 0.15);
+  color: #fff;
+}
+
+.small-box h3 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+  padding: 0;
+  white-space: nowrap;
+}
+.icon {
+  color: rgba(0, 0, 0, 0.15) !important;
+}
+.small-box .icon {
+  color: rgba(0, 0, 0, 0.15);
+  z-index: 0;
+}
+.theme--light.v-icon {
+  color: rgba(0, 0, 0, 0.15);
+}
+.small-box .icon > i {
+  font-size: 90px;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  transition: -webkit-transform 0.3s linear;
+  transition: transform 0.3s linear;
+  transition: transform 0.3s linear, -webkit-transform 0.3s linear;
+}
+
+.small-box:hover {
+  text-decoration: none;
+}
+
+.small-box:hover .icon > i {
+  -webkit-transform: scale(1.2);
+  transform: scale(1.2);
+}
+
+.small-box:hover .icon > svg {
+  -webkit-transform: scale(1.2);
+  transform: scale(1.2);
+}
+.v-list-item--link {
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+.text-align-justify {
+  text-align: justify;
+}

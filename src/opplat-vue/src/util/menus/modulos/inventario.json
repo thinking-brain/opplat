@@ -1,0 +1,18 @@
+[
+  {
+    "title": "Productos",
+    "group": "inventario",
+    "icon": "mdi-hexagon-multiple",
+    "component": "Products",
+    "name": "Productos",
+    "roles": ["administrador", "economico"]
+  },
+  {
+    "title": "Vender",
+    "group": "inventario",
+    "icon": "mdi-currency-usd",
+    "component": "Sell",
+    "name": "Vender",
+    "roles": ["administrador", "economico"]
+  }
+]

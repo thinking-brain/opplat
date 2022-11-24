@@ -7,7 +7,7 @@
     </template>
     <v-card ref="form">
       <v-card-title>
-        <span class="headline">Editar usuario: {{usuario.username}}</span>
+        <span class="headline">Editar usuario: {{ usuario.username }}</span>
       </v-card-title>
       <v-card-text>
         <v-text-field
@@ -34,70 +34,60 @@
     </v-card>
   </v-dialog>
 </template>
-<script>
-import api from '@/api';
+<script lang="ts">
+import { Component, Prop, PropSync, Vue, Watch } from "vue-property-decorator";
 
-export default {
-  props: ['usuario'],
-  data: () => ({
-    dialog: false,
-    errorMessages: [],
-    nombres: null,
-    apellidos: null,
-    rules: {
-      required: value => !!value || 'Obligatorio.',
-    },
-    formHasErrors: false,
-    errors: [],
-  }),
-  computed: {
-    form() {
-      return {
-        id: this.usuario.userId,
-        nombres: this.nombres,
-        apellidos: this.apellidos,
-      };
-    },
-  },
+@Component({ components: {} })
+export default class EditarUsuario extends Vue {
+  @PropSync("usuario") public dataModel!: any;
+
+  // Data
+  dialog: boolean = false;
+  errorMessages = [];
+  nombres = null;
+  apellidos = null;
+  rules = {
+    required: (value) => !!value || "Obligatorio.",
+  };
+  formHasErrors: boolean = false;
+  errors = [];
+
+  // Computed
+  get form() {
+    return {
+      id: this.dataModel.userId,
+      nombres: this.nombres,
+      apellidos: this.apellidos,
+    };
+  }
   created() {
-    this.nombres = this.usuario.nombres;
-    this.apellidos = this.usuario.apellidos;
-  },
-  watch: {
-    nombres() {
-      this.errorMessages = [];
-    },
-  },
-
-  methods: {
-    resetForm() {
-      this.errorMessages = [];
-      this.formHasErrors = false;
-
-      Object.keys(this.form).forEach((f) => {
-        this.$refs[f].reset();
-      });
-    },
-    submit() {
-      this.formHasErrors = false;
-      if (!this.formHasErrors) {
-        const url = api.getUrl('api-account', 'account/editar-usuario');
-        this.axios
-          .post(url, this.form)
-          .then(() => {
-            this.usuario.nombres = this.nombres;
-            this.usuario.apellidos = this.apellidos;
-            this.dialog = false;
-            vm.$snotify.success('Usuario editado correctamente.');
-            this.dialog = false;
-          })
-          .catch((err) => {
-            vm.$snotify.error(`Error editando el usuario. ${err}`);
-            this.dialog = false;
-          });
-      }
-    },
-  },
-};
+    this.nombres = this.dataModel.nombres;
+    this.apellidos = this.dataModel.apellidos;
+  }
+  @Watch("nombres")
+  async onPropertyChanged(value: any, oldValue: any) {
+    this.errorMessages = [];
+  }
+  // Methods
+  public submit() {
+    this.formHasErrors = false;
+    // if (!this.formHasErrors) {
+    // const url = api.getUrl("api-account", "account/editar-usuario");
+    // this.axios
+    //   .post(url, this.form)
+    //   .then(() => {
+    //     this.dataModel.nombres = this.nombres;
+    //     this.dataModel.apellidos = this.apellidos;
+    //     this.dialog = false;
+    //               this.$toast.success("Usuario editado correctamente.");
+    //     this.dialog = false;
+    //   })
+    //   .catch((err) => {
+    //               this.$toast.success(`Error editando el usuario. ${err}`);
+    //     this.dialog = false;
+    //   });
+    // }
+  }
+}
 </script>
 <style></style>

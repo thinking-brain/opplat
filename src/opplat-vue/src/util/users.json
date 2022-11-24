@@ -1,0 +1,14 @@
+[
+  {
+    "nombres": "Alejandro",
+    "apellidos": "Román Franco",
+    "username": "alejandro",
+    "roles": ["administrador", "economico"]
+  },
+  {
+    "nombres": "Pepe",
+    "apellidos": "Garcia Garcia",
+    "username": "pepe",
+    "roles": ["contador"]
+  }
+]

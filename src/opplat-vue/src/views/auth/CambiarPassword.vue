@@ -1,7 +1,9 @@
 <template>
   <v-dialog v-model="dialog" persistent max-width="600px">
     <template v-slot:activator="{ on }">
-      <v-btn color="deep-purple accent-4" text v-on="on">Cambiar Contraseña</v-btn>
+      <v-btn color="deep-purple accent-4" text v-on="on"
+        >Cambiar Contraseña</v-btn
+      >
     </template>
     <v-card ref="form">
       <v-card-title>
@@ -34,7 +36,10 @@
           label="Confirmar Contraseña Nueva"
           v-model="confirmarContraseña"
           :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'"
-          :rules="[!!confirmarContraseña || 'Este campo es obligatorio.',confirmPasswordCheck]"
+          :rules="[
+            !!confirmarContraseña || 'Este campo es obligatorio.',
+            confirmPasswordCheck,
+          ]"
           :type="show_password ? 'text' : 'password'"
           name="confirmarContraseña"
           counter
@@ -53,10 +58,10 @@
   </v-dialog>
 </template>
 <script>
-import api from '@/api';
+import api from "@/api";
 
 export default {
-  props: ['usuario'],
+  props: ["usuario"],
   data: () => ({
     dialog: false,
     show_password: false,
@@ -66,8 +71,8 @@ export default {
     contraseña: null,
     confirmarContraseña: null,
     rules: {
-      required: value => !!value || 'Obligatorio.',
-      min: v => (!!v && v.length >= 8) || 'Min 8 caracteres',
+      required: (value) => !!value || "Obligatorio.",
+      min: (v) => (!!v && v.length >= 8) || "Min 8 caracteres",
     },
     formHasErrors: false,
     errors: [],
@@ -91,9 +96,10 @@ export default {
 
   methods: {
     confirmPasswordCheck() {
-      this.errorMessagesPassword = this.contraseña !== this.confirmarContraseña
-        ? ['No coinciden la contraseña y la confirmacion.']
-        : [];
+      this.errorMessagesPassword =
+        this.contraseña !== this.confirmarContraseña
+          ? ["No coinciden la contraseña y la confirmacion."]
+          : [];
 
       return true;
     },
@@ -108,16 +114,16 @@ export default {
     submit() {
       this.formHasErrors = false;
       if (!this.formHasErrors) {
-        const url = api.getUrl('api-account', 'account/change-password');
+        const url = api.getUrl("api-account", "account/change-password");
         this.axios
           .post(url, this.form)
           .then(() => {
             this.dialog = false;
-            vm.$snotify.success('Contraseña cambiada correctamente.');
+            this.$toast.success("Contraseña cambiada correctamente.");
           })
           .catch((err) => {
             this.dialog = false;
-            vm.$snotify.error(`Error cambiando la contraseña. ${err.message}`);
+            this.$toast.error(`Error cambiando la contraseña. ${err.message}`);
           });
       }
     },

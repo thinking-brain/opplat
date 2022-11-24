@@ -34,56 +34,53 @@
     </v-layout>
   </v-container>
 </template>
-<script>
-export default {
-  data: () => ({
-    dialog: false,
-    show_password: false,
-    errorMessages: [],
-    errorMessagesPassword: [],
-    licencia: null,
-    licencia_file: null,
-    rules: {
-      required: value => !!value || 'Obligatorio.',
-    },
-    formHasErrors: false,
-    errors: [],
-  }),
-  computed: {
-    form() {
-      return {
-        licencia: this.licencia_file,
-      };
-    },
-  },
-  created() {},
-  watch: {
-    nombres() {
-      this.errorMessages = [];
-    },
-  },
+<script lang="ts">
+import { Component, Prop, PropSync, Vue, Watch } from "vue-property-decorator";
 
-  methods: {
-    submit() {
-      this.formHasErrors = false;
-      // Object.keys(this.form).forEach(f => {
-      //   if (!this.form[f]) this.formHasErrors = true;
+@Component({ components: {} })
+export default class Configuracion extends Vue {
+  dialog: boolean = false;
+  show_password: boolean = false;
+  errorMessages = [];
+  errorMessagesPassword = [];
+  licencia = null;
+  licencia_file = null;
+  rules = {
+    required: (value) => !!value || "Obligatorio.",
+  };
+  formHasErrors: boolean = false;
+  errors = [];
 
-      //   this.$refs[f].validate(true);
-      // });
-      if (!this.formHasErrors) {
-        this.axios
-          .post('http://localhost:5200/config/licencia', this.form)
-          .then((p) => {
-            this.licencia = p.data;
-            vm.$snotify.success('Licencia agregada satisfactorimente.');
-          })
-          .catch((e) => {
-            vm.$snotify.error(e.response.data.errors);
-          });
-      }
-    },
-  },
-};
+  get form() {
+    return {
+      licencia: this.licencia_file,
+    };
+  }
+  created() {}
+  @Watch("nombres")
+  async onPropertyChanged(value: any, oldValue: any) {
+    this.errorMessages = [];
+  }
+
+  public submit() {
+    this.formHasErrors = false;
+    // Object.keys(this.form).forEach(f => {
+    //   if (!this.form[f]) this.formHasErrors = true;
+
+    //   this.$refs[f].validate(true);
+    // });
+    if (!this.formHasErrors) {
+      this.axios
+        .post("http://localhost:5200/config/licencia", this.form)
+        .then((p) => {
+          this.licencia = p.data;
+          this.$toast.success("Licencia agregada satisfactoriamente.");
+        })
+        .catch((e) => {
+          this.$toast.error(e.response.data.errors);
+        });
+    }
+  }
+}
 </script>
 <style></style>

@@ -1,0 +1,230 @@
+[
+  {
+    "id": 1,
+    "nombre": "Aceite oliva",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "Litros", "siglas": "lt" },
+    "grupo": { "id": 1, "descripcion": "Aceites" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": "8.00"
+  },
+  {
+    "id": 2,
+    "nombre": "Aceitunas verdes",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "Litros", "siglas": "lt" },
+    "grupo": { "id": 2, "descripcion": "Verduras" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": 8
+  },
+  {
+    "id": 3,
+    "nombre": "Agua Carbonatada",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "MiliLitros", "siglas": "ml" },
+    "grupo": { "id": 3, "descripcion": "Aguas" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": 8
+  },
+  {
+    "id": 4,
+    "nombre": "Agua Natural",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "MiliLitros", "siglas": "ml" },
+    "grupo": { "id": 1, "descripcion": "Aguas" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": 8
+  },
+  {
+    "id": 5,
+    "nombre": "Aceite oliva",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "Litros", "siglas": "lt" },
+    "grupo": { "id": 1, "descripcion": "Aceites" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": 8.0
+  },
+  {
+    "id": 6,
+    "nombre": "Aceite oliva",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "Litros", "siglas": "lt" },
+    "grupo": { "id": 1, "descripcion": "Aceites" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": 8.0
+  },
+  {
+    "id": 7,
+    "nombre": "Aceite oliva",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "Litros", "siglas": "lt" },
+    "grupo": { "id": 1, "descripcion": "Aceites" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": "8.00"
+  },
+  {
+    "id": 8,
+    "nombre": "Aceitunas verdes",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "Litros", "siglas": "lt" },
+    "grupo": { "id": 1, "descripcion": "Verduras" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": 8
+  },
+  {
+    "id": 9,
+    "nombre": "Agua Carbonatada",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "MiliLitros", "siglas": "ml" },
+    "grupo": { "id": 1, "descripcion": "Aguas" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": 8
+  },
+  {
+    "id": 10,
+    "nombre": "Agua Natural",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "MiliLitros", "siglas": "ml" },
+    "grupo": { "id": 1, "descripcion": "Aguas" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": 8
+  },
+  {
+    "id": 11,
+    "nombre": "Aceite oliva",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "Litros", "siglas": "lt" },
+    "grupo": { "id": 1, "descripcion": "Aceites" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": 8.0
+  },
+  {
+    "id": 12,
+    "nombre": "Aceite oliva",
+    "cantidad": "8",
+    "unidadDeMedida": { "nombre": "Litros", "siglas": "lt" },
+    "grupo": { "id": 1, "descripcion": "Aceites" },
+    "precioDeVenta": 540,
+    "precioUnitario": 540,
+    "esInventariable": true,
+    "stockMinimo": 1.0,
+    "image": "",
+    "active": true,
+    "proporcionDeMerma": 1,
+    "existencias": [
+      { "lugar": "Almacén", "cantidad": 2 },
+      { "lugar": "Louvre", "cantidad": 6 }
+    ],
+    "existenciaTotal": 8.0
+  }
+]
