@@ -57,7 +57,7 @@ public class SaleDetail : Entity
 {
     public Guid ProductId { get; set; }
 
-    public Product Product { get; set; }
+    public ProductForSale Product { get; set; }
 
     public ICollection<AddedTopping> Toppings { get; set; }
 

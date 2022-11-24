@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Opplat.MainApp.Models;
 
 namespace Opplat.MainApp.Utils;
@@ -17,7 +16,8 @@ public class MenuLoader
         {
             var menus_list = new List<MenuItem>();
             var f = System.IO.File.ReadAllText("Data/menus/users/" + userName + ".json");
-            var menus = JsonConvert.DeserializeAnonymousType(f, menus_list);
+            // var menus = JsonConvert.DeserializeAnonymousType(f, menus_list);
+            var menus = new List<MenuItem>();
             return menus!;
         }
         catch (Exception ex)
@@ -34,7 +34,8 @@ public class MenuLoader
             var menus_list = new List<MenuItem>();
             var f = System.IO.File.ReadAllText("Data/menus/modulos/" + module + ".json");
             var contratacionContador = new ContratacionContador();
-            var menus = JsonConvert.DeserializeAnonymousType(f, menus_list);
+            // var menus = JsonConvert.DeserializeAnonymousType(f, menus_list);
+            var menus = new List<MenuItem>();
             foreach (var menu in menus!)
             {
                 if (menu.Roles.Any(r => roles.Contains(r)))
@@ -70,7 +71,8 @@ public class MenuLoader
         var contratacionContador = new ContratacionContador();
 
         // var r = new JsonTextReader(f);
-        var modulos = JsonConvert.DeserializeAnonymousType(f, menus_list);
+        // var modulos = JsonConvert.DeserializeAnonymousType(f, menus_list);
+        var modulos = new List<MenuItem>();
         foreach (var menu in modulos!)
         {
             if (menu.Roles.Any(r => roles.Contains(r)))

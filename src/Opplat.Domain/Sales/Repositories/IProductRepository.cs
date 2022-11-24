@@ -7,7 +7,13 @@ using Opplat.Shared.Repositories;
 
 namespace Opplat.Domain.Sales.Repositories;
 
-public interface IProductRepository: IRepository<Product>
+
+public interface IProductTagRepository: IRepository<ProductTag>
+{
+
+}
+
+public interface IProductRepository: IRepository<ProductForSale>
 {
 
 }

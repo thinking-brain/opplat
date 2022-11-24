@@ -1,0 +1,96 @@
+<!-- <h1 mat-dialog-title>Ficha de Costo de {{product.name}}</h1> -->
+<div mat-dialog-content>
+
+  <table class="mytable table table-bordered" style="width: 100%">
+    <tr>
+      <td colspan="6" class="text-center">
+        FICHA DE COSTO
+      </td>
+    </tr>
+    <tr>
+      <td colspan="6" class="data text-center">{{product.name}}</td>
+    </tr>
+    <tr>
+      <td colspan="2">INGREDIENTES</td>
+      <td colspan="1">CANTIDAD</td>
+      <td colspan="1">UM</td>
+      <td colspan="1">PRECIO DE COSTO(UM)</td>
+      <td colspan="1">IMPORTE</td>
+    </tr>
+    <tr class="data" *ngFor="let detail of details">
+      <td colspan="2">{{detail.product.name}}</td>
+      <td>
+        {{detail.quantity}}
+      </td>
+      <td>{{detail.unit}}</td>
+      <td class="text-right">
+        {{detail.product.price | currency : 'USD'}}
+      </td>
+      <td class="text-right">
+        {{detail.cost | currency : 'USD'}}
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" class="text-right">
+        Costo Total de Materia Prima
+      </td>
+      <td class="data text-right">
+        {{costTab.cost| currency : 'USD'}}
+      </td>
+    </tr>
+    <tr>
+      <td colspan="6">OTROS INDICADORES</td>
+    </tr>
+    <tr>
+      <td colspan="2">Precio con Índice</td>
+      <td class="data">
+        {{ costTab.cost * costTab.expectedRate | currency:'USD'}}
+      </td>
+      <td colspan="2">Precio de Venta</td>
+      <td class="data">$ {{product.price}}</td>
+    </tr>
+    <tr>
+      <td colspan="2">Costo por peso de ingreso planificado</td>
+      <td class="data">
+        {{costTab.plannedCost}}
+      </td>
+      <td colspan="2">Costo por peso de ingreso real</td>
+      <td class="data" class="{{underPlanned()}}">
+        {{ costTab.cost /product.price}}
+      </td>
+    </tr>
+    <tr>
+      <td>Margen de contribución</td>
+      <td class="data">
+        {{ product.price - costTab.cost}}
+      </td>
+      <td>Índice Esperado</td>
+      <td class="data">
+        {{costTab.expectedRate}}
+      </td>
+      <td>Índice Aplicado</td>
+      <td class="data">
+        <ng-container *ngIf="costTab.cost !== 0; else elseTemplate">
+          {{product.price / costTab.cost}}
+        </ng-container>
+        <ng-template #elseTemplate>
+          {{0}}
+        </ng-template>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="6">CARTA TÉCNICA</td>
+    </tr>
+    <tr>
+      <td>Preparación</td>
+      <td colspan="5" class="data text-justify">{{costTab.preparation}}</td>
+    </tr>
+    <tr>
+      <td>Presentación</td>
+      <td colspan="5" class="data text-justify">{{costTab.presentation}}</td>
+    </tr>
+  </table>
+</div>
+<mat-dialog-actions align="end">
+  <button mat-raised-button routerLink="/sales/products">Cancelar</button>
+</mat-dialog-actions>

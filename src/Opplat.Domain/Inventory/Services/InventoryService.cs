@@ -2,43 +2,40 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Opplat.Domain.Inventory.Entities;
 using Opplat.Domain.Inventory.Repositories;
+using Opplat.Shared.Services;
 
 namespace Opplat.Domain.Inventory.Services;
 
-public class MovementResult
+public interface IInventoryService: IService<ProductInventory, string>
 {
-    public bool IsValid { get; set; }
-
-    public decimal Quantity { get; set; }
-
-    public decimal ConvertedQuantity { get; set; }
-
-    public string Unit { get; set; } = String.Empty;
+     public Task<ServiceResponse<ProductInventory>> GetByStorage(Guid StorageId);
 }
 
-public interface IInventoryService
+public class InventoryService: BaseService<ProductInventory, string>, IInventoryService
 {
-
-}
-
-public class InventoryService
-{
-    private IStorageRepository _storageRepo;
-    private IInventoryRepository _inventoryRepo;
-    private IProductRepository _prodRepo;
-    private IUnitOfMeasurementRepository _unitRepo;
-    private IMovementTypeRepository _movTypeRepo;
+    private readonly IStorageRepository _storageRepo;
+    private readonly IProductRepository _prodRepo;
 
     public InventoryService(IStorageRepository storageRepo, IInventoryRepository inventoryRepo,
-        IProductRepository prodRepo, IUnitOfMeasurementRepository unitRepo, IMovementTypeRepository movTypeRepo)
+        IProductRepository prodRepo, ILogger<ProductInventory> logger):base(inventoryRepo, logger)
     {
         _storageRepo = storageRepo;
-        _inventoryRepo = inventoryRepo;
         _prodRepo = prodRepo;
-        _unitRepo = unitRepo;
-        _movTypeRepo = movTypeRepo;
+    }
+
+    public async Task<ServiceResponse<ProductInventory>> GetByStorage(Guid storageId)
+    {
+        IEnumerable<ProductInventory> list = await (_repo as IInventoryRepository).GetByStorage(storageId);
+        var result = new ServiceResponse<ProductInventory>
+        {
+            Status = ServiceStatus.Ok,
+            Message = "List of entities.",
+            List = list,
+        };
+        return result;
     }
 
     /// <summary>

@@ -1,0 +1,10 @@
+<h1 mat-dialog-title>Eliminar {{data.entity}}</h1>
+<div mat-dialog-content>
+  <div class="loading-container">
+    <p>Esta seguro que desea eliminar "{{data.description}}"?</p>
+  </div>
+</div>
+<mat-dialog-actions align="end">
+  <button mat-raised-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button color="warn" [mat-dialog-close]="true" cdkFocusInitial>Eliminar</button>
+</mat-dialog-actions>

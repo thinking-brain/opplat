@@ -6,7 +6,6 @@ namespace Opplat.Domain.Inventory.Entities;
 
 public class ProductInventory: IEntity
 {
-    public Guid Id { get; set; }
     [Key]
     [Column(Order = 1)]
     public Guid ProductId { get; set; }

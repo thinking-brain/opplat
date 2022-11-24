@@ -1,0 +1,64 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="(isHandset$ | async) === false">
+    <mat-toolbar>Menu</mat-toolbar>
+    <mat-nav-list>
+      <a mat-list-item routerLink="home" routerLinkActive="router-link-active">Pagina inicial</a>
+      <mat-expansion-panel [class.mat-elevation-z0]="true" dense>
+        <mat-expansion-panel-header>
+          Ventas
+        </mat-expansion-panel-header>
+        <mat-nav-list dense>
+          <a mat-list-item routerLink="tickets" routerLinkActive="router-link-active">
+            <mat-icon>person_add</mat-icon>Ventas
+          </a>
+          <a mat-list-item routerLink="sales/products" routerLinkActive="router-link-active">
+            <mat-icon>person_add</mat-icon>Productos
+          </a>
+          <a mat-list-item routerLink="sales/costtabs" routerLinkActive="router-link-active">
+            <mat-icon>visibility</mat-icon>Fichas de costo
+          </a>
+
+        </mat-nav-list>
+      </mat-expansion-panel>
+      <mat-expansion-panel [class.mat-elevation-z0]="true" dense>
+        <mat-expansion-panel-header>
+          Inventario
+        </mat-expansion-panel-header>
+        <mat-nav-list dense>
+          <a mat-list-item routerLink="inventory/inventories" routerLinkActive="router-link-active">
+            <mat-icon>list_alt</mat-icon>Inventarios
+          </a>
+          <a mat-list-item routerLink="inventory/product-movements" routerLinkActive="router-link-active">
+            <mat-icon>conveyor_belt</mat-icon>Movimientos
+          </a>
+          <a mat-list-item routerLink="inventory/products" routerLinkActive="router-link-active">
+            <mat-icon>inventory</mat-icon>Productos
+          </a>
+          <mat-divider></mat-divider>
+          <a mat-list-item routerLink="inventory/product-classifications" routerLinkActive="router-link-active">
+            <mat-icon>category</mat-icon>Clasificaciones de Productos
+          </a>
+          <a mat-list-item routerLink="inventory/product-groups" routerLinkActive="router-link-active">
+            <mat-icon>group_work</mat-icon>Grupos de productos
+          </a>
+          <a mat-list-item routerLink="inventory/storages" routerLinkActive="router-link-active">
+            <mat-icon>warehouse</mat-icon>Almacenes
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer.toggle()"
+        *ngIf="isHandset$ | async">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+      <span>Opplat Client</span>
+    </mat-toolbar>
+
+    <router-outlet></router-outlet>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>

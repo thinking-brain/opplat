@@ -1,4 +1,6 @@
-﻿using System.Security;
+﻿using System.Runtime.CompilerServices;
+using System.Security;
+using Microsoft.Extensions.Logging;
 using Opplat.Shared.Entities;
 using Opplat.Shared.Repositories;
 
@@ -15,30 +17,36 @@ public class ServiceResponse<T> where T : IEntity
     public IEnumerable<T> List { get; set; }
     public string Message { get; set; }
 }
-public interface IService<T> where T : IEntity
+public interface IService<T, K> where T : IEntity
 {
-    public Task<ServiceResponse<T>> Get(string id);
+    public Task<ServiceResponse<T>> Get(K id);
     public Task<ServiceResponse<T>> List(int? page = null, int? itemsPerPage = null);
     public Task<ServiceResponse<T>> Create(T entity, string user);
     public Task<ServiceResponse<T>> Update(T entity, string user);
     public Task<ServiceResponse<T>> DeleteEntity(T entity, string user);
 
-    public Task<ServiceResponse<T>> Delete(string id, string user);
+    public Task<ServiceResponse<T>> Delete(K id, string user);
 }
 
-public class BaseService<T> where T : IEntity
+public class BaseService<T, K> where T : IEntity
 {
     protected IRepository<T> _repo;
+    protected ILogger<T> _logger;
 
-    public BaseService(IRepository<T> repo)
+    public BaseService(IRepository<T> repo,ILogger<T> logger)
     {
         _repo = repo;
+        _logger = logger;
     }
 
-    public async Task<ServiceResponse<T>> Get(string id)
+    public virtual async Task<ServiceResponse<T>> Get(K id)
     {
-
-        var entity = await _repo.Find(new Guid(id));
+        object idForSearch = id;
+        if (id is string)
+        {
+            idForSearch = new Guid(id as string);
+        }
+        var entity = await _repo.Find(idForSearch);
         if (entity != null)
         {
             return new ServiceResponse<T>
@@ -55,7 +63,7 @@ public class BaseService<T> where T : IEntity
         };
     }
 
-    public async Task<ServiceResponse<T>> List(int? page, int? itemsPerPage)
+    public virtual async Task<ServiceResponse<T>> List(int? page, int? itemsPerPage)
     {
         IEnumerable<T> list;
         if (page.HasValue && itemsPerPage.HasValue)
@@ -77,9 +85,9 @@ public class BaseService<T> where T : IEntity
         return result;
     }
 
-    public async Task<ServiceResponse<T>> Create(T entity, string user)
+    public virtual async Task<ServiceResponse<T>> Create(T entity, string user)
     {
-        entity.User = user;
+        // entity.User = user;
         var response = await _repo.Create(entity);
         var result = new ServiceResponse<T>
         {
@@ -90,9 +98,9 @@ public class BaseService<T> where T : IEntity
         return result;
     }
 
-    public async Task<ServiceResponse<T>> Update(T entity, string user)
+    public virtual async Task<ServiceResponse<T>> Update(T entity, string user)
     {
-        entity.User = user;
+        // entity.User = user;
         var response = await _repo.Update(entity);
         var result = new ServiceResponse<T>
         {
@@ -103,7 +111,7 @@ public class BaseService<T> where T : IEntity
         return result;
     }
 
-    public async Task<ServiceResponse<T>> DeleteEntity(T entity, string user)
+    public virtual async Task<ServiceResponse<T>> DeleteEntity(T entity, string user)
     {
         var response = await _repo.Delete(entity);
         var result = new ServiceResponse<T>
@@ -115,14 +123,24 @@ public class BaseService<T> where T : IEntity
         return result;
     }
 
-    public async Task<ServiceResponse<T>> Delete(string id, string user)
+    public virtual async Task<ServiceResponse<T>> Delete(K id, string user)
     {
-        var response = await _repo.Delete(new Guid(id));
+        object idForSearch = id;
+        if (id is string)
+        {
+            idForSearch = new Guid(id as string);
+        }
+        var response = await _repo.Delete(idForSearch);
         var result = new ServiceResponse<T>
         {
             Status = response.IsOk ? ServiceStatus.Ok : ServiceStatus.Error,
             Message = response.Message,
         };
         return result;
+    }
+
+    protected IQueryable<T> Query()
+    {
+        return _repo.Query();
     }
 }

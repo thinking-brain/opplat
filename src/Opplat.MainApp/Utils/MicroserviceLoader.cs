@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Runtime.Loader;
-using Newtonsoft.Json;
 
 namespace Opplat.MainApp.Utils;
 
@@ -72,7 +71,8 @@ public class MicroserviceLoader
         using (StreamReader r = new StreamReader("service.json"))
         {
             string json = r.ReadToEnd();
-            var microservice = JsonConvert.DeserializeObject<Microservice>(json);
+            // var microservice = JsonConvert.DeserializeObject<Microservice>(json);
+            var microservice = new Microservice();
             MicroserviceRegistry.Services.Add(microservice!);
         }
         //add module to list of module

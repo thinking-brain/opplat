@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Opplat.Domain.Sales.Entities;
 using Opplat.Domain.Sales.Services;
 using Opplat.Shared.Services;

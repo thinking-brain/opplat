@@ -1,0 +1,25 @@
+<form>
+  <mat-card class="shipping-card">
+    <mat-card-header>
+      <mat-card-title>{{title}}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-select placeholder="Seleccione el Almacen" [(value)]="selectedStorage" (selectionChange)="onChangeStorage()">
+              <mat-option *ngFor="let storage of storages" [value]="storage.id">
+                {{ storage.description }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <app-product-movements [storage-id]="storageId"></app-product-movements>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</form>

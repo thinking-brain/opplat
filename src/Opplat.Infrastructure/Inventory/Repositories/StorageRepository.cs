@@ -7,12 +7,13 @@ using Opplat.Domain.Inventory.Entities;
 using Opplat.Shared.Repositories;
 using Opplat.Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Opplat.Infrastructure.Inventory.Repositories;
 
 public class StorageRepository : BaseRepository<Storage>, IStorageRepository
 {
-    public StorageRepository(DbContext db) : base(db)
+    public StorageRepository(DbContext db, ILogger<IStorageRepository> logger) : base(db, logger)
     {
     }
 

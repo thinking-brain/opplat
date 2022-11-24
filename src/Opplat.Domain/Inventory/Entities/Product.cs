@@ -1,15 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Opplat.Shared.Entities;
 
 namespace Opplat.Domain.Inventory.Entities;
 
-public class ProductClassification
+public class ProductClassification: IEntity
 {
     public int Id { get; set; }
 
     public string Description { get; set; }
 
+    [JsonIgnore]
     public virtual ICollection<ProductGroup> Groups { get; set; }
 
     public ProductClassification()
@@ -20,7 +22,7 @@ public class ProductClassification
 
 }
 
-public class ProductGroup
+public class ProductGroup: IEntity
 {
     public int Id { get; set; }
 
@@ -34,9 +36,9 @@ public class ProductGroup
 public class Product : Entity
 {
     [Required]
-    public string Name { get; set; } = String.Empty;
+    public string Name { get; set; }
 
-    public string Description { get; set; } = String.Empty;
+    public string Description { get; set; }
 
     public bool Active { get; set; }
 
@@ -44,13 +46,11 @@ public class Product : Entity
 
     public int GroupId { get; set; }
 
-    public virtual ProductGroup Group { get; set; } = null!;
+    public virtual ProductGroup Group { get; set; }
 
     public override string ToString() => Name;
 
-    public int UnitId { get; set; }
-
-    public virtual UnitOfMeasurement Unit { get; set; } = null!;
+    public string Unit { get; set; }
 
     public decimal ContainerQuantity { get; set; }
 

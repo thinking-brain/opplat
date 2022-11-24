@@ -6,19 +6,22 @@ using Opplat.Shared;
 using Microsoft.EntityFrameworkCore;
 using Opplat.Shared.Repositories;
 using Opplat.Shared.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Opplat.Infrastructure.Common;
 
 public class BaseRepository<T> : IRepository<T> where T : class, IEntity
 {
-    private readonly DbContext _db;
+    protected readonly DbContext _db;
+    protected ILogger<IRepository<T>> _logger;
 
-    public BaseRepository(DbContext db)
+    public BaseRepository(DbContext db, ILogger<IRepository<T>> logger)
     {
         _db = db;
+        _logger = logger;
     }
 
-    public async Task<RepositoryResponse> Create(T entity)
+    public virtual async Task<RepositoryResponse> Create(T entity)
     {
         try
         {
@@ -42,7 +45,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
         }
     }
 
-    public async Task<RepositoryResponse> Delete(Guid id)
+    public virtual async Task<RepositoryResponse> Delete(object id)
     {
         try
         {
@@ -67,7 +70,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
         }
     }
 
-    public async Task<RepositoryResponse> Delete(T entity)
+    public virtual async Task<RepositoryResponse> Delete(T entity)
     {
         try
         {
@@ -91,7 +94,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
         }
     }
 
-    public async Task<T> Find(Guid id)
+    public virtual async Task<T> Find(object id)
     {
         try
         {
@@ -104,7 +107,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
         }
     }
 
-    public async Task<IEnumerable<T>> List(int page = 0, int pageSize = 0)
+    public virtual async Task<IEnumerable<T>> List(int page = 0, int pageSize = 0)
     {
         try
         {
@@ -118,7 +121,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
         }
     }
 
-    public IQueryable<T> Query()
+    public virtual IQueryable<T> Query()
     {
         try
         {
@@ -131,7 +134,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
         }
     }
 
-    public async Task<RepositoryResponse> Update(T entity)
+    public virtual async Task<RepositoryResponse> Update(T entity)
     {
         try
         {

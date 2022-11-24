@@ -2,18 +2,16 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Opplat.MainApp.Models;
-using Duende.IdentityServer.EntityFramework.Options;
-using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
-using Microsoft.Extensions.Options;
-using Opplat.Domain.Sales.Entities;
-
+using SalesEntities = Opplat.Domain.Sales.Entities;
+using InventoryEntities = Opplat.Domain.Inventory.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Opplat.MainApp.Data;
 
-public class OpplatDbContext : ApiAuthorizationDbContext<Usuario>
+public class OpplatDbContext : IdentityDbContext<Usuario>
 {
-    public OpplatDbContext(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions)
-        : base(options, operationalStoreOptions)
+    public OpplatDbContext(DbContextOptions options)
+        : base(options)
     {
 
     }
@@ -23,7 +21,7 @@ public class OpplatDbContext : ApiAuthorizationDbContext<Usuario>
         builder.UseIdentityColumns();
         base.OnModelCreating(builder);
         builder.Entity<UserNotification>().HasKey(s => new { s.NotificationId, s.UsuarioId });
-        builder.Entity<AddedTopping>().HasKey(s => new { s.ToppingId, s.SaleDetailId });
+        builder.Entity<SalesEntities.AddedTopping>().HasKey(s => new { s.ToppingId, s.SaleDetailId });
         builder.Entity<IdentityRole>().HasData(new IdentityRole[] {
                     new IdentityRole {Id = "1", Name = "administrador", NormalizedName = "ADMINISTRADOR" },
             });
@@ -50,15 +48,30 @@ public class OpplatDbContext : ApiAuthorizationDbContext<Usuario>
                 RoleId = "1"
             }
             );
+        // Inventory
+        builder.Entity<InventoryEntities.ProductInventory>().HasKey(s => new { s.ProductId, s.StorageId });
+        // Sales
+        builder.Entity<SalesEntities.CostTabDetail>().HasKey(s => new { s.ProductForSaleId, s.ProductId });
     }
 
-    public DbSet<Licencia> Licencias { get; set; } = null!;
-    public DbSet<Usuario> Usuarios { get; set; } = null!;
-    public DbSet<Notification> Notifications { get; set; } = null!;
-    public DbSet<UserNotification> UserNotifications { get; set; } = null!;
+    public DbSet<Licencia> Licencias { get; set; }
+    public DbSet<Usuario> Usuarios { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
+    public DbSet<UserNotification> UserNotifications { get; set; }
 
-    public DbSet<Product> Products { get; set; } = null!;
-    public DbSet<Topping> Toppings { get; set; } = null!;
-    public DbSet<Annotation> Annotations { get; set; } = null!;
-    public DbSet<Sale> Sales { get; set; } = null!;
+    // Sales Entities
+    public DbSet<SalesEntities.ProductForSale> ProductsForSale { get; set; }
+    public DbSet<SalesEntities.Topping> Toppings { get; set; }
+    public DbSet<SalesEntities.CostTab> CostTabs { get; set; }
+    public DbSet<SalesEntities.ProductTag> ProductTags { get; set; }
+    public DbSet<SalesEntities.Annotation> Annotations { get; set; }
+    public DbSet<SalesEntities.Sale> Sales { get; set; }
+
+    // Inventory Entities
+    public DbSet<InventoryEntities.Product> Products { get; set; }
+    public DbSet<InventoryEntities.ProductGroup> ProductGroups { get; set; }
+    public DbSet<InventoryEntities.ProductClassification> ProductClassifications { get; set; }
+    public DbSet<InventoryEntities.Storage> Storages { get; set; }
+    public DbSet<InventoryEntities.ProductMovement> ProductMovements { get; set; }
+    public DbSet<InventoryEntities.ProductInventory> Inventories { get; set; }
 }

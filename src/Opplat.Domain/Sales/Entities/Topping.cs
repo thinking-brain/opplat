@@ -23,10 +23,10 @@ public class Topping : Entity
     [Required]
     public string Name { get; set; }
 
-    public ICollection<Product> OnProducts { get; set; }
+    public ICollection<ProductForSale> OnProducts { get; set; }
 
     public Topping()
     {
-        OnProducts = new HashSet<Product>();
+        OnProducts = new HashSet<ProductForSale>();
     }
 }

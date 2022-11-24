@@ -10,4 +10,6 @@ namespace Opplat.Domain.Inventory.Repositories;
 public interface IInventoryRepository: IRepository<ProductInventory>
 {
     Task<ProductInventory> Get(Guid storageId, Guid productId);
+    
+    Task<IEnumerable<ProductInventory>> GetByStorage(Guid storageId);
 }

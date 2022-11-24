@@ -2,17 +2,13 @@
 using System.Security.Claims;
 using System.Text;
 using Opplat.MainApp.Dtos;
-using LdapForNet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using Opplat.MainApp.Data;
 using Opplat.MainApp.Models;
-using Opplat.MainApp.ViewModels;
-using static LdapForNet.Native.Native;
 
 namespace Opplat.MainApp.Controllers;
 
@@ -23,147 +19,65 @@ public class AccountController : ControllerBase
 {
     private readonly UserManager<Usuario> _userManager;
     private readonly SignInManager<Usuario> _signInManager;
-    private ILogger _logger { get; set; }
+    private readonly ILogger _logger;
     private readonly DbContext _db;
+    private readonly IConfiguration _config;
 
     public AccountController(
         UserManager<Usuario> userManager,
-        SignInManager<Usuario> signInManager,
+        SignInManager<Usuario> signInManager, IConfiguration config,
         ILogger<AccountController> logger, OpplatDbContext context)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _logger = logger;
         _db = context;
+        _config = config;
     }
 
     /// <summary>
     /// Devuelve el listado de usuarios
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
-    [Route("usuarios")]
-    public async Task<IActionResult> Usuarios()
+    [HttpGet("user-list")]
+    public async Task<IEnumerable<AccountDto>> UserList()
     {
         var result = await _db.Set<Usuario>().Select(u => new AccountDto
         {
             UserId = u.Id,
-            Nombres = u.Nombres,
-            Apellidos = u.Apellidos,
+            Name = u.Nombres,
+            LastName = u.Apellidos,
             Username = u.UserName,
-            Activo = u.Activo,
+            Email = u.Email,
+            Active = u.Activo,
             Roles = (_userManager.GetRolesAsync(u)).Result.ToList()
         }).ToListAsync();
-        return new JsonResult(result);
-    }
-
-    [HttpPost]
-    [Route("importarusuarios")]
-    public async Task<IActionResult> ImportarUsuarios([FromBody] LdapFormViewModel model)
-    {
-        int usuarios_importados = 0;
-
-        if (ModelState.IsValid)
-        {
-            LdapConnection cn = new LdapConnection();
-            cn.Connect(model.Host, 389);
-
-            cn.Timeout = new TimeSpan(0, 0, 10); // seconds
-            try
-            {
-                cn.Bind(LdapAuthType.Digest, new LdapCredential
-                {
-                    UserName = model.UserName,
-                    Password = model.Password,
-                });
-            }
-            catch (Exception e)
-            {
-                return Ok(new { status = 400, mensaje = e.Message });
-            }
-            // { "cn", "sAMAccountName" }
-            string[] attr = { };
-            string @base = cn.GetRootDse().Attributes["rootDomainNamingContext"][0].ToString();
-            if (model.UnidadOrganizativa.Length > 1)
-            {
-                @base = model.UnidadOrganizativa.ToLower() + "," + @base;
-            }
-            try
-            {
-                var entries = cn.Search(@base, "(objectClass=user)", attr, LdapSearchScope.LDAP_SCOPE_SUB);
-                foreach (var entry in entries)
-                {
-                    var full_domain_name = entry.Attributes["cn"][0].Split(" ");
-                    var userName = entry.Attributes["sAMAccountName"][0];
-                    var nombre = full_domain_name[0];
-                    string apellidos = "null";
-                    if (full_domain_name.Count() > 1)
-                    {
-                        apellidos = full_domain_name[1];
-                    };
-                    var password = "Aa123456-";
-                    var user = new Usuario { Nombres = nombre, Apellidos = apellidos, UserName = userName };
-                    try
-                    {
-                        var result = await _userManager.CreateAsync(user, password);
-                        if (result.Succeeded)
-                        {
-                            usuarios_importados += 1;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        var error = e.Message;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                var error = "Ha ocurrido un error";
-                //-2146233088
-                if (e.HResult == -2146233088)
-                {
-                    error = "No existe la unidad organizativa";
-                }
-                return BadRequest(new { error = error + ". " + e.Message });
-            }
-            cn.Dispose();
-        }
-        string mensaje;
-        if (usuarios_importados > 0)
-        {
-            mensaje = "Se han importado " + usuarios_importados + " usuarios";
-        }
-        else
-        {
-            mensaje = "No se encontraron usuarios nuevos para importar";
-        }
-        return Ok(new { status = 200, mensaje = mensaje });
+        return result;
     }
 
     /// <summary>
     /// Devuelve los datos del usuario
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
-    [Route("perfil")]
-    public async Task<IActionResult> Perfil(string usuario)
+    [HttpGet("profile/{name}")]
+    public async Task<AccountDto> Profile(string name)
     {
-        var user = await _userManager.FindByNameAsync(usuario);
+        var user = await _userManager.FindByNameAsync(name);
         if (user == null)
         {
-            return BadRequest("No existe el usuario solicitado");
+            return null;
         }
         var roles = await _userManager.GetRolesAsync(user);
-        return Ok(new AccountDto
+        return new AccountDto
         {
             UserId = user.Id,
-            Nombres = user.Nombres,
-            Apellidos = user.Apellidos,
+            Name = user.Nombres,
+            LastName = user.Apellidos,
             Username = user.UserName,
-            Activo = user.Activo,
+            Email = user.Email,
+            Active = user.Activo,
             Roles = roles.ToList()
-        });
+        };
     }
 
     /// <summary>
@@ -176,8 +90,9 @@ public class AccountController : ControllerBase
         var f = await System.IO.File.ReadAllTextAsync("Data/roles.json");
 
         // var r = new JsonTextReader(f);
-        var json = JsonConvert.DeserializeObject(f);
-        return new JsonResult(json);
+        // var json = JsonConvert.DeserializeObject(f);
+        // return new JsonResult(json);
+        return new JsonResult("");
     }
 
     /// <summary>
@@ -185,23 +100,24 @@ public class AccountController : ControllerBase
     /// </summary>
     /// <param name="register">Objeto que contiene {nombres: string, apellidos:string, usuario:string, contraseña: string, confirmacion-contraseña:string}</param>
     /// <returns></returns>
-    [HttpPost("add-usuario")]
-    public async Task<IActionResult> AddUsuario([FromBody] Register register)
+    [HttpPost("add-user")]
+    public async Task<IActionResult> AddUser([FromBody] Register register)
     {
         if (ModelState.IsValid)
         {
-            var user = new Usuario() { Email = register.Username + "@nauta.cu", UserName = register.Username, Nombres = register.Nombres, Apellidos = register.Apellidos, Activo = true };
-            var result = await _userManager.CreateAsync(user, register.Contraseña);
+            var user = new Usuario() { Email = register.Email, UserName = register.Username, Nombres = register.Name, Apellidos = register.LastName, Activo = true };
+            var result = await _userManager.CreateAsync(user, register.Password);
             if (result.Succeeded)
             {
-                _logger.LogInformation($"Usuario {register.Username} creado correctamente por el usuario {User!.Identity!.Name}.");
+                _logger.LogInformation("Usuario {0} creado correctamente por el usuario {1}.", register.Username, User!.Identity!.Name);
                 return Ok(new AccountDto
                 {
                     UserId = user.Id,
-                    Nombres = user.Nombres,
-                    Apellidos = user.Apellidos,
+                    Name = user.Nombres,
+                    LastName = user.Apellidos,
                     Username = user.UserName,
-                    Activo = user.Activo,
+                    Email = user.Email,
+                    Active = user.Activo,
                     Roles = new List<string>()
                 });
             }
@@ -213,23 +129,26 @@ public class AccountController : ControllerBase
     /// <summary>
     /// Edita el nombre y los apellidos de un usuario
     /// </summary>
-    /// <param name="usuario"></param>
+    /// <param name="user"></param>
     /// <returns></returns>
-    [HttpPost("editar-usuario")]
-    public async Task<IActionResult> EditarUsuario([FromBody] EditarUsuario usuario)
+    [HttpPost("edit-user")]
+    public async Task<IActionResult> EditUser([FromBody] EditUserNameDto user)
     {
         if (ModelState.IsValid)
         {
-            var user = await _db.Set<Usuario>().FindAsync(usuario.Id);
-            if (user == null)
+            var userInDb = await _db.Set<Usuario>().FindAsync(user.Id);
+            if (userInDb == null)
             {
                 return BadRequest("No existe el usuario solicitado");
             }
-            user.Nombres = usuario.Nombres;
-            user.Apellidos = usuario.Apellidos;
+            userInDb.Nombres = user.Name;
+            userInDb.Apellidos = user.LastName;
             var result = await _db.SaveChangesAsync();
-            _logger.LogInformation($"Usuario {user.UserName} modificado correctamente por el usuario {User!.Identity!.Name}.");
-            return Ok();
+            if (result == 1)
+            {
+                _logger.LogInformation("Usuario {0} modificado correctamente por el usuario {1}.", userInDb.UserName, User!.Identity!.Name);
+                return Ok();
+            }
         }
         return BadRequest(new { Result = false, Message = "Error modificando el usuario." });
     }
@@ -371,12 +290,12 @@ public class AccountController : ControllerBase
                 var roles = await _userManager.GetRolesAsync(user);
                 var expiration = DateTime.UtcNow.AddDays(1);
                 var userId = "ee41c414-ae4f-4f68-b905-c11606a2a226";
-                var token = BuildToken(login.UserName, login.UserName + "@microapp.cu", expiration, roles);
+                var token = BuildToken(login.UserName, user.Email, expiration, roles);
                 return Ok(new
                 {
                     token = token,
                     expiration = expiration,
-                    userId = userId
+                    userId = user.Id
                 });
             }
             else
@@ -411,12 +330,12 @@ public class AccountController : ControllerBase
             claims.Add(new Claim(ClaimTypes.Role, rol));
         }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Admin123*1234567890"));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Authorization:Password"]));
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        JwtSecurityToken token = new JwtSecurityToken(
-            issuer: "microapp.cu",
-            audience: "microapp.cu",
+        JwtSecurityToken token = new(
+            issuer: _config["Authorization:Issuer"],
+            audience: _config["Authorization:Audience"],
             claims: claims,
             expires: expiration,
             signingCredentials: cred

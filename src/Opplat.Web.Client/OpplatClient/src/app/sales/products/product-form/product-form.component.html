@@ -1,0 +1,56 @@
+<form [formGroup]="productForm" novalidate (ngSubmit)="onSubmit()">
+  <mat-card class="shipping-card">
+    <mat-card-header>
+      <mat-card-title>{{title}}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Codigo" formControlName="code">
+            <mat-error *ngIf="productForm.controls['code'].hasError('required')">
+              El codigo es <strong>obligatorio</strong>
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Nombre" formControlName="name">
+            <mat-error *ngIf="productForm.controls['name'].hasError('required')">
+              Nombre es <strong>obligatorio</strong>
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Descripcion" formControlName="description">
+            <mat-error *ngIf="productForm.controls['description'].hasError('required')">
+              Descripcion es <strong>obligatoria</strong>
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Precio" formControlName="price">
+            <mat-error *ngIf="productForm.controls['price'].hasError('required')">
+              El precio <strong>obligatoria</strong>
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <mat-checkbox [formControl]="productForm.controls['active']">Activo</mat-checkbox>
+        </div>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" type="submit">Guardar</button>
+      <button mat-raised-button color="secundary" type="button" routerLink="/sales/products">Atras</button>
+    </mat-card-actions>
+  </mat-card>
+</form>
