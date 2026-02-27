@@ -1,0 +1,12 @@
+{
+  "assignments": [
+    {
+      "assignment_id": "opplat-modernization-2025",
+      "universe": "Aliens",
+      "created_at": "2025-01-01T00:00:00Z",
+      "agents": ["Ripley", "Hicks", "Vasquez", "Bishop", "Hudson"],
+      "project": "Opplat",
+      "description": "Modernization: net6→net10, Vue→React, add Finbuckle multitenancy"
+    }
+  ]
+}

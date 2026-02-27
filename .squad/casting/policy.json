@@ -1,0 +1,9 @@
+# Opplat Squad — Casting Policy
+
+{
+  "universes_allowed": ["Aliens"],
+  "current_universe": "Aliens",
+  "max_agents": 10,
+  "allow_overflow": true,
+  "overflow_strategy": "diegetic_expansion"
+}
