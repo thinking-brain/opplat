@@ -1,3 +1,6 @@
+// MenusController has been replaced by Features/Menus/ (MediatR + Minimal API).
+// Kept for reference only — [ApiController] and [Route] removed.
+
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,13 +9,13 @@ using Opplat.MainApp.Utils;
 
 namespace Opplat.MainApp.Controllers;
 
-[Route("admin/[controller]")]
-[ApiController]
-// [Authorize]
-public class MenusController : Controller
+// [Route("admin/[controller]")]
+// [ApiController]
+// // [Authorize]
+public class MenusController_Archived : Controller
 {
     private MenuLoader _menuLoader;
-    public MenusController(MenuLoader menuLoader)
+    public MenusController_Archived(MenuLoader menuLoader)
     {
         _menuLoader = menuLoader;
     }

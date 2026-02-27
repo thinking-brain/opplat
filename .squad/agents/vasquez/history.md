@@ -88,3 +88,53 @@
 - Axios for HTTP client (familiar, good interceptor support)
 - TypeScript for type safety and better developer experience
 - Functional components with hooks (modern React patterns)
+
+### Phase 2b: Feature Parity with Vue App (2026-02-27)
+
+**Gap analysis completed:**
+After comparing Vue and React apps side-by-side, identified specific missing features:
+
+**ProductsPage gaps fixed:**
+1. Added search TextField that filters product list by name (client-side)
+2. Added activate/deactivate toggle buttons (Habilitar/Deshabilitar) per row
+3. Added image column showing 60x60 Avatar with product image
+4. Added file upload button for product images using hidden file input + ref
+5. Replaced window.confirm with proper MUI Dialog for delete confirmation
+6. Added History icon button (placeholder for future feature)
+7. Edit button now disabled when product is inactive
+
+**SellPage enhancements:**
+1. Added "Detalles de Venta" Card with sale-level fields matching Vue:
+   - Dependiente (Autocomplete with mock staff names)
+   - Posición (Autocomplete with table positions: Mesa 1-5, Barra, Para Llevar)
+   - Comanda (TextField for order reference)
+   - Observaciones (multiline TextField for notes)
+2. Renamed "Complete Sale" button to "Registrar Venta"
+3. Added loading state to checkout button (submitting variable)
+4. Changed "Total" label to "Importe Total" for consistency
+5. All labels translated to Spanish
+
+**UsersPage gaps fixed:**
+1. Added profile picture column with Avatar component (shows first letter if no image)
+2. Added Delete button with trash icon per row
+3. Added confirm delete Dialog matching ProductsPage pattern
+4. Added tooltips to all action buttons and Active switch for clarity
+5. All labels translated to Spanish (Usuarios, Agregar Usuario, etc.)
+
+**API updates:**
+- products.api.ts: Added toggleActive and uploadImage methods
+- uploadImage uses FormData with multipart/form-data header
+- users.api.ts: Added delete method
+
+**Type updates:**
+- ProductForSale: Added active and imageUrl optional fields
+- User: Added profilePicture optional field
+
+**Key patterns established:**
+- Confirm dialogs use consistent pattern: state for deletingId, open/close handlers, confirm action
+- File uploads use hidden input + ref + click trigger pattern
+- Image URLs constructed as `/api/uploads/${filename}`
+- Tooltips on all icon buttons for accessibility
+- Spanish labels throughout matching Vue app exactly
+- Active state affects button states (Edit disabled when inactive)
+

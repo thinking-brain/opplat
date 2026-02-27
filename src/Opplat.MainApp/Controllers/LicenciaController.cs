@@ -1,4 +1,7 @@
-using LicenceChecker;
+// LicenciaController has been replaced by Features/License/ (MediatR + Minimal API).
+// Kept for reference only — [ApiController] and [Route] removed.
+
+// using LicenceChecker;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Opplat.MainApp.Data;
@@ -8,14 +11,14 @@ using Opplat.MainApp.ViewModels;
 
 namespace Opplat.MainApp.Controllers;
 
-[Route("admin/[controller]")]
-[ApiController]
-public class LicenciaController : Controller
+// [Route("admin/[controller]")]
+// [ApiController]
+public class LicenciaController_Archived : Controller
 {
     IWebHostEnvironment _enviroment;
     DbContext _db;
     LicenciaService _licenciaService;
-    public LicenciaController(IWebHostEnvironment enviroment, OpplatDbContext context, LicenciaService licenciaService)
+    public LicenciaController_Archived(IWebHostEnvironment enviroment, OpplatDbContext context, LicenciaService licenciaService)
     {
         _enviroment = enviroment;
         _db = context;

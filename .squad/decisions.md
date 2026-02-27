@@ -1,5 +1,51 @@
 # Opplat Squad — Decisions
 
+## Session 2 Decisions (2026-02-27)
+
+### Docker Infrastructure Setup
+**By:** Hudson (DevOps)
+**Date:** 2026-02-27
+**What:** Complete Docker Compose setup with multi-stage builds, SQL Server, multi-tenant configuration, and hot-reload frontend
+**Key Decisions:**
+- Build context at repository root for API Dockerfile (access to opplat.sln)
+- SQL Server 2022 with health checks for readiness
+- Multi-tenant database setup (opplat-main, opplat-mojocafe, opplat-demo, opplat-test)
+- Frontend: nginx + static build (prod), Vite dev server (dev)
+- Custom bridge network `opplat-network` for service discovery
+- Environment variables via `.env.docker` template
+**Impact:** One-command setup: `cp .env.docker .env && docker-compose up -d`
+**Status:** Accepted ✅
+
+### React App Feature Parity with Vue
+**By:** Vasquez (Frontend)
+**Date:** 2026-02-27
+**What:** Full feature parity across ProductsPage, SellPage, UsersPage to match Vue 2 reference app
+**Enhancements:**
+- **ProductsPage:** Search, image display, image upload, activate/deactivate toggle, MUI Dialog instead of browser confirm
+- **SellPage:** Sale metadata fields (Dependiente, Posición, Comanda, Observaciones), loading states
+- **UsersPage:** Profile picture column, delete functionality with confirm dialog
+- **Types:** Added `active`, `imageUrl` to ProductForSale; `profilePicture` to User
+- **APIs:** New endpoints for toggle, upload, delete
+**Impact:** Seamless user transition from Vue to React; no retraining needed
+**Status:** Accepted ✅
+
+### MediatR + Minimal API Refactor for Account / License / Menus
+**By:** Hicks (Backend)
+**Date:** 2026-02-27
+**What:** Refactored Account, License, Menus endpoints to use MediatR (v12.4.1) and Minimal API (vertical slice architecture)
+**Structure:**
+- Features/ folder with Command/Query pattern under Features/Account/, Features/License/, Features/Menus/
+- Extension methods (MapAccountEndpoints, MapLicenseEndpoints, MapMenusEndpoints) in Program.cs
+- Dual routing: /{__tenant__}/auth/account and /auth/account for backward compatibility
+- Old controllers archived (not deleted); Sales/Inventory areas remain MVC for now
+**Fixes:**
+- Added missing DI registrations: LicenciaService, MenuLoader
+- Added app.MapControllers() for area controllers
+- Added AddEndpointsApiExplorer before Swagger
+**Impact:** Cleaner separation of concerns; easier testing and refactoring
+**Status:** Accepted ✅
+**Follow-on:** Convert Sales/Inventory to MediatR + Minimal API (lower priority)
+
 ## Session 1 Decisions (2026-02-27)
 
 ### Phase 1: .NET 10.0 Upgrade — LicenceChecker Package Handling

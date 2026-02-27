@@ -1,6 +1,12 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+// AccountController has been replaced by Features/Account/ (MediatR + Minimal API).
+// This file is kept for reference only. It is NOT mapped — [ApiController] and [Route]
+// have been removed so ASP.NET Core will not register these actions.
+
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.Abstractions;
 using Opplat.MainApp.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,27 +18,31 @@ using Opplat.MainApp.Models;
 
 namespace Opplat.MainApp.Controllers;
 
-[Route("auth/[controller]")]
-[ApiController]
-[Authorize]
-public class AccountController : ControllerBase
+// [Route("{__tenant__}/auth/[controller]")]
+// [Route("auth/[controller]")]
+// [ApiController]
+// [Authorize]
+public class AccountController_Archived : ControllerBase
 {
     private readonly UserManager<Usuario> _userManager;
     private readonly SignInManager<Usuario> _signInManager;
     private readonly ILogger _logger;
     private readonly DbContext _db;
     private readonly IConfiguration _config;
+    private readonly IMultiTenantContextAccessor<AppTenantInfo>? _tenantAccessor;
 
-    public AccountController(
+    public AccountController_Archived(
         UserManager<Usuario> userManager,
         SignInManager<Usuario> signInManager, IConfiguration config,
-        ILogger<AccountController> logger, OpplatDbContext context)
+        ILogger<AccountController_Archived> logger, OpplatDbContext context,
+        IMultiTenantContextAccessor<AppTenantInfo>? tenantAccessor = null)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _logger = logger;
         _db = context;
         _config = config;
+        _tenantAccessor = tenantAccessor;
     }
 
     /// <summary>
@@ -319,18 +329,22 @@ public class AccountController : ControllerBase
     /// <returns>Un JWT en forma de string</returns>
     private string BuildToken(string userName, string email, DateTime expiration, IList<string> roles)
     {
+        var tenantInfo = _tenantAccessor?.MultiTenantContext?.TenantInfo;
+        
         var claims = new List<Claim> {
                 new Claim (JwtRegisteredClaimNames.UniqueName, userName),
                 new Claim (JwtRegisteredClaimNames.Jti, Guid.NewGuid ().ToString ()),
                 new Claim (JwtRegisteredClaimNames.Email, email),
-
+                new Claim ("tenant_id", tenantInfo?.Id ?? "unknown"),
+                new Claim ("tenant_identifier", tenantInfo?.Identifier ?? "unknown"),
             };
         foreach (var rol in roles)
         {
             claims.Add(new Claim(ClaimTypes.Role, rol));
         }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Authorization:Password"]));
+        var signingKey = (tenantInfo as AppTenantInfo)?.JwtSigningKey ?? _config["Authorization:Password"];
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey!));
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         JwtSecurityToken token = new(

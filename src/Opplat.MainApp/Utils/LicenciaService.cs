@@ -1,4 +1,4 @@
-using LicenceChecker;
+// using LicenceChecker;
 using Microsoft.EntityFrameworkCore;
 using Opplat.MainApp.Data;
 using Opplat.MainApp.Models;
@@ -30,19 +30,20 @@ public class LicenciaService
         {
             return new LicenciaResponse { Status = false, Mensaje = "La aplicacion no posee una licencia activa."};
         }
-        var path = _env.ContentRootPath;
-        var cl = new LicenceChecker.Checker(Path.Combine(_env.ContentRootPath, "keys/"));
-        var isCorrect = cl.CheckIntegrity(new LicenceChecker.Licence
-        {
-            Application = licencia.Aplicacion,
-            ExpirationDate = licencia.Vencimiento,
-            LicenceHash = licencia.Hash,
-            Suscriptor = licencia.Subscriptor
-        });
-        if (!isCorrect)
-        {
-            return new LicenciaResponse { Status = false, Mensaje = "Su licencia esta corrupta. Contacte al proveedor del sistema."};
-        }
+        // TODO: Re-enable LicenceChecker when package is available
+        // var path = _env.ContentRootPath;
+        // var cl = new LicenceChecker.Checker(Path.Combine(_env.ContentRootPath, "keys/"));
+        // var isCorrect = cl.CheckIntegrity(new LicenceChecker.Licence
+        // {
+        //     Application = licencia.Aplicacion,
+        //     ExpirationDate = licencia.Vencimiento,
+        //     LicenceHash = licencia.Hash,
+        //     Suscriptor = licencia.Subscriptor
+        // });
+        // if (!isCorrect)
+        // {
+        //     return new LicenciaResponse { Status = false, Mensaje = "Su licencia esta corrupta. Contacte al proveedor del sistema."};
+        // }
         if (licencia.Vencimiento < DateTime.Now.AddDays(15))
         {
             return new LicenciaResponse { Status = false, Mensaje = "Su licencia esta vencida. Contacte al administrador."};
@@ -52,31 +53,34 @@ public class LicenciaService
 
     public async Task<LicenciaResponse> AddLicencia(IFormFile licence)
     {
-        Licencia newLicence;
-        var path = _env.ContentRootPath;
-        System.IO.File.Delete(Path.Combine(path, "licencia.lic"));
-        using (var stream = System.IO.File.Create(Path.Combine(path, "licencia.lic")))
-        {
-            licence.CopyTo(stream);
-        }
-        var lic = LicenceLoader.LoadFromFile(Path.Combine(path, "licencia.lic"));
+        // TODO: Re-enable LicenceChecker when package is available
+        return new LicenciaResponse { Status = false, Mensaje= "Licencia functionality temporarily disabled during upgrade."};
+        
+        // Licencia newLicence;
+        // var path = _env.ContentRootPath;
+        // System.IO.File.Delete(Path.Combine(path, "licencia.lic"));
+        // using (var stream = System.IO.File.Create(Path.Combine(path, "licencia.lic")))
+        // {
+        //     licence.CopyTo(stream);
+        // }
+        // var lic = LicenceLoader.LoadFromFile(Path.Combine(path, "licencia.lic"));
 
-        var cl = new LicenceChecker.Checker(Path.Combine(_env.ContentRootPath, "keys/"));
-        if (cl.Check(lic, DateTime.Now))
-        {
-            _db.Set<Licencia>().RemoveRange(_db.Set<Licencia>().ToList());
-            newLicence = new Licencia
-            {
-                Aplicacion = lic.Application,
-                Subscriptor = lic.Suscriptor,
-                Vencimiento = lic.ExpirationDate,
-                Hash = lic.LicenceHash
-            };
-            _db.Add(newLicence);
-            await _db.SaveChangesAsync();
-            return new LicenciaResponse { Status = true, Licencia = newLicence, Mensaje= "Agregado correctamente."};
-        }
-        return new LicenciaResponse { Status = false, Mensaje= "Error el agregar la licencia"};
+        // var cl = new LicenceChecker.Checker(Path.Combine(_env.ContentRootPath, "keys/"));
+        // if (cl.Check(lic, DateTime.Now))
+        // {
+        //     _db.Set<Licencia>().RemoveRange(_db.Set<Licencia>().ToList());
+        //     newLicence = new Licencia
+        //     {
+        //         Aplicacion = lic.Application,
+        //         Subscriptor = lic.Suscriptor,
+        //         Vencimiento = lic.ExpirationDate,
+        //         Hash = lic.LicenceHash
+        //     };
+        //     _db.Add(newLicence);
+        //     await _db.SaveChangesAsync();
+        //     return new LicenciaResponse { Status = true, Licencia = newLicence, Mensaje= "Agregado correctamente."};
+        // }
+        // return new LicenciaResponse { Status = false, Mensaje= "Error el agregar la licencia"};
     }
 
     public async Task<bool> Eliminar()

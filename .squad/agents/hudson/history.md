@@ -75,3 +75,41 @@
 - **Restore status:** ✅ Success - all packages resolved
 - **Purpose:** Enable multitenancy support for Phase 3 implementation
 - **Next steps:** Hicks and Ripley will design and implement multitenancy architecture
+
+### 2025-01-XX: Docker Infrastructure Setup
+- **Created comprehensive Docker setup for local development and deployment**
+- **Files created:**
+  - `src/Opplat.MainApp/Dockerfile` — Multi-stage Dockerfile for .NET 10 API
+  - `src/opplat-react/Dockerfile` — Multi-stage Dockerfile for React frontend with nginx
+  - `docker-compose.yml` — Production-ready compose file with SQL Server, API, and frontend
+  - `docker-compose.override.yml` — Development overrides with hot reload for frontend
+  - `.env.docker` — Example environment variables template
+  - `README.md` — Comprehensive project documentation
+- **Key decisions:**
+  - Build context for API is repo root (.) to access solution file and all projects
+  - SQL Server 2022 with health checks for proper startup sequencing
+  - Multi-tenant environment variables configured for 3 tenants (mojocafe, demo, test)
+  - Frontend runs on nginx in production, Vite dev server in development mode
+  - nginx configured with SPA routing (try_files fallback to index.html)
+  - All services on dedicated bridge network for isolation
+- **Services configured:**
+  - `sqlserver`: SQL Server 2022, port 1433, with persistent volume
+  - `api`: .NET 10 API, port 8080, depends on SQL Server health
+  - `frontend`: React app, port 3000 (nginx) / 5173 (dev mode)
+- **Environment handling:**
+  - Connection strings point to containerized SQL Server
+  - JWT secret configurable via environment variable
+  - Finbuckle multi-tenant configuration with 3 tenant databases
+  - Development vs production mode toggles
+- **Developer experience:**
+  - Simple `docker-compose up -d` to start entire stack
+  - Hot reload in override mode for frontend development
+  - README includes quick start, local dev instructions, troubleshooting
+  - Clear documentation of multi-tenancy routing and usage
+- **Learnings:**
+  - .NET 10 SDK/runtime images use mcr.microsoft.com/dotnet/sdk:10.0 and aspnet:10.0
+  - Multi-stage builds reduce final image size significantly
+  - Health checks prevent API startup failures when SQL Server isn't ready
+  - Docker Compose v3.8 supports depends_on with condition: service_healthy
+  - Environment variable substitution with $${VAR} escaping needed in compose files
+  - Volume mount /app/node_modules prevents host overwriting container dependencies

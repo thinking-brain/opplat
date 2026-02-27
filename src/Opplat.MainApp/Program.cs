@@ -1,11 +1,19 @@
 using System.Reflection;
+using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.Abstractions;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Opplat.MainApp.Data;
+using Opplat.MainApp.Features.Account;
+using Opplat.MainApp.Features.License;
+using Opplat.MainApp.Features.Menus;
 using Opplat.MainApp.Models;
+using Opplat.MainApp.Middleware;
+using Opplat.MainApp.Utils;
 using SalesServices = Opplat.Domain.Sales.Services;
 using SalesRepositories = Opplat.Domain.Sales.Repositories;
 using InfrastructureSalesRepositories = Opplat.Infrastructure.Sales.Repositories;
@@ -18,10 +26,24 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ============================================
+// MULTI-TENANT CONFIGURATION
+// ============================================
+builder.Services.AddMultiTenant<AppTenantInfo>()
+    .WithRouteStrategy("__tenant__")
+    .WithHeaderStrategy("X-Tenant-Identifier")
+    .WithConfigurationStore();
+
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("MainConnection");
-builder.Services.AddDbContext<OpplatDbContext>(options =>
-    options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<OpplatDbContext>((serviceProvider, options) =>
+{
+    var tenantAccessor = serviceProvider.GetService<IMultiTenantContextAccessor<AppTenantInfo>>();
+    var connectionString = tenantAccessor?.MultiTenantContext?.TenantInfo?.ConnectionString 
+        ?? builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? builder.Configuration.GetConnectionString("MainConnection");
+    
+    options.UseSqlServer(connectionString);
+});
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentity<Usuario, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
@@ -32,6 +54,18 @@ builder.Services.AddIdentity<Usuario, IdentityRole>(options => options.SignIn.Re
 //     .AddApiAuthorization<Usuario, OpplatDbContext>();
 
 builder.Services.AddScoped<DbContext, OpplatDbContext>();
+
+// ============================================
+// APP UTILITIES
+// ============================================
+builder.Services.AddScoped<LicenciaService>();
+builder.Services.AddScoped<MenuLoader>();
+
+// ============================================
+// MEDIATR
+// ============================================
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 // Sales DI configurations
 builder.Services.AddScoped<SalesServices.IProductService, SalesServices.ProductService>();
 builder.Services.AddScoped<SalesRepositories.IProductRepository, InfrastructureSalesRepositories.ProductsRepository>();
@@ -77,6 +111,7 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc(builder.Configuration["Documentation:Version"], new OpenApiInfo
@@ -139,19 +174,19 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Add multi-tenant middleware EARLY in the pipeline
+app.UseMultiTenant();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
 }
 else
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-// app.UseStaticFiles();
 app.UseRouting();
 app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
 app.UseSwaggerUI(c =>
@@ -161,9 +196,17 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseAuthentication();
-// app.UseIdentityServer();
+app.UseMiddleware<TenantValidationMiddleware>();
 app.UseAuthorization();
 
+// ============================================
+// MULTI-TENANT AWARE ROUTING
+// ============================================
+
+// MVC attribute-routing for Sales & Inventory area controllers
+app.MapControllers();
+
+// Area convention routes (backward compat)
 app.MapAreaControllerRoute(
             name: "SalesArea",
             areaName: "Sales",
@@ -175,9 +218,21 @@ app.MapAreaControllerRoute(
             pattern: "inventory/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
-// app.MapRazorPages();
+    name: "tenant-sales",
+    pattern: "{__tenant__}/Sales/{controller=Home}/{action=Index}/{id?}",
+    defaults: new { area = "Sales" });
+
+app.MapControllerRoute(
+    name: "tenant-inventory",
+    pattern: "{__tenant__}/inventory/{controller=Home}/{action=Index}/{id?}",
+    defaults: new { area = "inventory" });
+
+// ============================================
+// MINIMAL API ENDPOINTS (Account / License / Menus)
+// ============================================
+app.MapAccountEndpoints();
+app.MapLicenseEndpoints();
+app.MapMenusEndpoints();
 
 
 app.UseCors("CorsPolicy");

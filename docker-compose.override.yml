@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - ./src/Opplat.MainApp:/app/src/Opplat.MainApp:ro
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: npm run dev -- --host 0.0.0.0
+    volumes:
+      - ./src/opplat-react:/app
+      - /app/node_modules
+    ports:
+      - "3000:5173"
+    environment:
+      - VITE_API_URL=http://api:8080

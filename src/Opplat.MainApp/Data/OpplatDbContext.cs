@@ -1,4 +1,7 @@
 // using LicenceChecker;
+using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.Abstractions;
+using Finbuckle.MultiTenant.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Opplat.MainApp.Models;
@@ -8,50 +11,45 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Opplat.MainApp.Data;
 
-public class OpplatDbContext : IdentityDbContext<Usuario>
+public class OpplatDbContext : IdentityDbContext<Usuario>, IMultiTenantDbContext
 {
-    public OpplatDbContext(DbContextOptions options)
+    private readonly IMultiTenantContextAccessor<AppTenantInfo>? _tenantAccessor;
+    
+    public ITenantInfo? TenantInfo => _tenantAccessor?.MultiTenantContext?.TenantInfo;
+    public TenantMismatchMode TenantMismatchMode => TenantMismatchMode.Throw;
+    public TenantNotSetMode TenantNotSetMode => TenantNotSetMode.Throw;
+    
+    public OpplatDbContext(
+        DbContextOptions<OpplatDbContext> options,
+        IMultiTenantContextAccessor<AppTenantInfo>? tenantAccessor = null)
         : base(options)
     {
-
+        _tenantAccessor = tenantAccessor;
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.UseIdentityColumns();
         base.OnModelCreating(builder);
+        
+        builder.ConfigureMultiTenant();
+        
         builder.Entity<UserNotification>().HasKey(s => new { s.NotificationId, s.UsuarioId });
         builder.Entity<SalesEntities.AddedTopping>().HasKey(s => new { s.ToppingId, s.SaleDetailId });
-        builder.Entity<IdentityRole>().HasData(new IdentityRole[] {
-                    new IdentityRole {Id = "1", Name = "administrador", NormalizedName = "ADMINISTRADOR" },
-            });
-        builder.Entity<Usuario>().HasData(
-            new Usuario
-            {
-                Id = "f42559a2-2776-4e9b-9ba1-268597eff72b",
-                UserName = "admin",
-                NormalizedUserName = "ADMIN",
-                Email = "admin@opplat.cu",
-                NormalizedEmail = "ADMIN@OPPLAT.CU",
-                PasswordHash = "AQAAAAEAACcQAAAAEP4OedI6m26WUn/2C4AcBkzdT6SnL/6E+xakQ/9mGAkqqp3t9PwyIR6l9obLouKIVg==",
-                SecurityStamp = "43VMKYQKNTENYZVJNU2TII26X23H5PGV",
-                ConcurrencyStamp = "36fd2616-8e8a-4cc6-8a5a-52d963207836",
-                Activo = true,
-                Nombres = "Administrador",
-                Apellidos = "General",
-            }
-            );
-        builder.Entity<IdentityUserRole<string>>().HasData(
-            new IdentityUserRole<string>
-            {
-                UserId = "f42559a2-2776-4e9b-9ba1-268597eff72b",
-                RoleId = "1"
-            }
-            );
-        // Inventory
         builder.Entity<InventoryEntities.ProductInventory>().HasKey(s => new { s.ProductId, s.StorageId });
-        // Sales
         builder.Entity<SalesEntities.CostTabDetail>().HasKey(s => new { s.ProductForSaleId, s.ProductId });
+    }
+    
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        this.EnforceMultiTenant();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+    
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        this.EnforceMultiTenant();
+        return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
     public DbSet<Licencia> Licencias { get; set; }
