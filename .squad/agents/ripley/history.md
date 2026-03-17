@@ -108,3 +108,27 @@ Initially reassigned revision back to Hudson (original author), then immediately
 - Architectural lesson embedded for future package decisions
 
 **Status:** ✅ COMPLETE — Review done, rejection issued, governance applied, ownership transferred
+
+### 2026-03-17: Phase 1 Domain-Context-First Architecture Refactor
+
+**Task:** Execute Phase 1 of modular refactor—extract Sales and Inventory into domain-context-first module structures (Domain/Application/Infrastructure per context) while preserving behavior, keeping solution building, and maintaining MainApp as presentation/composition root.
+
+**Architecture Delivered:**
+- Created `src/Modules/Sales/` and `src/Modules/Inventory/` directories
+- Each context has **Domain** (entities, services, interfaces), **Infrastructure** (EF repos), **Application** (empty layer for future MediatR)
+- 48 files migrated: 19 Sales files + 20 Inventory files + 9 supporting files
+- All namespaces updated to `Opplat.Modules.{Context}.{Layer}`
+- Controllers remain in `MainApp.Areas` (presentation layer)—no routing disruption
+- OpplatDbContext unified in `MainApp.Data` (compromise for multitenancy simplicity)
+
+**Key Decisions:**
+- Presentation: MainApp.Areas (unchanged)
+- Domain/Infrastructure: Extracted to modules
+- Application: Empty layer prepared for Phase 2 MediatR migration
+- DbContext: Unified (required for Finbuckle multitenancy)
+
+**Build Result:** ✅ Succeeded (11 projects, 0 errors, 4 pre-existing warnings)
+
+**Output:** `.squad/decisions/inbox/ripley-phase1-boundaries.md` — Complete architectural boundaries and mitigation strategies.
+
+**Status:** ✅ COMPLETE — Phase 1 refactor done, solution building, ready for Phase 2

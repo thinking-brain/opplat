@@ -5,8 +5,8 @@ using Finbuckle.MultiTenant.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Opplat.MainApp.Models;
-using SalesEntities = Opplat.Domain.Sales.Entities;
-using InventoryEntities = Opplat.Domain.Inventory.Entities;
+using SalesEntities = Opplat.Modules.Sales.Domain.Entities;
+using InventoryEntities = Opplat.Modules.Inventory.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Opplat.MainApp.Data;

@@ -1,4 +1,4 @@
-﻿namespace Opplat.MainApp.Areas.Caja.ViewModels;
+namespace Opplat.MainApp.Areas.Caja.ViewModels;
 
 public class OperacionCajaViewModel
 {

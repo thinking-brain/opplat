@@ -1,4 +1,4 @@
-﻿namespace Opplat.MainApp.Models;
+namespace Opplat.MainApp.Models;
 
 
 public class UserNotification

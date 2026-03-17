@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Opplat.Domain.Sales.Entities;
-using Opplat.Domain.Sales.Services;
+using Opplat.Modules.Sales.Domain.Entities;
+using Opplat.Modules.Sales.Domain.Services;
 using Opplat.MainApp.Dtos;
 using Opplat.Shared.Services;
 

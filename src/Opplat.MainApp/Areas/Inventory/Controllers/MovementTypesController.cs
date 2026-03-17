@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Opplat.Domain.Inventory.Dtos;
-using Opplat.Domain.Inventory.Services;
+using Opplat.Modules.Inventory.Domain.Dtos;
+using Opplat.Modules.Inventory.Domain.Services;
 
 namespace Opplat.MainApp.Areas.Inventory.Controllers;
 

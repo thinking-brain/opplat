@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Opplat.Domain.Inventory.Entities;
+using Opplat.Modules.Inventory.Domain.Entities;
 
 namespace Opplat.MainApp.Dtos
 {

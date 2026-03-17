@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\Opplat.Modules.Sales.Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\Opplat.Modules.Sales.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

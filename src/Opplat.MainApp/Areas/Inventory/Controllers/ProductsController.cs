@@ -5,8 +5,8 @@ using System.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Opplat.Domain.Inventory.Entities;
-using Opplat.Domain.Inventory.Services;
+using Opplat.Modules.Inventory.Domain.Entities;
+using Opplat.Modules.Inventory.Domain.Services;
 using Opplat.MainApp.Dtos;
 using Opplat.Shared.Services;
 

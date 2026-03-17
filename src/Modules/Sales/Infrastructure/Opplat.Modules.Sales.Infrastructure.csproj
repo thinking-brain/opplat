@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\Opplat.Modules.Sales.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Opplat.Infrastructure\Opplat.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Opplat.Shared\Opplat.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+    <PackageReference Include="Finbuckle.MultiTenant.EntityFrameworkCore" Version="7.0.1" />
+  </ItemGroup>
+</Project>

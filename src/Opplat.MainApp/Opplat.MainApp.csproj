@@ -31,5 +31,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Opplat.Domain\Opplat.Domain.csproj" />
     <ProjectReference Include="..\Opplat.Infrastructure\Opplat.Infrastructure.csproj" />
-  </ItemGroup>  
+    <ProjectReference Include="..\Modules\Sales\Domain\Opplat.Modules.Sales.Domain.csproj" />
+    <ProjectReference Include="..\Modules\Sales\Infrastructure\Opplat.Modules.Sales.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Inventory\Domain\Opplat.Modules.Inventory.Domain.csproj" />
+    <ProjectReference Include="..\Modules\Inventory\Infrastructure\Opplat.Modules.Inventory.Infrastructure.csproj" />
+  </ItemGroup>
 </Project>

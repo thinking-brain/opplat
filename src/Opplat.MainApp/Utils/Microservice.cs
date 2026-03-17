@@ -1,4 +1,4 @@
-﻿namespace Opplat.MainApp.Utils;
+namespace Opplat.MainApp.Utils;
 
 public class Microservice
 {
