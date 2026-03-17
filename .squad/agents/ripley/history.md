@@ -63,3 +63,48 @@
 - Client apps must store and use tenant identifier
 
 **Output:** `.squad/decisions/inbox/ripley-multitenancy-design.md` — ready for Hicks to implement
+
+### 2026-03-17: Phase 1 .NET 10 Review & Governance
+
+**Task:** Lead-level phase gate review of Hudson's .NET 10 package alignment.
+
+**Review Process:**
+- Cross-referenced all `.csproj` package changes against NuGet.org availability
+- Analyzed code imports (Program.cs, OpplatDbContext.cs) for compatibility
+- Compared against `.squad/decisions.md` approved architecture (v7.0.1)
+
+**Critical Finding:**
+Finbuckle.MultiTenant v10.0.4 **does not exist** on NuGet.org. Latest stable: v7.0.1 only. No versions 8, 9, or 10 have been published. Assumption that Finbuckle versions lock to .NET releases is architecturally incorrect.
+
+**Code Analysis:**
+1. Non-existent namespace imports in Program.cs: `.AspNetCore.Extensions`, `.Extensions`
+2. Non-existent namespace import in OpplatDbContext.cs: `.EntityFrameworkCore.Extensions`
+3. API signature mismatch: `.WithRouteStrategy("__tenant__", false)` includes boolean parameter absent in v7.0.1
+4. Build succeeds only because packages not yet restored; restore will fail with NU1101
+
+**Decision: REJECT**
+- Violates team-approved v7.0.1 decision
+- References packages that don't exist (will fail on restore)
+- Incompatible API signatures
+- Missed opportunity to verify package availability
+
+**Architectural Lesson:**
+Documented rejection includes guidance: **Never assume semantic versioning locks to .NET releases.** Each package has independent versioning.
+
+**Governance Protocol Application:**
+Initially reassigned revision back to Hudson (original author), then immediately recognized this violates **Reviewer Lockout Protocol** (author cannot revise own rejection). Self-corrected and reassigned to **Hicks (Backend Dev)**, who:
+- Is Finbuckle.MultiTenant architect (designed Phase 3)
+- Is backend expert
+- Is NOT original author (no lockout violation)
+
+**Decision records created:**
+- `.squad/decisions/inbox/ripley-net10-review-REJECTED.md` (detailed rejection analysis)
+- `.squad/decisions/inbox/ripley-finbuckle-reassignment.md` (lockout correction + Hicks assignment)
+
+**Outcome:**
+- Hudson temporarily locked from revision
+- Hicks assigned revision ownership
+- Team governance model strengthened through protocol enforcement
+- Architectural lesson embedded for future package decisions
+
+**Status:** ✅ COMPLETE — Review done, rejection issued, governance applied, ownership transferred

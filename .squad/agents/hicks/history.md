@@ -74,3 +74,29 @@
 - Vasquez (React): Update API base URL to include tenant identifier
 - Bishop (Tests): Create test fixtures with mock tenant context
 - Elvis: Decide on tenant onboarding strategy (manual vs. automated)
+
+### Finbuckle Revision under Reviewer Lockout Protocol (2026-03-17)
+
+**Context:** Hudson's Finbuckle upgrade attempt to v10.0.4 was rejected because that version doesn't exist. Ripley applied Reviewer Lockout Protocol (author cannot revise own rejection) and reassigned to Hicks.
+
+**Assignment Rationale:** Hicks is Finbuckle.MultiTenant architect (designed Phase 3 architecture), backend expert, and not the original author of rejected work.
+
+**Task:** Revise Finbuckle package alignment back to approved v7.0.1.
+
+**Work Performed:**
+- Reverted Finbuckle.MultiTenant packages to v7.0.1 in both MainApp and Infrastructure
+- Removed non-existent namespace imports (`.AspNetCore.Extensions`, `.EntityFrameworkCore.Extensions`)
+- Fixed API signature: `.WithRouteStrategy("__tenant__", false)` → `.WithRouteStrategy("__tenant__")`
+- Preserved all other .NET 10 / EF Core 10 alignment (Npgsql at 10.0.0, ASP.NET Core at 10.0.5)
+
+**Validation:**
+- `dotnet build .\opplat.sln` ✅ SUCCESS
+- `dotnet test .\opplat.sln --no-build` ✅ SUCCESS (0 discovered tests expected)
+- No prerelease packages required
+
+**Key Technical Lesson:**
+Finbuckle 7.0.1 exposes root-namespace methods only (`UseMultiTenant`, `ConfigureMultiTenant`, `EnforceMultiTenant`). No `.Extensions` subnamespaces exist in v7.0.1. Route strategy accepts single parameter (the `__tenant__` placeholder name); boolean variants are not part of v7.0.1 API surface.
+
+**Decision record created:** `.squad/decisions/inbox/hicks-finbuckle-revision.md`
+
+**Status:** ✅ COMPLETE — Revision approved; Phase 1 locked and validated

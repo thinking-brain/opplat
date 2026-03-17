@@ -113,3 +113,36 @@
   - Docker Compose v3.8 supports depends_on with condition: service_healthy
   - Environment variable substitution with $${VAR} escaping needed in compose files
   - Volume mount /app/node_modules prevents host overwriting container dependencies
+
+### 2026-03-17: .NET 10 Package Alignment Submission — REJECTED
+
+**Task:** Align all project packages to .NET 10-compatible versions.
+
+**Work Performed:**
+- Upgraded all projects to net10.0 target framework
+- Updated 20+ packages to .NET 10 compatibility levels (ASP.NET Core 10.0.5, EF Core 10.0.5, test framework 17.14.0, etc.)
+- Added Finbuckle.MultiTenant.AspNetCore and EntityFrameworkCore v7.0.1 to both MainApp and Infrastructure
+
+**Critical Error:**
+Attempted to upgrade Finbuckle.MultiTenant from v7.0.1 to v10.0.4, assuming package versions lock to .NET releases. **This version does not exist on NuGet.org.** Latest stable Finbuckle: v7.0.1 only. No v8, v9, or v10 releases published.
+
+**Code Issues from Non-Existent Package:**
+- Imports non-existent namespaces: `.AspNetCore.Extensions`, `.EntityFrameworkCore.Extensions`
+- API signature changed: `.WithRouteStrategy("__tenant__", false)` assumes v10.0.4 boolean parameter
+- Build succeeds only because packages not yet restored; restore will fail with NU1101 error
+
+**Reviewer Finding:**
+Ripley (Lead) rejected submission with detailed analysis. Violation of team-approved decision (`.squad/decisions.md`: v7.0.1 explicitly approved for Phase 1).
+
+**Architectural Lesson Documented:**
+Never assume semantic versioning locks to .NET major versions. Each package has independent versioning. Always verify NuGet.org availability before upgrades.
+
+**Reviewer Lockout Protocol Applied:**
+Per governance, Hudson (original author) locked from revising own rejection. **Ownership reassigned to Hicks (Backend Dev)** for correction.
+
+**Decision records created:**
+- `.squad/decisions/inbox/hudson-net10-packages.md` (submission)
+- `.squad/decisions/inbox/ripley-net10-review-REJECTED.md` (rejection analysis)
+- `.squad/decisions/inbox/ripley-finbuckle-reassignment.md` (lockout + reassignment)
+
+**Status:** ❌ REJECTED — Awaiting Hicks revision; Hudson temporarily locked

@@ -1,5 +1,59 @@
 # Opplat Squad — Decisions
 
+## Session 3 Decisions (2026-03-17)
+
+### Phase 1: .NET 10 Migration — Package Alignment Review (Rejected)
+**By:** Hudson (DevOps) — Submitted | Ripley (Lead) — Reviewed & Rejected
+**Date:** 2026-03-17
+**What:** Attempted to align all packages to .NET 10; upgraded Finbuckle.MultiTenant to v10.0.4
+**Why:** Assumed Finbuckle version-locks to .NET releases (v10.0.4 for .NET 10)
+**Critical Issue:** Finbuckle.MultiTenant v10.0.4 **does not exist** on NuGet.org (latest: v7.0.1)
+**Code Problems:**
+  - Non-existent namespace imports: `.AspNetCore.Extensions`, `.EntityFrameworkCore.Extensions`
+  - API signature mismatch: `.WithRouteStrategy("__tenant__", false)` (boolean param not in v7.0.1)
+  - Build succeeds only because packages not yet restored
+**Status:** ❌ REJECTED
+**Lesson:** Never assume package semantic versioning locks to .NET major versions. Always verify NuGet.org availability.
+
+### Phase 1: .NET 10 Migration — Finbuckle Package Revision
+**By:** Hicks (Backend Dev) — Assigned by Ripley per Reviewer Lockout Protocol
+**Date:** 2026-03-17
+**What:** Reverted Finbuckle.MultiTenant from non-existent v10.0.4 back to approved v7.0.1
+**Why:** Team decision approved v7.0.1; v10.0.4 doesn't exist; fix API signatures for v7.0.1 compatibility
+**Changes:**
+  - Finbuckle.MultiTenant.AspNetCore: 7.0.1 (MainApp)
+  - Finbuckle.MultiTenant.EntityFrameworkCore: 7.0.1 (MainApp + Infrastructure)
+  - Removed invalid namespace imports (`.Extensions` subnamespaces)
+  - Fixed API: `.WithRouteStrategy("__tenant__", false)` → `.WithRouteStrategy("__tenant__")`
+  - Preserved all EF Core 10.0.5 and other .NET 10 alignment
+**Validation:** Build ✅ | Test ✅ (0 discovered tests, pre-existing)
+**Status:** Accepted ✅
+**Technical Insight:** Finbuckle 7.0.1 root namespace only—no `.Extensions` subnamespaces. Route strategy single parameter.
+
+### Phase 1: .NET 10 Migration — Test Framework Validation
+**By:** Bishop (Tester)
+**Date:** 2026-03-17
+**What:** Independently validated build and test status after package alignment correction
+**Findings:**
+  - `dotnet build` ✅ SUCCESS
+  - `dotnet test` ✅ SUCCESS (0 discovered tests)
+  - Zero-test discovery is pre-existing: `LicenciaTest.cs` [Fact] commented, `SetupContexto.cs` is stub
+  - Not a migration regression; no test-code changes warranted
+**Decision:** Do not modify test code beyond package/framework alignment during migration
+**Status:** Accepted ✅
+**Follow-on:** Future multitenancy tests should be added as new files alongside dormant legacy scaffolding
+
+### Reviewer Lockout Protocol Application
+**By:** Ripley (Lead/Architect)
+**Date:** 2026-03-17
+**What:** Corrected initial reassignment error; applied Reviewer Lockout Protocol to Finbuckle revision
+**Issue:** Initially reassigned revision back to Hudson (original author), violating lockout protocol
+**Rule:** Original author of rejected work cannot revise their own rejection
+**Correction:** Reassigned to Hicks (Backend Dev, Finbuckle expert, not original author)
+**Rationale for Hicks:** Backend concern, Finbuckle.MultiTenant architect, no authorship conflict
+**Status:** ✅ Protocol Enforced
+**Governance:** Team governance model strengthened; protocol prevents author-bias in revisions
+
 ## Session 2 Decisions (2026-02-27)
 
 ### Docker Infrastructure Setup
