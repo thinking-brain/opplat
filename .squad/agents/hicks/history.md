@@ -40,6 +40,13 @@
 
 ## Learnings
 
+### Admin auth backend implementation (2026-03-20)
+
+- `Opplat.MainApp` now validates bearer tokens through OIDC authority/audience discovery instead of the old symmetric signing key flow.
+- Finbuckle tenant resolution still uses route plus `X-Tenant-Identifier`, but the tenant catalog now persists through `Data/tenant-catalog.json` so admin tenant CRUD can update the active store without touching project files.
+- Account endpoints no longer mint local JWTs; password-oriented flows now return clear IdP-owned messages while metadata/user-role management remains in ASP.NET Identity.
+- Admin backend slices live under `Features/Admin/` and combine tenant catalog CRUD, cross-tenant user listing, and tenant-scoped user management endpoints.
+
 ### Phase 3: Finbuckle.MultiTenant Implementation (2026-02-27)
 
 **Completed:** Full multi-tenant architecture using Finbuckle.MultiTenant 7.0.1

@@ -132,3 +132,27 @@ Initially reassigned revision back to Hudson (original author), then immediately
 **Output:** `.squad/decisions/inbox/ripley-phase1-boundaries.md` — Complete architectural boundaries and mitigation strategies.
 
 **Status:** ✅ COMPLETE — Phase 1 refactor done, solution building, ready for Phase 2
+
+### 2026-03-20: Admin App + Auth0/Keycloak + Tenant Flow Design Review
+
+**Task:** Architecture decision for admin app, OIDC auth (Auth0 prod / Keycloak local dev), tenant identity flow through login, and Docker Compose repair.
+
+**Key Architectural Decisions:**
+1. **Admin app is a new standalone React frontend** at `src/opplat-admin/` — separate audience (operators vs end-users), separate deployment lifecycle, same tech stack (Vite + React 18 + TS + MUI)
+2. **OIDC replaces custom JWT issuance** — Auth0 for production, Keycloak for local dev. Backend validates tokens via OIDC discovery (`Authority` config). No more symmetric key signing in the backend.
+3. **`react-oidc-context`** chosen over `@auth0/auth0-react` — provider-agnostic, works identically with Auth0 and Keycloak
+4. **Tenant identity flows via token claims** — IdP injects `tenant_id` and `tenant_identifier` into access tokens. Finbuckle route strategy resolves tenant from URL. TenantValidationMiddleware cross-checks token claim vs resolved tenant. No Finbuckle changes needed.
+5. **All backend surfaces stay in MainApp** — admin endpoints at `/admin/` prefix, role-gated. No new API project (overhead not justified for MVP).
+6. **Keycloak realm import JSON** at `docker/keycloak/opplat-realm.json` — pre-seeded clients, mappers, roles, and test users per tenant.
+
+**Critical Docker Compose Findings:**
+- MainApp Dockerfile missing module .csproj COPY statements (restore will fail)
+- Override file has broken volume mount and frontend build conflict
+- CORS middleware ordered after authorization (will fail preflight)
+- 7 services total: sqlserver, keycloak, api, sales-api, inventory-api, frontend, admin-frontend
+
+**Work Split:** Hicks (backend auth + admin endpoints), Vasquez (admin app + client auth migration), Hudson (Docker + Keycloak), Bishop (integration tests)
+
+**Output:** `.squad/decisions/inbox/ripley-admin-auth-tenant-design.md`
+
+**Status:** ✅ COMPLETE — Design review done, decision approved, ready for implementation dispatch

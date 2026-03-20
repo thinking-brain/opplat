@@ -1,5 +1,165 @@
 # Opplat Squad — Decisions
 
+## Session 4 Decisions (2026-03-20)
+
+### Phase 1 Sales and Inventory Module Extraction
+**By:** Hicks (Backend Dev)
+**Date:** 2026-03-18
+**What:** Moved Sales and Inventory backend implementation out of legacy `src/Opplat.Domain/*` and `src/Opplat.Infrastructure/*` into modular structure:
+- `src/Modules/Sales/{Domain,Infrastructure}`
+- `src/Modules/Inventory/{Domain,Infrastructure}`
+**Why:** Structural refactor aligns with Phase 1 architecture; keeps controllers in MainApp to preserve routing without invasive composition rewrite
+**Decision:**
+- MainApp references module Domain/Infrastructure projects directly
+- Controllers depend on `Opplat.Modules.*` namespaces
+- Legacy Sales/Inventory source trees removed after move
+- Module Application projects left as placeholders (future MediatR handlers)
+- Sales-to-Inventory coupling (`CostTab` → Inventory product) preserved for Phase 1
+**Consequences:** Feature code now in module projects; MainApp owns routing, middleware, DbContext, auth, tenant pipeline
+**Status:** ✅ Accepted
+**Related Decision:** ripley-phase1-boundaries.md (architecture verification)
+
+### Architecture Decision: Admin App, Auth0/Keycloak Auth, Tenant Identity Flow
+**By:** Ripley (Lead/Architect)
+**Date:** 2026-03-20
+**Status:** ✅ APPROVED — Ready for implementation
+**What:** Comprehensive redesign of auth stack and admin surface
+**Key Decisions:**
+1. **Admin App:** New standalone React app at `src/opplat-admin/` (Vite + React 18 + MUI, same stack as client)
+   - Serves platform operators (tenant CRUD, user management, system config)
+   - Independent from client app (`opplat-react`)
+   - Docker service on port 3001
+2. **Auth Architecture:** Replace custom JWT with OIDC/OAuth2 (Auth0 prod, Keycloak local dev)
+   - Backend validates tokens from either IdP via OIDC discovery
+   - `Auth__Authority` + `Auth__Audience` environment variables
+   - Custom claims for tenant_id, tenant_identifier injected by IdP
+   - Remove SymmetricSecurityKey, LoginCommand, custom token issuance
+3. **Tenant Identity Flow:** Token claims + Finbuckle route strategy
+   - User logs in → IdP issues token with tenant_id + tenant_identifier
+   - Client app routes request as `/{tenant}/api/...`
+   - TenantValidationMiddleware validates token claim matches route tenant
+   - Prevents cross-tenant token replay
+4. **Backend Surface:** All surfaces in MainApp (no separate API)
+   - `/{__tenant__}/api/...` — client APIs (existing)
+   - `/admin/tenants` — tenant CRUD (new, requires admin role)
+   - `/admin/users` — cross-tenant user management (new, requires admin role)
+   - `/admin/settings` — system config (new, requires admin role)
+5. **Keycloak Local Dev Setup:** Realm import JSON with pre-seeded clients, users, mappers
+   - Realm: `opplat`
+   - Clients: `opplat-client` (3000), `opplat-admin` (3001)
+   - Test users: admin@{mojocafe,demo,test}, user@mojocafe
+   - Protocol mappers inject tenant claims
+   - Port: 8180 (avoid conflict with API port 8080)
+6. **Frontend Auth Library:** `react-oidc-context` (wraps `oidc-client-ts`)
+   - Works identically with Auth0 and Keycloak
+   - Provider-agnostic; no Auth0-specific SDK
+7. **Work Split:**
+   - **Hicks:** Implement Program.cs OIDC validation, admin endpoints, CORS fix
+   - **Vasquez:** Create admin app, migrate client app auth to OIDC
+   - **Hudson:** Create Keycloak realm JSON, fix Docker Compose, admin Dockerfile
+   - **Bishop:** Integration tests (auth flow, tenant isolation, docker smoke tests)
+**Rationale:** Keycloak enables local dev without Auth0 account; OIDC future-proofs for prod; admin app separates concerns; tenant claims prevent cross-tenant access
+**Dependencies:** Blocks Hicks (backend auth), Vasquez (admin + client auth), Bishop (validation)
+**Risks Mitigated:**
+- Keycloak realm JSON complexity → Hudson provides working template
+- Auth0 vs Keycloak claims → Backend middleware normalizes claims
+- Dynamic tenant CRUD → Phase 1 uses static config; Phase 3 migrates to EF Core store
+- Docker service growth → Health checks and documented dependencies
+**Status:** ✅ APPROVED
+**Next:** Hicks + Vasquez + Hudson execute in parallel
+
+### Docker Compose & Keycloak Infrastructure Implementation
+**By:** Hudson (DevOps)
+**Date:** 2026-03-20
+**What:** Complete Docker Compose repair and Keycloak local dev infrastructure per Ripley's approved design
+**Deliverables:**
+1. **Keycloak realm JSON** (`docker/keycloak/opplat-realm.json`)
+   - Realm `opplat` with login theme
+   - Clients: `opplat-client` (localhost:3000), `opplat-admin` (localhost:3001)
+   - Client scopes with protocol mappers for `tenant_id`, `tenant_identifier` claims
+   - Roles: `admin`, `operator`, `user` (realm-level)
+   - Test users: admin@{mojocafe,demo,test}, user@mojocafe (passwords: admin123/user123)
+2. **docker-compose.yml rewrite**
+   - Added Keycloak service (8180, realm auto-import, health check)
+   - Updated all API services: removed `Authorization__Password`, added `Auth__Authority`, `Auth__Audience`, `Auth__ClientId*`
+   - Added `depends_on: keycloak: service_healthy` for startup sequencing
+   - Added admin-frontend service (3001, OIDC env vars)
+   - Updated frontend service with OIDC variables
+3. **docker-compose.override.yml fixes**
+   - Removed broken `api` volume mount (`./src/Opplat.MainApp:/app/src/...` dead path)
+   - Fixed `frontend` build conflict (removed conflicting image directive)
+   - Added `admin-frontend` development override (node:20-alpine, Vite hot-reload on 5173)
+   - Both frontends mapped to localhost:{3000,3001}
+4. **MainApp Dockerfile repair**
+   - Added missing module .csproj COPY statements (all 7 module projects)
+   - Prevents restore failures (NU1101) when MainApp references modules
+5. **Admin frontend Dockerfile** (`src/opplat-admin/Dockerfile`)
+   - Multi-stage build: node:20-alpine → nginx:alpine
+   - SPA routing with try_files fallback
+   - Cache control headers for assets
+   - Placeholder ready for Vasquez population
+6. **.env.docker update**
+   - Removed `JWT_SECRET` (no longer used with OIDC)
+   - Added `AUTH__AUTHORITY`, `AUTH__AUDIENCE`, `AUTH__CLIENT_ID_*`
+   - Added `VITE_AUTH_*` for client app (Keycloak/Auth0 agnostic)
+   - Added `VITE_ADMIN_AUTH_*` for admin app
+**Validation:** ✅ docker-compose config, Keycloak JSON, Dockerfile syntax, service dependencies all valid
+**Design Patterns:**
+- Keycloak health check: 60s start period + 10 retries (realm import init time)
+- OIDC authority: container DNS (`keycloak:8180`) for inter-service, localhost for browser
+- Override pattern: production multi-stage builds replaced by dev containers in override
+- Realm import: auto-import via `--import-realm` + volume mount to `/opt/keycloak/data/import/`
+- Protocol mappers: OIDC attribute mappers for tenant claims
+**Status:** ✅ COMPLETE — Docker infrastructure ready for backend + frontend implementation
+**Dependencies:** Awaiting Vasquez (admin app), Hicks (backend OIDC), Bishop (integration tests)
+
+### Phase 1 Refactor: Domain-Context-First Architecture Boundaries
+**By:** Ripley (Lead/Architect)
+**Date:** 2026-03-17
+**Status:** ✅ COMPLETE & VERIFIED
+**What:** Establish modular, domain-context-first architecture for Sales and Inventory
+**Key Decisions:**
+- **Directory Structure:** Modules/{Sales,Inventory}/{Domain,Infrastructure,Application} + MainApp.Areas for controllers
+- **Three-Layer Module Structure:** Domain (entities, services, interfaces), Infrastructure (EF repos), Application (handlers—empty for now)
+- **Single Shared DbContext:** OpplatDbContext in MainApp.Data; unified for multitenancy simplicity
+- **Service Registration:** All module services registered in MainApp.Program.cs via aliases
+- **Presentation in MainApp:** Controllers remain in MainApp.Areas (route discovery, DI simplicity)
+- **Accounting Preserved As-Is:** ~20 files in Opplat.Domain (incomplete feature; extraction would create compliance risk)
+- **Controller Namespaces:** Logical organization (e.g., `Opplat.Modules.Sales.Application` for discoverability)
+**Project References:**
+```
+MainApp → Sales.Domain, Sales.Infrastructure, Sales.Application
+        → Inventory.Domain, Inventory.Infrastructure, Inventory.Application
+        → Opplat.Domain (Accounting), Opplat.Infrastructure (base)
+Infrastructure → Domain, Shared
+Domain → Shared
+```
+**Boundary Rules (Non-Negotiable):**
+- Modules do NOT reference each other
+- Modules only reference MainApp.Data (DbContext) + Program.cs (DI)
+- MainApp references all module projects; modules reference none
+- Opplat.Shared cross-cutting only (logging, utilities, DTOs, validators)
+**Verification:** ✅ Build successful (0 errors, 4 pre-existing warnings)
+- 9 projects compiled correctly
+- Controllers route correctly (Area discovery verified)
+- Services resolve (DI aliases work)
+- No circular dependencies
+- No namespace collisions
+**Behavioral Preservation:**
+- API endpoints unchanged (routes, contracts, response shapes)
+- Database schema unchanged (no migrations added)
+- Clients see zero changes
+**Impact on Future Phases:**
+- Phase 2 (React): No blocking changes; API contracts preserved
+- Phase 3 (Multitenancy): DbContext decomposition may be needed if per-tenant schema divergence occurs
+- Phase 4 (CQRS/MediatR): Application layer ready for handler implementation
+**Compromises (Phase 1):**
+- DbContext remains unified (multitenancy simplicity trade-off; reassess Phase 3)
+- Controllers in MainApp, not modules (ASP.NET Area routing tightly bound)
+- No inter-module DTOs (entities shared; low conflict risk)
+**Status:** ✅ APPROVED & ENFORCED
+**Sign-Off:** Ripley (Lead); Ready for Phase 2
+
 ## Session 3 Decisions (2026-03-17)
 
 ### Phase 1: .NET 10 Migration — Package Alignment Review (Rejected)
