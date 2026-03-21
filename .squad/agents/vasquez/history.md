@@ -1,3 +1,13 @@
+## Core Context
+
+### Phase 2: React Foundation & Feature Parity (2026-02-27)
+Built React 18 SPA with Vite, MUI v5, React Router v6, Axios, TypeScript strict mode, and localStorage token persistence. Feature-based architecture with /api, /auth, /pages, /components, /types separation. Implemented 5 required pages (Login, Home, Products, Sell, Users) with full feature parity to Vue app. Dashboard shows sales data and quick-access user management. ProductsPage includes search, image upload, activate/deactivate. SellPage has Dependiente/Posición/Comanda/Observaciones metadata. UsersPage includes profile pictures and delete.
+
+### Phase 3a: Role-Based Frontend Gating (2026-03-21)
+Canonicalized frontend roles to SuperAdmin/TenantAdmin/TenantUser in both React apps via dedicated roles.ts files. opplat-admin gated behind SuperAdmin; opplat-react shows Users route only to TenantAdmin. ProtectedRoute supports role-based gating with unauthorized-state UI. ROOT docs updated in README.md with role model and seeded Keycloak users.
+
+### Keycloak OIDC Scope Alignment (2026-03-21 Session 5)
+Both frontends aligned to request openid profile email offline_access (removed roles). Claims parsing extracts realm_access.roles and resource_access.*.roles from Keycloak tokens. Audience query param skipped for Keycloak realm URLs. Both apps pass npm run lint and npm run build.
 ## Project Context
 
 **Project:** Opplat — Multi-platform business management system (café/restaurant)
@@ -289,3 +299,4 @@ After comparing Vue and React apps side-by-side, identified specific missing fea
 **Test Harnesses:** Both FrontendAuthContractTests and KeycloakRealmContractTests are now permanent regression guards for scope contracts.
 
 **Status:** ✅ COMPLETE — Your frontend scope alignment was correct in principle but too minimal in scope set. Team consensus finalized and applied.
+

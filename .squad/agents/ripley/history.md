@@ -1,3 +1,13 @@
+## Core Context
+
+### Multitenancy Architecture Design (2026-02-27)
+Designed comprehensive multitenancy using Finbuckle.MultiTenant 7.0.1 with per-database isolation (maximum security for restaurant context). Dual-strategy tenant resolution: route-based primary (/{__tenant__}/...) for user-friendly URLs, header fallback (X-Tenant-Identifier) for API clients. In-memory configuration store sufficient for MVP; can upgrade to EF Core store later. Tenant catalog persists via Data/tenant-catalog.json for admin CRUD without touching project files.
+
+### 3-Tier Role Model (2026-03-20)
+SuperAdmin (platform-wide, admin app only), TenantAdmin (per-tenant, user management in client), TenantUser (regular tenant user). Single-tenant-per-user model with tenant scoping via user attributes/groups, not roles. SuperAdmin blocked from client app root.
+
+### Keycloak Dev Bootstrap (2026-03-21)
+Keycloak realm JSON (opplat-realm.json) seeds realm, clients, roles, test users. Keycloak config (keycloak.conf) owns local HTTP/hostname settings. Built-in OIDC scopes (profile, email, offline_access) attached to SPA clients; Opplat-specific scopes (opplat-tenancy, opplat-api-audience) as custom scopes. Seeded test users: superadmin, admin@mojocafe, admin@demo, user@mojocafe, user@demo with corresponding role assignments.
 ## Project Context
 
 **Project:** Opplat — Multi-platform business management system (café/restaurant)

@@ -1,3 +1,13 @@
+## Core Context
+
+### Finbuckle.MultiTenant Architecture (2026-02-27)
+Full multi-tenant implementation with per-database isolation, route-based tenant resolution (/{tenant}/...), and header fallback (X-Tenant-Identifier). Database-per-tenant isolation chosen for maximum security. JWT tokens include tenant_id and tenant_identifier claims. Configuration-based tenant store in appsettings.json with 3 sample tenants (mojocafe, demo, test).
+
+### Sales/Inventory Module Extraction (2026-03-18)
+Moved existing Sales and Inventory business logic from Opplat.Domain/Opplat.Infrastructure into dedicated module projects (src/Modules/Sales, src/Modules/Inventory) while keeping Opplat.MainApp as HTTP composition root. Controllers remain in MainApp consuming module namespaces. Architecture supports future module independence.
+
+### Finbuckle Package Alignment Revision (2026-03-17)
+Reverted Hudson's attempted v10.0.4 upgrade (non-existent version) back to approved v7.0.1. Root namespace only; no .Extensions subnamespaces exist in v7.0.1. Route strategy single parameter. Finbuckle 7.0.1 is stable and compatible with .NET 10/EF Core 10.
 ## Project Context
 
 **Project:** Opplat — Multi-platform business management system (café/restaurant)
@@ -218,3 +228,4 @@ Finbuckle 7.0.1 exposes root-namespace methods only (`UseMultiTenant`, `Configur
 **Test Harnesses:** Both FrontendAuthContractTests and KeycloakRealmContractTests are now permanent regression guards for scope contracts.
 
 **Status:** ✅ COMPLETE — Scope contract finalized across all layers, minimal corrections applied, team consensus recorded.
+

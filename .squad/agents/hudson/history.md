@@ -265,6 +265,32 @@
 
 **Status:** ✅ COMPLETE — Docker infrastructure clarified and ready for all phases
 
+### 2026-03-21: Runtime Scope Injection Fix — "Invalid scopes" Error Resolution
+
+**Task:** Fix "Invalid scopes: openid profile email offline_access" error during Keycloak OIDC login despite realm configuration being correct.
+
+**Root Cause:** Three-layer scope injection mismatch:
+1. Source code (runtimeConfig.ts) fallback: `openid profile email offline_access` ✓
+2. Dockerfile runtime-config script fallback: `openid` only ✗
+3. .env env vars: not defined ✗
+
+When nginx runtime-config.js injected the minimal `openid`-only fallback, it overrode the source-code fallback and caused scope merge conflicts.
+
+**Work Performed:**
+1. Updated both Dockerfiles (opplat-react, opplat-admin) to inject full scope in nginx entrypoint script:
+   - Line 46/45: `${VITE_AUTH_SCOPE:-openid profile email offline_access}`
+2. Added explicit VITE_AUTH_SCOPE and VITE_ADMIN_AUTH_SCOPE to .env and .env.docker
+3. Validated docker-compose.yml already had correct env variable passing
+4. Rebuilt frontend services; both succeeded with corrected injection
+
+**Files Changed:**
+- `src/opplat-react/Dockerfile` (runtime-config script fallback)
+- `src/opplat-admin/Dockerfile` (runtime-config script fallback)
+- `.env` (added scope env vars)
+- `.env.docker` (added scope env vars)
+
+**Status:** ✅ COMPLETE — Frontend auth scope injection now consistent across all three layers.
+
 ## Learnings
 
 ### Pattern: OIDC Scope Definitions in Keycloak
@@ -295,4 +321,12 @@ depends_on:
     condition: service_healthy
 ```
 Avoid race conditions where frontend tries to auth before realm is ready.
+
+### Pattern: Runtime Config Injection Scope Chain (Multi-Layer)
+Frontend SPAs with nginx + runtime-config.js should maintain consistency across three injection layers:
+1. **Dockerfile entrypoint script** — Initial fallback injected into runtime-config.js (happens at container startup)
+2. **.env / compose environment** — Explicit values that override Dockerfile defaults
+3. **Source code** — Build-time fallback in runtimeConfig.ts
+
+If any layer uses a stale or incomplete value (e.g., `openid` only instead of `openid profile email offline_access`), it can override upstream values and cause OIDC token request failures. Always synchronize the full intended scope across all three layers. The .env layer should be explicit and visible to operators, not hidden in Dockerfile defaults.
 
