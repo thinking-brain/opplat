@@ -1,5 +1,8 @@
 ## Core Context
 
+### Cross-Tenant Admin Bootstrap Resilience (2026-03-21 Session 6b)
+Addressed post-login admin dashboard bootstrap failures when tenant databases were unreachable. The issue: `/admin/users` query calls every active tenant database; if any were offline, the entire bootstrap failed, masking the successful admin signin. Decision: `GetAdminUsersQueryHandler` should log and skip unreachable tenant databases instead of failing the whole request. Tenant-specific screens still fail for that tenant (acceptable). Implemented skip/log logic. Coordinated with Vasquez (callback recovery) and Bishop (regression coverage).
+
 ### Admin Callback & Claim Contract Fix (2026-03-21)
 Normalized Keycloak role claims across backend auth to handle both nested (realm_access.roles, resource_access.{client}.roles) and flat dotted claim shapes. Updated AuthClaimTypes.cs and OidcClaimsTransformation.cs to accept both payload materializations without changing SuperAdmin role contract. Aligned with Vasquez's callback router fix and Bishop's regression testing; all validations pass.
 
@@ -52,6 +55,12 @@ Reverted Hudson's attempted v10.0.4 upgrade (non-existent version) back to appro
 - Old Vue app kept at src/opplat-vue/ but inactive
 
 ## Learnings
+
+### 2026-03-21: Live admin bootstrap should tolerate unreachable tenant databases
+
+- The admin callback path itself was healthy; the visible post-login failure came from the first dashboard bootstrap after redirect, which calls `/admin/tenants` and `/admin/users` immediately.
+- `/admin/users` fans out across every active tenant connection string, so one stale or offline tenant database can make the whole admin landing page look like a callback/auth error even when `SuperAdmin` claims and authorization are correct.
+- The backend fix is to keep the cross-tenant user aggregation best-effort: log and skip unreachable tenant databases so the admin portal still loads and operators can repair tenant catalog entries from the UI.
 
 ### Admin auth backend implementation (2026-03-20)
 

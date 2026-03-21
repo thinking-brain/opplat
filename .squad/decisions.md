@@ -1,5 +1,56 @@
 # Opplat Squad — Decisions
 
+## Session 6b Decisions (2026-03-21 — Live Admin Callback Fix - Follow-up)
+
+### 1. Admin Callback Recovery Preference (Vasquez)
+**Decision Date:** 2026-03-21  
+**Agent:** Vasquez  
+**Status:** ✅ IMPLEMENTED  
+
+**Decision:** Treat the admin callback screen as a recovery seam, not a final authority on auth failure.
+
+**Rule:** If the OIDC session is already restored (`isAuthenticated` and not loading), redirect out of `/auth/callback` even when `oidc.error` is present.
+
+**Rationale:** `react-oidc-context` keeps auth `error` in shared state independently from `user`/`isAuthenticated`. In the live admin flow, a valid SuperAdmin can complete signin, have session state restored, and still see the callback error UI unless the callback page explicitly prefers the resolved session.
+
+**Implementation:** Updated `src/opplat-admin/src/auth/AuthCallbackPage.tsx` to redirect authenticated users to `/`. Kept error alert only for unauthenticated callback failures.
+
+**Consequence:** Admin app now has a frontend safety net even if callback timing or transient OIDC errors briefly populate the shared error state during signin completion.
+
+---
+
+### 2. Cross-Tenant Admin Bootstrap Resilience (Hicks)
+**Decision Date:** 2026-03-21  
+**Agent:** Hicks  
+**Status:** ✅ IMPLEMENTED  
+
+**Decision:** Treat the remaining post-login admin failure as a bootstrap resiliency issue, not a new callback or role-claim contract break.
+
+**Rationale:** The current backend and admin SPA already agree on the `SuperAdmin` role contract and normalized Keycloak claim shapes. After callback completion, the admin dashboard immediately calls `/admin/tenants` and `/admin/users`. If any tenant connection string is stale or that database is offline, the whole dashboard bootstrap fails and looks like a login callback problem to the operator.
+
+**Implementation:** `GetAdminUsersQueryHandler` now logs and skips unreachable tenant databases instead of failing the entire admin bootstrap request.
+
+**Consequence:** Admin signin can complete into a usable dashboard even when one or more tenant databases are temporarily unavailable. Tenant-specific user screens may still fail for the affected tenant, which is acceptable.
+
+---
+
+### 3. Callback Regression Coverage (Bishop)
+**Decision Date:** 2026-03-21  
+**Agent:** Bishop  
+**Status:** ✅ IMPLEMENTED  
+
+**Decision:** Pin the narrowest stable regression seam and validate via contract tests.
+
+**Rule:** On the admin callback route, prefer the resolved session (`isAuthenticated` and no longer loading) over transient shared auth `error` state. Leave `/auth/callback` immediately.
+
+**Rationale:** `react-oidc-context` can keep `error` populated after the user session has already been restored. The admin app can finish login correctly yet still render the callback error screen unless the callback page explicitly prefers the recovered session.
+
+**Implementation:** Admin callback page redirects authenticated, settled sessions to `/`. Regression tests now pin safe callback return-target handling in `FrontendAuthContractTests.cs`.
+
+**Consequence:** Successful SuperAdmin logins will not remain stranded on the callback error screen. Contract is guarded in the test suite.
+
+---
+
 ## Session 6 Decisions (2026-03-21 — Admin Callback Fix)
 
 ### Admin SPA Post-Login Callback Handoff — Three-Agent Fix (Complete)

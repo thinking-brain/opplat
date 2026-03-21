@@ -62,6 +62,9 @@ Different libraries can materialize the same Keycloak token differently, so auth
 ### Tenant-Scoped SPA Requests
 For tenant-facing SPAs, persist the resolved tenant identifier after login, prefix tenant-scoped relative API URLs with `/{tenant}`, and also send `X-Tenant-Identifier`. The route prefix keeps URLs aligned with Finbuckle's primary strategy while the header provides a fallback for mixed backend surfaces and admin-style calls.
 
+### Admin Bootstrap Resiliency
+For cross-tenant admin dashboards, do not make the first post-login bootstrap depend on every tenant database being online. If an aggregate endpoint like `/admin/users` fans out across all tenant connection strings, treat individual tenant database failures as partial-data warnings: log them and skip the broken tenant so a successful `SuperAdmin` login does not look like an OIDC callback failure.
+
 ### Runtime Config for Static Frontends
 If the SPA is shipped from nginx or another static server, write a small `runtime-config.js` file from container env on startup and read that before falling back to `import.meta.env`. This avoids rebuilding the bundle whenever Docker Compose, Keycloak, or Auth0 settings change.
 
@@ -87,6 +90,12 @@ When debugging scope failures, inspect all four layers together: `runtimeConfig.
 In React Router SPAs, don't assume `window.history.replaceState(...)` is enough to leave an OIDC callback route. `BrowserRouter` may not observe that native history mutation, so the UI can stay stuck on `/auth/callback` even after the session is restored.
 
 If your OIDC library callback runs outside React, follow `replaceState` with a router-observable navigation signal such as dispatching `popstate`, using router navigation from a component, or falling back to `window.location.replace(...)`. This is especially relevant for `react-oidc-context` / `oidc-client-ts` callback hooks.
+
+When the callback screen itself reads shared auth error state, guard that UI against already-restored sessions. `react-oidc-context` can surface `error` while keeping `user` / `isAuthenticated` populated, so callback pages should redirect once auth is resolved and only render the error while the user is still unauthenticated.
+
+For regression coverage, source-contract tests can pin three separate callback seams without needing a live IdP: the hard redirect in `auth/oidc.ts`, the safe relative `returnTo` filter, and the callback page's preference for a resolved session over transient shared `error` state.
+
+For admin-style portals where `onSigninCallback` already handles deep-link return, a callback-page fallback redirect to `/` is an acceptable safety net to ensure valid users do not remain stuck on the callback route.
 
 
 ## References

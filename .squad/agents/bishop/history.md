@@ -1,5 +1,8 @@
 ## Core Context
 
+### Callback Regression Contract Coverage (2026-03-21 Session 6b)
+Added focused test coverage for the narrowest stable callback seam. The pattern: admin callback page redirects authenticated, settled sessions to `/` even if `react-oidc-context` error state lingers. New tests in `FrontendAuthContractTests.cs` pin safe callback return-target handling and session restoration behavior. Prevents future callback/OIDC changes from regressing the recovery seam. Coordinated with Vasquez (callback page fix) and Hicks (bootstrap resilience).
+
 ### Admin Callback Regression Testing & Validation (2026-03-21)
 Pinned root cause of post-login callback hang to callback-handoff seam and loading-gate condition. Added FrontendAuthContractTests.cs coverage for callback completion paths and user session restoration. Verified all auth tests pass, backend build succeeds, and both frontend builds complete without errors. Documented decision pattern: hard navigation + event dispatch is stronger contract than soft replaceState for BrowserRouter-based SPAs.
 
@@ -264,3 +267,17 @@ Three-agent team identified and resolved live Keycloak OIDC scope injection defe
 - All unit tests passing (38/38) ✅
 - Frontend builds passing (npm run build) ✅
 - Docker Compose config validated ✅
+
+### 2026-03-21: Live admin callback regression follow-up
+
+**What I pinned:**
+- The remaining admin post-login error was not at the OIDC redirect handoff itself; the narrower seam was `src\opplat-admin\src\auth\AuthCallbackPage.tsx`, which still treated shared `error` state as authoritative even after the admin session had already been restored.
+- That meant a successful `SuperAdmin` signin could still render the callback error UI on `/auth/callback` if `react-oidc-context` kept a transient error around while `isAuthenticated` was already true.
+
+**What I changed:**
+- Kept the admin callback page on the recovery path: redirect authenticated, no-longer-loading sessions to `/`, and only show the error alert while the user is still unauthenticated.
+- Expanded `test/Opplat.MainApp.Test/Auth/FrontendAuthContractTests.cs` to pin the callback return-target guard and the admin callback-page recovery contract.
+
+**Validation results:**
+- `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --nologo -v minimal --filter "FrontendAuthContractTests|AuthEndpointAuthorizationIntegrationTests|OidcClaimsTransformationTests"` ✅
+- `npm run build` in `src\opplat-admin` ✅

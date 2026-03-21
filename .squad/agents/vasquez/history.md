@@ -1,5 +1,8 @@
 ## Core Context
 
+### Live Admin Callback Recovery Seam (2026-03-21 Session 6b)
+Focused on callback page recovery for live admin flow. The issue: admin users completing Keycloak signin and session restoration still landed on `/auth/callback` error screen due to transient `react-oidc-context` error state persisting independently of the restored session. Decision: callback page should prefer resolved session state (`isAuthenticated && !loading`) over error state and redirect to `/` immediately. Implemented in `AuthCallbackPage.tsx`. Coordinated with Hicks (bootstrap resilience) and Bishop (regression coverage).
+
 ### Admin Callback Handoff Fix (2026-03-21)
 Fixed post-login callback routing seam where SPA remained stuck on `/auth/callback` despite successful Keycloak authentication. Three-part fix: (1) dispatched PopStateEvent after replaceState to notify BrowserRouter, (2) normalized backend/frontend claim readers to accept both nested and flat dotted role claim shapes from Keycloak, (3) narrowed loading gate to not block on lingering navigator state. All validation tests pass; regression coverage added.
 
@@ -88,6 +91,12 @@ Both frontends aligned to request openid profile email offline_access (removed r
 - Token stored as `opplat_token` with Bearer prefix
 - User data stored as `opplat_user` (JSON)
 - JWT claims: unique_name for username, role claim for roles array
+
+### Admin callback error follow-up (2026-03-21)
+
+- `react-oidc-context` can retain `error` while `isAuthenticated` is already true, especially around callback and silent-renew transitions.
+- The admin callback page must prioritize a restored session over rendering `oidc.error`; otherwise a valid SuperAdmin can get stranded on `/auth/callback`.
+- Minimal safe fallback: if callback auth state is authenticated and no longer loading, redirect to `/` and only show the callback error while still unauthenticated.
 - All API requests automatically include Authorization header via interceptor
 - 401 responses trigger automatic logout and redirect to /login
 - MUI DataGrid-style tables for Products and Users pages
