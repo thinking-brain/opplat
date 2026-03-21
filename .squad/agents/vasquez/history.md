@@ -1,6 +1,19 @@
 ## Core Context
 
-### Protected Route Auth-Error Recovery Preference (2026-03-21 Session 7)
+### 2026-03-21 Session 8: CORS Investigation Coordination & Operational Procedures
+
+**Role in Session 8:** Coordinated admin SPA auth diagnosis across all agents. Verified:
+1. Admin SPA `runtimeConfig.ts` correctly resolves `client_id=opplat-admin` and `authority=http://localhost:8180/realms/opplat`
+2. `oidc.ts` performs standard PKCE code exchange against realm authority (no custom token paths)
+3. Verified callback recovery fix already in place: `AuthCallbackPage.tsx` redirects authenticated users away from error screen
+4. Confirmed protected route guards use `error && !isAuthenticated` to avoid showing errors for restored sessions
+
+**Finding:** CORS failure is NOT a callback or client wiring issue. It's a stale Keycloak container state. The repo contract is already correct.
+
+**Implementation Review:** Both admin and client SPAs now have:
+- Session recovery preference in callback pages (redirect authenticated users to `/` immediately)
+- Protected route error guards that respect restored sessions (`error && !isAuthenticated`)
+- No further code changes needed for CORS issue; operator must reset Keycloak container state
 Fixed remaining SPA-side post-login failure by updating both admin and client `ProtectedRoute.tsx` to only show auth-error when `error && !isAuthenticated`. Root cause: `react-oidc-context` keeps error populated independently from session restoration. Valid users could complete login, have session restored, and still hit error wall on protected route. Updated both SPAs to prefer recovered sessions over transient shared auth errors. Coordinated with Ripley (architecture validation), Hicks (backend validation), and Bishop (regression coverage). Both SPAs now properly handle recovered sessions without stranding users behind auth error.
 
 ### Live Admin Callback Recovery Seam (2026-03-21 Session 6b)
@@ -60,3 +73,5 @@ See condensed Phase summaries above; extensive detailed work documented in team 
 
 - A restored `react-oidc-context` session can still carry a transient shared `error`, so admin/client `ProtectedRoute` components must only block on auth errors while the user remains unauthenticated.
 - The two Keycloak SPA clients are intentional: `opplat-client` serves the tenant-facing app origins and `opplat-admin` serves the admin app origins; the live post-login error was not caused by duplicating clients.
+- `react-oidc-context` can briefly expose a restored non-expired `user` before its `isAuthenticated` flag settles, so Opplat auth contexts should derive authenticated state from either signal to avoid post-callback redirect loops back to `/login`.
+- The admin SPA's local dev path is correctly wired for `http://localhost:3201`: `runtimeConfig.ts` resolves the Keycloak authority to `http://localhost:8180/realms/opplat`, compose injects `VITE_AUTH_CLIENT_ID=opplat-admin`, and the realm export already allows `http://localhost:3201` in both `redirectUris` and `webOrigins`, so a live token-endpoint CORS miss points back to Keycloak runtime client state rather than the SPA code.

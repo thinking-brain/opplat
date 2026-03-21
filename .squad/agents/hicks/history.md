@@ -1,6 +1,16 @@
 ## Core Context
 
-### Backend/Realm Topology Validation (2026-03-21 Session 7)
+### 2026-03-21 Session 8: Backend Auth Topology Confirmation & CORS Diagnosis
+
+**Role in Session 8:** Validated that backend auth validation is independent of Keycloak client topology. Confirmed:
+1. Backend validates `audience=opplat-api` regardless of which client issued the token
+2. Both `opplat-client` and `opplat-admin` clients share the same audience; no backend changes needed for two-client model
+3. Two-client model does not introduce per-client authorization paths in backend
+4. Admin bootstrap resilience (skip unreachable tenant DBs) already prevents false login failures
+
+**Finding:** CORS issue is stale Keycloak runtime state, not backend auth contract misalignment. Both SPAs can coexist with one shared audience without backend code changes.
+
+**Cross-Team Learning:** Hicks coordinated with Ripley (architecture), Vasquez (frontend), Hudson (infrastructure) to confirm realm topology is sound.
 Validated that backend auth does not depend on Keycloak client ID; depends on issuer, \ud=opplat-api\, and normalized SuperAdmin role contract. Confirmed two-client Keycloak model is not root cause of login failures. Backend already aligned with realm topology. No backend changes needed for two-client architecture.
 
 ### Cross-Tenant Admin Bootstrap Resilience (2026-03-21 Session 6b)
@@ -38,3 +48,8 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key milestones: F
 - JWT Bearer auth with Keycloak OIDC
 - SignalR hubs
 - Swagger/OpenAPI
+
+## Learnings
+
+- Containerized APIs must validate Keycloak tokens against the browser-visible issuer (`Auth:Authority`) while using a separate internal discovery URL (`Auth:MetadataAddress`) for backchannel metadata/JWKS fetches.
+- For local Docker Keycloak, `--hostname=<public-url> --hostname-backchannel-dynamic=true` keeps admin/browser redirects on the public host without breaking backend token validation inside the Docker network.

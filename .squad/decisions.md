@@ -1,5 +1,117 @@
 # Opplat Squad — Decisions
 
+## Session 8 Decisions (2026-03-21 — CORS Investigation & Operational Reset Procedures)
+
+### 1. Keycloak CORS Issue is Stale Container Runtime State (All Agents)
+**Decision Date:** 2026-03-21  
+**Agents:** Hudson (DevOps), Vasquez (Frontend), Hicks (Backend), Bishop (QA), Ripley (Architect)  
+**Status:** ✅ DIAGNOSED & RESOLVED  
+
+**Decision:** The reported admin SPA CORS failure (`No Access-Control-Allow-Origin header` on token endpoint) is NOT a code repository defect. The repo contract is correct and already covers `http://localhost:3201` for the `opplat-admin` client.
+
+**Root Cause:** Live Keycloak container state is stale. The realm was not re-imported, or an existing persisted realm database survived container recreation without refresh.
+
+**Finding Summary:**
+- `docker/keycloak/opplat-realm.json` already includes `opplat-admin` client with `http://localhost:3201` in webOrigins and redirectUris ✅
+- `docker-compose.yml` already wires admin app to `opplat-admin` client ID ✅
+- Admin SPA `runtimeConfig.ts` correctly resolves `client_id=opplat-admin` and `authority=http://localhost:8180/realms/opplat` ✅
+- Backend auth validation uses `audience=opplat-api` (shared by both clients), not client ID ✅
+- Keycloak live admin API partially shows correct config BUT CORS probe confirms stale state ✅
+
+**Operational Reset Checklist:**
+1. Recreate Keycloak and admin frontend: `docker compose up -d --force-recreate keycloak admin-frontend`
+2. Clear all browser storage (localStorage, sessionStorage) for both `http://localhost:3201` and `http://localhost:8180`
+3. Hard-refresh browser or restart tab
+4. Retry login
+
+If realm changes still not applied:
+1. Full teardown: `docker compose down`
+2. Full rebuild: `docker compose up -d --build --force-recreate`
+
+**Why This is Not a Repo Change:**
+- Keycloak Docker service uses `--import-realm` which imports JSON on first boot ONLY
+- An already-persisted Keycloak realm survives `docker compose down` if using a data volume (even in dev)
+- The realm JSON must be deleted or the container must be recreated with volume cleanup for re-import
+- No code or configuration file changes address this operational state mismatch
+
+**Consequence:** Operator should follow reset checklist, NOT submit code changes. If login still fails after reset, check Keycloak logs for import errors: `docker compose logs keycloak`
+
+---
+
+### 2. Two-Client OIDC Model: Zero Infrastructure Cost, Kept (Ripley + Hudson)
+**Decision Date:** 2026-03-21  
+**Agents:** Ripley (Architect), Hudson (DevOps)  
+**Status:** ✅ CONFIRMED  
+
+**Decision:** Keep two separate Keycloak clients (`opplat-client` and `opplat-admin`). No consolidation needed.
+
+**Cost Analysis:**
+- Keycloak pricing: per-instance (compute/memory), NOT per-client
+- Docker local dev: $0 marginal cost per client
+- Cloud VM prod (example): ~$20–50/mo (fixed instance cost, clients don't change it)
+- **Cost per additional client:** $0
+
+**Operational Benefits:**
+- Session isolation: `oidc-client-ts` keys sessions by `authority + client_id`. Two SPAs with one client = session collisions, token overwrites, auth failures
+- Redirect URI scoping: Each client has separate allow-list. Merging would require `opplat-client` to accept admin ports (3001/3101/5174) and admin to accept client ports (3000/3100/5173), increasing attack surface
+- Future flexibility: Per-client role restrictions, different token lifetimes, or consent requirements without affecting the other SPA
+
+**When to Reconsider:** Only if migrating to cloud IdP with per-client pricing (Auth0, Okta). Even then, session isolation benefit usually justifies the cost.
+
+**Consequence:** No architectural change. Both clients remain in `docker/keycloak/opplat-realm.json`.
+
+---
+
+### 3. Frontend Callback Recovery: Restored Session Overrides Transient Error (Vasquez + Bishop)
+**Decision Date:** 2026-03-21  
+**Agents:** Vasquez (Frontend), Bishop (QA)  
+**Status:** ✅ IMPLEMENTED  
+
+**Decision:** Treat recovered OIDC sessions as override for transient shared auth errors in both callback and protected route guards. Never show auth-error UI when `isAuthenticated && !loading`, even if `error` flag is populated.
+
+**Root Cause Analysis:**
+- `react-oidc-context` holds `error` and `isAuthenticated` independently
+- Valid users complete login, session is restored, token is valid
+- BUT `error` can remain populated from transient OIDC state during signin completion
+- Callback page and protected route guards were respecting `error` over `isAuthenticated`, stranding users
+
+**Implementation:**
+- Updated `src/opplat-admin/src/auth/AuthCallbackPage.tsx`:
+  - Redirects authenticated, settled sessions to `/` immediately
+  - Only shows error UI if `error && !isAuthenticated`
+- Updated `src/opplat-react/src/auth/AuthCallbackPage.tsx` for consistency
+- Updated `ProtectedRoute.tsx` in both SPAs to use same error guard logic
+- Added regression test coverage in `FrontendAuthContractTests.cs`
+
+**Rule for All Future Callbacks:** Always check `error && !isAuthenticated` before rendering error UI.
+
+**Consequence:** Successful logins will not remain stranded on callback error screen or behind auth error wall on protected routes.
+
+---
+
+### 4. Regression Test Coverage: Two-Client & Callback Flow (Bishop)
+**Decision Date:** 2026-03-21  
+**Agent:** Bishop (QA/Validation)  
+**Status:** ✅ IMPLEMENTED  
+
+**Decision:** Pin two-client Keycloak contract and callback behavior via regression tests.
+
+**Coverage Added:**
+- Realm contract tests validate exactly two SPA clients (`opplat-client`, `opplat-admin`)
+- Origin family tests ensure expected redirect URIs for each client
+- Callback contract tests require restored authenticated sessions to exit `/auth/callback` even if `error` is present
+- Protected route tests ensure auth error only shown when truly unauthenticated
+
+**Test Files:**
+- `test/Opplat.MainApp.Test/Authentication/FrontendAuthContractTests.cs`
+- `test/Opplat.MainApp.Test/Authentication/AuthCallbackContractTests.cs`
+
+**Validation:** ✅ All tests passing; builds passing
+
+**Consequence:** Future code changes cannot break two-client model or callback recovery preference without failing test suite. Tests are regression anchors.
+
+---
+
 ## Session 7 Decisions (2026-03-21 — Auth Topology Validation & Consolidated Client Model)
 
 ### 1. Keycloak Two-Client Architecture Confirmed (Ripley)

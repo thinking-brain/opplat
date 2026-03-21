@@ -1,6 +1,17 @@
 ## Core Context
 
-### Keycloak Two-Client Architecture Validation (2026-03-21 Session 7)
+### 2026-03-21 Session 8: Architectural Cost/Benefit Confirmation & CORS Diagnosis Leadership
+
+**Role in Session 8:** Led CORS investigation diagnosis across all agents. Confirmed architectural soundness of two-client model:
+1. **Cost Analysis:** Zero infrastructure cost per client in Docker setup (Keycloak pricing is per-instance)
+2. **Operational Benefits:** Session isolation (prevents `oidc-client-ts` collisions) + independent redirect URI scoping
+3. **Root Cause of CORS Issue:** Stale Keycloak container state, NOT code/architecture defect
+
+**Architectural Decision:** Keep two clients (`opplat-client`, `opplat-admin`). Consolidation would not fix login issues; would risk session collisions and increase attack surface for redirect URI sprawl.
+
+**Recommendation:** No code changes required for CORS. Operator resets Keycloak container state using provided diagnostic checklist.
+
+**Cross-Team Coordination:** Ripley led decision consolidation with Hudson (infrastructure), Vasquez (frontend), Hicks (backend), Bishop (validation).
 Adjudicated architectural decision to keep two separate Keycloak clients (\opplat-client\ for tenant SPA, \opplat-admin\ for admin SPA). Confirmed decision is correct for:
 1. Distinct redirect URI scoping (different ports per SPA)
 2. Session isolation (prevents oidc-client-ts storage key collisions)
@@ -11,6 +22,16 @@ Coordinated with Hicks (backend validation), Vasquez (frontend callback fix), an
 
 ### Multitenancy & Keycloak Architecture (2026-02-27 → 2026-03-21)
 Designed comprehensive multitenancy using Finbuckle.MultiTenant 7.0.1 with per-database isolation. Dual-strategy tenant resolution: route-based and header fallback. 3-tier role model (SuperAdmin/TenantAdmin/TenantUser). Keycloak realm JSON seeds realm, clients, roles, and test users.
+
+## Learnings
+
+### OIDC Callback Navigation Pattern (2026-03-21)
+When handling OIDC callbacks in React Router SPAs, use a three-layer navigation strategy:
+1. `window.history.replaceState()` to update URL immediately
+2. Dispatch `PopStateEvent` to notify BrowserRouter
+3. Fallback `window.location.replace()` with timeout if still on callback path
+
+This prevents the callback page from rendering error UI before navigation completes. Also: callback pages should use `useEffect` with `useNavigate()` as primary redirect, with hard redirect fallback.
 
 ## Archived Context (Prior Sessions)
 

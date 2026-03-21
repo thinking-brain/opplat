@@ -4,6 +4,26 @@
 **Stack:** ASP.NET Core (net6.0 → net10.0) | EF Core | SQL Server | SignalR | OIDC (Auth0/Keycloak) | React 18  
 **Root:** C:\projects\personal\opplat | **Branch:** develop
 
+### 2026-03-21 Session 8: CORS Investigation & Operational Reset Procedures
+
+**Finding:** Admin SPA CORS failure on token endpoint is NOT a code defect; it's stale Keycloak container runtime state.
+
+**Diagnosis Work:**
+- Traced live Keycloak CORS path; confirmed realm JSON already includes `opplat-admin` with `http://localhost:3201` in webOrigins
+- Verified docker-compose wiring already points admin app to correct client ID
+- Confirmed admin SPA runtimeConfig correctly resolves `opplat-admin` client
+- Live token probe confirmed: `client_id=opplat-admin` + origin 3201 returns correct CORS headers; stale container is out of sync
+
+**Operational Resolution:**
+1. `docker compose up -d --force-recreate keycloak admin-frontend`
+2. Clear browser storage (localStorage/sessionStorage for localhost:3201 and localhost:8180)
+3. Hard refresh or restart tab
+4. If still stale: full `docker compose down && up -d --build --force-recreate`
+
+**Key Learning:** Keycloak `--import-realm` only imports on first boot. An existing persisted realm in Docker survives recreation unless data volume is deleted. The repo is correct; the running realm needs refresh, not code changes.
+
+**Cross-Team Communication:** Coordinated diagnosis with Vasquez (frontend wiring), Hicks (backend validation), Bishop (repo contract), Ripley (architecture).
+
 **Key Decisions (Summarized):**
 - net10.0 target framework (Phase 1: ✅ complete)
 - Finbuckle.MultiTenant v7.0.1 locked (v10.0.4 doesn't exist; lesson: verify NuGet availability)
@@ -291,6 +311,35 @@ When nginx runtime-config.js injected the minimal `openid`-only fallback, it ove
 
 **Status:** ✅ COMPLETE — Frontend auth scope injection now consistent across all three layers.
 
+### 2026-03-21: OIDC Two-Client Cost Assessment & Admin Redirect Validation
+
+**Task:** Assess whether two Keycloak clients increase runtime cost; validate admin portal redirect issue is properly fixed.
+
+**Findings:**
+
+1. **Two-Client OIDC Cost Impact: ZERO**
+   - Keycloak cost is per-instance (compute + memory), not per-client
+   - Adding second client: no additional containers, VMs, or databases
+   - Recommendation: Keep two clients (operationally sound, zero penalty)
+   - Collapse to one client only if Auth0 cloud pricing becomes prohibitive
+
+2. **Admin Portal Redirect Issue: Already Fixed (Session 6/6b)**
+   - Root causes: BrowserRouter not observing history.replaceState(), callback page not preferring recovered sessions
+   - Fixes applied: PopStateEvent dispatch, session-recovery preference, bootstrap resilience (skip unreachable tenant DBs)
+   - Test coverage: FrontendAuthContractTests.cs regression tests
+   - Status: Builds passing, all unit tests passing, no known issues
+
+**Files Validated:**
+- `docker/keycloak/opplat-realm.json` — two clients properly defined ✅
+- `docker-compose.yml` — correct Keycloak dependencies ✅
+- `.env.docker` — OIDC vars aligned ✅
+- `src/opplat-admin/src/auth/oidc.ts` — callback PopStateEvent + recovery ✅
+- `src/opplat-admin/src/auth/AuthCallbackPage.tsx` — session preference ✅
+
+**Decision Written:** `.squad/decisions/inbox/hudson-oidc-cost-check.md`
+
+**Status:** ✅ COMPLETE — No infra changes needed. Two-client model approved, redirect fixes validated.
+
 ## Learnings
 
 ### Pattern: OIDC Scope Definitions in Keycloak
@@ -322,13 +371,31 @@ depends_on:
 ```
 Avoid race conditions where frontend tries to auth before realm is ready.
 
-### Pattern: Runtime Config Injection Scope Chain (Multi-Layer)
-Frontend SPAs with nginx + runtime-config.js should maintain consistency across three injection layers:
+### Pattern: Multi-Client Cost in OIDC Providers
+Multiple clients in a single OIDC provider (Keycloak, Auth0, Entra ID, etc.) do NOT incur per-client infrastructure charges:
+- **Keycloak (self-hosted):** Cost = compute + storage, independent of client count
+- **Auth0 (SaaS):** Cost = per-seat or per-request, not per-client
+- **Entra ID (Azure):** Cost = subscription, not per-client
+- **Keycloak in Docker:** Cost = same single container whether 1, 2, or 10 clients
+
+Multiple clients are operationally valuable (separate redirect URIs, session isolation, future flexibility) and carry zero cost penalty. Only collapse to single client if the provider's pricing model charges per-client (rare) or if operational complexity becomes high.
+
+
 1. **Dockerfile entrypoint script** — Initial fallback injected into runtime-config.js (happens at container startup)
 2. **.env / compose environment** — Explicit values that override Dockerfile defaults
 3. **Source code** — Build-time fallback in runtimeConfig.ts
 
 If any layer uses a stale or incomplete value (e.g., `openid` only instead of `openid profile email offline_access`), it can override upstream values and cause OIDC token request failures. Always synchronize the full intended scope across all three layers. The .env layer should be explicit and visible to operators, not hidden in Dockerfile defaults.
+
+### Pattern: Keycloak Token CORS as Client-Mismatch Signal
+If Keycloak's `/protocol/openid-connect/token` response is missing `Access-Control-Allow-Origin`, do not assume the target SPA client is missing its `webOrigins`. In Opplat, probing the token endpoint with `Origin: http://localhost:3201` returns ACAO for `client_id=opplat-admin` but not for `client_id=opplat-client`, which means the exact browser error is a strong signal that the live token exchange is using the wrong client id or other stale runtime/browser state.
+
+For local Docker dev, confirm three things in order:
+1. the realm export includes the SPA origin in the intended client's `webOrigins`/`redirectUris`
+2. the live Keycloak admin API shows the same values
+3. the live SPA served at the reported origin is actually injecting the intended `VITE_AUTH_CLIENT_ID`
+
+If all three are correct, the fix is operational: recreate the affected frontend/Keycloak containers and clear stale OIDC browser state before retrying login.
 
 
 ## Session 5 Sprint — Live Scope Fix Completion (2026-03-21)
