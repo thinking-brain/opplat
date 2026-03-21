@@ -9,11 +9,13 @@
 **What:** Comprehensive Keycloak authentication bootstrap and role model alignment across all layers
 
 #### 1. OIDC Scope Configuration (Ripley)
-**Root Cause:** SPAs defaulted to `openid` only; missing `profile`, `email`, `roles`, `offline_access`. Keycloak realm was mostly correct; frontend scope requests were incomplete. Docker-compose never set `VITE_AUTH_SCOPE`.
+**Root Cause:** SPAs defaulted to `openid` only; missing `profile`, `email`, `offline_access`. Keycloak realm was correctly configured; frontend scope requests and documentation drifted to only `openid`. Docker-compose wiring was correct but frontend runtimes didn't align.
 
 **Resolution:**
-- Frontend SPAs now request: `openid profile email roles` (+ `offline_access` if offline session needed)
-- Keycloak realm already had default client scopes configured correctly
+- Frontend SPAs now request: `openid profile email offline_access`
+- **`roles` MUST NOT be in the scope request** — Keycloak injects roles via default client scopes automatically (mapper configuration)
+- Requesting `roles` as a scope triggers "Invalid scopes" error because it's not a consent scope in Keycloak
+- Keycloak realm already had default client scopes configured correctly (no changes needed)
 - Backend validates `audience + roles`, not scope claim directly
 - No scope-based API authorization currently required (future option)
 
@@ -58,9 +60,11 @@
 **Changes:**
 - Admin app: All routes require SuperAdmin role
 - Client app: `/users` route + nav item + dashboard quick-access require TenantAdmin
-- Both frontends now request: `openid profile email roles`
-- Claims parsing now includes `realm_access.roles` + `resource_access.*.roles`
+- Both frontends now request: `openid profile email offline_access` (NO `roles` in scope request)
+- Claims parsing now includes `realm_access.roles` + `resource_access.*.roles` from token claims
 - Audience query param skipped for Keycloak realm URLs (kept for custom providers)
+- Updated all `runtimeConfig.ts` defaults and `.env.example` files to reflect correct scope contract
+- Updated README.md local dev examples to document correct scope
 
 **Validation:** ✅ Both apps lint+build successful
 
@@ -591,3 +595,98 @@ Domain → Shared
 **What:** React app must include: Login, Home, Products, Sell, Users pages
 **Why:** Parity with existing Vue app functionality
 **Status:** Accepted ✅ COMPLETED
+
+## Session 5 Agent Decisions — Scope Contract Deep Dive (2026-03-21)
+
+### Hicks — Keycloak Realm Scope Contract Verification
+**Date:** 2026-03-21
+**Status:** ✅ APPROVED (incorporated into Ripley decision)
+**Finding:** Local Keycloak scope contract is correct at the realm level.
+
+**Context:**
+- Local login was failing with Invalid scopes: openid profile email roles offline_access
+- The imported Keycloak realm keeps the standard built-in scopes on the SPA clients and adds Opplat-specific mappers through dedicated custom scopes
+- The mismatch was in repo bootstrap wiring: Docker Compose hot-reload frontend services did not set VITE_AUTH_SCOPE
+
+**Decision:**
+- Treat openid profile email offline_access as the single local SPA request scope contract
+- Keep oles as a Keycloak-attached client scope, not an explicitly requested SPA scope
+- Pin VITE_AUTH_SCOPE for both frontend services in docker-compose.yml and docker-compose.override.yml
+
+**Consequences:**
+- Local Keycloak and both SPA bootstrap modes now agree on the same requested scopes
+- Future auth/bootstrap changes must update Compose env wiring and runtime defaults together
+
+### Vasquez — Runtime OIDC Scope Defaults Alignment
+**Date:** 2026-03-21
+**Status:** ✅ APPROVED (incorporated into Ripley decision)
+**Finding:** Both React SPAs were requesting incorrect scopes at runtime.
+
+**Context:**
+- Both SPAs were still requesting openid profile email roles offline_access at runtime
+- The invalid login request came from the combined result of runtime-config fallbacks plus oidc.ts configurations
+
+**Decision:**
+- Use openid as the shared default baseline for both opplat-admin and opplat-react
+- Keep that default aligned across:
+  - src/*/src/runtimeConfig.ts
+  - src/*/src/auth/oidc.ts
+  - src/*/.env.example
+  - src/*/Dockerfile runtime-config injection
+  - root README.md
+- **Note:** Ripley later determined this should be openid profile email offline_access, not just openid
+
+**Why:**
+The invalid login request was not coming from one file; it was the combined result of runtime-config fallbacks plus oidc.ts force-appending extra scopes. Keeping only openid as the default avoids stale Keycloak/Auth0 mismatches while still allowing providers to supply roles, tenant claims, and audience through configured default scopes or environment overrides.
+
+### Bishop — Scope Validation & Test Seams
+**Date:** 2026-03-21
+**Status:** ✅ APPROVED (test harnesses now in place)
+**Finding:** Frontend-to-Keycloak scope contract drift detected; test harnesses created.
+
+**Context:**
+- Treat the current login regression as a **frontend scope-contract drift**, not a Keycloak realm-contract failure
+- docker\keycloak\opplat-realm.json keeps the SPA realm contract stable
+- The frontend source on this branch drifted away from the documented contract
+
+**Decision:**
+The intended SPA-requested scope contract is: openid profile email offline_access
+
+**Testing Seams Added:**
+- 	est\Opplat.MainApp.Test\Auth\FrontendAuthContractTests.cs — Guards the intended SPA-requested scope contract and verifies both untimeConfig.ts and uth\oidc.ts stay aligned
+- 	est\Opplat.MainApp.Test\Auth\KeycloakRealmContractTests.cs — Guards that Opplat does not redefine Keycloak built-in OIDC scopes as custom realm scopes
+
+### Ripley — OIDC Scope Contract Adjudication (FINAL AUTHORITY)
+**Date:** 2026-03-21
+**Status:** ✅ APPROVED & APPLIED
+**Role:** Lead/Architect — Synthesized findings from Hicks, Vasquez, and Bishop
+
+**Analysis Completed:**
+- Inspected all four configuration layers: Keycloak realm, Docker Compose, frontend code, and documentation
+- Root cause: oles scope error originates from stale local .env.local or cached browser OIDC state, NOT from current code or realm config
+- Why oles fails: Keycloak attaches oles as a default client scope (automatic via mapper), not as a requestable consent scope
+
+**Authoritative Ruling:**
+**Correct SPA scope request for Opplat + Keycloak:**
+`
+openid profile email offline_access
+`
+
+- openid — mandatory OIDC
+- profile — name/nickname claims (Keycloak default, requesting is harmless)
+- mail — email claims (Keycloak default, requesting is harmless)
+- offline_access — refresh tokens for silent renew (MUST be requested; optional in Keycloak)
+- **NO oles** — Keycloak injects realm roles via defaultClientScopes automatically
+
+**Changes Applied:**
+1. src/opplat-react/src/runtimeConfig.ts — fallback default updated
+2. src/opplat-admin/src/runtimeConfig.ts — fallback default updated
+3. src/opplat-react/.env.example — updated documentation
+4. src/opplat-admin/.env.example — updated documentation
+5. README.md — updated local dev examples and env var reference table
+
+**Team Guidance:**
+- Hicks was correct about the intended scope contract
+- Vasquez's openid-only fix was too minimal (it works but loses claims and refresh tokens)
+- Bishop correctly identified the drift; this decision aligns all documentation with the Docker Compose contract
+- Any future scope changes must coordinate across: untimeConfig.ts, .env.example, docker-compose*.yml, and README

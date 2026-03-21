@@ -180,3 +180,41 @@ Finbuckle 7.0.1 exposes root-namespace methods only (`UseMultiTenant`, `Configur
 - README.md
 
 **Status:** ✅ COMPLETE — Frontend scopes aligned, backend config ready, all validation passing
+
+### 2026-03-21: Compose-pinned OIDC scope contract for local Keycloak
+
+- The remaining `Invalid scopes: openid profile email roles offline_access` login failure came from the SPA bootstrap contract, not the Keycloak realm export: the hot-reload Compose services never set `VITE_AUTH_SCOPE`, so the apps fell back to an older runtime default that still injected `roles`.
+- Local Keycloak already bootstraps the right built-in scopes plus the Opplat custom scopes; the repo fix was to pin `VITE_AUTH_SCOPE=openid profile email offline_access` in both base and override Compose frontend services so every local path requests the same scope set.
+- Safest validation for this kind of contract change is `docker-compose config` plus JSON parsing of the realm export, because it proves the merged env and Keycloak import agree without mutating shared local containers.
+
+### 2026-03-21: Scope Contract Adjudication & Final Resolution (Team Sync)
+
+**Cross-Agent Coordination:** Ripley synthesized findings from Hicks, Vasquez, and Bishop's independent investigations into a single authoritative scope contract.
+
+**What Happened:**
+1. **Hicks** confirmed the Keycloak realm export was correct and identified Docker Compose wiring as the gap.
+2. **Vasquez** found that both SPAs were requesting overly broad scopes and aligned them to openid only.
+3. **Bishop** created regression test harnesses and confirmed the drift between intended contract and frontend implementation.
+4. **Ripley** adjudicated the conflict, ruling that:
+   - The correct contract is openid profile email offline_access (NOT just openid, and NOT including oles)
+   - oles must NEVER be in the scope request (Keycloak injects via defaultClientScopes automatically)
+   - Vasquez's openid-only fix was too minimal (loses claims and refresh tokens)
+   - All frontend untimeConfig.ts, .env.example, and README examples must align with Docker Compose's environment
+
+**Key Learnings:**
+- Keycloak does not expose oles as a requestable scope; it's a mapper configuration attached as a default client scope.
+- Requesting oles in the scope parameter triggers "Invalid scopes" error.
+- The openid profile email roles offline_access login failure came from stale .env.local or browser state, not current code.
+- Scope configuration is multi-layer: changes must coordinate across Docker Compose, runtimeConfig, .env files, Dockerfile, and documentation.
+
+**Files Updated:**
+- src/opplat-react/src/runtimeConfig.ts — scope → openid profile email offline_access
+- src/opplat-admin/src/runtimeConfig.ts — scope → openid profile email offline_access
+- src/opplat-react/.env.example — documented correct scope
+- src/opplat-admin/.env.example — documented correct scope
+- README.md — local dev examples and env reference table aligned
+- .squad/decisions.md — new section on agent findings merged from inbox
+
+**Test Harnesses:** Both FrontendAuthContractTests and KeycloakRealmContractTests are now permanent regression guards for scope contracts.
+
+**Status:** ✅ COMPLETE — Scope contract finalized across all layers, minimal corrections applied, team consensus recorded.

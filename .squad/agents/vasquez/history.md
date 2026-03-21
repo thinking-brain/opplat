@@ -232,3 +232,60 @@ After comparing Vue and React apps side-by-side, identified specific missing fea
 
 **Status:** ✅ COMPLETE — Both frontend apps properly gated, scopes aligned, builds passing
 
+### 2026-03-21: Runtime Scope Mismatch Fix (Session 6)
+
+**Task:** Diagnose the `Invalid scopes: openid profile email roles offline_access` login failure and align runtime/frontend scope handling.
+
+**Work Performed:**
+1. Inspected both SPAs' runtime scope sources:
+   - `src/opplat-admin/src/runtimeConfig.ts`
+   - `src/opplat-admin/src/auth/oidc.ts`
+   - `src/opplat-admin/.env.example`
+   - `src/opplat-admin/Dockerfile`
+   - `src/opplat-react/src/runtimeConfig.ts`
+   - `src/opplat-react/src/auth/oidc.ts`
+   - `src/opplat-react/.env.example`
+   - `src/opplat-react/Dockerfile`
+2. Confirmed the actual requested scope set was being expanded in two places:
+   - runtime config defaulted to `openid ... roles`
+   - OIDC setup force-added `profile email offline_access`
+3. Reduced the shared default request to `openid` only in both apps and kept `oidc-client-ts` from re-appending invalid extras.
+4. Updated root documentation to match the new runtime behavior.
+5. Revalidated both SPAs after the fix.
+
+**Validation Results:**
+- ✅ `src/opplat-admin`: `npm run lint` PASS, `npm run build` PASS
+- ✅ `src/opplat-react`: `npm run lint` PASS, `npm run build` PASS
+
+**Key Learning:**
+- For these SPAs, the effective OIDC scope comes from the combination of runtime-config defaults, `.env` examples, Docker runtime injection, and `oidc.ts`; all four must agree or login can still request stale invalid scopes.
+
+### 2026-03-21: Scope Contract Adjudication & Final Resolution (Team Sync)
+
+**Cross-Agent Coordination:** Ripley synthesized findings from Hicks, Vasquez, and Bishop's independent investigations into a single authoritative scope contract.
+
+**What Happened:**
+1. **Hicks** confirmed the Keycloak realm export was correct and identified Docker Compose wiring as the gap.
+2. **Vasquez** found that both SPAs were requesting overly broad scopes and aligned them to openid only (later refined).
+3. **Bishop** created regression test harnesses and confirmed the drift between intended contract and frontend implementation.
+4. **Ripley** adjudicated the conflict, ruling that:
+   - The correct contract is openid profile email offline_access (NOT just openid, and NOT including oles)
+   - oles must NEVER be in the scope request (Keycloak injects via defaultClientScopes automatically)
+   - Your openid-only fix was too minimal (loses claims and refresh tokens)
+   - All frontend untimeConfig.ts, .env.example, and README examples must align with Docker Compose's environment
+
+**Key Learnings:**
+- Keycloak does not expose oles as a requestable scope; it's a mapper configuration attached as a default client scope.
+- Requesting oles in the scope parameter triggers "Invalid scopes" error.
+- Scope configuration is multi-layer: changes must coordinate across Docker Compose, runtimeConfig, .env files, Dockerfile, and documentation.
+
+**Files Updated:**
+- src/opplat-react/src/runtimeConfig.ts — scope → openid profile email offline_access
+- src/opplat-admin/src/runtimeConfig.ts — scope → openid profile email offline_access
+- src/opplat-react/.env.example — documented correct scope
+- src/opplat-admin/.env.example — documented correct scope
+- README.md — local dev examples and env reference table aligned
+
+**Test Harnesses:** Both FrontendAuthContractTests and KeycloakRealmContractTests are now permanent regression guards for scope contracts.
+
+**Status:** ✅ COMPLETE — Your frontend scope alignment was correct in principle but too minimal in scope set. Team consensus finalized and applied.

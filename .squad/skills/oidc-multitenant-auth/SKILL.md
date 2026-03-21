@@ -54,13 +54,22 @@ For tenant-facing SPAs, persist the resolved tenant identifier after login, pref
 ### Runtime Config for Static Frontends
 If the SPA is shipped from nginx or another static server, write a small `runtime-config.js` file from container env on startup and read that before falling back to `import.meta.env`. This avoids rebuilding the bundle whenever Docker Compose, Keycloak, or Auth0 settings change.
 
+When the same SPA also has a hot-reload or dev-server Compose path, pin the OIDC scope env there too. Nginx runtime-config defaults do not protect Vite dev servers, so an old fallback like `openid profile email roles` can survive and trigger Keycloak `Invalid scopes` errors even after the realm export is fixed.
+
 ### Testing During Incremental Migration
 When auth/admin implementation is only partially landed, don't block on full end-to-end tests. Add executable unit tests for stable seams like tenant-validation middleware and claim normalization, then add lightweight source/contract guards for route prefixes, policy hooks, and tenant connection-string selection until the full host can be exercised reliably.
+
+For SPA OIDC scope regressions, guard **both** `runtimeConfig.ts` and `auth/oidc.ts`. One file often owns the fallback `VITE_AUTH_SCOPE`, while the other adds "required" scopes; validating only one seam can miss a broken combined request.
 
 ### Keycloak Realm Import (Scopes)
 Don't repurpose Keycloak built-in scope names (`profile`, `email`, `roles`, `offline_access`) for app-specific mappers. Keep the standard OIDC scopes attached to the SPA clients, and add custom scopes such as `opplat-tenancy` or `opplat-api-audience` for tenant claims and API audience so `scope=openid profile email offline_access` keeps working.
 
-For Opplat, the SPA clients should keep the built-in `profile`, `email`, `roles`, and optional `offline_access` scopes, while custom default scopes add `tenant_id`, `tenant_identifier`, and `aud=opplat-api`.
+For Opplat, treat `openid profile email offline_access` as the intended SPA-requested scope contract for local login flows. Keycloak should still contribute `roles`, `tenant_id`, `tenant_identifier`, and `aud=opplat-api` through default client scopes, so the frontend must not auto-append `roles` on top of that request.
+
+**Critical: Never request `roles` as a scope parameter.** Keycloak does not expose `roles` as a requestable scope — it's a protocol mapper configuration attached via `defaultClientScopes`. Requesting `scope=...roles...` triggers `Invalid scopes` errors. Realm roles flow into tokens automatically via the client's default scope configuration.
+
+When debugging scope failures, inspect all four layers together: `runtimeConfig.ts`, `auth/oidc.ts`, `.env.example`, and Docker/runtime-config injection. A mismatch across those layers can produce a runtime scope string that is broader than the one documented in source.
+
 
 ## References
 - Finbuckle.MultiTenant 7.0.1 docs

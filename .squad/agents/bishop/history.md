@@ -157,3 +157,47 @@
 - src/opplat-admin/src/auth/claims.ts
 
 **Status:** ✅ COMPLETE — All auth contract tests passing (36/36), tenant role enforcement validated
+
+### 2026-03-21: Scope-contract regression validation for Keycloak login failure
+
+**What I validated:**
+- Strengthened `test/Opplat.MainApp.Test/Auth/FrontendAuthContractTests.cs` so both SPAs must keep the documented Keycloak-safe scope contract (`openid profile email offline_access`) in `runtimeConfig.ts`, `auth/oidc.ts`, and the README examples.
+- Strengthened `test/Opplat.MainApp.Test/Auth/KeycloakRealmContractTests.cs` to prove the realm export only declares Opplat-specific custom client scopes and leaves built-in OIDC scopes to Keycloak.
+
+**Validation results:**
+- `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --nologo -v minimal --filter "FullyQualifiedName~Opplat.MainApp.Test.Auth.KeycloakRealmContractTests"` ✅
+- `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --nologo -v minimal --filter "FrontendAuthContractTests|KeycloakRealmContractTests"` ❌ (3 failing source-contract tests)
+
+**Important findings:**
+- The Keycloak realm import is internally consistent: SPA clients keep `roles` as a default client scope and `offline_access` as optional, while custom scopes stay limited to `opplat-tenancy` and `opplat-api-audience`.
+- The frontend source is the live regression point on this branch: both `src\opplat-admin` and `src\opplat-react` still default `VITE_AUTH_SCOPE` to `openid` and only require `openid` in `auth/oidc.ts`, while the README examples also document `openid` only.
+- Those source guards now preserve the intended contract and will keep failing until the frontend/runtime docs are brought back to `openid profile email offline_access`.
+
+### 2026-03-21: Scope Contract Adjudication & Final Resolution (Team Sync)
+
+**Cross-Agent Coordination:** Ripley synthesized findings from Hicks, Vasquez, and Bishop's independent investigations into a single authoritative scope contract.
+
+**What Happened:**
+1. **Hicks** confirmed the Keycloak realm export was correct and identified Docker Compose wiring as the gap.
+2. **Vasquez** found that both SPAs were requesting overly broad scopes and aligned them to openid only (later refined).
+3. **Bishop** (you) created regression test harnesses and confirmed the drift between intended contract and frontend implementation.
+4. **Ripley** adjudicated the conflict, ruling that:
+   - The correct contract is openid profile email offline_access (NOT just openid, and NOT including oles)
+   - oles must NEVER be in the scope request (Keycloak injects via defaultClientScopes automatically)
+   - Vasquez's openid-only fix was too minimal (loses claims and refresh tokens)
+   - All frontend untimeConfig.ts, .env.example, and README examples must align with Docker Compose's environment
+
+**Key Learnings:**
+- Keycloak does not expose oles as a requestable scope; it's a mapper configuration attached as a default client scope.
+- Requesting oles in the scope parameter triggers "Invalid scopes" error.
+- Your test harnesses (FrontendAuthContractTests and KeycloakRealmContractTests) are now permanent regression guards.
+- The drift you detected between frontend code, documentation, and realm contract was the real issue, not the Keycloak realm itself.
+
+**Files Updated:**
+- src/opplat-react/src/runtimeConfig.ts — scope → openid profile email offline_access
+- src/opplat-admin/src/runtimeConfig.ts — scope → openid profile email offline_access
+- src/opplat-react/.env.example — documented correct scope
+- src/opplat-admin/.env.example — documented correct scope
+- README.md — local dev examples and env reference table aligned
+
+**Status:** ✅ COMPLETE — Your test coverage validated the drift correctly. Team consensus finalized and applied. Your regression guards will catch future scope drifts.

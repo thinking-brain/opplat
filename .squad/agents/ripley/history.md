@@ -206,3 +206,42 @@ Current `opplat-realm.json` missing standard OIDC scopes (`openid`, `email`, `of
 **Output:** Architectural analysis fed into Hicks/Hudson/Vasquez/Bishop implementations; decision merged to decisions.md (Session 5)
 
 **Status:** ✅ COMPLETE — All scope/role alignment verified; team consensus on 3-tier model
+
+### 2026-03-21: Scope Contract Adjudication
+
+**Task:** Resolve conflicting agent conclusions about SPA OIDC scope configuration after user hit "Invalid scopes: openid profile email roles offline_access" error.
+
+**Conflict Summary:**
+- Hicks: Realm correct, SPAs should request `openid profile email offline_access`
+- Vasquez: Aligned SPAs to `openid` only
+- Bishop: Detected drift between README/SPAs and intended contract
+
+**Root Cause Identified:**
+The `roles` scope error occurs because Keycloak does NOT expose `roles` as a requestable scope. Keycloak injects realm roles via `defaultClientScopes` automatically. Requesting `roles` explicitly in the scope parameter triggers the invalid scope error.
+
+**Correct Contract:**
+```
+openid profile email offline_access
+```
+- `openid`: Required by OIDC
+- `profile`, `email`: Claims needed by app (harmless to request even though Keycloak also has them as defaults)
+- `offline_access`: Must be requested for refresh tokens (optional scope in Keycloak)
+- `roles`: NEVER request — Keycloak handles via default client scope mapper
+
+**Files Updated:**
+1. `src/opplat-react/src/runtimeConfig.ts` — fallback default → `openid profile email offline_access`
+2. `src/opplat-admin/src/runtimeConfig.ts` — fallback default → `openid profile email offline_access`
+3. `src/opplat-react/.env.example` — aligned to correct scope
+4. `src/opplat-admin/.env.example` — aligned to correct scope
+5. `README.md` — local dev examples and env var table aligned
+
+**Validation:** Both SPAs pass `tsc --noEmit`
+
+**Ruling:**
+- Hicks was correct about the intended scope
+- Vasquez's `openid`-only was too minimal (loses profile/email claims and refresh tokens)
+- Bishop correctly identified the drift
+
+**Output:** `.squad/decisions/inbox/ripley-scope-adjudication.md`
+
+**Status:** ✅ COMPLETE — Scope contract aligned across all layers
