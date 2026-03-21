@@ -1,5 +1,73 @@
 # Opplat Squad — Decisions
 
+## Session 7 Decisions (2026-03-21 — Auth Topology Validation & Consolidated Client Model)
+
+### 1. Keycloak Two-Client Architecture Confirmed (Ripley)
+**Decision Date:** 2026-03-21  
+**Agent:** Ripley (Architect)  
+**Status:** ✅ APPROVED  
+
+**Decision:** Keep two separate Keycloak clients: `opplat-client` (tenant SPA) and `opplat-admin` (admin SPA).
+
+**Rationale:**
+1. **Distinct Redirect URIs** — Each SPA runs on different ports (client: 3000/5173, admin: 3001/5174). Separate clients enable clean, secure redirect scoping.
+2. **Same Backend Audience** — Both SPAs correctly share `audience=opplat-api`. Backend validates token audience and issuer, not client ID.
+3. **Identical Default Scopes** — Both clients use same `defaultClientScopes`: `web-origins`, `profile`, `email`, `roles`, `opplat-tenancy`, `opplat-api-audience`. Token claims identical.
+4. **Session Isolation** — Admin and client may be used simultaneously from same browser. Separate client IDs prevent `oidc-client-ts` storage key collisions.
+5. **Future Flexibility** — Distinct client IDs allow per-client role restrictions or client-specific mappers if requirements diverge.
+
+**Implementation:** No changes to realm export. Both clients codified in `docker/keycloak/opplat-realm.json`.
+
+**Consequence:** Login error was NOT caused by two-client model. Root cause was frontend callback handling and protected route auth-error preferences.
+
+---
+
+### 2. Backend/Realm Topology Alignment Validated (Hicks)
+**Decision Date:** 2026-03-21  
+**Agent:** Hicks (Backend)  
+**Status:** ✅ VALIDATED  
+
+**Decision:** Two-client Keycloak model is not the root cause of post-login failures. Backend already aligned.
+
+**Finding:** Backend authorization does not depend on Keycloak client ID; depends on issuer, `aud=opplat-api`, and normalized `SuperAdmin` role contract.
+
+**Implementation:** Updated `GetAdminUsersQueryHandler` to skip unreachable tenant databases instead of failing entire bootstrap.
+
+**Consequence:** Admin dashboard now resilient to one or more tenant DB temporary unavailability. Operator can login and use dashboard even when one tenant DB is offline.
+
+---
+
+### 3. Frontend Callback Preference Rule (Vasquez)
+**Decision Date:** 2026-03-21  
+**Agent:** Vasquez (Frontend)  
+**Status:** ✅ IMPLEMENTED  
+
+**Decision:** Treat recovered sessions as override for transient shared auth errors in both SPA callback and protected route guards.
+
+**Root Cause:** `react-oidc-context` keeps `error` populated independently from `user`/`isAuthenticated`. Valid users could complete login, have session restored, and still hit error wall on protected route.
+
+**Implementation:** Updated both admin and client `ProtectedRoute.tsx` to only show auth-error when `error && !isAuthenticated`.
+
+**Consequence:** Successful logins will not remain stranded on callback error screen or behind auth error wall on protected routes.
+
+---
+
+### 4. Regression Test Coverage for Two-Client & Callback Flow (Bishop)
+**Decision Date:** 2026-03-21  
+**Agent:** Bishop (QA/Validation)  
+**Status:** ✅ IMPLEMENTED  
+
+**Decision:** Pin two-client Keycloak contract and callback behavior via regression tests.
+
+**Implementation:**
+- Realm contract tests validate exactly two SPA clients and expected origin families
+- Callback contract tests require both SPAs to prefer restored authenticated session over transient shared auth errors
+- All tests passing; builds passing
+
+**Consequence:** Future code changes cannot break two-client model or callback recovery preference without failing test suite.
+
+---
+
 ## Session 6b Decisions (2026-03-21 — Live Admin Callback Fix - Follow-up)
 
 ### 1. Admin Callback Recovery Preference (Vasquez)

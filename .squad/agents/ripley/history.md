@@ -1,5 +1,14 @@
 ## Core Context
 
+### Keycloak Two-Client Architecture Validation (2026-03-21 Session 7)
+Adjudicated architectural decision to keep two separate Keycloak clients (`opplat-client` for tenant SPA, `opplat-admin` for admin SPA). Confirmed decision is correct for:
+1. Distinct redirect URI scoping (different ports per SPA)
+2. Session isolation (prevents oidc-client-ts storage key collisions)
+3. Same backend audience (`opplat-api`) validation model
+4. Future per-client role/mapper flexibility
+
+Coordinated with Hicks (backend validation), Vasquez (frontend callback fix), and Bishop (regression coverage). Confirmed login error was NOT caused by two-client model; root cause was frontend callback/protected-route auth-error handling.
+
 ### Multitenancy Architecture Design (2026-02-27)
 Designed comprehensive multitenancy using Finbuckle.MultiTenant 7.0.1 with per-database isolation (maximum security for restaurant context). Dual-strategy tenant resolution: route-based primary (/{__tenant__}/...) for user-friendly URLs, header fallback (X-Tenant-Identifier) for API clients. In-memory configuration store sufficient for MVP; can upgrade to EF Core store later. Tenant catalog persists via Data/tenant-catalog.json for admin CRUD without touching project files.
 
@@ -255,3 +264,34 @@ openid profile email offline_access
 **Output:** `.squad/decisions/inbox/ripley-scope-adjudication.md`
 
 **Status:** ✅ COMPLETE — Scope contract aligned across all layers
+
+### 2026-03-21: Keycloak Client Model Decision + Client Callback Fix
+
+**Task:** Decide whether to consolidate two Keycloak clients into one, and resolve reported login error.
+
+**Analysis:**
+Investigated `opplat-realm.json` client configurations. Both `opplat-client` and `opplat-admin` are public OIDC clients targeting the same backend audience (`opplat-api`) with identical default scopes. The key differences are:
+- Distinct redirect URIs per app (different ports)
+- Separate client IDs enable clean session isolation in `oidc-client-ts`
+
+**Decision: KEEP TWO CLIENTS**
+Consolidating would require maintaining all redirect URIs in a single client (messy), risk session storage conflicts when both apps are open, and provide no architectural benefit since the backend validates audience, not client ID.
+
+**Login Error Root Cause:**
+The `opplat-react` client app's `AuthCallbackPage.tsx` was missing the session-resolved redirect that had been fixed in `opplat-admin`. Users remained stuck on `/auth/callback` after successful OIDC signin.
+
+**Fix Applied:**
+Updated `src/opplat-react/src/auth/AuthCallbackPage.tsx` to:
+1. Extract `isAuthenticated` and `loading` from auth context
+2. Redirect to `/` when `isAuthenticated && !loading`
+3. Guard error display with `error && !isAuthenticated`
+
+**Validation:** TypeScript passes (`npx tsc --noEmit`)
+
+**Constraints Issued:**
+- Hudson: Keep both clients in realm JSON
+- Bishop: Add client callback regression test (mirrors admin test)
+
+**Output:** `.squad/decisions/inbox/ripley-keycloak-client-model.md`
+
+**Status:** ✅ COMPLETE — Two-client model approved, callback fix applied

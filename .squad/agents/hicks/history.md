@@ -1,5 +1,8 @@
 ## Core Context
 
+### Backend/Realm Topology Validation (2026-03-21 Session 7)
+Validated that backend auth does not depend on Keycloak client ID; depends on issuer, `aud=opplat-api`, and normalized SuperAdmin role contract. Confirmed two-client Keycloak model is not root cause of login failures. Backend already aligned with realm topology. Coordinated with Ripley (architecture validation), Vasquez (frontend callback fix), and Bishop (regression coverage). No backend changes needed for two-client architecture.
+
 ### Cross-Tenant Admin Bootstrap Resilience (2026-03-21 Session 6b)
 Addressed post-login admin dashboard bootstrap failures when tenant databases were unreachable. The issue: `/admin/users` query calls every active tenant database; if any were offline, the entire bootstrap failed, masking the successful admin signin. Decision: `GetAdminUsersQueryHandler` should log and skip unreachable tenant databases instead of failing the whole request. Tenant-specific screens still fail for that tenant (acceptable). Implemented skip/log logic. Coordinated with Vasquez (callback recovery) and Bishop (regression coverage).
 
@@ -247,4 +250,10 @@ Finbuckle 7.0.1 exposes root-namespace methods only (`UseMultiTenant`, `Configur
 - The fragile seam was claim shape, not role naming: Keycloak role mappers can surface roles either as nested `realm_access` / `resource_access` objects or as flat dotted claim keys such as `realm_access.roles`.
 - I normalized both backend and SPA claim readers to accept either shape, which removes a silent source of post-login authorization failures without changing the role model itself.
 - Validation passed with `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter Auth`, `dotnet build .\opplat.sln`, `npm --prefix .\src\opplat-admin run build`, and `npm --prefix .\src\opplat-react run build`.
+
+### 2026-03-21: Admin login root-cause follow-up
+
+- I re-checked the remaining admin post-login failure against the live repo state and found no backend evidence that the two-client Keycloak model is the problem. `docker/keycloak/opplat-realm.json` intentionally keeps `opplat-client` and `opplat-admin` as separate public SPA clients with different redirect-origin families but the same realm-role and audience contract.
+- Backend/admin auth is aligned: `Program.cs` still gates `/admin/*` on `SuperAdmin`, `OidcClaimsTransformation.cs` still normalizes Keycloak role payload shapes, and `GetAdminUsersQuery.cs` already degrades gracefully when one tenant database is down so dashboard bootstrap does not fail the whole signin flow.
+- Validation passed again with `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter Auth` and `npm --prefix .\src\opplat-admin run build`. From the backend side, the remaining visible login symptom points to frontend recovered-session handling rather than claim interpretation or client consolidation.
 

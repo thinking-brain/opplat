@@ -1,5 +1,8 @@
 ## Core Context
 
+### Protected Route Auth-Error Recovery Preference (2026-03-21 Session 7)
+Fixed remaining SPA-side post-login failure by updating both admin and client `ProtectedRoute.tsx` to only show auth-error when `error && !isAuthenticated`. Root cause: `react-oidc-context` keeps error populated independently from session restoration. Valid users could complete login, have session restored, and still hit error wall on protected route. Updated both SPAs to prefer recovered sessions over transient shared auth errors. Coordinated with Ripley (architecture validation), Hicks (backend validation), and Bishop (regression coverage). Both SPAs now properly handle recovered sessions without stranding users behind auth error.
+
 ### Live Admin Callback Recovery Seam (2026-03-21 Session 6b)
 Focused on callback page recovery for live admin flow. The issue: admin users completing Keycloak signin and session restoration still landed on `/auth/callback` error screen due to transient `react-oidc-context` error state persisting independently of the restored session. Decision: callback page should prefer resolved session state (`isAuthenticated && !loading`) over error state and redirect to `/` immediately. Implemented in `AuthCallbackPage.tsx`. Coordinated with Hicks (bootstrap resilience) and Bishop (regression coverage).
 
@@ -52,3 +55,8 @@ Phase 1: .NET 10.0 upgrade. Phase 2: Complete React 18 SPA (`src/opplat-react/`)
 
 ### Earlier Sessions (2026-02-27 to 2026-03-20)
 See condensed Phase summaries above; extensive detailed work documented in team decisions.md and session logs.
+
+## Learnings
+
+- A restored `react-oidc-context` session can still carry a transient shared `error`, so admin/client `ProtectedRoute` components must only block on auth errors while the user remains unauthenticated.
+- The two Keycloak SPA clients are intentional: `opplat-client` serves the tenant-facing app origins and `opplat-admin` serves the admin app origins; the live post-login error was not caused by duplicating clients.

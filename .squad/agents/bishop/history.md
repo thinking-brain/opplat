@@ -1,5 +1,13 @@
 ## Core Context
 
+### Two-Client Realm & Callback Contract Regression Coverage (2026-03-21 Session 7)
+Added comprehensive regression test coverage validating the two-client Keycloak architecture and callback recovery flow:
+1. Realm contract tests pin exactly two SPA clients with expected origin families
+2. Frontend callback contract tests require both SPAs to prefer restored authenticated session over transient shared auth errors on `/auth/callback`
+3. Protected route contract tests validate recovered sessions unblock UI before showing auth errors
+
+All builds passing, all tests passing. Two-client Keycloak contract now guarded in test suite. Coordinated with Ripley (architecture validation), Hicks (backend validation), and Vasquez (frontend callback fix). Future code changes cannot break two-client model or callback recovery preference without failing tests.
+
 ### Callback Regression Contract Coverage (2026-03-21 Session 6b)
 Added focused test coverage for the narrowest stable callback seam. The pattern: admin callback page redirects authenticated, settled sessions to `/` even if `react-oidc-context` error state lingers. New tests in `FrontendAuthContractTests.cs` pin safe callback return-target handling and session restoration behavior. Prevents future callback/OIDC changes from regressing the recovery seam. Coordinated with Vasquez (callback page fix) and Hicks (bootstrap resilience).
 
@@ -281,3 +289,18 @@ Three-agent team identified and resolved live Keycloak OIDC scope injection defe
 **Validation results:**
 - `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --nologo -v minimal --filter "FrontendAuthContractTests|AuthEndpointAuthorizationIntegrationTests|OidcClaimsTransformationTests"` ✅
 - `npm run build` in `src\opplat-admin` ✅
+
+### 2026-03-21: Two-client Keycloak model validated; tenant callback seam pinned
+
+**What I pinned:**
+- The Keycloak realm's two-client setup is intentional: `opplat-client` and `opplat-admin` serve different SPA origins and callback URLs, so the duplicate-looking entries are not the cause of the remaining login error.
+- The narrower live seam was still the tenant SPA callback page: `src\opplat-react\src\auth\AuthCallbackPage.tsx` could show a transient shared auth error even after the OIDC session had already been restored.
+
+**What I changed:**
+- Updated the tenant callback page to redirect authenticated, no-longer-loading sessions to `/` and only render the callback error alert while the user is still unauthenticated.
+- Expanded `test\Opplat.MainApp.Test\Auth\FrontendAuthContractTests.cs` so both callback pages must prefer a restored session over transient auth errors.
+- Added `KeycloakRealmContractTests` coverage that pins the intentional two-client Keycloak model and the distinct origin/redirect families for the client and admin SPAs.
+
+**Validation results:**
+- Focused auth contract tests pass with project references disabled to avoid unrelated shared-environment file locks.
+- `npm run build` in `src\opplat-react` passes after the callback-page change.
