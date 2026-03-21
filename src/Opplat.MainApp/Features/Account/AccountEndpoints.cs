@@ -1,8 +1,7 @@
-using System.Security.Claims;
 using MediatR;
 using Opplat.MainApp.Dtos;
-using Opplat.MainApp.Features.Account.Commands;
 using Opplat.MainApp.Features.Account.Queries;
+using Opplat.MainApp.Features.Account.Commands;
 
 namespace Opplat.MainApp.Features.Account;
 
@@ -21,22 +20,17 @@ public static class AccountEndpoints
     private static void MapEndpoints(RouteGroupBuilder group)
     {
         group.MapPost("/Login",
-            async (Login login, IMediator mediator) =>
+            () =>
             {
-                var result = await mediator.Send(new LoginCommand(login.UserName, login.Password));
-                if (result == null)
-                    return Results.BadRequest(new { Result = false, Message = "Intento de autenticacion incorrecto." });
-
-                return Results.Ok(new
+                return Results.BadRequest(new
                 {
-                    token      = result.Token,
-                    expiration = result.Expiration,
-                    userId     = result.UserId
+                    Result = false,
+                    Message = "Interactive login is handled by the configured identity provider. Obtain an access token from Auth0 or Keycloak and send it as a bearer token."
                 });
             })
             .AllowAnonymous()
-            .WithSummary("Login")
-            .WithDescription("Autentica un usuario y retorna un JWT");
+            .WithSummary("OIDC login handoff")
+            .WithDescription("The backend no longer issues local JWTs; use the external identity provider login flow.");
 
         group.MapGet("/user-list",
             async (IMediator mediator) =>
@@ -44,7 +38,7 @@ public static class AccountEndpoints
                 var users = await mediator.Send(new GetUsersQuery());
                 return Results.Ok(users);
             })
-            .RequireAuthorization()
+            .RequireAuthorization("TenantAdminOnly")
             .WithSummary("Listado de usuarios");
 
         group.MapGet("/profile/{name}",
@@ -67,7 +61,7 @@ public static class AccountEndpoints
                     ? Results.Ok(result.User)
                     : Results.BadRequest(result.Errors);
             })
-            .RequireAuthorization()
+            .RequireAuthorization("TenantAdminOnly")
             .WithSummary("Crear usuario");
 
         group.MapPost("/edit-user",
@@ -78,31 +72,32 @@ public static class AccountEndpoints
                     ? Results.Ok()
                     : Results.BadRequest(new { Result = false, Message = "Error modificando el usuario." });
             })
-            .RequireAuthorization()
+            .RequireAuthorization("TenantAdminOnly")
             .WithSummary("Editar nombre/apellido de usuario");
 
         group.MapPost("/reset-password",
-            async (ResetPassword resetPassword, IMediator mediator) =>
+            () =>
             {
-                var result = await mediator.Send(
-                    new ResetPasswordCommand(resetPassword.UsuarioId, resetPassword.Contraseña));
-
-                return result.Success ? Results.Ok() : Results.BadRequest(result.Errors);
+                return Results.BadRequest(new
+                {
+                    Result = false,
+                    Message = "Password reset is managed by the configured identity provider."
+                });
             })
             .RequireAuthorization()
-            .WithSummary("Resetear contraseña (admin)");
+            .WithSummary("Password reset delegated to IdP");
 
         group.MapPost("/change-password",
-            async (ChangePassword changePassword, IMediator mediator) =>
+            () =>
             {
-                var result = await mediator.Send(
-                    new ChangePasswordCommand(changePassword.UsuarioId,
-                        changePassword.ContraseñaActual, changePassword.Contraseña));
-
-                return result.Success ? Results.Ok() : Results.BadRequest(result.Errors);
+                return Results.BadRequest(new
+                {
+                    Result = false,
+                    Message = "Password changes are managed by the configured identity provider."
+                });
             })
             .RequireAuthorization()
-            .WithSummary("Cambiar contraseña (usuario)");
+            .WithSummary("Password change delegated to IdP");
 
         group.MapGet("/cambiar-estado",
             async (string idUsuario, IMediator mediator) =>
@@ -110,7 +105,7 @@ public static class AccountEndpoints
                 var found = await mediator.Send(new ToggleUserActiveCommand(idUsuario));
                 return found ? Results.Ok() : Results.NotFound();
             })
-            .RequireAuthorization()
+            .RequireAuthorization("TenantAdminOnly")
             .WithSummary("Activar/desactivar usuario");
 
         group.MapPost("/cambiar-roles",
@@ -121,7 +116,7 @@ public static class AccountEndpoints
                     ? Results.Ok(new { Resultado = true, Mensaje = "Roles modificados correctamente." })
                     : Results.BadRequest(new { Resultado = false, Mensaje = result.ErrorMessage });
             })
-            .RequireAuthorization()
+            .RequireAuthorization("TenantAdminOnly")
             .WithSummary("Cambiar roles de usuario");
     }
 }

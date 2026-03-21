@@ -1,42 +1,56 @@
-# Build stage
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Copy package files and install dependencies
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Copy source and build
 COPY . .
 RUN npm run build
 
-# Runtime stage
 FROM nginx:alpine AS final
 WORKDIR /usr/share/nginx/html
 
-# Remove default nginx content
 RUN rm -rf ./*
-
-# Copy built assets from build stage
 COPY --from=build /app/dist .
 
-# Create nginx configuration for SPA routing
-RUN echo 'server { \n\
-    listen 80; \n\
-    server_name localhost; \n\
-    root /usr/share/nginx/html; \n\
-    index index.html; \n\
-    \n\
-    location / { \n\
-        try_files $uri $uri/ /index.html; \n\
-    } \n\
-    \n\
-    # Cache static assets \n\
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ { \n\
-        expires 1y; \n\
-        add_header Cache-Control "public, immutable"; \n\
-    } \n\
-}' > /etc/nginx/conf.d/default.conf
+RUN cat <<'EOF' > /etc/nginx/conf.d/default.conf
+server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+EOF
+
+RUN cat <<'EOF' > /docker-entrypoint.d/40-runtime-config.sh
+#!/bin/sh
+cat <<CONFIG > /usr/share/nginx/html/runtime-config.js
+window.__OPPLAT_RUNTIME_CONFIG__ = {
+  VITE_APP_NAME: "${VITE_APP_NAME:-Opplat Client}",
+  VITE_API_URL: "${VITE_API_URL:-http://localhost:5000}",
+  VITE_AUTH_API_URL: "${VITE_AUTH_API_URL:-${VITE_API_URL:-http://localhost:5000}}",
+  VITE_SALES_API_URL: "${VITE_SALES_API_URL:-${VITE_API_URL:-http://localhost:5000}}",
+  VITE_INVENTORY_API_URL: "${VITE_INVENTORY_API_URL:-${VITE_API_URL:-http://localhost:5000}}",
+  VITE_AUTH_AUTHORITY: "${VITE_AUTH_AUTHORITY:-http://localhost:8180/realms/opplat}",
+  VITE_AUTH_CLIENT_ID: "${VITE_AUTH_CLIENT_ID:-opplat-client}",
+  VITE_AUTH_AUDIENCE: "${VITE_AUTH_AUDIENCE:-opplat-api}",
+  VITE_AUTH_SCOPE: "${VITE_AUTH_SCOPE:-openid profile email offline_access}",
+  VITE_AUTH_REDIRECT_PATH: "${VITE_AUTH_REDIRECT_PATH:-/auth/callback}",
+  VITE_AUTH_SILENT_REDIRECT_PATH: "${VITE_AUTH_SILENT_REDIRECT_PATH:-/auth/silent-renew}",
+  VITE_AUTH_LOGOUT_REDIRECT_PATH: "${VITE_AUTH_LOGOUT_REDIRECT_PATH:-/login}"
+};
+CONFIG
+EOF
+RUN chmod +x /docker-entrypoint.d/40-runtime-config.sh
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

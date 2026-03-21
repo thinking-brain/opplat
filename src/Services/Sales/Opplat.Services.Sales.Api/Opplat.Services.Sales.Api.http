@@ -1,0 +1,6 @@
+@Opplat.Services.Sales.Api_HostAddress = http://localhost:5291
+
+GET {{Opplat.Services.Sales.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

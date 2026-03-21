@@ -4,7 +4,7 @@ Multi-platform business management system for café and restaurant operations. O
 
 ## Tech Stack
 
-- **Backend**: ASP.NET Core net10.0, Entity Framework Core, SQL Server, SignalR, JWT Bearer Authentication, Finbuckle.MultiTenant
+- **Backend**: ASP.NET Core net10.0, Entity Framework Core, SQL Server, SignalR, OIDC Bearer Authentication (Auth0/Keycloak), Finbuckle.MultiTenant
 - **Frontend**: React 18, Vite, TypeScript, Material-UI (MUI), Axios, React Router 6
 - **Infrastructure**: Docker, Docker Compose, nginx
 
@@ -18,37 +18,72 @@ Multi-platform business management system for café and restaurant operations. O
 ## Quick Start with Docker Compose
 
 ```bash
-# 1. Copy the example env file
+# 1. Copy the Docker defaults into .env
+# PowerShell:
+Copy-Item .env.docker .env
+# bash:
 cp .env.docker .env
 
-# 2. Edit .env and set your passwords/secrets
-# (or use the defaults for local dev)
+# 2. Review the local defaults in .env
+# - KEYCLOAK_PORT=8180
+# - KEYCLOAK_REALM=opplat
+# - KEYCLOAK_ADMIN_USERNAME=admin
+# - KEYCLOAK_ADMIN_PASSWORD=admin
 
-# 3. Start all services
-docker-compose up -d
+# 3. Validate the merged compose file before starting
+docker compose config
 
-# Services will be available at:
-# - API:      http://localhost:8080
-# - Frontend: http://localhost:3000
-# - SQL:      localhost:1433
+# 4. Start all services
+docker compose up -d
+
+# 5. Check startup
+docker compose ps
 ```
+
+### Expected Local URLs
+
+When you run `docker compose up` normally, Docker Compose loads both `docker compose.yml` and `docker compose.override.yml`.
+
+- Client app (hot reload): `http://localhost:3200`
+- Admin app (hot reload): `http://localhost:3201`
+- Client app (base nginx container): `http://localhost:3100`
+- Admin app (base nginx container): `http://localhost:3101`
+- Main API: `http://localhost:8080`
+- Sales API: `http://localhost:8083`
+- Inventory API: `http://localhost:8082`
+- Keycloak realm: `http://localhost:8180/realms/opplat`
+- Keycloak admin console: `http://localhost:8180/admin/`
+- SQL Server: `localhost:1433`
 
 ### Development Mode with Hot Reload
 
-Use `docker-compose.override.yml` for development with hot reload:
+Use `docker compose.override.yml` for development with hot reload. It is picked up automatically by `docker compose up`.
 
 ```bash
-# Start with override (frontend hot reload enabled)
-docker-compose up -d
+# Start with override (frontend hot reload enabled on 3200/3201)
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop all services
-docker-compose down
+docker compose down
 ```
 
-The override file configures the frontend to run in Vite dev mode with live reload.
+The override file adds Vite dev servers on `http://localhost:3200` (client) and `http://localhost:3201` (admin). The base compose ports `3100/3101` remain published unless you explicitly run `docker compose -f docker compose.yml up`.
+
+### Cheapest deployment model
+
+If your priority is the lowest possible client-facing infrastructure cost, use the current Docker Compose topology on a single host:
+
+- one small VM or container host
+- one shared SQL Server instance
+- no Kubernetes
+- no paid API gateway
+- `Opplat.MainApp` only for auth/admin/license endpoints
+- `Sales` and `Inventory` traffic sent directly to their own services
+
+This keeps the microservice split while avoiding extra runtime components that add hosting cost.
 
 ### Production Build
 
@@ -56,12 +91,20 @@ To run production builds without hot reload:
 
 ```bash
 # Temporarily disable override
-docker-compose -f docker-compose.yml up -d
+docker compose -f docker compose.yml up -d
 ```
 
 ## Running Locally (Without Docker)
 
 ### Backend
+
+The repository now includes three independently runnable ASP.NET Core backends:
+
+- `src/Opplat.MainApp` - existing monolith / composition root
+- `src/Services/Sales/Opplat.Services.Sales.Api` - Sales microservice host
+- `src/Services/Inventory/Opplat.Services.Inventory.Api` - Inventory microservice host
+
+Run any service locally with:
 
 ```bash
 cd src/Opplat.MainApp
@@ -70,7 +113,31 @@ dotnet run
 # API runs at https://localhost:5001 / http://localhost:5000
 ```
 
-**Note**: Update `appsettings.Development.json` with your local SQL Server connection string.
+For the new service hosts:
+
+```bash
+cd src/Services/Sales/Opplat.Services.Sales.Api
+dotnet run
+
+cd src/Services/Inventory/Opplat.Services.Inventory.Api
+dotnet run
+```
+
+**Note**: Update `appsettings.Development.json` with your local SQL Server connection string. For host-machine development, keep `Auth:Authority` on `http://localhost:8180/realms/opplat`. In Docker Compose, the APIs also validate against that public issuer, but fetch OIDC discovery from the internal Keycloak URL through `Auth__MetadataAddress` so browser redirects and backend token validation stay aligned.
+
+Recommended local auth section:
+
+```json
+"Auth": {
+  "Authority": "http://localhost:8180/realms/opplat",
+  "MetadataAddress": null,
+  "Audience": "opplat-api",
+  "ClaimNamespace": "https://opplat.com",
+  "AdminRole": "SuperAdmin",
+  "TenantAdminRole": "TenantAdmin",
+  "TenantUserRole": "TenantUser"
+}
+```
 
 ### Frontend
 
@@ -84,7 +151,40 @@ npm run dev
 Create `src/opplat-react/.env.local` with:
 ```
 VITE_API_URL=http://localhost:5000
+VITE_AUTH_API_URL=http://localhost:5000
+VITE_SALES_API_URL=http://localhost:8083
+VITE_INVENTORY_API_URL=http://localhost:8082
+VITE_AUTH_AUTHORITY=http://localhost:8180/realms/opplat
+VITE_AUTH_CLIENT_ID=opplat-client
+VITE_AUTH_AUDIENCE=opplat-api
+VITE_AUTH_USE_AUDIENCE_QUERY_PARAM=false
+VITE_AUTH_SCOPE=openid profile email offline_access
 ```
+
+`VITE_API_URL` remains the shared fallback, but the cheapest microservice setup should point `VITE_AUTH_API_URL`, `VITE_SALES_API_URL`, and `VITE_INVENTORY_API_URL` at the dedicated services.
+
+Create `src/opplat-admin/.env.local` with:
+```
+VITE_API_URL=http://localhost:5000
+VITE_ADMIN_API_URL=http://localhost:5000
+VITE_AUTH_AUTHORITY=http://localhost:8180/realms/opplat
+VITE_AUTH_CLIENT_ID=opplat-admin
+VITE_AUTH_AUDIENCE=opplat-api
+VITE_AUTH_USE_AUDIENCE_QUERY_PARAM=false
+VITE_AUTH_SCOPE=openid profile email offline_access
+```
+
+For Azure Entra ID production, keep the same React auth stack and swap configuration only:
+
+```ini
+VITE_AUTH_AUTHORITY=https://login.microsoftonline.com/<tenant-id>/v2.0
+VITE_AUTH_CLIENT_ID=<spa-app-client-id>
+VITE_AUTH_AUDIENCE=
+VITE_AUTH_USE_AUDIENCE_QUERY_PARAM=false
+VITE_AUTH_SCOPE=openid profile email offline_access api://<api-app-id>/access_as_user
+```
+
+Use `VITE_AUTH_SCOPE` for Entra API permissions. Keep `VITE_AUTH_AUDIENCE` / `VITE_AUTH_USE_AUDIENCE_QUERY_PARAM=true` only for providers that expect a non-standard `audience` authorize-query parameter.
 
 ## Project Structure
 
@@ -100,6 +200,12 @@ opplat/
 │   │   └── appsettings.json     # Configuration
 │   ├── Opplat.Domain/           # Domain entities and models
 │   ├── Opplat.Infrastructure/   # Data access, repositories, services
+│   ├── Opplat.Microservices.Shared/ # Shared hosting primitives for service hosts
+│   ├── Services/
+│   │   ├── Sales/
+│   │   │   └── Opplat.Services.Sales.Api/      # Sales microservice host
+│   │   └── Inventory/
+│   │       └── Opplat.Services.Inventory.Api/  # Inventory microservice host
 │   ├── Opplat.Shared/           # Shared utilities and DTOs
 │   ├── opplat-react/            # React 18 frontend (current)
 │   │   ├── src/                 # React components and pages
@@ -107,8 +213,8 @@ opplat/
 │   │   └── vite.config.ts       # Vite configuration
 │   └── opplat-vue/              # Legacy Vue 2 frontend (reference only)
 ├── test/                        # Test projects
-├── docker-compose.yml           # Production Docker Compose
-├── docker-compose.override.yml  # Development overrides
+├── docker compose.yml           # Production Docker Compose
+├── docker compose.override.yml  # Development overrides
 ├── .env.docker                  # Example environment variables
 └── opplat.sln                   # Solution file
 ```
@@ -118,15 +224,28 @@ opplat/
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `SA_PASSWORD` | SQL Server SA password | `Admin123*` | Yes |
-| `JWT_SECRET` | JWT signing key for authentication | `SuperSecretKey12345` | Yes |
+| `SQLSERVER_PORT` | Published SQL Server host port | `1433` | No |
+| `KEYCLOAK_PORT` | Published Keycloak host port | `8180` | No |
+| `KEYCLOAK_REALM` | Imported realm name used by discovery URLs | `opplat` | No |
+| `KEYCLOAK_ADMIN_USERNAME` | Keycloak bootstrap admin username | `admin` | No |
+| `KEYCLOAK_ADMIN_PASSWORD` | Keycloak bootstrap admin password | `admin` | No |
+| `API_PORT` | Published main API host port | `8080` | No |
+| `SALES_API_PORT` | Published sales API host port | `8083` | No |
+| `INVENTORY_API_PORT` | Published inventory API host port | `8082` | No |
+| `FRONTEND_PORT` | Published base client app host port | `3100` | No |
+| `ADMIN_FRONTEND_PORT` | Published base admin app host port | `3101` | No |
 | `VITE_API_URL` | Backend API URL for frontend | `http://localhost:8080` | Yes |
-| `ConnectionStrings__DefaultConnection` | Main database connection string | *(see docker-compose.yml)* | Yes |
-| `ConnectionStrings__MainConnection` | Main database connection string | *(see docker-compose.yml)* | Yes |
+| `ConnectionStrings__DefaultConnection` | Main database connection string | *(see docker compose.yml)* | Yes |
+| `ConnectionStrings__MainConnection` | Main database connection string | *(see docker compose.yml)* | Yes |
 | `ASPNETCORE_ENVIRONMENT` | ASP.NET Core environment | `Development` | No |
 | `ASPNETCORE_URLS` | ASP.NET Core listening URLs | `http://+:8080` | No |
-| `Authorization__Password` | JWT secret password | `${JWT_SECRET}` | Yes |
-| `Authorization__Issuer` | JWT token issuer | `opplat.com` | Yes |
-| `Authorization__Audience` | JWT token audience | `opplat.com` | Yes |
+| `Auth__Authority` | Public OIDC issuer used to validate browser-issued tokens | `http://localhost:8180/realms/opplat` | Yes |
+| `Auth__MetadataAddress` | Internal discovery URL used by containerized APIs for Keycloak backchannel access | `http://keycloak:8180/realms/opplat/.well-known/openid-configuration` | Yes |
+| `Auth__Audience` | OIDC API audience | `opplat-api` | Yes |
+| `Auth__AdminRole` | Platform admin realm role required by `/admin` endpoints | `SuperAdmin` | No |
+| `Auth__TenantAdminRole` | Tenant admin realm role required by tenant user-management endpoints | `TenantAdmin` | No |
+| `Auth__TenantUserRole` | Tenant user realm role used by tenant-facing authorization flows | `TenantUser` | No |
+| `VITE_AUTH_SCOPE` | SPA scope request sent to Keycloak | `openid` | No |
 
 ## Multi-Tenancy
 
@@ -134,8 +253,152 @@ Opplat uses **Finbuckle.MultiTenant** for complete tenant isolation with per-ten
 
 - **Tenant resolution**: Via route prefix (e.g., `/{tenant}/api/...`)
 - **Database isolation**: Each tenant has its own database with independent connection string
-- **Configuration**: Tenants configured in `appsettings.json` under `Finbuckle:MultiTenant:Stores:ConfigurationStore`
+- **Configuration**: Tenants seed from `appsettings.json` and persist in `src/Opplat.MainApp/Data/tenant-catalog.json`
 - **Default tenants**: `mojocafe`, `demo`, `test`
+
+## Authentication
+
+`Opplat.MainApp` now validates bearer tokens through OIDC discovery:
+
+- **Production / shared environments**: point `Auth__Authority` at Auth0
+- **Local Docker development**: point `Auth__Authority` at Keycloak (included in docker compose.yml)
+- **No local JWT issuance**: Clients must authenticate with the configured identity provider (Auth0 or Keycloak)
+- **Tenant validation**: the API cross-checks `tenant_id` / `tenant_identifier` token claims against Finbuckle route or `X-Tenant-Identifier` resolution
+- **Role validation**: admin and tenant policies are backed by Keycloak realm roles (`SuperAdmin`, `TenantAdmin`, `TenantUser`)
+
+### Keycloak Role and Claim Mapping
+
+The local Keycloak realm intentionally uses **realm roles** for Opplat authorization instead of client-specific roles:
+
+- `SuperAdmin` -> platform administration and admin SPA access
+- `TenantAdmin` -> tenant user-management and elevated client-app access
+- `TenantUser` -> standard tenant app access
+
+The backend reads those roles from Keycloak token claims such as `realm_access.roles` and normalizes them into ASP.NET Core role claims before authorization policies run.
+
+Both SPA clients also inherit two Opplat-specific default client scopes from Keycloak:
+
+- `opplat-tenancy` -> injects `tenant_id` and `tenant_identifier`
+- `opplat-api-audience` -> injects `aud=opplat-api`
+
+That keeps the frontend config simple while ensuring the APIs receive the tenant and audience claims they validate.
+
+Local development intentionally keeps **two public SPA clients** in Keycloak:
+
+- `opplat-client` for the tenant-facing client app (`3100/3200/5173`)
+- `opplat-admin` for the SuperAdmin portal (`3101/3201/5174`)
+
+That split is deliberate, not a bug: each SPA has its own redirect URIs and browser origins, while both still share the same realm roles and Opplat client scopes.
+
+### Keycloak Local Development Setup
+
+Keycloak is automatically started with Docker Compose at `http://localhost:8180`. The container:
+
+1. mounts `docker/keycloak/keycloak.conf` into `/opt/keycloak/conf/keycloak.conf`
+2. mounts `docker/keycloak/opplat-realm.json` into `/opt/keycloak/data/import/opplat-realm.json`
+3. starts with `start-dev --import-realm`
+4. becomes healthy only after `http://localhost:8180/realms/opplat/.well-known/openid-configuration` returns `200`
+
+That means the API services wait for Keycloak realm import to finish before starting.
+
+#### Keycloak Admin Console
+
+Use the bootstrap admin from `.env` for the Keycloak console itself:
+
+| Field | Value |
+|-------|-------|
+| **URL** | `http://localhost:8180/admin/` |
+| **Username** | `admin` (`KEYCLOAK_ADMIN_USERNAME`) |
+| **Password** | `admin` (`KEYCLOAK_ADMIN_PASSWORD`) |
+
+#### Default Opplat SuperAdmin User
+
+Inside the imported `opplat` realm, a separate **SuperAdmin** application user is pre-configured:
+
+| Field | Value |
+|-------|-------|
+| **Username** | `superadmin` |
+| **Password** | `SuperAdmin123!` |
+| **Email** | `superadmin@opplat.local` |
+| **Role** | SuperAdmin |
+
+### User Roles and Permissions
+
+Opplat uses three role levels:
+
+1. **SuperAdmin** — Platform-wide administrator
+   - Only role with access to the **Admin Site** (`http://localhost:3201` in hot-reload dev, `http://localhost:3101` in base compose)
+   - Can manage all system configuration
+   - Can manage tenant catalog/configuration
+   - Does **not** manage tenant user permissions from the admin site
+
+2. **TenantAdmin** — Tenant administrator (assigned per tenant)
+   - Access to the **Client App** (`http://localhost:3200` in hot-reload dev, `http://localhost:3100` in base compose) for their tenant
+   - Can manage users and permissions **within the Client App's admin section**
+   - Permissions management is **decentralized to the client app, not the admin site**
+   - Can assign `TenantAdmin` or `TenantUser` roles within their tenant
+
+3. **TenantUser** — Regular tenant user
+    - Access to the **Client App** for their tenant
+    - Standard end-user functionality
+    - Cannot modify permissions or tenant settings
+
+### Frontend OIDC scopes and role gates
+
+Both SPAs use OIDC authorization code flow with PKCE and normalize claims from the returned tokens before routing users into the app.
+
+- **Requested scopes**: the frontends request `openid` by default. Do **not** include `roles` — Keycloak injects realm roles and tenant claims via default client scopes automatically.
+- **Keycloak default client scopes**: the local realm already attaches `roles`, `opplat-tenancy`, and `opplat-api-audience`, so tenant claims and the API audience arrive from Keycloak configuration instead of custom frontend query parameters.
+- **Audience parameter**: the SPA only sends an explicit `audience` query parameter for providers that need it (for example Auth0). Local Keycloak relies on its configured audience mapper instead.
+- **Role parsing**: frontend claim parsing reads both the ID token and access token, including `realm_access.roles`, `resource_access.*.roles`, flat `role`/`roles` claims, and Opplat namespaced claims.
+
+#### Role-based frontend access
+
+1. **Admin SPA (`/opplat-admin`)**
+   - Requires the `SuperAdmin` realm role for the root route and all nested pages.
+   - Non-SuperAdmin accounts are authenticated but stopped at the frontend gate with an explicit access denied screen.
+   - Tenant user/permission management stays out of the admin SPA and belongs in the client app.
+
+2. **Client SPA (`/opplat-react`)**
+   - Standard tenant workflows remain available to authenticated tenant users.
+   - The `/users` route, the Users navigation entry, and the dashboard quick-access card are gated to `TenantAdmin`.
+   - A `TenantUser` can sign in and operate the app, but cannot open tenant user management.
+
+### Test Users
+
+The following test users are pre-configured for local development:
+
+| Username | Password | Tenant | Roles | Primary app |
+|----------|----------|--------|-------|-------------|
+| `superadmin` | `SuperAdmin123!` | platform | `SuperAdmin` | Admin site |
+| `tenant-admin@mojocafe` | `TenantAdmin123!` | `mojocafe` | `TenantAdmin`, `TenantUser` | Client app |
+| `tenant-admin@demo` | `TenantAdmin123!` | `demo` | `TenantAdmin`, `TenantUser` | Client app |
+| `tenant-admin@test` | `TenantAdmin123!` | `test` | `TenantAdmin`, `TenantUser` | Client app |
+| `user@mojocafe` | `TenantUser123!` | `mojocafe` | `TenantUser` | Client app |
+| `user@demo` | `TenantUser123!` | `demo` | `TenantUser` | Client app |
+| `user@test` | `TenantUser123!` | `test` | `TenantUser` | Client app |
+
+### Accessing the Apps
+
+**Client App** (tenant users and admins):
+```
+http://localhost:3200   # Vite dev server from docker compose.override.yml
+http://localhost:3100   # Base nginx container from docker compose.yml
+```
+
+**Admin Site** (SuperAdmins only):
+```
+http://localhost:3201   # Vite dev server from docker compose.override.yml
+http://localhost:3101   # Base nginx container from docker compose.yml
+```
+
+## Admin API
+
+The main backend now exposes admin endpoints under `/admin` for:
+
+- tenant catalog management (`/admin/tenants`)
+- cross-tenant user listing (`/admin/users`)
+- tenant-scoped user management (`/admin/tenants/{tenantIdentifier}/users`) using the `X-Tenant-Identifier` header for platform-side inspection only; tenant permission changes belong in the client app
 
 ### Accessing Tenant APIs
 
@@ -152,6 +415,13 @@ curl http://localhost:8080/demo/api/products
 curl http://localhost:8080/test/api/products
 ```
 
+The new microservice hosts reuse the same tenant configuration model. They are exposed separately through Docker Compose at:
+
+- `http://localhost:8083` - Sales service
+- `http://localhost:8082` - Inventory service
+
+This first microservice slice keeps the current SQL Server model so the services can be run independently before a later database split.
+
 ### Tenant Databases
 
 When running with Docker Compose, the following databases are automatically configured:
@@ -167,10 +437,10 @@ When running with Docker Compose, the following databases are automatically conf
 
 ```bash
 # Run migrations in the API container
-docker-compose exec api dotnet ef database update
+docker compose exec api dotnet ef database update
 
 # Create a new migration
-docker-compose exec api dotnet ef migrations add MigrationName
+docker compose exec api dotnet ef migrations add MigrationName
 ```
 
 ### Apply Migrations Locally
@@ -227,23 +497,28 @@ Authorization: Bearer <your-token>
 
 If API cannot connect to SQL Server:
 
-1. Verify SQL Server container is healthy: `docker-compose ps`
+1. Verify SQL Server container is healthy: `docker compose ps`
 2. Check SA password in `.env` matches SQL Server requirements
-3. View API logs: `docker-compose logs api`
+3. View API logs: `docker compose logs api`
 
 ### Frontend Cannot Reach API
 
 1. Ensure `VITE_API_URL` points to the correct API address
 2. Check CORS configuration in `Program.cs`
-3. Verify API is running: `curl http://localhost:8080/health`
+3. Verify the main API is running: `curl http://localhost:8080/docs/v1/docs.json`
+4. Verify supporting services if needed: `curl http://localhost:8083/health` and `curl http://localhost:8082/health`
 
 ### Port Conflicts
 
-If ports 3000, 8080, or 1433 are already in use, modify the port mappings in `docker-compose.yml`:
+If ports 8180, 8080, 8083, 8082, 3100/3200, 3101/3201, or 1433 are already in use, change the corresponding values in `.env` and re-run `docker compose config`:
 
-```yaml
-ports:
-  - "8081:8080"  # Change host port (left side)
+```env
+KEYCLOAK_PORT=8181
+API_PORT=8085
+SALES_API_PORT=8086
+INVENTORY_API_PORT=8087
+FRONTEND_PORT=3110
+ADMIN_FRONTEND_PORT=3111
 ```
 
 ## License

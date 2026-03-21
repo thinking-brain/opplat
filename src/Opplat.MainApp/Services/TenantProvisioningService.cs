@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Opplat.MainApp.Auth;
 using Opplat.MainApp.Data;
 using Opplat.MainApp.Models;
 
@@ -8,61 +9,75 @@ namespace Opplat.MainApp.Services;
 public class TenantProvisioningService
 {
     private readonly IServiceProvider _serviceProvider;
-    
+
     public TenantProvisioningService(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
-    
+
     public async Task ProvisionTenantAsync(AppTenantInfo tenantInfo)
     {
         using var scope = _serviceProvider.CreateScope();
-        
+
         var optionsBuilder = new DbContextOptionsBuilder<OpplatDbContext>();
         optionsBuilder.UseSqlServer(tenantInfo.ConnectionString);
-        
+
         await using var context = new OpplatDbContext(optionsBuilder.Options, null);
-        
+
         await context.Database.MigrateAsync();
-        
-        if (!await context.Roles.AnyAsync(r => r.Name == "administrador"))
+
+        foreach (var roleName in AuthRoles.TenantAssignable)
         {
-            context.Roles.Add(new IdentityRole 
-            { 
-                Id = Guid.NewGuid().ToString(),
-                Name = "administrador", 
-                NormalizedName = "ADMINISTRADOR" 
-            });
-            await context.SaveChangesAsync();
+            if (!await context.Roles.AnyAsync(r => r.Name == roleName))
+            {
+                context.Roles.Add(new IdentityRole
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = roleName,
+                    NormalizedName = roleName.ToUpperInvariant()
+                });
+            }
         }
-        
+
+        await context.SaveChangesAsync();
+
         if (!await context.Users.AnyAsync(u => u.UserName == "admin"))
         {
-            var adminRole = await context.Roles.FirstOrDefaultAsync(r => r.Name == "administrador");
+            var tenantAdminRole = await context.Roles.FirstOrDefaultAsync(r => r.Name == AuthRoles.TenantAdmin);
+            var tenantUserRole = await context.Roles.FirstOrDefaultAsync(r => r.Name == AuthRoles.TenantUser);
             var adminUser = new Usuario
             {
                 Id = Guid.NewGuid().ToString(),
                 UserName = "admin",
                 NormalizedUserName = "ADMIN",
-                Email = $"admin@{tenantInfo.Identifier}.com",
-                NormalizedEmail = $"ADMIN@{tenantInfo.Identifier?.ToUpper()}.COM",
+                Email = $"admin@{tenantInfo.Identifier}.local",
+                NormalizedEmail = $"ADMIN@{tenantInfo.Identifier?.ToUpperInvariant()}.LOCAL",
                 PasswordHash = "AQAAAAEAACcQAAAAEP4OedI6m26WUn/2C4AcBkzdT6SnL/6E+xakQ/9mGAkqqp3t9PwyIR6l9obLouKIVg==",
                 SecurityStamp = Guid.NewGuid().ToString(),
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
                 Activo = true,
-                Nombres = "Administrador",
+                Nombres = "Tenant",
                 Apellidos = tenantInfo.Name ?? "Tenant"
             };
             context.Users.Add(adminUser);
             await context.SaveChangesAsync();
-            
-            if (adminRole != null)
+
+            var tenantRoles = new[] { tenantAdminRole, tenantUserRole }
+                .Where(role => role is not null)
+                .Select(role => role!)
+                .ToList();
+
+            if (tenantRoles.Count > 0)
             {
-                context.UserRoles.Add(new IdentityUserRole<string>
+                foreach (var role in tenantRoles)
                 {
-                    UserId = adminUser.Id,
-                    RoleId = adminRole.Id
-                });
+                    context.UserRoles.Add(new IdentityUserRole<string>
+                    {
+                        UserId = adminUser.Id,
+                        RoleId = role.Id
+                    });
+                }
+
                 await context.SaveChangesAsync();
             }
         }

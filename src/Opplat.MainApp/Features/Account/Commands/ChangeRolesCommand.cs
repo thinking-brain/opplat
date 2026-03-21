@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Opplat.MainApp.Data;
+using Opplat.MainApp.Auth;
 using Opplat.MainApp.Models;
 
 namespace Opplat.MainApp.Features.Account.Commands;
@@ -13,28 +12,47 @@ public record ChangeRolesResult(bool Success, string? ErrorMessage);
 public class ChangeRolesCommandHandler : IRequestHandler<ChangeRolesCommand, ChangeRolesResult>
 {
     private readonly UserManager<Usuario> _userManager;
-    private readonly OpplatDbContext _db;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ILogger<ChangeRolesCommandHandler> _logger;
 
     public ChangeRolesCommandHandler(
         UserManager<Usuario> userManager,
-        OpplatDbContext db,
+        RoleManager<IdentityRole> roleManager,
         ILogger<ChangeRolesCommandHandler> logger)
     {
         _userManager = userManager;
-        _db          = db;
-        _logger      = logger;
+        _roleManager = roleManager;
+        _logger = logger;
     }
 
     public async Task<ChangeRolesResult> Handle(ChangeRolesCommand request, CancellationToken cancellationToken)
     {
+        var normalizedRoles = request.Roles
+            .Where(role => !string.IsNullOrWhiteSpace(role))
+            .Select(role => role.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (normalizedRoles.Count == 0)
+            return new ChangeRolesResult(false, "Debe asignar al menos un rol del tenant.");
+
+        var invalidRoles = normalizedRoles
+            .Where(role => !AuthRoles.TenantAssignable.Contains(role, StringComparer.OrdinalIgnoreCase))
+            .ToList();
+
+        if (invalidRoles.Count > 0)
+        {
+            return new ChangeRolesResult(
+                false,
+                $"Solo se permiten roles de tenant ({string.Join(", ", AuthRoles.TenantAssignable)}). Roles inválidos: {string.Join(", ", invalidRoles)}.");
+        }
+
         var usuario = await _userManager.FindByIdAsync(request.UserId);
         if (usuario == null)
             return new ChangeRolesResult(false, "No existe el usuario solicitado");
 
-        // Remove all current roles
         var rolesActuales = await _userManager.GetRolesAsync(usuario);
-        var removeResult  = await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
+        var removeResult = await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
         if (!removeResult.Succeeded)
         {
             var msg = "Ocurrieron errores modificando los roles: " +
@@ -42,23 +60,21 @@ public class ChangeRolesCommandHandler : IRequestHandler<ChangeRolesCommand, Cha
             return new ChangeRolesResult(false, msg);
         }
 
-        // Ensure every requested role exists in the store
-        foreach (var rol in request.Roles)
+        foreach (var rol in normalizedRoles)
         {
-            if (!_db.Set<IdentityRole>().Any(r => r.Name == rol))
+            if (!await _roleManager.RoleExistsAsync(rol))
             {
-                _db.Add(new IdentityRole
+                var createRoleResult = await _roleManager.CreateAsync(new IdentityRole(rol));
+                if (!createRoleResult.Succeeded)
                 {
-                    Id             = Guid.NewGuid().ToString(),
-                    Name           = rol,
-                    NormalizedName = rol.ToUpper()
-                });
-                await _db.SaveChangesAsync(cancellationToken);
+                    var roleError = "Ocurrieron errores creando los roles: " +
+                                    string.Join(',', createRoleResult.Errors.Select(error => error.Description));
+                    return new ChangeRolesResult(false, roleError);
+                }
             }
         }
 
-        // Assign new roles
-        var addResult = await _userManager.AddToRolesAsync(usuario, request.Roles);
+        var addResult = await _userManager.AddToRolesAsync(usuario, normalizedRoles);
         if (!addResult.Succeeded)
         {
             var msg = "Ocurrieron errores modificando los roles: " +
@@ -67,7 +83,7 @@ public class ChangeRolesCommandHandler : IRequestHandler<ChangeRolesCommand, Cha
         }
 
         _logger.LogInformation("Roles del usuario {UserName} cambiados a: {Roles}.",
-            usuario.UserName, string.Join(',', request.Roles));
+            usuario.UserName, string.Join(',', normalizedRoles));
 
         return new ChangeRolesResult(true, null);
     }

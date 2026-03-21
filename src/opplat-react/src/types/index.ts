@@ -7,17 +7,8 @@ export interface User {
   active: boolean;
   roles: string[];
   profilePicture?: string;
-}
-
-export interface LoginRequest {
-  userName: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  token: string;
-  expiration: string;
-  userId: string;
+  tenantId?: string;
+  tenantIdentifier?: string;
 }
 
 export interface ProductForSale {

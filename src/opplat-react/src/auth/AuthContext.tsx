@@ -1,15 +1,22 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { authApi } from '../api/auth.api';
-import { User, LoginRequest } from '../types';
+import React, { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
+import { AuthProvider as OidcProvider, useAuth as useOidcAuth } from 'react-oidc-context';
+import { useLocation } from 'react-router-dom';
+import type { User } from '../types';
+import { appConfig } from '../runtimeConfig';
+import { buildAppUser, getTenantIdentifierFromUser, persistTenantIdentifier } from './claims';
+import { oidcUserManager, onSigninCallback } from './oidc';
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  tenantId: string | null;
+  tenantIdentifier: string | null;
+  roles: string[];
   isAuthenticated: boolean;
-  login: (credentials: LoginRequest) => Promise<void>;
-  logout: () => void;
+  login: (returnTo?: string) => Promise<void>;
+  logout: () => Promise<void>;
   loading: boolean;
+  error: Error | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,74 +29,61 @@ export const useAuth = () => {
   return context;
 };
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
+const InnerAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const oidc = useOidcAuth();
+  const location = useLocation();
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const user = useMemo(() => (oidc.user ? buildAppUser(oidc.user) : null), [oidc.user]);
+  const tenantIdentifier = user?.tenantIdentifier ?? getTenantIdentifierFromUser(oidc.user) ?? null;
+  const tenantId = user?.tenantId ?? null;
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('opplat_token');
-    const storedUser = localStorage.getItem('opplat_user');
-    
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
-  }, []);
+    persistTenantIdentifier(tenantIdentifier);
+  }, [tenantIdentifier]);
 
-  const login = async (credentials: LoginRequest) => {
+  const login = async (returnTo?: string): Promise<void> => {
+    const target = returnTo ?? `${location.pathname}${location.search}${location.hash}`;
+    await oidc.signinRedirect({ state: { returnTo: target } });
+  };
+
+  const logout = async (): Promise<void> => {
+    persistTenantIdentifier(null);
+
     try {
-      const response = await authApi.login(credentials);
-      const tokenWithBearer = `Bearer ${response.token}`;
-      
-      const payload = JSON.parse(atob(response.token.split('.')[1]));
-      const username = payload.unique_name;
-      const roles = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || [];
-      
-      const userData: User = {
-        userId: response.userId,
-        username: username,
-        name: username,
-        lastName: '',
-        email: payload.email || '',
-        active: true,
-        roles: Array.isArray(roles) ? roles : [roles],
-      };
-
-      localStorage.setItem('opplat_token', tokenWithBearer);
-      localStorage.setItem('opplat_user', JSON.stringify(userData));
-      
-      setToken(tokenWithBearer);
-      setUser(userData);
-      
-      navigate('/');
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
+      if (oidc.user) {
+        await oidc.signoutRedirect();
+        return;
+      }
+    } catch {
+      // Fall back to a local sign-out when the provider does not expose end_session_endpoint.
     }
+
+    await oidc.removeUser();
+    window.location.assign(appConfig.authLogoutRedirectPath);
   };
 
-  const logout = () => {
-    authApi.logout();
-    setToken(null);
-    setUser(null);
-    navigate('/login');
-  };
+  const hasResolvedUser = Boolean(oidc.user && !oidc.user.expired);
+  const isAuthenticated = oidc.isAuthenticated || hasResolvedUser;
+  const isNavigating = Boolean(oidc.activeNavigator) && !isAuthenticated;
 
   const value = {
     user,
-    token,
-    isAuthenticated: !!token,
+    token: oidc.user?.access_token ?? null,
+    tenantId,
+    tenantIdentifier,
+    roles: user?.roles ?? [],
+    isAuthenticated,
     login,
     logout,
-    loading,
-  };
+    loading: oidc.isLoading || isNavigating,
+    error: oidc.error ?? null,
+  } satisfies AuthContextType;
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => (
+  <OidcProvider userManager={oidcUserManager} onSigninCallback={onSigninCallback}>
+    <InnerAuthProvider>{children}</InnerAuthProvider>
+  </OidcProvider>
+);

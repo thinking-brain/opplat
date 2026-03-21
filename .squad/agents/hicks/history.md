@@ -53,3 +53,5 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key milestones: F
 
 - Containerized APIs must validate Keycloak tokens against the browser-visible issuer (`Auth:Authority`) while using a separate internal discovery URL (`Auth:MetadataAddress`) for backchannel metadata/JWKS fetches.
 - For local Docker Keycloak, `--hostname=<public-url> --hostname-backchannel-dynamic=true` keeps admin/browser redirects on the public host without breaking backend token validation inside the Docker network.
+- For Entra-in-prod plus Keycloak-in-dev, the backend should stay on plain ASP.NET Core `AddJwtBearer` with OIDC discovery and a provider-neutral claim-normalization layer; provider-specific server packages add coupling without helping Keycloak parity.
+- Keep authorization stable by normalizing provider-specific role and tenant claims into `ClaimTypes.Role`, `tenant_id`, `tenant_identifier`, and `ClaimTypes.Name` before policies run; only the IdP configuration should vary between Entra and Keycloak.

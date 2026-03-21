@@ -3,6 +3,8 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Box,
+  Button,
+  Chip,
   CssBaseline,
   Drawer,
   IconButton,
@@ -11,20 +13,22 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Stack,
   Toolbar,
   Typography,
-  Button,
 } from '@mui/material';
 import {
-  Menu as MenuIcon,
   Home as HomeIcon,
   Inventory as ProductsIcon,
+  Menu as MenuIcon,
   PointOfSale as SellIcon,
   People as UsersIcon,
-  Warehouse as InventoryIcon,
   Settings as SettingsIcon,
+  Warehouse as InventoryIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../auth/AuthContext';
+import { hasAnyRole, hasRole, TENANT_ADMIN_ROLE, TENANT_USER_ROLE } from '../auth/roles';
+import { appConfig } from '../runtimeConfig';
 
 const drawerWidth = 240;
 
@@ -32,6 +36,7 @@ interface NavItem {
   label: string;
   path: string;
   icon: React.ReactNode;
+  requiredRoles?: string[];
 }
 
 const navItems: NavItem[] = [
@@ -39,14 +44,26 @@ const navItems: NavItem[] = [
   { label: 'Products', path: '/products', icon: <ProductsIcon /> },
   { label: 'Sell', path: '/sell', icon: <SellIcon /> },
   { label: 'Inventory', path: '/inventory', icon: <InventoryIcon /> },
-  { label: 'Users', path: '/users', icon: <UsersIcon /> },
+  {
+    label: 'Users',
+    path: '/users',
+    icon: <UsersIcon />,
+    requiredRoles: appConfig.accessControl.tenantUserManagementRoles,
+  },
   { label: 'License / Settings', path: '/license', icon: <SettingsIcon /> },
 ];
 
 export const Layout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, tenantIdentifier, roles } = useAuth();
   const navigate = useNavigate();
+  const accessLabel = hasRole(roles, TENANT_ADMIN_ROLE)
+    ? TENANT_ADMIN_ROLE
+    : hasRole(roles, TENANT_USER_ROLE)
+      ? TENANT_USER_ROLE
+      : roles.length > 0
+        ? roles.join(', ')
+        : 'Sin roles';
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -61,11 +78,11 @@ export const Layout: React.FC = () => {
     <div>
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
-          Opplat
+          {appConfig.appName}
         </Typography>
       </Toolbar>
       <List>
-        {navItems.map((item) => (
+        {navItems.filter((item) => !item.requiredRoles || hasAnyRole(roles, item.requiredRoles)).map((item) => (
           <ListItem key={item.path} disablePadding>
             <ListItemButton onClick={() => handleNavigation(item.path)}>
               <ListItemIcon>{item.icon}</ListItemIcon>
@@ -98,14 +115,27 @@ export const Layout: React.FC = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Opplat Management System
+            {appConfig.appName}
           </Typography>
-          <Typography variant="body1" sx={{ mr: 2 }}>
-            {user?.username}
-          </Typography>
-          <Button color="inherit" onClick={logout}>
-            Logout
-          </Button>
+          <Stack direction="row" spacing={1} alignItems="center">
+            {tenantIdentifier && (
+              <Chip
+                label={`Tenant: ${tenantIdentifier}`}
+                color="secondary"
+                variant="filled"
+                sx={{ color: 'white' }}
+              />
+            )}
+            <Chip
+              label={accessLabel}
+              color="secondary"
+              variant="outlined"
+            />
+            <Typography variant="body1">{user?.username}</Typography>
+            <Button color="inherit" onClick={() => { void logout(); }}>
+              Logout
+            </Button>
+          </Stack>
         </Toolbar>
       </AppBar>
       <Box

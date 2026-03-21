@@ -5,12 +5,15 @@ import {
   Card,
   CardContent,
   CardActionArea,
-  Typography,
+  Chip,
   Grid,
   Paper,
+  Stack,
+  Typography,
 } from '@mui/material';
 import {
   Inventory as ProductsIcon,
+  Lock as LockIcon,
   PointOfSale as SellIcon,
   People as UsersIcon,
   Warehouse as InventoryNavIcon,
@@ -30,6 +33,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useAuth } from '../auth/AuthContext';
+import { hasAnyRole, hasRole, TENANT_USER_ROLE } from '../auth/roles';
+import { appConfig } from '../runtimeConfig';
 
 interface QuickAccessCard {
   title: string;
@@ -37,6 +42,7 @@ interface QuickAccessCard {
   icon: React.ReactNode;
   path: string;
   color: string;
+  requiredRoles?: string[];
 }
 
 interface StatCard {
@@ -73,6 +79,7 @@ const quickAccessCards: QuickAccessCard[] = [
     icon: <UsersIcon sx={{ fontSize: 36 }} />,
     path: '/users',
     color: '#ed6c02',
+    requiredRoles: appConfig.accessControl.tenantUserManagementRoles,
   },
   {
     title: 'Inventory',
@@ -122,19 +129,42 @@ const statCards: StatCard[] = [
 ];
 
 export const HomePage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, tenantIdentifier, roles } = useAuth();
   const navigate = useNavigate();
+  const canManageTenantUsers = hasAnyRole(roles, appConfig.accessControl.tenantUserManagementRoles);
+  const isTenantUser = hasRole(roles, TENANT_USER_ROLE);
 
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
         Dashboard
       </Typography>
-      <Typography variant="body1" color="textSecondary" paragraph>
-        Bienvenido, {user?.username}!
-      </Typography>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} mb={2}>
+        <Typography variant="body1" color="text.secondary">
+          Bienvenido, {user?.username}.
+        </Typography>
+        {tenantIdentifier && <Chip label={`Tenant ${tenantIdentifier}`} color="primary" variant="outlined" />}
+        {roles.map((role) => (
+          <Chip key={role} label={role} size="small" />
+        ))}
+      </Stack>
 
-      {/* Summary stat cards */}
+      <Paper sx={{ p: 2, mb: 3 }}>
+        <Typography variant="subtitle1" gutterBottom>
+          Sesión OIDC activa
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          El tenant se resuelve desde tus claims y cada llamada API incluye el header X-Tenant-Identifier además del prefijo de ruta correspondiente.
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          {canManageTenantUsers
+            ? 'Tu rol TenantAdmin puede gestionar usuarios y permisos del tenant desde esta app.'
+            : isTenantUser
+              ? 'Tu rol TenantUser puede operar la app, pero la administración de usuarios está reservada para TenantAdmin.'
+              : 'Tu sesión no tiene un rol de tenant reconocido todavía, así que el acceso administrativo del tenant permanecerá oculto.'}
+        </Typography>
+      </Paper>
+
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {statCards.map((stat) => (
           <Grid item xs={12} sm={4} key={stat.title}>
@@ -155,7 +185,6 @@ export const HomePage: React.FC = () => {
         ))}
       </Grid>
 
-      {/* Sales bar chart */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
           Weekly Sales Overview
@@ -176,15 +205,20 @@ export const HomePage: React.FC = () => {
         </ResponsiveContainer>
       </Paper>
 
-      {/* Quick access — smaller cards */}
       <Typography variant="h6" gutterBottom>
         Quick Access
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-        {quickAccessCards.map((card) => (
-          <Box key={card.path} sx={{ flex: '1 1 140px', minWidth: 120, maxWidth: 180 }}>
-            <Card>
-              <CardActionArea onClick={() => navigate(card.path)}>
+        {quickAccessCards.map((card) => {
+          const canAccessCard = !card.requiredRoles || hasAnyRole(roles, card.requiredRoles);
+
+          return (
+            <Box key={card.path} sx={{ flex: '1 1 140px', minWidth: 120, maxWidth: 180 }}>
+              <Card>
+                <CardActionArea
+                  disabled={!canAccessCard}
+                  onClick={() => navigate(card.path)}
+                >
                 <CardContent
                   sx={{
                     display: 'flex',
@@ -206,11 +240,21 @@ export const HomePage: React.FC = () => {
                   <Typography variant="caption" color="textSecondary" align="center">
                     {card.description}
                   </Typography>
+                   {card.requiredRoles && !canAccessCard ? (
+                     <Chip
+                       icon={<LockIcon />}
+                       label="TenantAdmin"
+                       size="small"
+                      variant="outlined"
+                      sx={{ mt: 1 }}
+                    />
+                  ) : null}
                 </CardContent>
-              </CardActionArea>
-            </Card>
-          </Box>
-        ))}
+                </CardActionArea>
+              </Card>
+            </Box>
+          );
+        })}
       </Box>
     </Box>
   );

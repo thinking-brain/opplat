@@ -1,37 +1,75 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosHeaders, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+import { getStoredTenantIdentifier, getTenantIdentifierFromUser, persistTenantIdentifier } from '../auth/claims';
+import { getOidcUser, removeOidcUser } from '../auth/oidc';
+import { appConfig } from '../runtimeConfig';
+import { prefixTenantPath } from './tenantPath';
 
-const axiosClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+const isAbsoluteUrl = (value: string): boolean => /^https?:\/\//i.test(value);
 
-axiosClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('opplat_token');
-    if (token && config.headers) {
-      config.headers.Authorization = token;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+const setHeader = (
+  config: InternalAxiosRequestConfig,
+  headerName: string,
+  value: string,
+): void => {
+  if (!config.headers) {
+    config.headers = new AxiosHeaders();
   }
-);
 
-axiosClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('opplat_token');
-      localStorage.removeItem('opplat_user');
-      window.location.href = '/login';
+  config.headers.set(headerName, value);
+};
+
+const createAxiosClient = (baseURL: string, tenantScoped = true): AxiosInstance => {
+  const client = axios.create({
+    baseURL,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  client.interceptors.request.use(
+    async (config: InternalAxiosRequestConfig) => {
+      const oidcUser = await getOidcUser();
+      const accessToken = oidcUser?.access_token;
+      if (accessToken) {
+        setHeader(config, 'Authorization', `Bearer ${accessToken}`);
+      }
+
+      const tenantIdentifier = getStoredTenantIdentifier() ?? getTenantIdentifierFromUser(oidcUser);
+      if (tenantIdentifier) {
+        persistTenantIdentifier(tenantIdentifier);
+        setHeader(config, 'X-Tenant-Identifier', tenantIdentifier);
+
+        if (tenantScoped && config.url && !isAbsoluteUrl(config.url)) {
+          config.url = prefixTenantPath(config.url, tenantIdentifier);
+        }
+      }
+
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
+  client.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      if (error.response?.status === 401) {
+        await removeOidcUser();
+        persistTenantIdentifier(null);
+        if (!window.location.pathname.startsWith('/login')) {
+          window.location.assign(appConfig.authLogoutRedirectPath);
+        }
+      }
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
-);
+  );
 
-export default axiosClient;
+  return client;
+};
+
+export const authAxiosClient = createAxiosClient(appConfig.authApiUrl, true);
+
+export const salesAxiosClient = createAxiosClient(appConfig.salesApiUrl, true);
+
+export const inventoryAxiosClient = createAxiosClient(appConfig.inventoryApiUrl, true);
+
+export default authAxiosClient;

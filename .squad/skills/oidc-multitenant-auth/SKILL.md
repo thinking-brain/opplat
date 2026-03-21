@@ -25,8 +25,43 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 ```
 
+For APIs that must support **different providers across environments** (for example Keycloak locally and Azure Entra ID in production), keep the backend on plain ASP.NET Core `AddJwtBearer` plus OIDC discovery. Prefer provider-neutral middleware over Entra-specific helpers such as `Microsoft.Identity.Web` unless the API also needs Entra-only features like downstream Graph token acquisition.
+
+Provider-specific backend packages are usually unnecessary for bearer-token validation itself. Standard OIDC discovery already covers signing keys, issuer metadata, lifetime validation, and audience checks for both Entra and Keycloak.
+
+### Entra vs Keycloak Backend Config
+Keep one backend auth shape and vary only provider settings:
+
+- `Authority`
+  - Entra: `https://login.microsoftonline.com/<tenant-id>/v2.0`
+  - Keycloak: `http://localhost:8180/realms/<realm>`
+- `MetadataAddress`
+  - Usually `null` for Entra
+  - Often useful for Keycloak containers/backchannel discovery
+- `Audience`
+  - Entra: often `api://<app-id>` or the API app/client ID
+  - Keycloak: typically logical audience such as `opplat-api`
+- `ValidIssuers`
+  - Entra may need multiple accepted issuers (`login.microsoftonline.com/.../v2.0` plus legacy `sts.windows.net/.../`)
+  - Keycloak usually needs the single realm issuer
+- `AdditionalRoleClaimTypes`
+  - Entra: `roles`, optionally `groups`
+  - Keycloak: `roles`, `realm_access.roles`, `resource_access.{client}.roles`
+
+### Stable Claim Normalization
+Keep provider-specific claim shapes out of authorization policies. Normalize both providers into the same internal contract before `UseAuthorization()`:
+
+- `ClaimTypes.Role`
+- `ClaimTypes.Name`
+- `tenant_id`
+- `tenant_identifier`
+
+That lets `SuperAdmin`, `TenantAdmin`, tenant-validation middleware, and tenant-aware JWT logic survive IdP swaps without rewriting policies.
+
 ### Tenant Identity in Token
-Configure the IdP to inject `tenant_id` and `tenant_identifier` as custom claims in the access token. Finbuckle resolves tenant from route/header; TenantValidationMiddleware cross-checks against the token claim.
+If you control one provider shape end-to-end, injecting `tenant_id` and `tenant_identifier` into the access token is a clean optimization. Finbuckle resolves tenant from route/header; TenantValidationMiddleware can then cross-check the request tenant against the token claim.
+
+For **Entra in production + Keycloak locally**, treat those tenant claims as optional enrichment, not the portability contract. Keep the authoritative Opplat tenant membership in application data and derive/normalize it from stable identity claims (`sub`, `oid`, email) so the multitenant model does not depend on Entra-specific custom-claim plumbing.
 
 ### Runtime Tenant Catalog for Admin CRUD
 If admin users must create or deactivate tenants before an EF-backed tenant store exists, swap Finbuckle's static configuration store for a small file-backed `IMultiTenantStore<TTenantInfo>`. Seed it from `appsettings.json` on first run, then persist admin changes in a backend-local JSON catalog so route/header tenant resolution and per-tenant DbContext selection keep working without project-file changes.
@@ -42,8 +77,50 @@ UseAuthorization()     // 4. Role/policy checks
 ### Dual IdP (Dev/Prod)
 Configure the same `Auth:Authority` env var to point at Keycloak locally and Auth0 in production. The backend doesn't need provider-specific code — OIDC discovery handles it.
 
+### Entra + Keycloak Standardization
+If production uses Azure Entra ID but local development uses Keycloak, keep the stack **provider-neutral**:
+
+- backend: `Microsoft.AspNetCore.Authentication.JwtBearer`
+- frontend: `react-oidc-context` + `oidc-client-ts`
+- config contract: `Authority`, optional `MetadataAddress`, `Audience`, SPA `clientId`, scopes, redirect URIs
+
+Avoid Entra-only SDKs such as `Microsoft.Identity.Web` or `msal-react` unless you are willing to maintain a separate Keycloak path. They are fine for Entra-only systems, but they increase branching and reduce dev/prod parity in a dual-provider setup.
+
+Standardize Opplat authorization roles as app/realm roles with the **same names in both providers** (`SuperAdmin`, `TenantAdmin`, `TenantUser`). Normalize incoming role claims centrally so Entra `roles`, Keycloak realm roles, and any namespaced claim variants all collapse into the same internal role model.
+
+For business tenancy, prefer **application-owned membership mapping** over IdP-owned tenant claims. Keycloak can emit `tenant_id` / `tenant_identifier` easily, but Entra custom token shaping is a weaker portability seam. Treat those claims as optional enrichment; resolve the authoritative Opplat tenant from application data keyed by stable identity claims such as `sub`, `oid`, or email.
+
 ### Frontend
 Use `react-oidc-context` (wraps `oidc-client-ts`) — works with any OIDC provider. Avoid provider-specific SDKs to keep dev/prod parity.
+
+When using `react-oidc-context`, prefer the documented provider-owned setup:
+
+```tsx
+<AuthProvider {...oidcSettings} onSigninCallback={onSigninCallback}>
+  <App />
+</AuthProvider>
+```
+
+Passing `UserManagerSettings` directly keeps redirect processing and lifecycle management inside the library. If code outside React (for example an Axios interceptor) needs the current token, read and parse the documented `oidc.user:{authority}:{clientId}` browser-storage entry with `User.fromStorageString(...)` instead of sharing a singleton `UserManager` instance across the app.
+
+For Keycloak local dev plus Azure Entra production, keep one shared config contract and only vary env values:
+
+- `VITE_AUTH_AUTHORITY`
+- `VITE_AUTH_CLIENT_ID`
+- `VITE_AUTH_SCOPE`
+- `VITE_AUTH_AUDIENCE` (optional)
+- `VITE_AUTH_USE_AUDIENCE_QUERY_PARAM` (default false for Keycloak and Entra)
+
+Provider notes:
+- **Entra**: put API permissions directly in `scope` (for example `api://<api-app-id>/access_as_user`) and do not send an `audience` authorize-query param.
+- **Keycloak**: request standard OIDC scopes, keep `audience` query params off, and let the realm/client scopes attach the backend audience and custom claims.
+- **Auth0/custom OIDC**: only enable `VITE_AUTH_USE_AUDIENCE_QUERY_PARAM=true` when the provider explicitly expects `audience` on the authorize request.
+
+For claim normalization, assume the same logical role can arrive as:
+- Entra: `roles` or `http://schemas.microsoft.com/ws/2008/06/identity/claims/role`
+- Keycloak: `realm_access.roles`, `resource_access.{client}.roles`, or flattened equivalents
+
+Do not overload Entra's directory `tid` claim as the product tenant identifier. Keep Opplat tenant identity on custom app claims like `tenant_id` / `tenant_identifier` so tenant routing survives provider swaps.
 
 ### SPA Callback Completion
 For `BrowserRouter`-based SPAs, treat the post-signin callback as a navigation seam, not just a URL rewrite. After `react-oidc-context` / `oidc-client-ts` finishes processing the signin response, prefer `window.location.replace(returnTo)` over `window.history.replaceState(...)` so the app deterministically leaves `/auth/callback` instead of relying on router-observed history mutation.
@@ -118,6 +195,10 @@ Debug in this order:
 
 For Opplat's local Docker setup, a `docker compose up -d --force-recreate keycloak admin-frontend` plus clearing `localhost` site storage is the right first operational reset before making more config edits.
 
+When the admin SPA is running from the Vite dev container, an empty `/runtime-config.js` is expected and does **not** prove auth config is missing. In that mode, confirm the live client selection from the running container env (`docker exec opplat-admin-frontend /bin/sh -lc "printenv | sort | grep '^VITE_'"`) and pair it with token-endpoint probes for both `opplat-admin` and `opplat-client` before blaming the realm export.
+
+If the repo contract and container env both point at the right authority/client, add a browser-storage check next. `oidc-client-ts` can leave behind `oidc.user:*` and `oidc.*` entries from earlier client/authority experiments; pruning mismatched entries from both `localStorage` and `sessionStorage` at SPA startup keeps live CORS/OIDC debugging focused on the current runtime rather than stale browser artifacts.
+
 ### SPA Callback Navigation
 In React Router SPAs, don't assume `window.history.replaceState(...)` is enough to leave an OIDC callback route. `BrowserRouter` may not observe that native history mutation, so the UI can stay stuck on `/auth/callback` even after the session is restored.
 
@@ -165,6 +246,8 @@ For admin-style portals where `onSigninCallback` already handles deep-link retur
 The same recovered-session preference must also exist in protected route guards. If `react-oidc-context` still exposes `error` after `isAuthenticated` becomes true, guard components should only render the auth error UI while the user is still unauthenticated; otherwise a valid login can land on a full-screen error after leaving `/auth/callback`.
 
 In the same recovery window, `react-oidc-context` can restore a non-expired `user` before its derived `isAuthenticated` flag flips to true. Auth context wrappers should therefore expose `isAuthenticated = oidc.isAuthenticated || Boolean(oidc.user && !oidc.user.expired)` so callback completion and protected-route guards do not redirect a valid session back to `/login`.
+
+When writing regression tests for `react-oidc-context`, also pin the provider configuration seam itself: assert that `AuthProvider` passes `onSigninCallback`, and that the OIDC settings use `WebStorageStateStore({ store: window.localStorage })` (or `globalThis.localStorage`) so callback payload cleanup and restored sessions remain aligned with upstream expectations.
 
 ### Multi-SPA Client Configuration
 When multiple SPAs (e.g., admin portal + tenant client) share the same backend API, use **separate OIDC clients with the same audience**:

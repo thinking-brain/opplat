@@ -25,6 +25,11 @@ Designed comprehensive multitenancy using Finbuckle.MultiTenant 7.0.1 with per-d
 
 ## Learnings
 
+### Entra + Keycloak Provider Parity (2026-03-21)
+For Opplat, the safest dual-provider OIDC architecture is provider-agnostic at the protocol layer: keep ASP.NET Core `JwtBearer` + OIDC discovery on the backend and `react-oidc-context` / `oidc-client-ts` in both SPAs, then switch providers through configuration (`Authority`, client IDs, scopes, metadata URL) rather than SDK swaps.
+
+Do **not** let business-tenant membership depend on provider-specific token plumbing. Standardize authorization roles (`SuperAdmin`, `TenantAdmin`, `TenantUser`) as IdP app/realm roles in both Entra and Keycloak, but keep Opplat tenant membership as an application-owned mapping/enrichment concern so Entra production and Keycloak local dev stay aligned without custom-provider lock-in.
+
 ### OIDC Callback Navigation Pattern (2026-03-21)
 When handling OIDC callbacks in React Router SPAs, use a three-layer navigation strategy:
 1. `window.history.replaceState()` to update URL immediately

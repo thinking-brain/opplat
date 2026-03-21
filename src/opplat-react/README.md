@@ -1,158 +1,50 @@
-# Opplat React Application
+# Opplat Client App
 
-Modern React 18 application built with Vite, TypeScript, and Material-UI.
+Tenant-facing React 18 SPA for products, sales, inventory, and users.
 
-## Tech Stack
+## Highlights
 
-- **React 18** - Modern UI library
-- **TypeScript** - Type-safe JavaScript
-- **Vite** - Fast build tool and dev server
-- **Material-UI (MUI) v5** - Component library
-- **React Router v6** - Client-side routing
-- **Axios** - HTTP client with JWT interceptors
+- React 18 + Vite + TypeScript strict mode
+- Material UI v5 and React Router v6
+- Provider-agnostic OIDC with `react-oidc-context` / `oidc-client-ts`
+- Tenant-aware API requests using route prefixing plus `X-Tenant-Identifier`
+- Runtime env injection for Docker via `runtime-config.js`
 
-## Features
+## Environment
 
-- ✅ JWT Authentication with token storage
-- ✅ Protected routes with automatic redirect
-- ✅ Responsive layout with sidebar navigation
-- ✅ Product management (CRUD operations)
-- ✅ Point of Sale interface
-- ✅ User management with roles
-- ✅ Modern Material Design UI
-
-## Project Structure
-
-```
-src/
-├── api/              # API client and service modules
-│   ├── axiosClient.ts       # Configured Axios instance with interceptors
-│   ├── auth.api.ts          # Authentication endpoints
-│   ├── products.api.ts      # Product management endpoints
-│   ├── sales.api.ts         # Sales endpoints
-│   └── users.api.ts         # User management endpoints
-├── auth/             # Authentication logic
-│   ├── AuthContext.tsx      # React Context for auth state
-│   └── ProtectedRoute.tsx   # Route guard component
-├── components/       # Reusable components
-│   ├── Layout.tsx           # Main layout with navbar and sidebar
-│   └── LoadingSpinner.tsx   # Loading indicator
-├── pages/            # Page components
-│   ├── LoginPage.tsx        # Authentication page
-│   ├── HomePage.tsx         # Dashboard
-│   ├── ProductsPage.tsx     # Product management
-│   ├── SellPage.tsx         # Point of Sale
-│   └── UsersPage.tsx        # User management
-├── types/            # TypeScript type definitions
-│   └── index.ts             # Shared types
-├── App.tsx           # Main app component with routes
-└── main.tsx          # Application entry point
-```
-
-## Setup Instructions
-
-### 1. Install Dependencies
+Copy `.env.example` to `.env.local` and adjust as needed:
 
 ```bash
 cd src/opplat-react
+copy .env.example .env.local
+```
+
+Key variables:
+
+- `VITE_AUTH_AUTHORITY` - Auth0 or Keycloak authority URL
+- `VITE_AUTH_CLIENT_ID` - SPA client id (`opplat-client` locally)
+- `VITE_AUTH_AUDIENCE` - API audience/resource identifier
+- `VITE_AUTH_API_URL` - Main API base URL
+- `VITE_SALES_API_URL` - Sales API base URL
+- `VITE_INVENTORY_API_URL` - Inventory API base URL
+
+## Local development
+
+```bash
 npm install
-```
-
-### 2. Configure Environment
-
-Copy `.env.example` to `.env` and configure the API URL:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
-```
-VITE_API_URL=http://localhost:5000
-```
-
-### 3. Run Development Server
-
-```bash
 npm run dev
 ```
 
-The application will open at `http://localhost:3000`
+The Vite server runs on `http://localhost:3000`.
 
-### 4. Build for Production
+## Docker runtime config
 
-```bash
-npm run build
-```
+The container writes `/usr/share/nginx/html/runtime-config.js` at startup so compose-provided env vars are available without rebuilding the image.
 
-The build output will be in the `dist/` directory.
+## Auth flow
 
-## API Integration
-
-The application connects to the ASP.NET Core backend at the configured `VITE_API_URL`.
-
-### Authentication Flow
-
-1. User logs in at `/login` with username and password
-2. JWT token is received from `/auth/Account/Login`
-3. Token is stored in localStorage as `opplat_token`
-4. Token is automatically added to all API requests via Axios interceptor
-5. On 401 response, user is redirected to login
-
-### API Endpoints Used
-
-- **Auth**: `/auth/Account/*`
-  - POST `/Login` - Authenticate user
-  - GET `/profile/{name}` - Get user profile
-  - GET `/user-list` - List all users
-  - POST `/add-user` - Create user
-  - POST `/edit-user` - Update user
-  - GET `/cambiar-estado` - Toggle user active status
-  - POST `/cambiar-roles` - Update user roles
-
-- **Products**: `/sales/Products`
-  - GET `/` - List products
-  - POST `/` - Create product
-  - PUT `/` - Update product
-  - DELETE `/?id={id}` - Delete product
-
-- **Sales**: `/Sales`
-  - GET `/` - List sales
-  - POST `/` - Create sale
-
-## Token Storage
-
-- **Key**: `opplat_token` in localStorage
-- **Format**: `Bearer {jwt-token}`
-- **User Data**: `opplat_user` in localStorage (JSON)
-
-## Development Notes
-
-- Uses Vite for fast HMR (Hot Module Replacement)
-- TypeScript strict mode enabled
-- MUI theming configured in `main.tsx`
-- All API calls go through Axios client with interceptors
-- Protected routes automatically redirect to `/login` if not authenticated
-
-## Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Type check with TypeScript
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
-## Migration from Vue 2
-
-This React application maintains functional parity with the existing Vue 2 application:
-
-- Same routes: `/login`, `/home`, `/products`, `/sell`, `/users`
-- Same API endpoints and data structures
-- Same JWT authentication mechanism
-- Compatible token storage (sessionStorage in Vue → localStorage in React)
+1. User lands on `/login`
+2. App redirects to Keycloak/Auth0 using OIDC authorization code flow with PKCE
+3. Tenant claims are normalized from Auth0 namespaced claims or Keycloak flat claims
+4. The derived tenant identifier is persisted for request routing
+5. Axios adds both `Authorization: Bearer ...` and `X-Tenant-Identifier` to tenant-scoped API calls

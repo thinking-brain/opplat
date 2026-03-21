@@ -1,20 +1,39 @@
-version: '3.8'
-
 services:
   api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-    volumes:
-      - ./src/Opplat.MainApp:/app/src/Opplat.MainApp:ro
 
   frontend:
-    image: node:20-alpine
-    working_dir: /app
-    command: npm run dev -- --host 0.0.0.0
+    build:
+      context: src/opplat-react
+      dockerfile: Dockerfile.dev
     volumes:
       - ./src/opplat-react:/app
       - /app/node_modules
     ports:
-      - "3000:5173"
+      - "3200:3000"
     environment:
-      - VITE_API_URL=http://api:8080
+      - VITE_API_URL=http://localhost:8080
+      - VITE_AUTH_API_URL=http://localhost:8080
+      - VITE_SALES_API_URL=http://localhost:8083
+      - VITE_INVENTORY_API_URL=http://localhost:8082
+      - VITE_AUTH_AUTHORITY=http://localhost:8180/realms/opplat
+      - VITE_AUTH_CLIENT_ID=opplat-client
+      - VITE_AUTH_AUDIENCE=opplat-api
+      - VITE_AUTH_SCOPE=openid profile email offline_access
+
+  admin-frontend:
+    build:
+      context: src/opplat-admin
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./src/opplat-admin:/app
+      - /app/node_modules
+    ports:
+      - "3201:3001"
+    environment:
+      - VITE_API_URL=http://localhost:8080
+      - VITE_AUTH_AUTHORITY=http://localhost:8180/realms/opplat
+      - VITE_AUTH_CLIENT_ID=opplat-admin
+      - VITE_AUTH_AUDIENCE=opplat-api
+      - VITE_AUTH_SCOPE=openid profile email offline_access

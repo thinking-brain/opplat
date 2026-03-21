@@ -2,17 +2,19 @@ using System.Reflection;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using MediatR;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Opplat.MainApp.Auth;
 using Opplat.MainApp.Data;
+using Opplat.MainApp.Features.Admin;
 using Opplat.MainApp.Features.Account;
 using Opplat.MainApp.Features.License;
 using Opplat.MainApp.Features.Menus;
 using Opplat.MainApp.Models;
 using Opplat.MainApp.Middleware;
+using Opplat.MainApp.Services;
 using Opplat.MainApp.Utils;
 using SalesServices = Opplat.Modules.Sales.Domain.Services;
 using SalesRepositories = Opplat.Modules.Sales.Domain.Repositories;
@@ -21,10 +23,12 @@ using InventoryServices = Opplat.Modules.Inventory.Domain.Services;
 using InventoryRepositories = Opplat.Modules.Inventory.Domain.Repositories;
 using InfrastructureInventoryRepositories = Opplat.Modules.Inventory.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+var authSection = builder.Configuration.GetSection(AuthOptions.SectionName);
+var authOptions = authSection.Get<AuthOptions>() ?? new AuthOptions();
 
 // ============================================
 // MULTI-TENANT CONFIGURATION
@@ -32,7 +36,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddMultiTenant<AppTenantInfo>()
     .WithRouteStrategy("__tenant__")
     .WithHeaderStrategy("X-Tenant-Identifier")
-    .WithConfigurationStore();
+    .WithStore<TenantCatalogStore>(ServiceLifetime.Singleton);
 
 // Add services to the container.
 builder.Services.AddDbContext<OpplatDbContext>((serviceProvider, options) =>
@@ -50,10 +54,9 @@ builder.Services.AddIdentity<Usuario, IdentityRole>(options => options.SignIn.Re
     .AddEntityFrameworkStores<OpplatDbContext>()
     .AddDefaultTokenProviders();
 
-// builder.Services.AddIdentityServer()
-//     .AddApiAuthorization<Usuario, OpplatDbContext>();
-
 builder.Services.AddScoped<DbContext, OpplatDbContext>();
+builder.Services.Configure<AuthOptions>(authSection);
+builder.Services.AddTransient<Microsoft.AspNetCore.Authentication.IClaimsTransformation, OidcClaimsTransformation>();
 
 // ============================================
 // APP UTILITIES
@@ -90,26 +93,39 @@ builder.Services.AddScoped<InventoryRepositories.IMovementsRepository, Infrastru
 builder.Services.AddScoped<InventoryServices.IInventoryService, InventoryServices.InventoryService>();
 builder.Services.AddScoped<InventoryRepositories.IInventoryRepository, InfrastructureInventoryRepositories.InventoryRepository>();
 
-
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    }
-    ).AddJwtBearer(options =>
+    })
+    .AddJwtBearer(options =>
     {
         options.SaveToken = true;
-        options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters()
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        options.MapInboundClaims = false;
+        options.Authority = authOptions.Authority;
+        if (!string.IsNullOrWhiteSpace(authOptions.MetadataAddress))
+            options.MetadataAddress = authOptions.MetadataAddress;
+        options.Audience = authOptions.Audience;
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidAudience = builder.Configuration["Authorization:Audience"],
-            ValidIssuer = builder.Configuration["Authorization:Issuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authorization:Password"]))
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromSeconds(30),
+            ValidIssuer = authOptions.Authority,
+            NameClaimType = AuthClaimTypes.PreferredUserName,
+            RoleClaimType = ClaimTypes.Role
         };
     });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireAuthenticatedUser().RequireRole(authOptions.AdminRole));
+    options.AddPolicy("TenantAdminOnly", policy =>
+        policy.RequireAuthenticatedUser().RequireRole(authOptions.TenantAdminRole));
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -130,9 +146,9 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityDefinition(name: "Bearer", securityScheme: new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Description = "Enter the Bearer Authorization string as following: `Bearer Generated-JWT-Token`",
+        Description = "Enter a bearer access token issued by the configured OIDC provider.",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
+        Type = SecuritySchemeType.Http,
         Scheme = "Bearer"
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -187,6 +203,7 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseCors("CorsPolicy");
 app.UseRouting();
 app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
 app.UseSwaggerUI(c =>
@@ -230,12 +247,10 @@ app.MapControllerRoute(
 // ============================================
 // MINIMAL API ENDPOINTS (Account / License / Menus)
 // ============================================
+app.MapAdminEndpoints();
 app.MapAccountEndpoints();
 app.MapLicenseEndpoints();
 app.MapMenusEndpoints();
-
-
-app.UseCors("CorsPolicy");
 
 // app.MapFallbackToFile("index.html");
 

@@ -22,11 +22,24 @@ import {
   Switch,
   Avatar,
   Tooltip,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { buildAuthAssetUrl } from '../api/tenantPath';
 import { usersApi } from '../api/users.api';
 import { User, RegisterUser } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { TENANT_ADMIN_ROLE, TENANT_USER_ROLE, normalizeRoles } from '../auth/roles';
+
+type TenantRole = typeof TENANT_ADMIN_ROLE | typeof TENANT_USER_ROLE;
+
+const roleOptions: TenantRole[] = [TENANT_ADMIN_ROLE, TENANT_USER_ROLE];
+
+const getEditableTenantRole = (roles: string[]): TenantRole =>
+  normalizeRoles(roles).includes(TENANT_ADMIN_ROLE) ? TENANT_ADMIN_ROLE : TENANT_USER_ROLE;
 
 export const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -42,6 +55,7 @@ export const UsersPage: React.FC = () => {
     email: '',
     password: '',
   });
+  const [selectedRole, setSelectedRole] = useState<TenantRole>(TENANT_USER_ROLE);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
 
   useEffect(() => {
@@ -52,7 +66,7 @@ export const UsersPage: React.FC = () => {
     try {
       setLoading(true);
       const data = await usersApi.list();
-      setUsers(data);
+      setUsers(data.map((user) => ({ ...user, roles: normalizeRoles(user.roles) })));
     } catch (error) {
       setSnackbar({ open: true, message: 'Error loading users', severity: 'error' });
     } finally {
@@ -70,6 +84,7 @@ export const UsersPage: React.FC = () => {
         email: user.email,
         password: '',
       });
+      setSelectedRole(getEditableTenantRole(user.roles));
     } else {
       setEditingUser(null);
       setFormData({
@@ -79,6 +94,7 @@ export const UsersPage: React.FC = () => {
         email: '',
         password: '',
       });
+      setSelectedRole(TENANT_USER_ROLE);
     }
     setDialogOpen(true);
   };
@@ -86,21 +102,24 @@ export const UsersPage: React.FC = () => {
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setEditingUser(null);
+    setSelectedRole(TENANT_USER_ROLE);
   };
 
   const handleSave = async () => {
     try {
       if (editingUser) {
         await usersApi.edit(editingUser.userId, formData.name, formData.lastName);
-        setSnackbar({ open: true, message: 'User updated successfully', severity: 'success' });
+        await usersApi.changeRoles(editingUser.userId, [selectedRole]);
+        setSnackbar({ open: true, message: 'Usuario actualizado exitosamente', severity: 'success' });
       } else {
-        await usersApi.create(formData);
-        setSnackbar({ open: true, message: 'User created successfully', severity: 'success' });
+        const createdUser = await usersApi.create(formData);
+        await usersApi.changeRoles(createdUser.userId, [selectedRole]);
+        setSnackbar({ open: true, message: 'Usuario creado exitosamente', severity: 'success' });
       }
       handleCloseDialog();
       loadUsers();
     } catch (error) {
-      setSnackbar({ open: true, message: 'Error saving user', severity: 'error' });
+      setSnackbar({ open: true, message: 'Error al guardar usuario', severity: 'error' });
     }
   };
 
@@ -171,7 +190,7 @@ export const UsersPage: React.FC = () => {
               <TableRow key={user.userId}>
                 <TableCell>
                   <Avatar
-                    src={user.profilePicture ? `/api/uploads/${user.profilePicture}` : undefined}
+                    src={user.profilePicture ? buildAuthAssetUrl(`/api/uploads/${user.profilePicture}`) : undefined}
                     alt={user.name}
                   >
                     {!user.profilePicture && user.name.charAt(0).toUpperCase()}
@@ -266,6 +285,24 @@ export const UsersPage: React.FC = () => {
             required
             disabled={!!editingUser}
           />
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="tenant-role-label">Rol del tenant</InputLabel>
+            <Select
+              labelId="tenant-role-label"
+              label="Rol del tenant"
+              value={selectedRole}
+              onChange={(event) => setSelectedRole(event.target.value as TenantRole)}
+            >
+              {roleOptions.map((role) => (
+                <MenuItem key={role} value={role}>
+                  {role}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Alert severity="info" sx={{ mt: 2 }}>
+            TenantAdmin gestiona usuarios y permisos del tenant desde esta pantalla. SuperAdmin solo existe en el portal administrativo.
+          </Alert>
           {!editingUser && (
             <TextField
               fullWidth

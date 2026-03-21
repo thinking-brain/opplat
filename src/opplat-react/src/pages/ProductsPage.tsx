@@ -31,6 +31,7 @@ import {
   ToggleOn,
 } from '@mui/icons-material';
 import { productsApi } from '../api/products.api';
+import { buildSalesAssetUrl } from '../api/tenantPath';
 import { ProductForSale } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
@@ -213,7 +214,7 @@ export const ProductsPage: React.FC = () => {
               <TableRow key={product.id}>
                 <TableCell>
                   <Avatar
-                    src={product.imageUrl ? `/api/uploads/${product.imageUrl}` : undefined}
+                    src={product.imageUrl ? buildSalesAssetUrl(`/api/uploads/${product.imageUrl}`) : undefined}
                     variant="rounded"
                     sx={{ width: 60, height: 60 }}
                   >
