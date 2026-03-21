@@ -64,6 +64,8 @@ For SPA OIDC scope regressions, guard **both** `runtimeConfig.ts` and `auth/oidc
 ### Keycloak Realm Import (Scopes)
 Don't repurpose Keycloak built-in scope names (`profile`, `email`, `roles`, `offline_access`) for app-specific mappers. Keep the standard OIDC scopes attached to the SPA clients, and add custom scopes such as `opplat-tenancy` or `opplat-api-audience` for tenant claims and API audience so `scope=openid profile email offline_access` keeps working.
 
+With Keycloak 26 full-model imports, don't assume referenced built-in scopes are auto-created inside a fresh imported realm. If SPA clients list `profile`, `email`, `roles`, `web-origins`, or other built-ins in `defaultClientScopes` / `optionalClientScopes`, explicitly include those client-scope definitions in the realm export or Keycloak can silently ignore the references and later reject the scope request.
+
 For Opplat, treat `openid profile email offline_access` as the intended SPA-requested scope contract for local login flows. Keycloak should still contribute `roles`, `tenant_id`, `tenant_identifier`, and `aud=opplat-api` through default client scopes, so the frontend must not auto-append `roles` on top of that request.
 
 **Critical: Never request `roles` as a scope parameter.** Keycloak does not expose `roles` as a requestable scope — it's a protocol mapper configuration attached via `defaultClientScopes`. Requesting `scope=...roles...` triggers `Invalid scopes` errors. Realm roles flow into tokens automatically via the client's default scope configuration.

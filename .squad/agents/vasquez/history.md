@@ -329,3 +329,24 @@ After comparing Vue and React apps side-by-side, identified specific missing fea
 
 **Key learning:**
 - For live SPA auth bugs, trace the scope string through root env files, compose env injection, `runtime-config.js`, `runtimeConfig.ts`, and `auth/oidc.ts` together; any one stale layer can keep shipping the wrong request even when the source app code looks fixed.
+
+## Session 5 Sprint — Live Scope Fix Completion (2026-03-21)
+
+**Agents:** Vasquez (Frontend), Hudson (DevOps), Bishop (Testing)
+**Orchestration:** 2026-03-21T13:32:08
+
+**Summary:**
+Three-agent team identified and resolved live Keycloak OIDC scope injection defect. Root cause: realm export was missing built-in client scope declarations (profile, email, roles, etc.) despite correct runtime injection paths.
+
+**Outcomes:**
+- **Vasquez:** Traced SPA scope request path, confirmed frontend/runtime surfaces were correctly aligned to openid profile email offline_access
+- **Hudson:** Validated Docker/compose/env injection chain for frontend startup — all layers pointing to correct scope contract
+- **Bishop:** Expanded docker/keycloak/opplat-realm.json with required OIDC client scope definitions, added regression guards, live PKCE auth probe returns 200 OK instead of invalid_scope, test suite: 38/38 passing
+
+**Decision:** Treat as Keycloak realm-bootstrap defect. Realm export must explicitly declare built-in client-scope definitions used by SPA clients.
+
+**Validation:**
+- Live PKCE auth flow for openid profile email offline_access ✅
+- All unit tests passing (38/38) ✅
+- Frontend builds passing (npm run build) ✅
+- Docker Compose config validated ✅

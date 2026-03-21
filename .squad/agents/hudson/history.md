@@ -330,3 +330,24 @@ Frontend SPAs with nginx + runtime-config.js should maintain consistency across 
 
 If any layer uses a stale or incomplete value (e.g., `openid` only instead of `openid profile email offline_access`), it can override upstream values and cause OIDC token request failures. Always synchronize the full intended scope across all three layers. The .env layer should be explicit and visible to operators, not hidden in Dockerfile defaults.
 
+
+## Session 5 Sprint — Live Scope Fix Completion (2026-03-21)
+
+**Agents:** Vasquez (Frontend), Hudson (DevOps), Bishop (Testing)
+**Orchestration:** 2026-03-21T13:32:08
+
+**Summary:**
+Three-agent team identified and resolved live Keycloak OIDC scope injection defect. Root cause: realm export was missing built-in client scope declarations (profile, email, roles, etc.) despite correct runtime injection paths.
+
+**Outcomes:**
+- **Vasquez:** Traced SPA scope request path, confirmed frontend/runtime surfaces were correctly aligned to openid profile email offline_access
+- **Hudson:** Validated Docker/compose/env injection chain for frontend startup — all layers pointing to correct scope contract
+- **Bishop:** Expanded docker/keycloak/opplat-realm.json with required OIDC client scope definitions, added regression guards, live PKCE auth probe returns 200 OK instead of invalid_scope, test suite: 38/38 passing
+
+**Decision:** Treat as Keycloak realm-bootstrap defect. Realm export must explicitly declare built-in client-scope definitions used by SPA clients.
+
+**Validation:**
+- Live PKCE auth flow for openid profile email offline_access ✅
+- All unit tests passing (38/38) ✅
+- Frontend builds passing (npm run build) ✅
+- Docker Compose config validated ✅

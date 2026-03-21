@@ -748,3 +748,29 @@ Ripley's adjudication determined that openid profile email offline_access is the
 **Lesson Learned:**
 Single-layer minimization (only changing source code) is insufficient for multi-layer configuration. All four injection points must be validated and aligned together.
 
+
+
+## Live Keycloak Scope Validation (Bishop — Session 5 Continuation)
+# Decision: Live Keycloak scope validation
+
+## Summary
+The exact SPA scope contract `openid profile email offline_access` was invalid in the **live Keycloak bootstrap**, not because another frontend runtime layer was still broadening the request.
+
+## Evidence
+- Before the fix, the live realm discovery document exposed only `openid`, `offline_access`, `opplat-tenancy`, and `opplat-api-audience`.
+- Keycloak import logs showed the fresh realm import was ignoring referenced built-in client scopes: `web-origins`, `profile`, `email`, `roles`, `address`, `phone`, and `microprofile-jwt`.
+- Both SPA runtime injection paths already pointed at `openid profile email offline_access` after alignment (`docker-compose.yml`, `docker-compose.override.yml`, SPA Dockerfiles, and container env).
+
+## Decision
+Treat this as a **Keycloak realm-bootstrap defect**. The realm export must explicitly declare the built-in client-scope definitions used by the SPA clients, not just reference them from `defaultClientScopes` / `optionalClientScopes`.
+
+## Action taken
+- Expanded `docker/keycloak/opplat-realm.json` with the required built-in OIDC client scopes.
+- Updated frontend/runtime source-contract coverage so the documented SPA scope remains `openid profile email offline_access` and Docker/Compose injection cannot drift silently.
+- Added a realm contract guard so future SPA scope references fail tests if the referenced client scopes are not declared in the realm export.
+
+## Validation
+- Live PKCE auth probe for `openid profile email offline_access` now returns the Keycloak login page (`200 OK`) instead of `invalid_scope`.
+- `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --nologo -v minimal` passed (38/38).
+- `npm run build` passed in both `src\opplat-react` and `src\opplat-admin`.
+

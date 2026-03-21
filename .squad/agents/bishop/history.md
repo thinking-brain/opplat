@@ -201,3 +201,44 @@
 - README.md — local dev examples and env reference table aligned
 
 **Status:** ✅ COMPLETE — Your test coverage validated the drift correctly. Team consensus finalized and applied. Your regression guards will catch future scope drifts.
+
+### 2026-03-21: Live Keycloak bootstrap validation for exact SPA scope contract
+
+**What I validated:**
+- The current live Keycloak bootstrap, not the SPA runtime injectors, was the blocker for `openid profile email offline_access`: discovery exposed only `openid`, `offline_access`, and the two Opplat custom scopes, and Keycloak logs showed `profile`, `email`, `roles`, `web-origins`, `address`, `phone`, and `microprofile-jwt` being ignored during full-model import.
+- Both SPA runtime layers were aligned back to `openid profile email offline_access` in `runtimeConfig.ts`, `.env.example`, README examples, Dockerfiles, and Compose env wiring, while `auth/oidc.ts` still avoids auto-appending `roles`.
+
+**What I changed:**
+- Expanded `docker/keycloak/opplat-realm.json` so the imported realm explicitly carries the built-in OIDC client-scope definitions Keycloak 26 was previously dropping.
+- Updated `test/Opplat.MainApp.Test/Auth/KeycloakRealmContractTests.cs` to fail if the SPA clients reference undeclared realm scopes again.
+- Updated `test/Opplat.MainApp.Test/Auth/FrontendAuthContractTests.cs` to cover Compose/Docker runtime injection in addition to source defaults and docs.
+
+**Validation results:**
+- Live auth probe to `http://localhost:8180/realms/opplat/protocol/openid-connect/auth` with `scope=openid profile email offline_access` plus PKCE now returns the Keycloak login page (`200 OK`) instead of `invalid_scope`.
+- `dotnet test .\\test\\Opplat.MainApp.Test\\Opplat.MainApp.Test.csproj --nologo -v minimal` ✅ (38/38)
+- `npm run build` in `src\\opplat-react` ✅
+- `npm run build` in `src\\opplat-admin` ✅
+
+**Key takeaway:**
+- For fresh Keycloak 26 realm imports, a client reference to built-in scopes is not enough; the realm export must explicitly define the built-in client scopes or the imported realm can look fine in source while rejecting login scopes at runtime.
+
+## Session 5 Sprint — Live Scope Fix Completion (2026-03-21)
+
+**Agents:** Vasquez (Frontend), Hudson (DevOps), Bishop (Testing)
+**Orchestration:** 2026-03-21T13:32:08
+
+**Summary:**
+Three-agent team identified and resolved live Keycloak OIDC scope injection defect. Root cause: realm export was missing built-in client scope declarations (profile, email, roles, etc.) despite correct runtime injection paths.
+
+**Outcomes:**
+- **Vasquez:** Traced SPA scope request path, confirmed frontend/runtime surfaces were correctly aligned to openid profile email offline_access
+- **Hudson:** Validated Docker/compose/env injection chain for frontend startup — all layers pointing to correct scope contract
+- **Bishop:** Expanded docker/keycloak/opplat-realm.json with required OIDC client scope definitions, added regression guards, live PKCE auth probe returns 200 OK instead of invalid_scope, test suite: 38/38 passing
+
+**Decision:** Treat as Keycloak realm-bootstrap defect. Realm export must explicitly declare built-in client-scope definitions used by SPA clients.
+
+**Validation:**
+- Live PKCE auth flow for openid profile email offline_access ✅
+- All unit tests passing (38/38) ✅
+- Frontend builds passing (npm run build) ✅
+- Docker Compose config validated ✅
