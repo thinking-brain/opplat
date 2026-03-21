@@ -4,6 +4,19 @@
 **Stack:** ASP.NET Core (net6.0 → net10.0) | EF Core | SQL Server | SignalR | OIDC (Auth0/Keycloak) | React 18  
 **Root:** C:\projects\personal\opplat | **Branch:** develop
 
+### 2026-03-21 Session 9: Live Keycloak State Validation & SPA Storage Cleanup
+
+**Finding:** Completed final Keycloak live state validation. Running stack showed `opplat-admin` already had `http://localhost:3201` in the live realm via the Keycloak admin API, and direct token probes with `Origin: http://localhost:3201` returned `Access-Control-Allow-Origin` for `client_id=opplat-admin`. The same probe did **not** return ACAO for `client_id=opplat-client`, proving the browser-visible error shape matches a wrong-client or stale frontend/browser state more closely than a missing realm origin.
+
+**Decision:** Treat live CORS report as operational state issue, not repo-config defect. Vasquez implemented preventive SPA startup storage cleanup to prune stale `oidc-client-ts` entries from both `localStorage` and `sessionStorage` before `UserManager` initialization, removing noise from future live debugging. Both admin lint and build pass post-fix.
+
+For local triage, verify in this exact order:
+1. `docker exec opplat-admin-frontend /bin/sh -lc "printenv | sort | grep '^VITE_'"` to confirm the running SPA container still points at `VITE_AUTH_CLIENT_ID=opplat-admin`
+2. Keycloak admin API for the live client's `webOrigins` and `redirectUris`
+3. a token-endpoint probe with explicit `Origin` and `client_id`
+
+If those three checks pass, prefer an operational reset (`docker compose up -d --force-recreate keycloak admin-frontend`) plus clearing browser site storage over further repo edits.
+
 ### 2026-03-21 Session 8: CORS Investigation & Operational Reset Procedures
 
 **Finding:** Admin SPA CORS failure on token endpoint is NOT a code defect; it's stale Keycloak container runtime state.
@@ -396,6 +409,16 @@ For local Docker dev, confirm three things in order:
 3. the live SPA served at the reported origin is actually injecting the intended `VITE_AUTH_CLIENT_ID`
 
 If all three are correct, the fix is operational: recreate the affected frontend/Keycloak containers and clear stale OIDC browser state before retrying login.
+
+### Pattern: Live Keycloak State Can Be Correct While Browser CORS Still Fails
+On 2026-03-21, the running stack showed `opplat-admin` already had `http://localhost:3201` in the live realm via the Keycloak admin API, and direct token probes with `Origin: http://localhost:3201` returned `Access-Control-Allow-Origin` for `client_id=opplat-admin`. The same probe did **not** return ACAO for `client_id=opplat-client`, proving the browser-visible error shape matches a wrong-client or stale frontend/browser state more closely than a missing realm origin.
+
+For local triage, verify in this exact order:
+1. `docker exec opplat-admin-frontend /bin/sh -lc "printenv | sort | grep '^VITE_'"` to confirm the running SPA container still points at `VITE_AUTH_CLIENT_ID=opplat-admin`
+2. Keycloak admin API for the live client's `webOrigins` and `redirectUris`
+3. a token-endpoint probe with explicit `Origin` and `client_id`
+
+If those three checks pass, prefer an operational reset (`docker compose up -d --force-recreate keycloak admin-frontend`) plus clearing browser site storage over further repo edits.
 
 
 ## Session 5 Sprint — Live Scope Fix Completion (2026-03-21)

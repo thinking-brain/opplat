@@ -1,5 +1,17 @@
 ## Core Context
 
+### 2026-03-21 Session 9: Live Keycloak State & Admin Storage Cleanup
+
+**Role in Session 9:** Diagnosed live Keycloak CORS behavior and implemented preventive storage hygiene.
+
+**Finding:** Live Keycloak realm validation showed `opplat-admin` client already includes `http://localhost:3201` in both `webOrigins` and `redirectUris`. Direct token probe with `Origin: http://localhost:3201` and `client_id=opplat-admin` returns valid `Access-Control-Allow-Origin` header. Same probe for `client_id=opplat-client` (wrong client) returns no ACAO, proving the observed browser CORS error matches stale frontend state rather than realm configuration.
+
+**Implementation:** Added `clearStaleOidcStorage()` utility in `src/opplat-admin/src/auth/oidc.ts` to prune both `localStorage` and `sessionStorage` entries before `UserManager` initialization. Startup cleanup removes stale `oidc.user:*` and orphaned `oidc.*` entries from previous client/authority experiments, keeping only entries matching active env vars. Both admin app lint and build pass post-fix.
+
+**Decision:** Treat as operational issue, not repo-config defect. Startup pruning is preventive hygiene to reduce noise in future live debugging, not a bug fix.
+
+**Coordinated with:** Hudson (Keycloak state probe), Bishop (build validation).
+
 ### 2026-03-21 Session 8: CORS Investigation Coordination & Operational Procedures
 
 **Role in Session 8:** Coordinated admin SPA auth diagnosis across all agents. Verified:
@@ -75,3 +87,4 @@ See condensed Phase summaries above; extensive detailed work documented in team 
 - The two Keycloak SPA clients are intentional: `opplat-client` serves the tenant-facing app origins and `opplat-admin` serves the admin app origins; the live post-login error was not caused by duplicating clients.
 - `react-oidc-context` can briefly expose a restored non-expired `user` before its `isAuthenticated` flag settles, so Opplat auth contexts should derive authenticated state from either signal to avoid post-callback redirect loops back to `/login`.
 - The admin SPA's local dev path is correctly wired for `http://localhost:3201`: `runtimeConfig.ts` resolves the Keycloak authority to `http://localhost:8180/realms/opplat`, compose injects `VITE_AUTH_CLIENT_ID=opplat-admin`, and the realm export already allows `http://localhost:3201` in both `redirectUris` and `webOrigins`, so a live token-endpoint CORS miss points back to Keycloak runtime client state rather than the SPA code.
+- The admin SPA should prune stale `oidc-client-ts` entries on startup from both `localStorage` and `sessionStorage`; old `oidc.user:*` or `oidc.*` state records from a previous client/authority can muddy live auth debugging even when the current runtime config is correct.

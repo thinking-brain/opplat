@@ -830,3 +830,46 @@ Treat this as a **Keycloak realm-bootstrap defect**. The realm export must expli
 - `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --nologo -v minimal` passed (38/38).
 - `npm run build` passed in both `src\opplat-react` and `src\opplat-admin`.
 
+---
+
+## Session 9: Live Keycloak State & Admin Storage Cleanup (2026-03-21)
+
+### Hudson Inbox: Live Keycloak State vs Browser CORS
+
+**Date:** 2026-03-21
+
+#### Decision
+Treat the current admin token-endpoint CORS report as an **operational live-state issue**, not a repo-config defect.
+
+#### Evidence
+- Running Keycloak admin API shows `opplat-admin` already includes `http://localhost:3201` in both `redirectUris` and `webOrigins`
+- Running `opplat-admin-frontend` container exports `VITE_AUTH_CLIENT_ID=opplat-admin`
+- Direct token probe with `Origin: http://localhost:3201` returns `Access-Control-Allow-Origin` for `client_id=opplat-admin`
+- The same probe does **not** return ACAO for `client_id=opplat-client`, matching the observed browser failure shape for a wrong-client/stale-state path
+
+#### Consequence
+Before making any new repo changes, operators should:
+1. recreate `keycloak` and `admin-frontend`
+2. clear site storage for `http://localhost:3201` and `http://localhost:8180`
+3. retry login and only then inspect browser/network state for an unexpected `client_id`
+
+---
+
+### Vasquez Live Admin Runtime Decision
+
+- **Date:** 2026-03-21
+- **Area:** `src/opplat-admin` OIDC bootstrap
+
+#### Decision
+Prune stale `oidc-client-ts` storage entries during admin SPA startup before creating the `UserManager`.
+
+#### Why
+The live admin app at `http://localhost:3201` is currently running from the admin dev container with `VITE_AUTH_CLIENT_ID=opplat-admin` and `VITE_AUTH_AUTHORITY=http://localhost:8180/realms/opplat`, so repeated "same CORS" reports are not explained by the checked-in runtime wiring.
+
+Old browser entries such as `oidc.user:*` and pending `oidc.*` state payloads can survive previous client/authority experiments and make runtime investigation noisy. Startup pruning keeps only entries matching the active authority/client pair and removes mismatched state from both `localStorage` and `sessionStorage`.
+
+#### Impact
+- Reduces false suspicion that the SPA is still using the wrong Keycloak client after config fixes.
+- Makes browser-side verification cleaner for future live OIDC/CORS debugging.
+- Does not change backend behavior or requested scopes.
+
