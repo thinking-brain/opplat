@@ -690,3 +690,61 @@ openid profile email offline_access
 - Vasquez's openid-only fix was too minimal (it works but loses claims and refresh tokens)
 - Bishop correctly identified the drift; this decision aligns all documentation with the Docker Compose contract
 - Any future scope changes must coordinate across: untimeConfig.ts, .env.example, docker-compose*.yml, and README
+
+### Hudson — Runtime Scope Injection Fix (Docker/Compose Infrastructure)
+**Date:** 2026-03-21
+**Status:** ✅ IMPLEMENTED
+**Scope:** DevOps/Infrastructure layer — ensuring scope injection chain is complete across docker-compose, Dockerfile, and runtime-config
+
+**Root Cause Identified:**
+Three-layer scope mismatch:
+1. Source code fallback (runtimeConfig.ts): openid profile email offline_access ✓
+2. Docker runtime-config script (Dockerfile): openid only ✗  
+3. .env variables (docker-compose): not defined ✗
+
+The nginx runtime-config.sh script was injecting stale openid-only fallback that overrode source-code defaults.
+
+**Solution Applied:**
+1. Updated Dockerfile runtime config fallback → openid profile email offline_access
+   - src/opplat-react/Dockerfile line 46
+   - src/opplat-admin/Dockerfile line 45
+2. Added explicit env vars to compose files
+   - .env.docker lines 34-35: VITE_AUTH_SCOPE=openid profile email offline_access
+   - .env lines 34-35: Same configuration
+3. Docker Compose already correct — no changes needed
+
+**Scope Injection Chain (Corrected):**
+docker-compose.yml → Container runtime → nginx entrypoint → runtime-config.js → runtimeConfig.ts → OIDC scope → Keycloak /token
+
+**Validation:**
+- ✅ docker-compose config --quiet passes
+- ✅ docker-compose build frontend admin-frontend succeeds
+- ✅ Both frontend Dockerfiles correctly inject scope
+- ✅ .env/.env.docker now explicitly document scope configuration
+
+**Key Learning:** Scope configuration is multi-layer; all four layers (docker-compose, Dockerfile, .env, runtime-config.ts) must align, otherwise dev-server and production builds can diverge.
+
+**Impact:** Keycloak Invalid scopes errors eliminated at infrastructure level; full operator visibility via .env files; dev/prod parity restored.
+
+
+### Vasquez — Live SPA Scope Trace and Minimization (Investigation Note)
+**Date:** 2026-03-21
+**Status:** ⏸️ SUPERSEDED by Ripley adjudication
+**Context:** Initial investigation trace; later refined by Ripley's full-layer analysis
+
+**What Was Traced:**
+Both SPAs were emitting openid profile email offline_access from:
+- docker-compose.yml and docker-compose.override.yml
+- .env and .env.docker
+- runtime-config.js injection path
+- runtimeConfig.ts fallback
+
+**Initial Decision:**
+Reduce to openid-only as minimal change to stop invalid scope request.
+
+**Superseded By:**
+Ripley's adjudication determined that openid profile email offline_access is the CORRECT and AUTHORITATIVE contract. Vasquez's openid-only reduction was too minimal (loses profile/email claims and refresh tokens). The actual root cause was stale .env.local or browser cache, not the source code. Final solution: align all layers (Compose, Dockerfile, .env, runtimeConfig) to the correct full scope set.
+
+**Lesson Learned:**
+Single-layer minimization (only changing source code) is insufficient for multi-layer configuration. All four injection points must be validated and aligned together.
+

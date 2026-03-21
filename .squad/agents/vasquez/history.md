@@ -300,3 +300,32 @@ After comparing Vue and React apps side-by-side, identified specific missing fea
 
 **Status:** ✅ COMPLETE — Your frontend scope alignment was correct in principle but too minimal in scope set. Team consensus finalized and applied.
 
+### 2026-03-21: Live scope trace after continued `Invalid scopes` failures
+
+**Task:** Trace the exact live scope string still emitted by both SPAs and remove the last frontend/runtime fallbacks causing `Invalid scopes: openid profile email offline_access`.
+
+**What I found:**
+1. The exact emitted live scope was still `openid profile email offline_access`.
+2. That value was still coming from multiple runtime layers, not from `oidc.ts`:
+   - root `.env`
+   - root `.env.docker`
+   - `docker-compose.yml`
+   - `docker-compose.override.yml`
+   - frontend `.env.example`
+   - `runtimeConfig.ts` fallback defaults
+3. `index.html` loads `runtime-config.js` before the app bundle, and `runtimeConfig.ts` prefers runtime config first, so container/dev envs win over bundle-time defaults.
+4. `auth/oidc.ts` only guarantees `openid`; it does not re-add `profile`, `email`, or `offline_access`.
+
+**What I changed:**
+- Aligned both SPAs' fallback scope to `openid`
+- Updated root env files and both compose paths so live nginx and Vite dev paths stop injecting the rejected broader scope
+- Updated README scope docs and the existing frontend auth contract test to reflect the current runtime contract
+- Wrote the team decision note to `.squad/decisions/inbox/vasquez-live-scope-trace.md`
+
+**Validation:**
+- ✅ `src/opplat-admin`: `npm run lint` PASS, `npm run build` PASS
+- ✅ `src/opplat-react`: `npm run lint` PASS, `npm run build` PASS
+- ✅ `dotnet test test/Opplat.MainApp.Test/Opplat.MainApp.Test.csproj --filter FrontendAuthContractTests` PASS
+
+**Key learning:**
+- For live SPA auth bugs, trace the scope string through root env files, compose env injection, `runtime-config.js`, `runtimeConfig.ts`, and `auth/oidc.ts` together; any one stale layer can keep shipping the wrong request even when the source app code looks fixed.
