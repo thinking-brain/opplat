@@ -1,5 +1,113 @@
 # Opplat Squad — Decisions
 
+## Session 5 Decisions (2026-03-21)
+
+### Keycloak OIDC Scope & Role Model Alignment (Complete)
+**By:** Ripley (Architect), Hicks (Backend), Hudson (DevOps), Vasquez (Frontend), Bishop (Tester)
+**Date:** 2026-03-21
+**Status:** ✅ COMPLETE — All agents delivered, no blockers
+**What:** Comprehensive Keycloak authentication bootstrap and role model alignment across all layers
+
+#### 1. OIDC Scope Configuration (Ripley)
+**Root Cause:** SPAs defaulted to `openid` only; missing `profile`, `email`, `roles`, `offline_access`. Keycloak realm was mostly correct; frontend scope requests were incomplete. Docker-compose never set `VITE_AUTH_SCOPE`.
+
+**Resolution:**
+- Frontend SPAs now request: `openid profile email roles` (+ `offline_access` if offline session needed)
+- Keycloak realm already had default client scopes configured correctly
+- Backend validates `audience + roles`, not scope claim directly
+- No scope-based API authorization currently required (future option)
+
+#### 2. Three-Tier Role Model & Boundaries (Ripley → Hicks, Vasquez, Bishop)
+**Roles:**
+- `SuperAdmin` → Platform-wide administrator, admin app only
+- `TenantAdmin` → Per-tenant administrator, client app user management section
+- `TenantUser` → Regular tenant user, client app operations
+
+**Access Control:**
+- `/admin/*` endpoints → SuperAdmin only
+- `/users` client app routes → TenantAdmin only
+- Client app root → Any authenticated user (not SuperAdmin)
+
+**Tenant Scoping:** Via user attributes/groups, not roles (single-tenant-per-user model)
+
+#### 3. Docker-Compose Infrastructure (Hudson)
+**Changes:**
+- Keycloak service with env-driven bootstrap (admin creds, realm import)
+- Explicit bind mounts for `docker/keycloak/keycloak.conf` and realm JSON
+- Realm-aware health checks for service dependency ordering
+- Added API/sales/inventory healthchecks
+- Fixed `.env`: `VITE_SALES_API_URL` port (8081 → 8083)
+- Added Keycloak env vars: `KEYCLOAK_PORT`, `KEYCLOAK_REALM`, `KEYCLOAK_ADMIN_USERNAME`, `KEYCLOAK_ADMIN_PASSWORD`
+
+**Validation:** ✅ docker-compose config PASS, health checks ready
+
+#### 4. Backend Auth Alignment (Hicks)
+**Findings:**
+- Keycloak realm bootstrap already correct (pre-seeded test users, roles)
+- Backend Program.cs already aligns with Keycloak issuer/audience
+- No backend auth logic changes required
+
+**Changes:**
+- Updated `src/Opplat.MainApp/appsettings.Development.json` for local Keycloak host
+- Updated frontend OIDC configs to request correct scopes
+- Updated README with Keycloak bootstrap guidance, seeded user table, local OIDC setup
+
+**Validation:** ✅ dotnet build PASS (44 pre-existing warnings, 0 errors)
+
+#### 5. Frontend Auth Gating & Scope Alignment (Vasquez)
+**Changes:**
+- Admin app: All routes require SuperAdmin role
+- Client app: `/users` route + nav item + dashboard quick-access require TenantAdmin
+- Both frontends now request: `openid profile email roles`
+- Claims parsing now includes `realm_access.roles` + `resource_access.*.roles`
+- Audience query param skipped for Keycloak realm URLs (kept for custom providers)
+
+**Validation:** ✅ Both apps lint+build successful
+
+#### 6. Test Coverage & Validation (Bishop)
+**Coverage Added:**
+- AuthEndpointAuthorizationIntegrationTests
+- FrontendAuthContractTests
+- Updated CreateTenantUserCommand to reject non-tenant roles
+- Enhanced OidcClaimsTransformation for safe role claim snapshotting
+
+**Validation:** ✅ 36/36 tests PASS (100%)
+
+### Seeded Development Users (From Keycloak realm)
+| Username | Password | Role | Tenant | Site |
+|----------|----------|------|--------|------|
+| superadmin | SuperAdmin123! | SuperAdmin | N/A | Admin (3101) |
+| admin@mojocafe | admin123 | TenantAdmin, TenantUser | mojocafe | Client (3100) |
+| admin@demo | admin123 | TenantAdmin, TenantUser | demo | Client (3100) |
+| user@mojocafe | user123 | TenantUser | mojocafe | Client (3100) |
+| user@demo | user123 | TenantUser | demo | Client (3100) |
+
+### Files Modified
+- docker-compose.yml (health checks, bind mounts, service deps)
+- .env / .env.docker (Keycloak env vars)
+- src/Opplat.MainApp/appsettings.Development.json
+- src/opplat-admin/{auth/oidc.ts, auth/claims.ts, runtimeConfig.ts}
+- src/opplat-react/{auth/oidc.ts, auth/claims.ts, runtimeConfig.ts}
+- test/Opplat.MainApp.Test/ (auth regression coverage)
+- README.md (startup, auth flow, role docs, seeded users)
+
+### Outstanding Items (Deferred)
+- Finbuckle file-backed tenant store for admin CRUD (separate session)
+- Production Keycloak setup guidance (future phase)
+
+### Acceptance Criteria Met
+✅ Keycloak starts with valid realm import  
+✅ Apps authenticate with correct scopes  
+✅ SuperAdmin accesses admin site; tenant users cannot  
+✅ Tenant users access client app; SuperAdmin cannot  
+✅ README documents auth flow, roles, default credentials  
+✅ Docker-compose health checks ready  
+✅ All tests pass (36/36)  
+
+**Status:** ✅ APPROVED & IMPLEMENTED
+
+---
+
 ## Session 4 Decisions (2026-03-20)
 
 ### Phase 1 Sales and Inventory Module Extraction

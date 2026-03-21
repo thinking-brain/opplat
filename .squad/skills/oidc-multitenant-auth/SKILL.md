@@ -45,13 +45,25 @@ Configure the same `Auth:Authority` env var to point at Keycloak locally and Aut
 ### Frontend
 Use `react-oidc-context` (wraps `oidc-client-ts`) — works with any OIDC provider. Avoid provider-specific SDKs to keep dev/prod parity.
 
-## Anti-Patterns
-- **Don't** issue JWTs from the backend when using an external IdP
-- **Don't** use `SymmetricSecurityKey` with OIDC — let the IdP manage signing keys
-- **Don't** use `@auth0/auth0-react` if you need Keycloak compatibility — use `react-oidc-context`
-- **Don't** store passwords in ASP.NET Identity when using external IdP — passwords live in the IdP
+### Frontend Claim Normalization
+Normalize both Auth0 namespaced claims (for example `https://opplat.com/tenant_identifier`) and Keycloak flat claims (`tenant_identifier`) into a single frontend auth model. Keep that logic in one helper so route guards, layouts, and API interceptors all agree on the active tenant and roles.
+
+### Tenant-Scoped SPA Requests
+For tenant-facing SPAs, persist the resolved tenant identifier after login, prefix tenant-scoped relative API URLs with `/{tenant}`, and also send `X-Tenant-Identifier`. The route prefix keeps URLs aligned with Finbuckle's primary strategy while the header provides a fallback for mixed backend surfaces and admin-style calls.
+
+### Runtime Config for Static Frontends
+If the SPA is shipped from nginx or another static server, write a small `runtime-config.js` file from container env on startup and read that before falling back to `import.meta.env`. This avoids rebuilding the bundle whenever Docker Compose, Keycloak, or Auth0 settings change.
+
+### Testing During Incremental Migration
+When auth/admin implementation is only partially landed, don't block on full end-to-end tests. Add executable unit tests for stable seams like tenant-validation middleware and claim normalization, then add lightweight source/contract guards for route prefixes, policy hooks, and tenant connection-string selection until the full host can be exercised reliably.
+
+### Keycloak Realm Import (Scopes)
+Don't repurpose Keycloak built-in scope names (`profile`, `email`, `roles`, `offline_access`) for app-specific mappers. Keep the standard OIDC scopes attached to the SPA clients, and add custom scopes such as `opplat-tenancy` or `opplat-api-audience` for tenant claims and API audience so `scope=openid profile email offline_access` keeps working.
+
+For Opplat, the SPA clients should keep the built-in `profile`, `email`, `roles`, and optional `offline_access` scopes, while custom default scopes add `tenant_id`, `tenant_identifier`, and `aud=opplat-api`.
 
 ## References
 - Finbuckle.MultiTenant 7.0.1 docs
 - Microsoft.AspNetCore.Authentication.JwtBearer OIDC discovery
 - react-oidc-context / oidc-client-ts
+- Keycloak 26.0 realm export/import format

@@ -133,3 +133,50 @@ Finbuckle 7.0.1 exposes root-namespace methods only (`UseMultiTenant`, `Configur
 
 **User Preference Reinforced:**
 - Prefer minimal API and behavior changes for structural refactors; keep incomplete Accounting/account features in place unless integrity requires a touch.
+
+### Keycloak dev bootstrap and tenant role alignment (2026-03-21)
+
+- `docker/keycloak/keycloak.conf` now owns the local Keycloak HTTP/hostname boot settings, while `docker/keycloak/opplat-realm.json` seeds the realm, clients, roles, and test users.
+- The Keycloak import leaves built-in OIDC scopes (`profile`, `email`, `offline_access`) attached to the SPA clients and moves Opplat-specific tenant/audience mappers into dedicated scopes (`opplat-tenancy`, `opplat-api-audience`) to avoid scope-validation failures.
+- Backend admin authorization now expects the `SuperAdmin` role, and tenant-side user-management endpoints in `Features/Account/AccountEndpoints.cs` are restricted to `TenantAdmin`.
+- Tenant user creation and role changes now stay inside the `TenantAdmin` / `TenantUser` model: new tenant users default to `TenantUser`, and tenant role updates reject anything outside those tenant roles.
+
+### 2026-03-21: Keycloak OIDC Scope Alignment & Backend Validation (Session 5)
+
+**Task:** Implement frontend OIDC scope request updates and validate backend auth alignment with Keycloak bootstrap.
+
+**Work Performed:**
+1. **Updated Frontend OIDC Configurations**
+   - Both `src/opplat-admin/src/auth/oidc.ts` and `src/opplat-react/src/auth/oidc.ts`
+   - Now always request: `openid profile email offline_access`
+   - Ensures frontend scopes align with Keycloak realm configuration
+
+2. **Updated Backend Configuration**
+   - Modified `src/Opplat.MainApp/appsettings.Development.json`
+   - Added explicit local Keycloak host for dev environments
+   - Added `TenantAdminRole` and `TenantUserRole` settings
+
+3. **Updated Documentation**
+   - README.md now includes:
+     - Keycloak bootstrap guidance
+     - Seeded user table with credentials
+     - Local OIDC environment setup instructions
+     - Realm-role mapping explanation
+
+4. **Validation Results**
+   - ✅ docker-compose config PASS
+   - ✅ JSON syntax validation PASS (appsettings.Development.json, opplat-realm.json)
+   - ✅ dotnet build PASS (44 pre-existing warnings, 0 errors)
+
+**Key Findings:**
+- Backend auth logic already correctly aligned with Keycloak issuer/audience
+- Keycloak realm bootstrap already seeds correct users (SuperAdmin, TenantAdmin, TenantUser)
+- No backend auth implementation changes required; only frontend scope + config updates needed
+
+**Files Modified:**
+- src/Opplat.MainApp/appsettings.Development.json
+- src/opplat-admin/src/auth/oidc.ts
+- src/opplat-react/src/auth/oidc.ts
+- README.md
+
+**Status:** ✅ COMPLETE — Frontend scopes aligned, backend config ready, all validation passing

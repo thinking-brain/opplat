@@ -138,3 +138,97 @@ After comparing Vue and React apps side-by-side, identified specific missing fea
 - Spanish labels throughout matching Vue app exactly
 - Active state affects button states (Edit disabled when inactive)
 
+### Phase 3a: Admin Frontend Recovery (2026-03-20)
+
+**What was recovered:**
+- Rebuilt `src/opplat-admin` as a Vite + React 18 + TypeScript + MUI admin portal
+- Added provider-agnostic OIDC wiring with `react-oidc-context` and shared claim parsing patterns
+- Implemented MVP pages for Login, Dashboard, Tenants, Users, and Settings
+- Wired tenant CRUD to `/admin/tenants` and tenant-scoped user management to `/admin/tenants/{tenantIdentifier}/users`
+- Validated the admin bundle with `npm run build`
+
+**Admin app implementation notes:**
+- Admin auth mirrors the client OIDC flow: redirect login, silent renew, logout fallback, and bearer token interceptor
+- Tenant selection is stored locally as `opplat_admin_tenant` and only applied to tenant-scoped admin user endpoints through `X-Tenant-Identifier`
+- Dashboard is API-backed and computes summary metrics client-side from tenants and admin user listings
+- Settings is currently an environment/session reference page instead of calling non-existent backend settings endpoints
+- The local build script explicitly invokes shared toolchain binaries from `src/opplat-react/node_modules` to keep `npm run build` reliable in this workspace
+
+### Phase 3b: Admin App MVP Delivery (2026-03-20)
+**What was added:**
+- Built the missing admin UI shell (Layout, navigation, and theming) in `src/opplat-admin`
+- Implemented MVP pages: Login, Dashboard, Tenants, Users, Settings
+- Connected admin pages to `/admin/tenants`, `/admin/users`, and `/admin/settings` via the admin API client
+- Added MUI dialogs for tenant create/edit/deactivate and user role updates
+- Confirmed `npm run build` succeeds in `src/opplat-admin`
+
+**Notes:**
+- Admin login follows the provider-agnostic OIDC flow used by the client app
+- Dashboard aggregates tenant + user counts with API-backed summaries
+
+### Phase 3c: Client/Admin OIDC Alignment (2026-03-20)
+**What changed:**
+- Migrated `src/opplat-react` from custom JWT login to `react-oidc-context` / `oidc-client-ts`
+- Normalized Auth0 namespaced claims and Keycloak flat claims into one frontend auth model
+- Persisted the derived tenant identifier and applied it to tenant-scoped API routes plus `X-Tenant-Identifier`
+- Added runtime `runtime-config.js` loading so nginx containers can consume compose env vars without a rebuild
+- Revalidated both frontends with `npm run lint` / `npm run build`
+
+**Implementation notes:**
+- Client callback handling now uses `/auth/callback` and `/auth/silent-renew`
+- Axios reads access tokens from OIDC-managed storage instead of custom local JWT keys
+- Admin package scripts call local toolchain entrypoints directly because this shared Windows workspace had intermittent `.bin` resolution issues after package installation
+
+### Phase 3d: Role-gated Keycloak alignment (2026-03-21)
+**What changed:**
+- Canonicalized frontend roles to `SuperAdmin`, `TenantAdmin`, and `TenantUser` in both React apps via `src/opplat-admin/src/auth/roles.ts` and `src/opplat-react/src/auth/roles.ts`
+- Gated `src/opplat-admin` behind `SuperAdmin` and moved tenant user administration responsibility to `src/opplat-react/src/pages/UsersPage.tsx`
+- Updated `docker/keycloak/opplat-realm.json` with seeded SuperAdmin / TenantAdmin / TenantUser accounts plus localhost redirect URIs for ports 3000/3001, 3100/3101, and 3200/3201
+- Reduced the default SPA OIDC scope to `openid` and disabled `loadUserInfo` in both apps to avoid local Keycloak scope mismatches
+
+**Implementation notes:**
+- `ProtectedRoute` now supports role-based gating plus an unauthorized-state UI in both frontends
+- The client `Users` route is visible and accessible only to `TenantAdmin`; `TenantUser` sees the rest of the tenant app without user-management entry points
+- Root docs at `README.md` now document the seeded Keycloak users, role model, and the local scope change
+
+### 2026-03-21: Frontend Auth Gating & OIDC Scope Alignment (Session 5)
+
+**Task:** Implement role-based auth gating for frontend applications and align OIDC scope requests with Keycloak configuration.
+
+**Work Performed:**
+1. **Frontend Route/Component Gating**
+   - `opplat-admin`: All root and nested admin routes now require `SuperAdmin` role
+   - `opplat-react`: `/users` route, Users nav item, and dashboard quick-access gated to `TenantAdmin` role
+   - Both apps now properly enforce role-based access control
+
+2. **OIDC Scope Configuration**
+   - Both frontends now request: `openid profile email roles`
+   - Preserved extras like `offline_access` for offline session support
+   - Removed audience query param for Keycloak realm URLs (kept for custom providers)
+
+3. **Claims Parsing Enhancement**
+   - Roles now extracted from both ID/access tokens
+   - Includes `realm_access.roles` and `resource_access.*.roles` from Keycloak claims
+   - Claims parsing properly handles both Auth0 and Keycloak token structures
+
+4. **Documentation Updates**
+   - Root README.md now explains frontend auth flow
+   - Added role expectations documentation
+   - Documented SuperAdmin/TenantAdmin/TenantUser access patterns
+
+5. **Validation Results**
+   - ✅ `src/opplat-admin`: `npm run lint` PASS, `npm run build` PASS
+   - ✅ `src/opplat-react`: `npm run lint` PASS, `npm run build` PASS
+   - ✅ Both apps build without errors; pre-existing dev dependencies stable
+
+**Key Changes:**
+- `src/opplat-admin/src/auth/oidc.ts` → scope request aligned
+- `src/opplat-admin/src/auth/claims.ts` → role claim parsing enhanced
+- `src/opplat-admin/src/runtimeConfig.ts` → runtime config ready
+- `src/opplat-react/src/auth/oidc.ts` → scope request aligned
+- `src/opplat-react/src/auth/claims.ts` → role claim parsing enhanced
+- `src/opplat-react/src/runtimeConfig.ts` → runtime config ready
+- README.md → auth flow and role documentation
+
+**Status:** ✅ COMPLETE — Both frontend apps properly gated, scopes aligned, builds passing
+

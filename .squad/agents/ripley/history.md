@@ -156,3 +156,53 @@ Initially reassigned revision back to Hudson (original author), then immediately
 **Output:** `.squad/decisions/inbox/ripley-admin-auth-tenant-design.md`
 
 **Status:** ✅ COMPLETE — Design review done, decision approved, ready for implementation dispatch
+
+### 2026-03-20: Keycloak Role Model & Scope Fix
+
+**Task:** Architecture decision for Keycloak realm configuration after user hit "Invalid scopes" error.
+
+**Root Cause Identified:**
+Current `opplat-realm.json` missing standard OIDC scopes (`openid`, `email`, `offline_access`). Only custom `profile` and `roles` scopes were defined. Keycloak 26+ does not auto-create foundational scopes.
+
+**Role Model Decision:**
+1. Rename `admin` → `SuperAdmin` (platform-level, admin site only)
+2. Rename `operator` → `TenantAdmin` (tenant-level, client site only, manages users/permissions)
+3. Keep `user` → `TenantUser` (tenant-level, client site only, standard operations)
+
+**Key Boundaries Established:**
+- SuperAdmin: Admin site access ONLY. Cannot access tenant-scoped APIs.
+- TenantAdmin: Client site access. Handles in-app user/permission management for their tenant.
+- TenantUser: Client site access. Standard app operations.
+- Permission management happens in client app, NOT admin site (per user requirement).
+
+**Default SuperAdmin:**
+- Username: `superadmin`
+- Password: `SuperAdmin123!`
+- Must be documented in README
+
+**Constraints Issued:**
+- Hudson: Rewrite realm JSON with all standard scopes + renamed roles + test users
+- Hicks: Update `Auth:AdminRole` to `SuperAdmin`, add `TenantAdminOnly` policy
+- Vasquez: Route guards check correct roles per site
+
+**Output:** `.squad/decisions/inbox/ripley-keycloak-role-model.md`
+
+**Status:** ✅ COMPLETE — Decision documented, constraints issued
+
+### 2026-03-21: Keycloak Auth Bootstrap Architecture Review (Session 5)
+
+**Task:** Lead architecture review for complete Keycloak authentication bootstrap and role model alignment across all agents.
+
+**Analysis Delivered:**
+- **OIDC Scope Root Cause:** Identified that SPAs were requesting only `openid` by default; missing `profile`, `email`, `roles`, `offline_access`. Backend already validates `audience + roles`, not scope claim. Docker-compose never set `VITE_AUTH_SCOPE`.
+- **Role Model Clarification:** Confirmed 3-tier model (SuperAdmin/TenantAdmin/TenantUser) with realm-level roles and tenant scoping via user attributes (single-tenant-per-user model).
+- **Boundary Rules Established:** SuperAdmin → admin site only. TenantAdmin/TenantUser → client site. Gap: client root should enforce tenant roles (not just auth).
+
+**Key Findings:**
+- Keycloak realm bootstrap already correct; no changes needed to realm JSON
+- Backend Program.cs already aligns with Keycloak issuer/audience
+- Frontend scope requests were the primary gap (addressed by Hicks)
+
+**Output:** Architectural analysis fed into Hicks/Hudson/Vasquez/Bishop implementations; decision merged to decisions.md (Session 5)
+
+**Status:** ✅ COMPLETE — All scope/role alignment verified; team consensus on 3-tier model

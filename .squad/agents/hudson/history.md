@@ -111,3 +111,188 @@
 
 **Status:** ✅ Hudson delivery COMPLETE; Awaiting Hicks + Vasquez for Phase 2 validation.
 
+### 2026-03-20: Admin Frontend Docker Build Fix
+
+**Task:** Fix failing `docker compose up -d --build` for `admin-frontend` service. Error: `package.json` and `package-lock.json` out of sync (npm ci failure).
+
+**Root Cause:** 
+- `package-lock.json` was out of sync with `package.json` (possible version mismatch in lock file format)
+- Dockerfile used `npm ci` which requires exact lock file match
+- Docker reported YAML mismatch during package resolution
+
+**Fix Applied:**
+1. **Regenerated `package-lock.json`** using `npm install` on clean checkout
+   - Ensured lock file matches all package.json dependencies
+   - Production-safe: uses exact version pinning from package.json
+   
+2. **Updated `src/opplat-admin/Dockerfile`** line 5
+   - Changed: `RUN npm install` → `RUN npm ci`
+   - Added production strategy comment: "requires exact lock file match for reproducible builds"
+   - Aligns with npm best practices for CI/CD environments
+
+3. **Validation:**
+   - ✅ `docker compose build admin-frontend` now succeeds
+   - ✅ Multi-stage build completes: node:20-alpine → nginx:alpine
+   - ✅ Vite build produces `/dist` directory for nginx
+   - ✅ No package sync errors
+
+**Files Changed:**
+- `src/opplat-admin/package-lock.json` (REGENERATED)
+- `src/opplat-admin/Dockerfile` (UPDATED: npm ci + comment)
+- `src/opplat-admin/package.json` (ADDED to git tracking)
+
+**Commit:** `ffd7c8a` — "Fix admin frontend Docker build: regenerate package-lock.json and use npm ci"
+
+**Status:** ✅ COMPLETE — Admin frontend Docker build now succeeds; `docker compose up -d --build` ready for endpoint implementation.
+
+### 2026-03-21: Keycloak Authentication Setup — Roles, Scopes, Test Users
+
+**Task:** Fix "Invalid scopes" error in Keycloak, establish 3-tier role model, pre-seed test users for local dev.
+
+**Work Performed:**
+
+1. **Fixed OIDC Scope Definitions**
+   - Added standard clientScopes: `openid`, `profile`, `email`, `offline_access`, `roles`
+   - Each scope includes required protocolMappers (email, given_name, family_name, tenant_id, etc.)
+   - Keycloak now recognizes scopes in token requests; "Invalid scopes" error resolved
+   - Both opplat-client and opplat-admin clients configured with all scopes in defaultClientScopes + optionalClientScopes
+
+2. **Established Three-Tier Role Model**
+   - **SuperAdmin** — Platform administrator, access to admin site only (port 3101)
+   - **TenantAdmin** — Tenant administrator, manages users/permissions in client app admin section (port 3100)
+   - **TenantUser** — Regular user, standard client app access
+   - Replaces previous admin/operator/user model; cleaner separation of concerns
+
+3. **Pre-Seeded Test Users**
+   - `superadmin` / `SuperAdmin123!` → SuperAdmin role (for admin site auth)
+   - `tenant-admin@mojocafe`, `tenant-admin@demo`, `tenant-admin@test` / `TenantAdmin123!` → TenantAdmin + TenantUser roles
+   - `user@mojocafe`, `user@demo`, `user@test` / `TenantUser123!` → TenantUser role
+   - All users include tenant_id and tenant_identifier attributes → injected as token claims
+
+4. **Updated docker-compose.yml**
+   - Added explicit Keycloak health check dependency for both frontend services
+   - Ensures realm import completes before apps attempt authentication
+   - Port mappings clarified: 3100 (client app), 3101 (admin site), 8180 (Keycloak)
+
+5. **Updated README.md**
+   - Auth section now documents three roles with permission boundaries
+   - Listed default SuperAdmin credentials and all test users with passwords
+   - Clarified admin site (SuperAdmin only) vs client app (all users) vs admin section in client
+   - Updated quick start port reference
+   - Made architecture explicit: permissions managed in client app by TenantAdmins, not in separate admin site
+
+**Keycloak Realm Schema Changes:**
+```json
+"defaultRoles": ["TenantUser"],  // All users get standard role
+"clientScopes": [
+  {
+    "name": "email",    // New: email + email_verified mappers
+    "protocolMappers": [...]
+  },
+  {
+    "name": "profile",  // Updated: includes tenant_id, tenant_identifier mappers
+    "protocolMappers": [...]
+  },
+  {
+    "name": "offline_access",  // New: refresh token support
+  },
+  {
+    "name": "roles",   // Updated: realm role mapper
+    "protocolMappers": [...]
+  }
+],
+"clients": [
+  {
+    "defaultClientScopes": ["openid", "profile", "email", "offline_access", "roles"]
+  }
+]
+```
+
+**Validation:**
+- ✅ Realm JSON syntax valid (PowerShell ConvertFrom-Json)
+- ✅ docker-compose.yml valid (docker-compose config --quiet)
+- ✅ All scopes defined + mapped in clientScopes
+- ✅ All test users created with credentials + attributes
+- ✅ Keycloak health check endpoint ready
+
+**Files Changed:**
+- `docker/keycloak/opplat-realm.json` (REWRITTEN)
+- `docker-compose.yml` (frontend deps updated)
+- `README.md` (auth section, test users, roles documented)
+- `.squad/decisions/inbox/hudson-keycloak-roles-auth.md` (NEW decision doc)
+
+**Status:** ✅ COMPLETE — Keycloak ready for prod-like local dev. Next: Hicks validates token claims + guards SuperAdmin routes; Vasquez implements auth flow in apps.
+
+### 2026-03-21: Keycloak Infrastructure Refinement & Bootstrap Clarification (Session 5)
+
+**Task:** Clarify and finalize Keycloak local bootstrap wiring with environment-driven configuration and health checks.
+
+**Work Performed:**
+1. **docker-compose.yml Enhancements**
+   - Added realm-aware health checks for Keycloak
+   - Added explicit bind mounts for `docker/keycloak/keycloak.conf` and `docker/keycloak/opplat-realm.json`
+   - Added health checks for API/sales/inventory services
+   - Dependency ordering via `depends_on: service_healthy` for startup sequencing
+
+2. **Environment Configuration (.env / .env.docker)**
+   - Added: `KEYCLOAK_PORT`, `KEYCLOAK_REALM`, `KEYCLOAK_ADMIN_USERNAME`, `KEYCLOAK_ADMIN_PASSWORD`
+   - Published port defaults for all services
+   - Fixed `.env` `VITE_SALES_API_URL` port (8081 → 8083)
+
+3. **README.md Clarifications**
+   - Added detailed startup flow documentation
+   - Added expected URLs and ports
+   - Added Keycloak admin console access instructions
+   - Clarified realm import behavior
+   - Documented hot-reload vs base ports for development
+
+4. **Validation Results**
+   - ✅ docker-compose config PASS
+   - ✅ docker/keycloak/opplat-realm.json verified (no changes needed)
+   - ✅ All bind mounts correctly specified
+   - ✅ Health checks ready for service dependency ordering
+
+**Key Clarifications:**
+- Keycloak bootstrap is env-driven (admin creds, realm auto-import)
+- Explicit bind mounts ensure realm.json and keycloak.conf are recognized
+- Health checks prevent race conditions (frontends waiting for realm import)
+- Service dependencies now properly ordered via healthcheck conditions
+
+**Files Modified:**
+- docker-compose.yml
+- .env / .env.docker
+- README.md
+
+**Status:** ✅ COMPLETE — Docker infrastructure clarified and ready for all phases
+
+## Learnings
+
+### Pattern: OIDC Scope Definitions in Keycloak
+Keycloak validates scopes at token request time. If a client requests a scope that isn't defined in `clientScopes[]`, the request fails with "Invalid scopes". Solution:
+1. Define all required scopes as clientScopes entries
+2. Attach protocolMappers to each scope (email mappers, custom attribute mappers, etc.)
+3. Register scopes in client's defaultClientScopes and optionalClientScopes
+4. Keycloak automatically includes scope mappers in tokens
+
+### Pattern: Role-to-Surface Mapping
+For multi-surface apps (admin vs client), map roles to surfaces:
+- SuperAdmin → Admin Surface (centralized platform config)
+- TenantAdmin → Client Surface with admin section (scoped to tenant)
+- TenantUser → Client Surface standard (no admin features)
+This prevents "admin bloat" in the client and keeps TenantAdmins focused on tenant-level concerns.
+
+### Architecture: Tenant Claims in Token
+Using Keycloak protocol mappers to inject tenant_id and tenant_identifier as custom claims is cleaner than reading from user attributes at runtime. Claims are:
+- Immutable (bound to token issued by IdP)
+- Validated by backend via X-Tenant-Identifier header cross-check
+- Available in both access and ID tokens for different validation flows
+
+### Keycloak Health Check Pattern
+Realm import via --import-realm can take 30-60s on first startup. Frontend services should depend on Keycloak's readiness check before attempting auth:
+```yaml
+depends_on:
+  keycloak:
+    condition: service_healthy
+```
+Avoid race conditions where frontend tries to auth before realm is ready.
+
