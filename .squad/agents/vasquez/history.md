@@ -1,5 +1,8 @@
 ## Core Context
 
+### Admin Callback Handoff Fix (2026-03-21)
+Fixed post-login callback routing seam where SPA remained stuck on `/auth/callback` despite successful Keycloak authentication. Three-part fix: (1) dispatched PopStateEvent after replaceState to notify BrowserRouter, (2) normalized backend/frontend claim readers to accept both nested and flat dotted role claim shapes from Keycloak, (3) narrowed loading gate to not block on lingering navigator state. All validation tests pass; regression coverage added.
+
 ### Phase 2: React Foundation & Feature Parity (2026-02-27)
 Built React 18 SPA with Vite, MUI v5, React Router v6, Axios, TypeScript strict mode, and localStorage token persistence. Feature-based architecture with /api, /auth, /pages, /components, /types separation. Implemented 5 required pages (Login, Home, Products, Sell, Users) with full feature parity to Vue app. Dashboard shows sales data and quick-access user management. ProductsPage includes search, image upload, activate/deactivate. SellPage has Dependiente/Posición/Comanda/Observaciones metadata. UsersPage includes profile pictures and delete.
 
@@ -350,3 +353,23 @@ Three-agent team identified and resolved live Keycloak OIDC scope injection defe
 - All unit tests passing (38/38) ✅
 - Frontend builds passing (npm run build) ✅
 - Docker Compose config validated ✅
+
+### 2026-03-21: Admin callback navigation fix
+
+**Task:** Diagnose why the admin SPA stayed on the post-login callback screen after a successful Keycloak sign-in.
+
+**What I found:**
+1. The admin callback route rendered `AuthCallbackPage` as expected and `react-oidc-context` completed the sign-in flow.
+2. The post-login handoff in `src/opplat-admin/src/auth/oidc.ts` used `window.history.replaceState(...)` directly.
+3. Because the app uses `BrowserRouter`, that raw history mutation updated the URL but did not notify React Router, so the SPA could remain visually stuck on `/auth/callback` showing “Completando inicio de sesión / Validando permisos...”.
+
+**What I changed:**
+- Kept the existing callback return-path logic and dispatched a `popstate` event immediately after `replaceState` so the router processes the navigation and exits the callback screen.
+- Wrote the team decision note to `.squad/decisions/inbox/vasquez-admin-callback.md`.
+
+**Validation:**
+- ✅ `src/opplat-admin`: `npm run lint` PASS
+- ✅ `src/opplat-admin`: `npm run build` PASS
+
+**Key learning:**
+- In React Router SPAs, OIDC callbacks that mutate `window.history` directly must also trigger router-observable navigation (for example `popstate`, router navigate, or full `location.replace`) or the app can look broken even when authentication succeeded.

@@ -1,5 +1,62 @@
 # Opplat Squad — Decisions
 
+## Session 6 Decisions (2026-03-21 — Admin Callback Fix)
+
+### Admin SPA Post-Login Callback Handoff — Three-Agent Fix (Complete)
+**By:** Vasquez (Frontend), Hicks (Backend), Bishop (Tester)
+**Date:** 2026-03-21
+**Status:** ✅ COMPLETE — All agents delivered, issue resolved
+**What:** Fixed admin SPA callback routing handoff; verified role/claim contract alignment; added regression test coverage
+
+#### 1. Callback Router Navigation (Vasquez)
+**Root Cause:** `window.history.replaceState()` updates the address bar but does not notify `BrowserRouter` of the route change, leaving the SPA visually stuck on `/auth/callback` despite user session being restored.
+
+**Resolution:**
+- After `replaceState`, dispatch a `PopStateEvent` to notify `BrowserRouter`
+- Both admin and client SPAs now exit callback with hard navigation + router event
+- Files: `src/opplat-admin/src/auth/oidc.ts`, `src/opplat-react/src/auth/oidc.ts`
+
+**Why:** `BrowserRouter` only re-evaluates the current location when it receives a navigation event; soft URL rewrites bypass this notification channel.
+
+#### 2. Claim Shape Normalization (Hicks)
+**Root Cause:** Keycloak role claims can arrive in nested or flat dotted shapes depending on the library/runtime path; both backend and frontend claim readers needed to accept both shapes to prevent OIDC token processing failures.
+
+**Resolution:**
+- Backend: Updated `AuthClaimTypes.cs` and `OidcClaimsTransformation.cs` to normalize both nested (`realm_access.roles`, `resource_access.{client}.roles`) and flat dotted claim shapes
+- Frontend: Updated `claims.ts` in both admin and client apps for consistent claim reading
+- Role contract (`SuperAdmin`) unchanged; only claim reader flexibility expanded
+- Files: `src/Opplat.MainApp/Auth/AuthClaimTypes.cs`, `src/Opplat.MainApp/Auth/OidcClaimsTransformation.cs`, `src/opplat-admin/src/auth/claims.ts`, `src/opplat-react/src/auth/claims.ts`
+
+**Why:** Single-source claim payload can materialize differently depending on OIDC library and runtime; accepting both shapes is the minimal durable fix without reworking realm export or authorization policies.
+
+#### 3. Loading Gate Refinement (Bishop)
+**Root Cause:** Auth context loading gate checked `activeNavigator` state, which lingered briefly even after `oidc.user` and `isAuthenticated` were available, blocking UI exit from callback screen.
+
+**Resolution:**
+- Narrowed loading gate condition to not block once `oidc.user` and `isAuthenticated` are available
+- Added source-contract test coverage in `FrontendAuthContractTests.cs` to prevent regression
+- Files: `src/opplat-admin/src/auth/AuthContext.tsx`, `src/opplat-react/src/auth/AuthContext.tsx`, `test/Opplat.MainApp.Test/Auth/FrontendAuthContractTests.cs`
+
+**Why:** Restored user session should unblock the UI immediately; navigator bookkeeping is internal async detail, not a blocking gate.
+
+#### Validation
+✅ `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter Auth` — All auth tests pass
+✅ `dotnet build .\opplat.sln` — Build succeeds
+✅ `npm --prefix .\src\opplat-admin run build` — Admin frontend builds
+✅ `npm --prefix .\src\opplat-react run build` — Client frontend builds
+
+#### Acceptance Criteria Met
+✅ Admin SPA completes Keycloak login redirect successfully
+✅ UI exits `/auth/callback` and routes to dashboard
+✅ SuperAdmin users can access admin portal
+✅ Role/claim contract aligned across backend and both SPAs
+✅ Regression coverage added to prevent callback seam failures
+✅ No breaking changes to existing auth flow or role model
+
+**Status:** ✅ APPROVED & IMPLEMENTED
+
+---
+
 ## Session 5 Decisions (2026-03-21)
 
 ### Keycloak OIDC Scope & Role Model Alignment (Complete)

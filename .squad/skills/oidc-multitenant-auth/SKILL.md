@@ -45,8 +45,19 @@ Configure the same `Auth:Authority` env var to point at Keycloak locally and Aut
 ### Frontend
 Use `react-oidc-context` (wraps `oidc-client-ts`) — works with any OIDC provider. Avoid provider-specific SDKs to keep dev/prod parity.
 
+### SPA Callback Completion
+For `BrowserRouter`-based SPAs, treat the post-signin callback as a navigation seam, not just a URL rewrite. After `react-oidc-context` / `oidc-client-ts` finishes processing the signin response, prefer `window.location.replace(returnTo)` over `window.history.replaceState(...)` so the app deterministically leaves `/auth/callback` instead of relying on router-observed history mutation.
+
+When deriving frontend auth loading state, do not let `activeNavigator` alone keep the UI stuck once `oidc.user` or `isAuthenticated` is already present. Gate the loading spinner on unresolved navigation only, for example while navigator state exists **and** no authenticated user has been restored yet.
+
 ### Frontend Claim Normalization
 Normalize both Auth0 namespaced claims (for example `https://opplat.com/tenant_identifier`) and Keycloak flat claims (`tenant_identifier`) into a single frontend auth model. Keep that logic in one helper so route guards, layouts, and API interceptors all agree on the active tenant and roles.
+
+For Keycloak roles specifically, support **both** token shapes:
+- nested objects such as `realm_access.roles` / `resource_access.{client}.roles`
+- flat dotted claim keys such as `"realm_access.roles"` / `"resource_access.opplat-admin.roles"`
+
+Different libraries can materialize the same Keycloak token differently, so auth helpers should collect roles from both representations before evaluating `SuperAdmin`, `TenantAdmin`, or `TenantUser`.
 
 ### Tenant-Scoped SPA Requests
 For tenant-facing SPAs, persist the resolved tenant identifier after login, prefix tenant-scoped relative API URLs with `/{tenant}`, and also send `X-Tenant-Identifier`. The route prefix keeps URLs aligned with Finbuckle's primary strategy while the header provides a fallback for mixed backend surfaces and admin-style calls.
@@ -71,6 +82,11 @@ For Opplat, treat `openid profile email offline_access` as the intended SPA-requ
 **Critical: Never request `roles` as a scope parameter.** Keycloak does not expose `roles` as a requestable scope — it's a protocol mapper configuration attached via `defaultClientScopes`. Requesting `scope=...roles...` triggers `Invalid scopes` errors. Realm roles flow into tokens automatically via the client's default scope configuration.
 
 When debugging scope failures, inspect all four layers together: `runtimeConfig.ts`, `auth/oidc.ts`, `.env.example`, and Docker/runtime-config injection. A mismatch across those layers can produce a runtime scope string that is broader than the one documented in source.
+
+### SPA Callback Navigation
+In React Router SPAs, don't assume `window.history.replaceState(...)` is enough to leave an OIDC callback route. `BrowserRouter` may not observe that native history mutation, so the UI can stay stuck on `/auth/callback` even after the session is restored.
+
+If your OIDC library callback runs outside React, follow `replaceState` with a router-observable navigation signal such as dispatching `popstate`, using router navigation from a component, or falling back to `window.location.replace(...)`. This is especially relevant for `react-oidc-context` / `oidc-client-ts` callback hooks.
 
 
 ## References

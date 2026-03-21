@@ -1,4 +1,9 @@
-## Project Context
+## Core Context
+
+### Admin Callback Regression Testing & Validation (2026-03-21)
+Pinned root cause of post-login callback hang to callback-handoff seam and loading-gate condition. Added FrontendAuthContractTests.cs coverage for callback completion paths and user session restoration. Verified all auth tests pass, backend build succeeds, and both frontend builds complete without errors. Documented decision pattern: hard navigation + event dispatch is stronger contract than soft replaceState for BrowserRouter-based SPAs.
+
+### Phase 1: Test Framework Validation (2026-03-17)
 
 **Project:** Opplat — Multi-platform business management system (café/restaurant)
 **Requested by:** elvis.crego
@@ -221,6 +226,23 @@
 
 **Key takeaway:**
 - For fresh Keycloak 26 realm imports, a client reference to built-in scopes is not enough; the realm export must explicitly define the built-in client scopes or the imported realm can look fine in source while rejecting login scopes at runtime.
+
+### 2026-03-21: Admin callback regression pinned and guarded
+
+**What I pinned:**
+- The admin regression matched a frontend callback-handoff seam, not a Keycloak scope or backend-claims failure. After signin, the SPA could stay visually parked on `/auth/callback`, showing `Completando inicio de sesión / Validando permisos y recuperando la sesión administrativa.`
+- The risky seam was shared by both SPAs: callback completion relied on in-app history mutation, and auth loading also treated any `activeNavigator` value as blocking even after a user object existed.
+
+**What I changed:**
+- Swapped both SPA OIDC callback handlers to `window.location.replace(getReturnTo(user))` so the app performs a hard route transition off the callback page after signin.
+- Tightened both SPA auth providers so navigator state only keeps the UI loading while signin is unresolved (`activeNavigator` + no authenticated user), instead of blocking after the user is already restored.
+- Added regression guards in `test/Opplat.MainApp.Test/Auth/FrontendAuthContractTests.cs` for callback navigation and post-signin loading resolution.
+
+**Validation results:**
+- `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --nologo -v minimal` ✅ (40/40)
+- `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --nologo -v minimal --filter "FrontendAuthContractTests|KeycloakRealmContractTests|OidcClaimsTransformationTests"` ✅
+- `npm run build` in `src\opplat-admin` ✅
+- `npm run build` in `src\opplat-react` ✅
 
 ## Session 5 Sprint — Live Scope Fix Completion (2026-03-21)
 

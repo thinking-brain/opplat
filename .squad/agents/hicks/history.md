@@ -1,5 +1,8 @@
 ## Core Context
 
+### Admin Callback & Claim Contract Fix (2026-03-21)
+Normalized Keycloak role claims across backend auth to handle both nested (realm_access.roles, resource_access.{client}.roles) and flat dotted claim shapes. Updated AuthClaimTypes.cs and OidcClaimsTransformation.cs to accept both payload materializations without changing SuperAdmin role contract. Aligned with Vasquez's callback router fix and Bishop's regression testing; all validations pass.
+
 ### Finbuckle.MultiTenant Architecture (2026-02-27)
 Full multi-tenant implementation with per-database isolation, route-based tenant resolution (/{tenant}/...), and header fallback (X-Tenant-Identifier). Database-per-tenant isolation chosen for maximum security. JWT tokens include tenant_id and tenant_identifier claims. Configuration-based tenant store in appsettings.json with 3 sample tenants (mojocafe, demo, test).
 
@@ -228,4 +231,11 @@ Finbuckle 7.0.1 exposes root-namespace methods only (`UseMultiTenant`, `Configur
 **Test Harnesses:** Both FrontendAuthContractTests and KeycloakRealmContractTests are now permanent regression guards for scope contracts.
 
 **Status:** ✅ COMPLETE — Scope contract finalized across all layers, minimal corrections applied, team consensus recorded.
+
+### 2026-03-21: Admin post-login role-claim normalization
+
+- The admin portal and API both still require the `SuperAdmin` role after OIDC login; the seeded Keycloak `superadmin` user already matches that contract.
+- The fragile seam was claim shape, not role naming: Keycloak role mappers can surface roles either as nested `realm_access` / `resource_access` objects or as flat dotted claim keys such as `realm_access.roles`.
+- I normalized both backend and SPA claim readers to accept either shape, which removes a silent source of post-login authorization failures without changing the role model itself.
+- Validation passed with `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter Auth`, `dotnet build .\opplat.sln`, `npm --prefix .\src\opplat-admin run build`, and `npm --prefix .\src\opplat-react run build`.
 
