@@ -4,7 +4,13 @@
 **Stack:** ASP.NET Core (net10.0) | React 18 | OIDC (Auth0/Keycloak) | Vite  
 **Root:** C:\projects\personal\opplat | **Branch:** develop
 
-### Recent Sessions (2026-03-22)
+### Recent Sessions (2026-03-23)
+
+**Session 15: Admin Tenant Boundary Refactor — Frontend Alignment** — Aligned admin SPA to enforce tenant catalog scope. Removed admin-side user management: deleted `UsersPage.tsx`, removed user CRUD API methods from `admin.api.ts`, removed user-related types from TypeScript interfaces, removed `/users` route from navigation. Updated `TenantsPage` to accept `databaseName` and `schema` instead of `connectionString`. Updated `DashboardPage` to show tenant metrics with `userCount` aggregation (no user details). Updated `AdminTenant` interface to reflect new contract (no `ConnectionString`, added `databaseName`, `schema`, `userCount`). Updated `SettingsPage` to remove tenant selection state. All builds and lint checks passing. Admin now handles only tenant catalog (create, list, update, deactivate) with subscription visibility via user counts.
+
+### Prior Recent Sessions (2026-03-23)
+
+**Session 15: Admin Boundary Alignment — Users Moved to Tenant Scope** — Restructured admin API and client to enforce hard boundary: users are now fully tenant-managed, not admin-managed. Backend: updated `AdminTenantDto` to drop `ConnectionString` and add `DatabaseName`, `Schema`, `UserCount`. Removed user DTOs (`AdminUserDto`, `AdminCreateUserRequest`, `AdminUpdateUserRequest`, `AdminSetUserRolesRequest`, `AdminSetUserActiveRequest`) from admin contracts. Frontend: removed `UsersPage.tsx` entirely, deleted all user CRUD endpoints from `adminApi`, updated `AdminTenant` interface to reflect new schema. Updated `TenantsPage` form to accept `databaseName` and `schema` fields. Updated `DashboardPage` to show only tenant-level metrics with `userCount` rollup. Removed `tenantSelection` state from `SettingsPage`. Admin now handles only tenant catalog (create, list, update, deactivate). All builds and compiles green.
 
 **Session 14: Admin API Tenant/User Contract Delivery** — Implemented dedicated admin-api endpoints matching the current admin React pages: `/admin/tenants`, `/admin/users`, and tenant-scoped user mutations under `/admin/tenants/{tenantIdentifier}/users...`. Data endpoints are now callable without auth, persist tenant catalog to `src\Opplat.AdminApi\Data\tenant-catalog.json`, provision tenant identity storage from the supplied SQL Server connection string, and return frontend-aligned payloads/status codes. Verified via live smoke calls: tenant create/list, tenant user create/list, and invalid connection-string create returning HTTP 400.
 

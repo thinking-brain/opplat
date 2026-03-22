@@ -1894,3 +1894,74 @@ All checks passed:
 - Separate DB keeps admin schema simple (no multi-tenant requirement)
 - docker-compose.override.yml can override credentials for local dev
 - Session marked complete. Next phase: Finbuckle multi-tenant (if admin serves multiple orgs), read replicas/sync pattern, Keycloak hardening.
+
+---
+
+## Session 14 Decisions (2026-03-23 — Admin Tenant Boundary Refactor)
+
+### 1. Admin API Boundary Shift — User & Connection Isolation (Ripley)
+
+**Decision Date:** 2026-03-23  
+**Requested by:** elvis.crego  
+**Status:** ✅ APPROVED & IMPLEMENTED
+
+**Directive:** Admin API should not own tenant users. Tenant users belong to each tenant's own database. Admin API should only track user COUNT for subscription enforcement. Tenant records should store `DatabaseName` + `Schema` instead of full `ConnectionString`.
+
+**Rationale:**
+1. **Separation of Concerns:** Admin manages tenant catalog and subscription enforcement. Tenant manages its own users. Clean boundary.
+2. **Security:** Admin never sees full connection strings. Connection builder lives in runtime resolver using `DatabaseName` + `SchemaName` + shared credentials from vault/config.
+3. **Scalability:** Each tenant can scale user management independently. Admin doesn't become a bottleneck.
+4. **Subscription Enforcement:** `MaxUsers` and `CurrentUserCount` on tenant record. Tenant app calls admin API to report user count changes, or admin polls periodically.
+
+**Architecture Changes:**
+
+*Backend (`Opplat.AdminApi`):*
+- Removed `AdminTenantUser` entity and all user CRUD handlers
+- Updated `AdminTenantInfo` schema: added `DatabaseName`, `DatabaseSchema`, `MaxUsers`, `CurrentUserCount`; removed `ConnectionString`
+- Removed `/admin/users` and `/admin/tenants/{id}/users*` endpoints
+- Updated DTOs and request contracts (`AdminContracts.cs`) to match new shape
+- Added `UpdateTenantUserCountCommand` for subscription tracking callback
+
+*Frontend (`src/opplat-admin`):*
+- Deleted `UsersPage.tsx` (users are tenant-managed, not admin-managed)
+- Updated `TenantsPage.tsx`, `DashboardPage.tsx`, `SettingsPage.tsx` for catalog-only scope
+- Removed user CRUD API methods; kept tenant CRUD
+- Updated types to reflect new contract (no `ConnectionString`, added `databaseName`/`schema`/`userCount`)
+- Removed `/users` route and navigation item
+
+*Testing (`test/Opplat.MainApp.Test`):*
+- Reset admin contract tests to enforce new boundary (require databaseName/schema/userCount)
+- Updated `FrontendAuthContractTests` to not expect user management routes or bearer tokens
+- All 65 backend tests pass; frontend builds without errors
+
+**Validation:**
+- ✅ `dotnet build src\Opplat.AdminApi\Opplat.AdminApi.csproj --no-restore`
+- ✅ `dotnet test test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --no-restore` (65/65 pass)
+- ✅ `npm --prefix src\opplat-admin run lint`
+- ✅ `npm --prefix src\opplat-admin run build`
+- ✅ `docker compose config --quiet`
+
+**Security Impact:**
+- **Positive:** Connection strings never exposed in admin UI; stored and used only in backend.
+- **Positive:** Clear separation of concerns—admin doesn't see user details.
+- **Positive:** Each tenant independently manages its own user security policy.
+
+**Acceptance Criteria:**
+- Admin API owns only tenant catalog metadata ✅
+- All user CRUD removed from admin API ✅
+- Connection strings factored into DatabaseName/Schema ✅
+- Frontend aligned to new contract ✅
+- Regression coverage enforces new boundary ✅
+- All tests pass; docker-compose valid ✅
+
+**Next Phase:**
+- Tenant selector UI for main applications
+- Keycloak client hardening (confidential + secret)
+- User count sync pattern (tenant → admin callback or admin polling)
+- Database migration scripting for existing deployments
+
+**Team:**
+- **Ripley:** Architecture review & approval
+- **Hicks:** Backend refactor (models, handlers, endpoints, commands)
+- **Vasquez:** Frontend alignment (pages, types, routes, API client)
+- **Bishop:** Validation & regression coverage enforcement

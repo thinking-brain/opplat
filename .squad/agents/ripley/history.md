@@ -4,7 +4,15 @@
 **Role:** Architect, senior reviewer, design validation  
 **Root:** C:\projects\personal\opplat | **Branch:** develop
 
-### Recent Sessions (2026-03-22)
+### Recent Sessions (2026-03-23)
+
+**Session 18: Admin Tenant Boundary Refactor — Architecture Validation & Approval** — Reviewed and approved Elvis's directive to remove users from admin database scope and replace full connection strings with DatabaseName+SchemaName. APPROVED with full contract specification for backend/frontend/testing. Key decision: Admin API becomes a thin tenant catalog system. Users move to tenant-owned databases. Admin tracks MaxUsers/CurrentUserCount for subscription enforcement only. Major architectural boundary correction — admin is no longer responsible for user management. Hicks implemented backend changes (model/handlers/endpoints), Vasquez aligned frontend (removed UsersPage, updated tenant forms, updated types), Bishop enforced new boundary in regression tests. All validation passed: dotnet build, dotnet test (65/65), npm lint, npm build, docker compose config. Wrote comprehensive decision document with migration notes and rejected alternatives.
+
+### Prior Recent Sessions (2026-03-23)
+
+**Session 17: Admin API Boundary Shift Review — User & Connection Isolation** — Reviewed Elvis's proposal to remove users from admin DB and replace full connection strings with DatabaseName+SchemaName. APPROVED with full boundary definition. Key changes: (1) Users move to tenant-owned databases, admin only tracks user count for subscription enforcement; (2) AdminTenantInfo loses ConnectionString, gains DatabaseName, SchemaName, MaxUsers, CurrentUserCount; (3) Delete all user CRUD handlers/endpoints; (4) Add tenant callback endpoint for user count updates. Wrote decision note with detailed contract changes for Hicks (backend), Vasquez (frontend), Bishop (tests), Hudson (migrations). This is a major boundary correction — admin becomes a thin tenant catalog, not a user management system.
+
+### Prior Sessions (2026-03-22)
 
 **Session 16: Admin API MediatR + PostgreSQL Migration — Architecture Review & Approval** — Reviewed and approved user request to replace stores/services with MediatR handlers and switch to PostgreSQL. Approved with guidance (2026-03-22T22:27:00Z). Key findings: (1) AdminPortalStore is mock in-memory data, not persisted; (2) MediatR pattern already established in MainApp; (3) Npgsql already referenced in csproj. Decision: separate postgres container for admin-api only, dedicated AdminDbContext for tenant/user CRUD, handler pattern mirroring MainApp/Features. Auth pipeline and endpoint contracts FROZEN — implementation touches business logic only. Ripley-approved boundaries: MUST PRESERVE auth pipeline (cookie/OIDC/JWT), endpoint contracts (/admin/* routes), session contracts (DTO shapes locked). MUST AVOID modifying MainApp DB config, sharing DbContext, adding postgres dependency to other services. Hudson/Hicks/Bishop coordinated execution. All tests passing (65/65), docker-compose valid, builds green. Session complete.
 
@@ -31,6 +39,7 @@
 3. **Two-Client OIDC Model** — Separate clients for admin and client apps; zero infrastructure cost in Keycloak (per-instance, not per-client)
 4. **Admin Module Location** — Standalone admin app (`src/opplat-admin/`), not built into MainApp; cleaner separation, future flexibility
 5. **Admin API MediatR + PostgreSQL** — Replace mock stores with MediatR handlers, dedicated postgres instance for admin-api; auth pipeline frozen, handlers get DbContext directly
+6. **Admin Boundary Shift — User & Connection Isolation** — Admin API owns tenant catalog only, not users. Users belong to tenant DBs. Admin tracks MaxUsers/CurrentUserCount for subscription enforcement. ConnectionString replaced with DatabaseName+SchemaName (credentials resolved at runtime).
 
 ### Key Architectural Patterns
 

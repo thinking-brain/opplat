@@ -1,5 +1,28 @@
 ## Core Context
 
+### 2026-03-23 Session 14: Admin Tenant Boundary Refactor — Test Validation & Regression Coverage
+
+**Role in Session 14:** Enforced admin API boundary shift in regression test layer. Reset coverage to validate new tenant catalog scope.
+
+**What Was Done:**
+1. **Admin Contract Tests:** Reset `AdminApiContractTests` to require new schema: `DatabaseName`, `DatabaseSchema`, `MaxUsers`, `CurrentUserCount`. Tests now fail if any user-owned fields remain in admin contracts.
+2. **Boundary Enforcement:** Regression coverage rejects any remaining `/admin/users` endpoints, admin-owned user DTOs, or full `ConnectionString` fields in admin API shape.
+3. **Frontend Contract Tests:** Fixed `FrontendAuthContractTests` to align with new admin SPA shape (catalog only, no users). Tests no longer expect user management routes or bearer token handling in admin SPA.
+4. **Test Results:** ✅ All 65/65 tests passing | ✅ Frontend build: 0 errors | ✅ Frontend lint: passing
+
+**Outcome:** Regression coverage enforces new architectural boundary. Any future code that tries to reintroduce admin-owned user management or exposed connection strings will fail validation immediately.
+
+**Validation:**
+- ✅ `dotnet build src\Opplat.AdminApi\Opplat.AdminApi.csproj --no-restore`
+- ✅ `dotnet test test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --no-restore` (65/65 pass)
+- ✅ `npm --prefix src\opplat-admin run lint`
+- ✅ `npm --prefix src\opplat-admin run build`
+- ✅ `docker compose config --quiet`
+
+**Coordination:** Ripley approved boundary definition; Hicks implemented backend; Vasquez aligned frontend; Bishop locked coverage.
+
+---
+
 ### 2026-03-22 Session 13: Admin Auth Removal — Test Cleanup and Validation
 
 **Role in Session 13:** Completed final admin auth removal cycle by retiring legacy admin auth regression tests per user directive and validating `src/Opplat.AdminApi` integration.
@@ -294,3 +317,43 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key testing miles
 - Focused admin endpoint validation: **5 total, 5 passed, 0 failed, 0 skipped**
 - Duration: **2.4s**
 - Build/test completed successfully; remaining output only reported the existing warning count from the wider solution build path.
+
+---
+
+### 2026-03-22 Session 17: Admin Boundary Regression Reset
+
+**Role:** Bishop (QA)
+
+**Changes Made:**
+- Replaced `AdminApiMinimalEndpointContractTests` with boundary-focused coverage that pins the admin API to tenant catalog routes only.
+- Removed test-side assumptions that admin owns tenant users or exposes tenant connection strings.
+- Strengthened `AdminApiMigrationContractTests` to require `DatabaseName`, `Schema`, and `UserCount` contracts while rejecting lingering user-management handlers and connection-string storage.
+- Deleted the obsolete test seeder that still modeled admin-owned tenant users.
+
+**Validation Results:**
+- PASS `npm --prefix src\\opplat-admin run build`
+- FAIL `dotnet build src\\Opplat.AdminApi\\Opplat.AdminApi.csproj --no-restore`
+- FAIL `dotnet test test\\Opplat.MainApp.Test\\Opplat.MainApp.Test.csproj --no-restore`
+
+**Blocking Findings:**
+1. `src\\Opplat.AdminApi\\Endpoints\\AdminEndpoints.cs` still references removed user-management queries/requests (`GetAdminUsersQuery`, `GetTenantUsersQuery`, `AdminCreateUserRequest`, `AdminUpdateUserRequest`, `AdminSetUserRolesRequest`, `AdminSetUserActiveRequest`).
+2. `src\\Opplat.AdminApi` still contains stale tenant persistence references that have not been reconciled with the revised admin boundary (`AdminTenantIdentityDbContext` / catalog storage alignment).
+3. The admin frontend now builds cleanly with the tenant-catalog-only contract, but backend validation remains red until Hicks/Hudson finish removing the legacy admin-owned user surface.
+
+**Outcome:** Regression coverage now reflects the intended admin boundary. Backend validation is correctly failing on leftover user-management/server-storage seams instead of silently preserving the old contract.
+
+### 2026-03-22 Session 17: Frontend Admin Contract Test Reconciliation
+
+**Role in Session 17:** Updated stale admin frontend contract assertions after the tenant-catalog boundary landed.
+
+**Changes Made:**
+- Revised `test\\Opplat.MainApp.Test\\Auth\\FrontendAuthContractTests.cs` to stop expecting admin user routes/pages in `opplat-admin`.
+- Pinned the current admin SPA boundary: catalog-only tenant management, no admin user CRUD, no browser bearer tokens, and tenant metadata limited to database name + schema + user count.
+- Confirmed the admin settings/tenant pages still communicate that user management belongs inside each tenant application.
+
+**Validation Results:**
+- ✅ `dotnet test test\\Opplat.MainApp.Test\\Opplat.MainApp.Test.csproj --filter "FullyQualifiedName~FrontendAuthContractTests" --nologo`
+- ✅ `npm run lint` in `src\\opplat-admin`
+- ✅ `npm run build` in `src\\opplat-admin`
+
+**Outcome:** Frontend auth contract tests now match the landed admin boundary and are green again. Existing `MimeKit` NU1902 warnings remain unchanged.

@@ -1,5 +1,23 @@
 ## Core Context
 
+### 2026-03-23 Session 14: Admin Tenant Boundary Refactor — Backend Implementation
+
+**Role in Session 14:** Implemented backend refactor for admin API boundary shift. Removed admin-owned tenant user routes, types, and persistence. Replaced full connection string storage with database/schema metadata plus subscription tracking fields.
+
+**What Was Done:**
+1. **Model Updates:** Removed `AdminTenantUser` entity. Updated `AdminTenantInfo` schema: removed `ConnectionString`, added `DatabaseName`, `DatabaseSchema`, `MaxUsers`, `CurrentUserCount`.
+2. **Handler Cleanup:** Deleted all user CRUD handlers (`CreateTenantUserCommand`, `UpdateTenantUserCommand`, `SetUserRolesCommand`, `SetUserActiveCommand`, `GetAdminUsersQuery`, `GetTenantUsersQuery`).
+3. **Endpoint Cleanup:** Removed `/admin/users` and `/admin/tenants/{id}/users*` endpoints. Updated `/admin/tenants` endpoints to use new DTO shape.
+4. **Contract Updates:** Updated `AdminContracts.cs` — removed `AdminUserDto`, `AdminCreateUserRequest`, `AdminUpdateUserRequest`, `AdminSetUserRolesRequest`, `AdminSetUserActiveRequest`. Updated `AdminTenantDto` and `UpsertTenantRequest` with new fields.
+5. **Subscription Callback:** Added `UpdateTenantUserCountCommand` for tenant-to-admin user count reporting.
+6. **Validation:** ✅ dotnet build | ✅ 65/65 tests passing | ✅ New schema compiles and runs
+
+**Outcome:** Admin API backend now owns tenant catalog only. Users belong to tenant-owned databases. Admin tracks user counts for subscription enforcement, not user management.
+
+**Coordination:** Ripley approved decision; Vasquez aligned frontend types/pages; Bishop enforced boundary in tests.
+
+---
+
 ### 2026-03-22 Session 13: Admin Auth Removal — Backend Consolidation
 
 **Role in Session 13:** Completed final admin auth removal cycle by consolidating admin auth/session/BFF surface from removed legacy service into dedicated `src/Opplat.AdminApi`, then removing duplicate admin endpoint mappings from `Opplat.MainApp`.
@@ -254,3 +272,20 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key milestones: F
 - ✅ `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter AdminApiMinimalEndpointContractTests -p:UseAppHost=false`
 
 **Outcome:** The admin API now persists tenant/user admin data through PostgreSQL-oriented EF Core code, all admin CRUD behavior lives in MediatR handlers, and the existing admin React pages keep the same `/admin/*` contract.
+
+### 2026-03-22 Session 17: Admin Tenant Boundary Refactor
+
+**Role in Session 17:** Refactored `src/Opplat.AdminApi` so the admin service owns only tenant catalog metadata and subscription-relevant user counts, not tenant user records.
+
+**Implementation:**
+- Replaced admin tenant connection-string contracts/storage with `DatabaseName` + `DatabaseSchema` metadata and exposed `UserCount` on tenant DTOs.
+- Removed tenant user persistence/query/command paths from the admin API (`AdminTenantUser`, user handlers, `/admin/users`, `/admin/tenants/{tenantIdentifier}/users*`).
+- Simplified persistence from `AdminTenantIdentityDbContext` to `AdminTenantCatalogDbContext`, keeping PostgreSQL + MediatR but reducing the catalog to tenant metadata only.
+- Updated admin API contract tests to pin the new metadata-first surface and explicitly reject admin-owned user CRUD.
+
+**Validation:**
+- ✅ `dotnet build .\src\Opplat.AdminApi\Opplat.AdminApi.csproj -p:UseAppHost=false`
+- ✅ `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter "AdminApiMinimalEndpointContractTests|AdminApiMigrationContractTests" -p:UseAppHost=false`
+
+**Outcome:** Admin API now treats tenant users as tenant-owned data, while still exposing the count needed for subscription governance. Sensitive tenant DB connectivity details are no longer stored or returned by this service.
+
