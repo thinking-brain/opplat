@@ -1,5 +1,22 @@
 ## Core Context
 
+### 2026-03-22 Session 12: Admin Client Admin-API Alignment Validation
+
+**Role in Session 12:** Verified admin client properly targets dedicated admin API for both data calls and auth/BFF flow.
+
+**Validation:**
+- Admin client proxies `/admin/*` and `/auth/*` through Vite/Nginx to dedicated admin-api service
+- `VITE_ADMIN_API_URL` correctly set to `http://localhost:8084`
+- `VITE_BFF_BASE_URL` falls back to `VITE_ADMIN_API_URL` as expected
+- Same-origin browser behavior preserved for cookie/CSRF flow
+- No regression in existing auth flow or routing
+
+**Outcome:** Admin frontend is properly isolated to admin API backend. Cookie/CSRF flow preserved without code changes.
+
+**Coordination:** Hudson confirmed admin-api container health; Hicks fixed startup routing issue.
+
+---
+
 ### 2026-03-22 Session 12: Temporary Admin Shell Mode Frontend Implementation
 
 **Role in Session 12:** Implemented minimal authenticated shell by adding `TemporaryAdminShell` component and collapsing feature routes while preserving auth flow.

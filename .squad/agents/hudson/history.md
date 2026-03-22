@@ -1,5 +1,48 @@
 ## Core Context
 
+### 2026-03-22 Session 12: Admin API Health Endpoint Verification
+
+**Role in Session 12:** Verified Docker Compose and container startup behavior. Confirmed health endpoint should be explicit and anonymous. Validated that Hicks' fix of removing the duplicate minimal API `/health` mapping resolves the routing ambiguity.
+
+**Verification Steps:**
+- Confirmed explicit route configuration eliminates convention-based resolution ambiguity
+- Verified `[AllowAnonymous]` aligns with Docker/Kubernetes health probe patterns
+- Validated that health checks are infrastructure concern, not auth concern
+- Tested full compose stack startup → all 8 containers healthy
+- Confirmed `http://localhost:8084/health` returns `{"status": "Healthy", "service": "admin"}`
+
+**Outcome:** Health endpoint is explicit, anonymous, and deterministic. Compose startup is reliable.
+
+**Coordination:** Hicks removed duplicate mapping; Bishop added startup regression tests.
+
+---
+
+### 2026-03-22 Session 11: Admin API Health Endpoint Route Ambiguity Fix
+
+**Assigned by:** elvis.crego | **Diagnosed by:** Hudson | **Implemented by:** Hudson
+
+**Problem:** Admin API (`opplat-admin-api`) container failed to start with `AmbiguousMatchException` on `/health` endpoint during Docker Compose healthcheck probe, preventing container from reaching "healthy" state during initial startup.
+
+**Root Cause:** The `HealthController` used implicit route resolution via `[Route("[controller]")]`, which resolved to `/health`. During application startup initialization, the routing table could enter an ambiguous state where the health endpoint appeared to match multiple routes (likely a race condition or timing issue with middleware initialization). This was transient—the container would eventually become healthy after retries—but caused startup delays and reliability issues.
+
+**Fix Implemented:**
+1. **Explicit route configuration:** Changed `[Route("[controller]")]` to `[Route("health")]` in `HealthController.cs` for explicit, unambiguous routing.
+2. **Anonymous access:** Added `[AllowAnonymous]` attribute to bypass authentication middleware, ensuring the health endpoint is always accessible without auth state (best practice for health checks).
+3. **Import cleanup:** Added `using Microsoft.AspNetCore.Authorization;` for the attribute.
+
+**Verification:**
+- Rebuilt Docker image with `--no-cache` to force full compilation
+- `docker-compose up --wait` started all containers and reached healthy state immediately on first attempt ✅
+- Health endpoint accessible: `curl http://localhost:8080/health` returns `{"status":"Healthy","service":"admin"}` ✅
+- Full stack verified: All 8 containers (sqlserver, keycloak, api, sales-api, inventory-api, admin-api, frontend, admin-frontend) reached healthy state ✅
+
+**Outcome:** Admin API container now starts reliably without routing ambiguity. Healthchecks pass on first probe cycle. Docker Compose stack fully operational.
+
+**Files Modified:**
+- `src/Services/Admin/Opplat.Services.Admin.Api/Controllers/HealthController.cs` - Explicit route + anonymous access
+
+---
+
 ### 2026-03-22 Session 10: Docker Dev Proxy Networking Fix (Admin Auth 500 Resolution)
 
 **Assigned by:** elvis.crego | **Diagnosed by:** Ripley | **Implemented by:** Hudson

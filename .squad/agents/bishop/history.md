@@ -1,5 +1,25 @@
 ## Core Context
 
+### 2026-03-22 Session 12: Admin API Startup Regression Coverage
+
+**Role in Session 12:** Added focused startup-contract assertions to pin admin API compose port binding, `/health` probe path, controller mapping, and Dockerfile runtime entrypoint.
+
+**Coverage Added:**
+- File: `test/Opplat.MainApp.Test/Auth/AdminApiSplitContractTests.cs`
+- Assertions: Admin API compose port `8084`, `/health` probe returns 200, `HealthController` explicit route, Dockerfile entrypoint correct
+- Container health check: Verified `docker compose up -d admin-api` yields healthy container
+- Validation stance: Startup is green only when source contracts pass **and** `http://localhost:8084/health` responds
+
+**Test Results:**
+- ✅ Focused AdminApi startup regression tests pass
+- ✅ No regressions in existing test suite
+
+**Outcome:** Startup regression coverage locked. Compose startup is deterministic and verifiable.
+
+**Coordination:** Hicks removed duplicate routing; Hudson verified health endpoint behavior.
+
+---
+
 ### 2026-03-22 Session 12: Temporary Admin Shell Mode Test Coverage
 
 **Role in Session 12:** Locked temporary admin shell mode contract by implementing focused regression tests covering feature gating and auth boundary preservation.
@@ -135,6 +155,7 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key testing miles
 
 ## Learnings
 
+- For dedicated microservice startup regressions, the most reliable guard is a split contract: pin compose port/env wiring (`ASPNETCORE_URLS=http://+:8080`), the Dockerfile runtime entrypoint/exposed port, and `Program.cs` controller mapping together, then confirm the live `/health` probe answers from the compose-published host port.
 - Final admin login recovery is pinned at the frontend auth seam, not the realm-client seam alone: `AuthContext.tsx` must treat a restored non-expired OIDC user as authenticated, and `AuthCallbackPage.tsx` / `ProtectedRoute.tsx` must prefer that recovered session over transient shared auth errors.
 - Keeping `opplat-client` and `opplat-admin` as separate public Keycloak clients remains the supported contract even with one shared backend audience; the regression suite now treats that separation plus callback recovery as the intended model.
 - The repo already protects the admin SPA CORS/origin contract for `http://localhost:3201`: `KeycloakRealmContractTests` pins `opplat-admin` origins to `3101/3201/5174`, so a live token-endpoint CORS miss can still point to a stale running Keycloak realm rather than bad source.

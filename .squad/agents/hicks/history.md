@@ -1,5 +1,27 @@
 ## Core Context
 
+### 2026-03-22 Session 12: Admin API Compose Startup Fix
+
+**Role in Session 12:** Fixed admin API Docker Compose startup failure by removing duplicate `/health` endpoint mapping that created routing ambiguity.
+
+**Problem:** Docker Compose health check reported service failure because `/health` endpoint threw `AmbiguousMatchException`. Both `HealthController.Get()` and minimal API `app.MapGet("/health", ...)` were matching the same route during startup.
+
+**Solution:**
+- File: `src/Services/Admin/Opplat.Services.Admin.Api/Program.cs`
+- Removed: Duplicate minimal API `/health` mapping
+- Preserved: Full admin BFF/session contract (`/admin/session/*`, `/auth/bff/admin/*`)
+
+**Validation:**
+- ✅ `dotnet build ./src/Services/Admin/Opplat.Services.Admin.Api/Opplat.Services.Admin.Api.csproj`
+- ✅ `docker compose up -d --build admin-api` → service reaches healthy state
+- ✅ `GET http://localhost:8084/health` returns HTTP 200 Healthy|admin
+
+**Outcome:** Admin API starts reliably without routing ambiguity. Compose stack fully operational.
+
+**Coordination:** Hudson verified health endpoint behavior; Bishop validated startup regression tests.
+
+---
+
 ### 2026-03-22 Session 12: Temporary Admin Shell Mode Backend Implementation
 
 **Role in Session 12:** Implemented minimal admin shell mode by adding configuration flag, gating non-critical feature endpoints, and preserving core auth seam.
@@ -144,3 +166,4 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key milestones: F
 - Admin auth/session is currently tenant-optional by design: `TenantValidationMiddleware` should bypass `/auth/bff/admin/*`, `/admin/session*`, and the OIDC callback paths so SuperAdmin login/bootstrap never depends on tenant claims.
 - Admin BFF return URLs should use an explicit `Auth:AdminBff:DefaultOrigin` (`http://localhost:3201`) instead of relying on the first `AllowedOrigins` entry; the redirect logic lives in `src/Opplat.MainApp/Features/Admin/AdminEndpoints.cs`.
 - `Program.cs` now tolerates the legacy config key `Auth:ClientIdAdmin` as an override for `Auth:AdminBff:ClientId`, which keeps current compose/runtime wiring working while the team finishes auth simplification.
+- In the dedicated admin microservice, `/health` must be owned by a single endpoint; keeping both `HealthController.Get` and `app.MapGet("/health", ...)` causes `AmbiguousMatchException`, which breaks Docker health checks and leaves the container unhealthy even though the app booted.
