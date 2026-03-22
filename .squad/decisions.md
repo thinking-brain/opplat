@@ -1318,3 +1318,49 @@ Old browser entries such as `oidc.user:*` and pending `oidc.*` state payloads ca
 
 **Lesson Captured:** When HTTP 500 appears in dev flow, trace the full request path (frontend → Vite proxy → backend) before adding conditional environment/code logic. The networking layer issue was upstream of the HTTPS redirect.
 
+---
+
+### 4. Admin Auth Runtime Brittleness Fix (Vasquez)
+**Decision Date:** 2026-03-22  
+**Agent:** Vasquez (Frontend Runtime)  
+**Status:** ✅ IMPLEMENTED  
+
+**Decision:** Fix frontend runtime brittleness in admin `AuthContext` bootstrap by deduplicating in-flight session restore, tolerating transient CSRF bootstrap failure, and preventing React dev double-mount crashes.
+
+**Root Causes Addressed:**
+1. React 18 StrictMode double-mount amplifies transient backend failures during session restore
+2. CSRF bootstrap failure on `/admin/session/csrf` treated as hard prerequisite for authentication
+3. In-flight session restore requests duplicated across mounts, creating noise and increasing failure rate
+
+**Implementation:**
+- Deduplicate `restoreSession()` with shared in-flight promise ref (`sessionRestorePromise`) → eliminates double-fetch in dev
+- Tolerate transient CSRF bootstrap failure → session restore succeeds independently; CSRF reacquired lazily on first mutating request
+- Separate CSRF token fetch from session restoration critical path
+
+**Rationale:**
+- Backend already re-acquires CSRF tokens per-request via `buildCsrfHeaders()`, so failing auth when CSRF bootstrap is temporarily unavailable is unnecessarily brittle
+- Deduplication mirrors production SPA behavior where React StrictMode is disabled
+- Lazy CSRF reacquisition matches backend design: tokens are short-lived and re-fetched anyway
+
+**Outcome:** Admin auth bootstrap is now resilient to transient backend failures and React dev-mode double-mounts. No backend code changes required.
+
+---
+
+### 5. Admin Auth Backend Seam Verification (Hicks)
+**Decision Date:** 2026-03-22  
+**Agent:** Hicks (Backend Integration)  
+**Status:** ✅ COMPLETE  
+
+**Decision:** Verify admin auth endpoints pass comprehensive contract tests covering both authentication and authorization boundaries.
+
+**Verification Scope:**
+- `GET /admin/session/current-user` — Anonymous: 401, Authenticated SuperAdmin: 200 with session payload
+- `GET /admin/session/csrf` — Anonymous: 401, Authenticated SuperAdmin: 200 with `{ headerName, requestToken }`
+- Backend contract stability, no regression detected
+
+**Test Execution:**
+- `dotnet test test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter FullyQualifiedName~AuthEndpointAuthorizationIntegrationTests`
+- Result: **17/17 tests passed**
+
+**Outcome:** Backend seam is operationally correct. If browser sees `403 Unauthorized`, cause is authorization (user missing `SuperAdmin` role), not backend contract regression. Frontend runtime brittleness fix is independent of backend correctness.
+

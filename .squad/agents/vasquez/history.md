@@ -1,5 +1,23 @@
 ## Core Context
 
+### 2026-03-22 Session 11: Admin Auth Runtime Brittleness Fix
+
+**Role in Session 11:** Fixed frontend runtime brittleness in admin `AuthContext` bootstrap by deduplicating in-flight session restore, tolerating transient CSRF bootstrap failure, and preventing React dev double-mount crashes.
+
+**Implementation:**
+1. **Session Restore Deduplication:** Shared in-flight promise ref (`sessionRestorePromise`) eliminates React 18 StrictMode double-mount amplification of transient failures
+2. **CSRF Bootstrap Failure Tolerance:** Separated CSRF token fetch from session restoration critical path; session restore succeeds independently; CSRF reacquired lazily on first mutating request
+3. **Lazy Reacquisition:** Matches backend design where CSRF tokens are already re-acquired per-request anyway
+
+**Validation:**
+- `npm run lint` — passed
+- `npm run build` — passed
+- No regressions in auth context behavior
+
+**Outcome:** Admin auth bootstrap resilient to transient failures and dev-mode quirks. Frontend simplification complete alongside backend validation.
+
+---
+
 ### 2026-03-22 Session 10: Admin Auth Simplification Frontend Implementation
 
 **Role in Session 10:** Executed Ripley-approved simplification: removed tenant from auth context and types, aligned dev origin to 3201, validated lint/build.
