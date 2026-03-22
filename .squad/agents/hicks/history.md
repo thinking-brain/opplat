@@ -200,3 +200,57 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key milestones: F
 - Admin BFF return URLs should use an explicit `Auth:AdminBff:DefaultOrigin` (`http://localhost:3201`) instead of relying on the first `AllowedOrigins` entry; the redirect logic lives in `src/Opplat.MainApp/Features/Admin/AdminEndpoints.cs`.
 - `Program.cs` now tolerates the legacy config key `Auth:ClientIdAdmin` as an override for `Auth:AdminBff:ClientId`, which keeps current compose/runtime wiring working while the team finishes auth simplification.
 - In the dedicated admin microservice, `/health` must be owned by a single endpoint; keeping both `HealthController.Get` and `app.MapGet("/health", ...)` causes `AmbiguousMatchException`, which breaks Docker health checks and leaves the container unhealthy even though the app booted.
+- 2026-03-22: For dedicated admin CRUD in `src/Opplat.AdminApi`, the clean persistence seam is a single PostgreSQL-backed Identity `DbContext` that also owns tenant catalog rows; MediatR handlers can query/update that context directly while tests swap it to EF InMemory and reuse the same seeder.
+
+### 2026-03-22 Session 14: Admin Tenant/User Minimal API Delivery
+
+**Role in Session 14:** Implemented the admin client's current tenant and user management surface directly in src/Opplat.AdminApi with minimal APIs that work without auth gating.
+
+**Implementation:**
+- Added functional /admin/tenants, /admin/users, and /admin/tenants/{tenantIdentifier}/users* endpoints in Opplat.AdminApi.
+- Backed the new admin surface with an in-memory AdminPortalStore seeded with realistic tenant/user placeholder data so the existing admin pages can load, create, update, deactivate, and toggle state immediately.
+- Kept auth middleware/seams intact for later hardening, but made the current AdminOnly policy permissive so admin pages are usable before auth is finalized.
+
+**Validation:**
+- ✅ dotnet build .\src\Opplat.AdminApi\Opplat.AdminApi.csproj -p:UseAppHost=false
+- ✅ dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter AdminApiMinimalEndpointContractTests -p:UseAppHost=false
+- ✅ Manual smoke test of tenant/user CRUD and tenant-header mismatch on http://127.0.0.1:5099
+
+**Outcome:** Admin API now serves the existing admin client tenant/user pages with stable minimal-API contracts and no auth dependency, while leaving room to swap the placeholder store for real persistence later.
+
+---
+
+### 2026-03-22 Session 16: Admin API MediatR + PostgreSQL Persistence Refactor (Complete)
+
+**Role in Session 16:** Replaced the placeholder admin store/service implementation in `src/Opplat.AdminApi` with MediatR handlers backed directly by EF Core + Identity on PostgreSQL, while keeping the current admin client endpoint contract stable. Coordinated with Ripley (architecture), Hudson (infrastructure), Bishop (testing). Session completed 2026-03-22T22:27:00Z.
+
+**Implementation:**
+- Added `Features/Admin` request/handler slices for tenant list/create/update/deactivate and tenant/user CRUD, with minimal endpoints delegating all business logic through MediatR.
+- Expanded `AdminTenantIdentityDbContext` so the same PostgreSQL-backed context owns both `AdminTenants` and tenant-scoped `AspNetUsers` data, including tenant foreign keys and tenant-scoped username indexing.
+- Introduced `AdminPortalDataSeeder` so the runtime host can `EnsureCreated()` + seed baseline tenants/users, and contract tests can reuse the same seed with EF InMemory instead of external infrastructure.
+- Removed the old `AdminPortalStore` / catalog / provisioning / user service classes so the admin API no longer has a parallel store/service path for this surface.
+- All handlers injected with AdminTenantIdentityDbContext directly; no intermediate services.
+
+**Validation:**
+- ✅ `dotnet build .\src\Opplat.AdminApi\Opplat.AdminApi.csproj --no-restore`
+- ✅ `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --no-restore` (65/65 tests passing)
+- ✅ `npm --prefix .\src\opplat-admin run build`
+- ✅ `docker compose config --quiet`
+
+**Outcome:** The admin API now persists tenant/user admin data through PostgreSQL-oriented EF Core code, all admin CRUD behavior lives in MediatR handlers, and the existing admin React pages keep the same `/admin/*` contract. Auth pipeline and endpoint contracts frozen. Session complete.
+
+### 2026-03-22 Session 15: Admin API MediatR + PostgreSQL Persistence Refactor
+
+**Role in Session 15:** Replaced the placeholder admin store/service implementation in `src/Opplat.AdminApi` with MediatR handlers backed directly by EF Core + Identity on PostgreSQL, while keeping the current admin client endpoint contract stable.
+
+**Implementation:**
+- Added `Features/Admin` request/handler slices for tenant list/create/update/deactivate and tenant/user CRUD, with minimal endpoints delegating all business logic through MediatR.
+- Expanded `AdminTenantIdentityDbContext` so the same PostgreSQL-backed context owns both `AdminTenants` and tenant-scoped `AspNetUsers` data, including tenant foreign keys and tenant-scoped username indexing.
+- Introduced `AdminPortalDataSeeder` so the runtime host can `EnsureCreated()` + seed baseline tenants/users, and contract tests can reuse the same seed with EF InMemory instead of external infrastructure.
+- Removed the old `AdminPortalStore` / catalog / provisioning / user service classes so the admin API no longer has a parallel store/service path for this surface.
+
+**Validation:**
+- ✅ `dotnet build .\src\Opplat.AdminApi\Opplat.AdminApi.csproj -p:UseAppHost=false`
+- ✅ `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter AdminApiMinimalEndpointContractTests -p:UseAppHost=false`
+
+**Outcome:** The admin API now persists tenant/user admin data through PostgreSQL-oriented EF Core code, all admin CRUD behavior lives in MediatR handlers, and the existing admin React pages keep the same `/admin/*` contract.

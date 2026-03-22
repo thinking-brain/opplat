@@ -182,6 +182,7 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key testing miles
 - To guard the admin redirect-origin bug, integration coverage must configure `AuthOptions.AdminBff.AllowedOrigins` in the test host and hit `/auth/bff/admin/login` with an `Origin` header; otherwise relative `returnUrl` assertions collapse to bare paths and miss the `3201 vs 3001` fallback behavior entirely.
 - For the simplified admin rollout, auth/session regressions should treat tenant context as optional at sign-in bootstrap: assert sparse admin cookie claims still succeed with empty tenant fields, while keeping tenant-header validation pinned only on tenant-scoped admin API routes.
 - Source-contract tests in this repo should resolve the root via a shared helper that accepts both `opplat.sln` and `opplat.slnx`; otherwise solution-file churn creates false-red auth failures unrelated to the behavior under test.
+- For the admin API MediatR/PostgreSQL migration, the safest regression pattern is dual coverage: execute the real endpoint handlers against an in-memory `AdminTenantIdentityDbContext` seeded with PostgreSQL-shaped tenant data, and separately pin source contracts for `AddMediatR`, `IMediator` endpoint injection, `UseNpgsql`, and tenant-claim normalization.
 
 ---
 
@@ -228,3 +229,68 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key testing miles
 - Full backend test suite: **54 total, 54 passed, 0 failed, 0 skipped**
 - Existing warnings only: `MimeKit` `NU1902` on `src\\Opplat.MainApp\\Opplat.MainApp.csproj` and `test\\Opplat.MainApp.Test\\Opplat.MainApp.Test.csproj`
 - Admin migration regression coverage is green against the final `src\\Opplat.AdminApi` layout.
+
+---
+
+### 2026-03-22 Session 14: Minimal Admin API Endpoint Regression Coverage
+
+**Role:** Bishop (QA)
+
+**Changes Made:**
+- Added `test\\Opplat.MainApp.Test\\Auth\\AdminApiMinimalEndpointContractTests.cs`.
+- Pinned the tenant/user route surface that the current admin SPA pages actually call (`/admin/tenants`, `/admin/users`, tenant-scoped user mutations).
+- Pinned the client-facing payload contract by asserting the current admin SPA helper/types/pages all agree on tenant and user fields, without expanding auth scope.
+
+**Validation Results:**
+- ❌ `dotnet test test\\Opplat.MainApp.Test\\Opplat.MainApp.Test.csproj --filter FullyQualifiedName~AdminApiMinimalEndpointContractTests --no-restore`
+- ❌ `dotnet test test\\Opplat.MainApp.Test\\Opplat.MainApp.Test.csproj --no-restore`
+
+**Outcome:**
+- The current admin client contract now has executable guardrails for the minimal admin API tenant/user surface.
+- Auth remains intentionally out of scope for these new regression checks.
+- Validation is currently blocked by unrelated `src\\Opplat.AdminApi` compile conflicts already present in the landed work: duplicated endpoint DTO/request definitions in `Endpoints\\AdminContracts.cs` and duplicate `NotFound` members in `Services\\AdminTenantCatalogStore.cs` / `Services\\AdminTenantUserService.cs`.
+
+---
+
+### 2026-03-22 Session 16: Admin API MediatR + PostgreSQL Migration Testing (Complete)
+
+**Role:** Bishop (QA) — Validation of Admin API MediatR + PostgreSQL migration. Session completed 2026-03-22T22:27:00Z.
+
+**Test Strategy:**
+- External behavior focus: endpoint routes, payload shapes, tenant isolation
+- Source contracts: MediatR registration, DbContext injection, Npgsql provider
+- In-memory AdminTenantIdentityDbContext seeded with PostgreSQL-style connection strings
+
+**Coverage Added:**
+1. Endpoint route + write-flow contracts tested against in-memory DbContext
+2. Tenant isolation via scoped reads and filtered /admin/users?tenantIdentifier=
+3. Admin API claim normalization: tenant_id / tenant_identifier assertions
+4. Source-level assertions:
+   - MediatR package reference in csproj
+   - builder.Services.AddMediatR(...) in Program.cs
+   - IMediator injection in AdminEndpoints
+   - UseNpgsql() wiring (no UseSqlServer)
+
+**Validation Results:**
+- ✅ `dotnet test test\\Opplat.MainApp.Test\\Opplat.MainApp.Test.csproj --no-restore` (65/65 tests pass)
+- ✅ `dotnet build src\\Opplat.AdminApi\\Opplat.AdminApi.csproj --no-restore`
+- ✅ `npm --prefix src\\opplat-admin run build`
+- ✅ `docker compose config --quiet`
+
+**Outcome:** Regression coverage locked for MediatR handlers, PostgreSQL persistence, and admin API contracts. Endpoint contracts stable for frontend. Migration validated end-to-end.
+
+### 2026-03-22 Session 15: Minimal Admin API Test Compile Repair
+
+**Role:** Bishop (QA)
+
+**Changes Made:**
+- Repaired `test\\Opplat.MainApp.Test\\Auth\\AdminApiMinimalEndpointContractTests.cs` to match the actual `src\\Opplat.AdminApi` layout.
+- Removed the stale `Opplat.AdminApi.Admin` import, switched the test host registration from nonexistent `AdminCatalogStore` to `AdminPortalStore`, and added the `AdminOnly` authorization policy required by `AdminEndpoints`.
+
+**Validation Results:**
+- ✅ `dotnet test test\\Opplat.MainApp.Test\\Opplat.MainApp.Test.csproj --filter FullyQualifiedName~AdminApiMinimalEndpointContractTests --no-restore`
+
+**Exact Final Status:**
+- Focused admin endpoint validation: **5 total, 5 passed, 0 failed, 0 skipped**
+- Duration: **2.4s**
+- Build/test completed successfully; remaining output only reported the existing warning count from the wider solution build path.

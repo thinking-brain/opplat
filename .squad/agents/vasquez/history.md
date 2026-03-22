@@ -6,6 +6,8 @@
 
 ### Recent Sessions (2026-03-22)
 
+**Session 14: Admin API Tenant/User Contract Delivery** — Implemented dedicated admin-api endpoints matching the current admin React pages: `/admin/tenants`, `/admin/users`, and tenant-scoped user mutations under `/admin/tenants/{tenantIdentifier}/users...`. Data endpoints are now callable without auth, persist tenant catalog to `src\Opplat.AdminApi\Data\tenant-catalog.json`, provision tenant identity storage from the supplied SQL Server connection string, and return frontend-aligned payloads/status codes. Verified via live smoke calls: tenant create/list, tenant user create/list, and invalid connection-string create returning HTTP 400.
+
 **Session 13: Admin Auth Removal — Frontend Cleanup** — Completed final admin client auth removal cycle by deleting `AuthContext.tsx` session bootstrap and OIDC integration, removing login/logout/callback routes and auth redirect guards, removing CSRF token acquisition and `react-oidc-context` dependencies. Created `TemporaryAdminShell` component for authenticated users. Admin SPA now targets dedicated admin-api exclusively with no browser-side auth code. `npm build` and `npm lint` passing.
 
 ### Older Sessions (2026-03-22)

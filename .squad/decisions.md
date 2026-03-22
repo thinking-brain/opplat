@@ -1755,3 +1755,142 @@ The existing OIDC backchannel docker contract needed its service-count expectati
 
 ## Summary
 Admin API project is now fully scaffolded, integrated, and operationally healthy. The startup failure was caused by a routing ambiguity (duplicate \/health\ mapping) which has been fixed. All services reach healthy state on compose startup. Admin frontend now communicates exclusively with the dedicated admin API, preserving cookie/CSRF flow without breaking existing auth. Tests pass and startup regression coverage is in place.
+
+---
+
+### 9. Admin API MediatR + PostgreSQL Migration (Ripley, Hudson, Hicks, Bishop)
+
+**Decision Date:** 2026-03-22  
+**Requested by:** elvis.crego  
+**Status:** ✅ COMPLETE
+
+#### User Directives
+
+- **2026-03-22T22:26:52Z:** Use MediatR handlers (not stores/services) for business logic. Handlers depend on DbContext directly. Switch from MSSQL to PostgreSQL for admin data tier.
+- **2026-03-22T14:31:20Z:** Implement minimal admin API endpoints for existing admin client pages. Do not take auth into consideration for now.
+
+#### Architecture Review (Ripley)
+
+**Approval:** ✅ APPROVED WITH GUIDANCE
+
+**Current State Analysis:**
+- AdminPortalStore: in-memory mock store, singleton pattern, thread-safe
+- AdminTenantIdentityDbContext: exists but unused, not wired into DI
+- Npgsql package already referenced (PostgreSQL support anticipated)
+- MediatR pattern established in MainApp (Features folder structure)
+
+**Approval Rationale:**
+1. Pattern consistency — MediatR is MainApp standard
+2. PostgreSQL already referenced in csproj
+3. Clean seam — replacing shell store with real handlers is natural progression
+4. Handler pattern proven in MainApp
+
+**Boundaries & Risk Mitigation:**
+
+MUST PRESERVE:
+- Auth pipeline (cookie/OIDC/JWT, claims, BFF endpoints)
+- Endpoint contracts (/admin/* routes unchanged)
+- Session contracts (AdminSessionDto, AdminCsrfTokenDto locked)
+
+MIGRATION GUIDANCE:
+- PostgreSQL container separate from SQL Server
+- Connection string: `ConnectionStrings__AdminConnection`
+- Handler organization: Features/(Tenants|Users)/(Commands|Queries)
+- Dedicated AdminDbContext (not Identity-based unless needed)
+
+MUST AVOID:
+- Do NOT modify MainApp database config or connection strings
+- Do NOT share DbContext between Admin API and MainApp
+- Do NOT add postgres as dependency for other services initially
+- Do NOT touch docker-compose sqlserver service
+
+#### Infrastructure Implementation (Hudson)
+
+**Changes Made:**
+- Removed: `Microsoft.EntityFrameworkCore.SqlServer` (10.0.5)
+- Added: `Npgsql.EntityFrameworkCore.PostgreSQL` (10.0.1), `MediatR` (12.4.1)
+- Docker: `postgres:17-alpine` service (port 5432, opplat_admin DB)
+- Admin-api: depends_on updated to postgres
+- Program.cs: Registered AdminTenantIdentityDbContext with UseNpgsql()
+- appsettings.json: Added DefaultConnection string
+
+**Verification:**
+- ✅ dotnet build src/Opplat.AdminApi/Opplat.AdminApi.csproj
+- ✅ dotnet build opplat.slnx
+- ✅ docker-compose config --quiet
+
+#### Handler Implementation (Hicks)
+
+**Changes Made:**
+- Refactored store/service path → MediatR handlers
+- Organized: Features/(Tenants|Users)/(Commands|Queries)
+- Handlers inject AdminTenantIdentityDbContext directly
+- Replaced AdminPortalStore with handler-based pattern
+- Maintained endpoint contract shapes (admin client pages unchanged)
+
+**Endpoint Contracts (Locked for Frontend):**
+- GET /admin/tenants
+- POST /admin/tenants
+- PUT /admin/tenants/{identifier}
+- DELETE /admin/tenants/{identifier} (soft deactivate)
+- GET /admin/users?tenantIdentifier=
+- GET /admin/tenants/{tenantIdentifier}/users
+- POST /admin/tenants/{tenantIdentifier}/users
+- PUT /admin/tenants/{tenantIdentifier}/users/{userId}
+- PUT /admin/tenants/{tenantIdentifier}/users/{userId}/roles
+- PUT /admin/tenants/{tenantIdentifier}/users/{userId}/status
+
+#### Regression Testing (Bishop)
+
+**Test Strategy:**
+- External behavior focus: endpoint routes, payload shapes, tenant isolation
+- Source contracts: MediatR registration, DbContext injection, Npgsql provider
+- In-memory AdminTenantIdentityDbContext seeded with PostgreSQL-style connection strings
+
+**Coverage Added:**
+- Endpoint route + write-flow contracts tested against in-memory DbContext
+- Tenant isolation via scoped reads and filtered /admin/users?tenantIdentifier=
+- Admin API claim normalization: tenant_id / tenant_identifier
+- Source-level assertions:
+  - MediatR package reference
+  - builder.Services.AddMediatR(...)
+  - IMediator injection in AdminEndpoints
+  - UseNpgsql() (no UseSqlServer)
+
+**Verification:**
+- ✅ dotnet test test/Opplat.MainApp.Test/Opplat.MainApp.Test.csproj --no-restore (65/65 tests pass)
+- ✅ dotnet build src/Opplat.AdminApi/Opplat.AdminApi.csproj --no-restore
+- ✅ npm --prefix src/opplat-admin run build
+- ✅ docker compose config --quiet
+
+#### Architecture Decisions
+
+**Multi-Database Model:**
+- SQL Server: Main APIs (Main, Sales, Inventory) — multi-tenant, shared domain
+- PostgreSQL: Admin API — single-tenant, independent data tier
+
+**Benefits:**
+1. Admin API scales independently
+2. No lock contention with business services
+3. Clear separation of concerns
+4. Foundation for future polyglot architecture
+
+**Trade-offs:**
+- Operational complexity (2 DB engines locally)
+- Connection string management across environments
+- EF Core migrations split (same tool, different providers)
+
+#### Coordinator Validation
+
+All checks passed:
+- ✅ dotnet test test/Opplat.MainApp.Test/Opplat.MainApp.Test.csproj --no-restore
+- ✅ dotnet build src/Opplat.AdminApi/Opplat.AdminApi.csproj --no-restore
+- ✅ npm --prefix src/opplat-admin run build
+- ✅ docker compose config --quiet
+
+#### Notes
+
+- PostgreSQL Alpine: 300MB (vs. 1.5GB standard), ~5s startup
+- Separate DB keeps admin schema simple (no multi-tenant requirement)
+- docker-compose.override.yml can override credentials for local dev
+- Session marked complete. Next phase: Finbuckle multi-tenant (if admin serves multiple orgs), read replicas/sync pattern, Keycloak hardening.
