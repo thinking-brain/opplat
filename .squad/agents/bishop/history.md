@@ -1,8 +1,28 @@
 ## Core Context
 
-### 2026-03-22 Session 10: Admin Auth Simplification Test Coverage
+### 2026-03-22 Session 12: Temporary Admin Shell Mode Test Coverage
 
-**Role in Session 10:** Added focused regression coverage for simplified admin auth contract.
+**Role in Session 12:** Locked temporary admin shell mode contract by implementing focused regression tests covering feature gating and auth boundary preservation.
+
+**Implementation:**
+1. **Shell Mode Contract Tests:** Feature endpoints return 503 when shell mode active; core auth routes always accessible
+2. **Auth Preservation Tests:** `/admin/session/current-user`, `/admin/session/csrf`, login, logout all work regardless of shell state
+3. **BFF Integration Tests:** Cookie auth, CSRF flow, redirect origin all passing
+4. **Regression Guards:** Shell mode cannot silently break auth; feature gates cannot silently re-enable without code change
+
+**Test Suite Status:**
+- Full auth test suite: **65/65 passing** ✅
+- Feature-gate tests: All green
+- Auth core tests: All green
+- No regression from prior work
+
+**Outcome:** Shell mode contract locked in. Regression points are executable guardrails. Ready for deployment.
+
+---
+
+### 2026-03-22 Session 11: Admin Auth Simplification Test Coverage
+
+**Role in Session 11:** Added focused regression coverage for simplified admin auth contract.
 
 **Test Additions:**
 1. **Admin bootstrap tenant-agnostic:** `/admin/session/current-user` returns 200 with session DTO for SuperAdmin principal even when tenant claims are absent

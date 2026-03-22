@@ -1,5 +1,91 @@
 # Opplat Squad — Decisions
 
+## Session 11 Decisions (2026-03-22 — Temporary Admin Shell Mode)
+
+### 1. User Directive: Admin as Minimal BFF Shell (elvis.crego)
+**Decision Date:** 2026-03-22  
+**Requested by:** elvis.crego  
+**Status:** ✅ IMPLEMENTED  
+
+**Directive:** For now, keep admin as a minimal BFF-backed shell. Authenticate, land on an empty page after login, and disable other admin features until auth is stable.
+
+**Rationale:** Auth simplification and stabilization take priority. Shell mode prevents users from encountering broken feature surfaces while the team hardens session/CSRF/logout.
+
+**Implementation:**
+- **Backend (Hicks):** Added `Auth:AdminBff:ShellModeEnabled` configuration flag. When enabled, tenant/user management endpoints return HTTP 503. Core auth routes (`/admin/session/*`, login/logout) remain fully operational.
+- **Frontend (Vasquez):** New `TemporaryAdminShell` component displays authenticated state (name, email, logout button) when `ShellModeEnabled` is true. Feature routes (`/tenants`, `/users`, `/settings`) redirect to `/`. Auth flow preserved.
+- **Tests (Bishop):** Regression coverage ensures shell mode gates feature endpoints while preserving auth boundaries.
+
+**Acceptance Criteria:**
+- Shell mode toggle controls feature surface visibility ✅
+- Auth bootstrap and logout work in shell mode ✅
+- Feature routes collapse without showing broken UI ✅
+- Tests pass; no auth regressions ✅
+
+**Exit Criteria:** When `Auth:AdminBff:ShellModeEnabled = false`, admin features re-enable without code changes.
+
+---
+
+### 2. Admin Shell Mode Backend Implementation (Hicks)
+**Decision Date:** 2026-03-22  
+**Agent:** Hicks (Backend)  
+**Status:** ✅ COMPLETE  
+
+**Key Changes:**
+- Added `ShellModeEnabled` to `appsettings.Development.json`
+- Session DTO includes `ShellModeEnabled` property so frontend can detect shell mode
+- Tenant and user management endpoints check flag and return 503 when active
+- Core auth seam (`/admin/session/current-user`, `/admin/session/csrf`, login/logout) never gated
+
+**Validation:**
+- Auth test suite: 17/17 passing
+- No regression in core session/CSRF/login/logout paths
+- Feature-gating logic verified
+
+**Coordination:** With Vasquez (frontend responds to flag) and Bishop (test coverage).
+
+---
+
+### 3. Admin Shell Mode Frontend Implementation (Vasquez)
+**Decision Date:** 2026-03-22  
+**Agent:** Vasquez (Frontend)  
+**Status:** ✅ COMPLETE  
+
+**Key Changes:**
+- New `TemporaryAdminShell` component renders when `ShellModeEnabled` is true
+- Component displays user info (name, email) and logout button; no feature navigation
+- Routes `/tenants`, `/users`, `/settings` redirect to `/` (collapse instead of rendering broken screens)
+- Auth flow (login, callback, session restore) unchanged
+
+**Validation:**
+- `npm run lint` passed
+- `npm run build` passed
+- Shell mode integrated with backend session response
+
+**Coordination:** With Hicks (shell flag in session DTO) and Bishop (integration test coverage).
+
+---
+
+### 4. Admin Shell Mode Test Coverage (Bishop)
+**Decision Date:** 2026-03-22  
+**Agent:** Bishop (QA)  
+**Status:** ✅ COMPLETE  
+
+**Key Additions:**
+- Shell mode contract tests: Feature endpoints return 503 when shell enabled
+- Auth preservation tests: Core session/CSRF/login/logout accessible regardless of shell mode
+- BFF integration tests: Cookie auth, CSRF flow, redirect origin all passing
+- Regression guards ensure shell mode toggle cannot silently break auth
+
+**Validation:**
+- Full auth suite: 65/65 passing
+- Feature-gate tests: All green
+- No regression from prior work
+
+**Coordination:** With Hicks (backend contract) and Vasquez (frontend component contract).
+
+---
+
 ## Session 10+ Decisions (2026-03-22 — Admin Auth Simplification Rollout)
 
 ### 1. Simplified Admin Auth — Remove Tenant from Auth Boundary (Ripley)

@@ -1,5 +1,25 @@
 ## Core Context
 
+### 2026-03-22 Session 12: Temporary Admin Shell Mode Backend Implementation
+
+**Role in Session 12:** Implemented minimal admin shell mode by adding configuration flag, gating non-critical feature endpoints, and preserving core auth seam.
+
+**Implementation:**
+1. **Shell Mode Configuration:** Added `Auth:AdminBff:ShellModeEnabled` to `appsettings.Development.json`
+2. **Session DTO Update:** Added `ShellModeEnabled` property so frontend detects shell mode at bootstrap
+3. **Feature Gating:** Tenant and user management endpoints return HTTP 503 when shell mode active
+4. **Core Auth Preservation:** `/admin/session/current-user`, `/admin/session/csrf`, login, logout all accessible regardless of shell state
+
+**Validation:**
+- Auth test suite: 17/17 passing ✅
+- No regression in core session/CSRF/login/logout paths
+- Feature-gating logic verified
+- Backend auth seam operationally sound
+
+**Outcome:** Shell mode ready for production troubleshooting. Auth boundaries clean and tested.
+
+---
+
 ### 2026-03-22 Session 11: Admin Auth Runtime Seam Verification
 
 **Role in Session 11:** Verified admin auth backend seam is operationally sound by running comprehensive contract tests covering both authentication and authorization boundaries.

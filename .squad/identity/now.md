@@ -1,9 +1,10 @@
 ---
-updated_at: 2026-03-22T11:46:18Z
-focus_area: Admin auth simplification verified complete; all tests green; ready for next phase (tenant selector UI, Keycloak client hardening)
+updated_at: 2026-03-22T12:01:36Z
+focus_area: Temporary admin shell mode implemented and verified; auth boundaries clean; ready for next phase (tenant selector UI, Keycloak hardening, dead env var cleanup)
 active_issues: []
 ---
 
 # What We're Focused On
 
-Admin auth simplification is complete and verified: tenant removed from auth boundary, post-login redirects pinned to localhost:3201, admin session contract simplified, frontend auth context cleaned up, runtime brittleness fixed, backend seam verified sound. All tests pass (17/17 backend, 50/50 integration). Next: tenant selector UI (feature-level), Keycloak client hardening (confidential + secret), dead env var cleanup in docker-compose.
+Temporary admin shell mode is complete and verified: shell flag gates feature endpoints while preserving core auth seam, frontend renders empty authenticated page, backend contracts locked with regression tests. All tests pass (65/65 backend/integration). Next: tenant selector UI (feature-level), Keycloak client hardening (confidential + secret), dead env var cleanup in docker-compose.
+

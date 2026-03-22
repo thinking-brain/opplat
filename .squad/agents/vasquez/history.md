@@ -1,5 +1,25 @@
 ## Core Context
 
+### 2026-03-22 Session 12: Temporary Admin Shell Mode Frontend Implementation
+
+**Role in Session 12:** Implemented minimal authenticated shell by adding `TemporaryAdminShell` component and collapsing feature routes while preserving auth flow.
+
+**Implementation:**
+1. **TemporaryAdminShell Component:** Displays authenticated state (name, email, logout button) when `ShellModeEnabled` is true
+2. **Route Collapse:** `/tenants`, `/users`, `/settings` redirect to `/` instead of rendering broken screens
+3. **Auth Preservation:** Login, callback, session restore, CSRF, logout all unchanged
+4. **Integration:** Frontend reads `ShellModeEnabled` from backend session response
+
+**Validation:**
+- `npm run lint` passed ✅
+- `npm run build` passed ✅
+- No auth regression in preserved paths
+- Frontend shell mode integrated with backend flag
+
+**Outcome:** Admin shell mode complete. Empty page after login delivered. Features disabled until auth stabilizes.
+
+---
+
 ### 2026-03-22 Session 11: Admin Auth Runtime Brittleness Fix
 
 **Role in Session 11:** Fixed frontend runtime brittleness in admin `AuthContext` bootstrap by deduplicating in-flight session restore, tolerating transient CSRF bootstrap failure, and preventing React dev double-mount crashes.
