@@ -86,6 +86,9 @@ Keep tenant validation active for tenant-scoped admin operations (for example `/
 ### Preferred Admin Return Origin
 If the admin BFF accepts multiple local origins, add an explicit `Auth:AdminBff:DefaultOrigin` and use it as the safe fallback redirect target. Do **not** rely on the first `AllowedOrigins` entry, because missing `Origin` headers will otherwise send users to whichever port happens to be listed first.
 
+### Splitting Admin BFF Out of a Shared Host
+When a dedicated admin API takes ownership of `/admin/session*` and `/auth/bff/admin/*`, strip the old shared host back to JwtBearer-only auth. Remove the old `MapAdminEndpoints()` call, cookie/OIDC registration, antiforgery middleware, and any admin-only compose/env wiring from the shared host so only one backend owns the admin contract.
+
 ### Dual IdP (Dev/Prod)
 Configure the same `Auth:Authority` env var to point at Keycloak locally and Auth0 in production. The backend doesn't need provider-specific code — OIDC discovery handles it.
 

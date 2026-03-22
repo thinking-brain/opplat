@@ -1,5 +1,132 @@
 # Opplat Squad — Decisions
 
+## Session 13 Decisions (2026-03-22 — Final Admin Auth Removal)
+
+### 1. User Directive: Retire Team-Built Admin Auth (elvis.crego)
+**Decision Date:** 2026-03-22  
+**Requested by:** elvis.crego  
+**Status:** ✅ IMPLEMENTED  
+
+**Directive:** Remove auth from admin client app. Remove old backend admin surface. User will handle admin authentication manually instead of relying on team-built auth flow.
+
+**Rationale:** User explicitly wants ownership of admin authentication; team-built flow introduces complexity. Removing it simplifies the codebase and gives the user control over auth strategy.
+
+**Implementation:**
+- **Backend (Hicks):** Consolidated admin auth/session/BFF surface from removed legacy service into dedicated `src/Opplat.AdminApi`. Removed admin endpoint mappings from MainApp.
+- **Frontend (Vasquez):** Removed auth/session/bootstrap/login/logout from admin client. Admin SPA is now plain shell routing to `/admin/*` endpoints on dedicated admin API.
+- **Infrastructure (Hudson):** Deleted legacy `src/Services/Admin/` project directory. Repointed Docker Compose and solution file to `src/Opplat.AdminApi`.
+- **Tests (Bishop):** Retired legacy admin auth regression tests. Kept admin-api integration contract validation.
+
+**Acceptance Criteria:**
+- Admin client auth completely removed ✅
+- Legacy admin service project deleted ✅
+- `src/Opplat.AdminApi` is sole admin backend ✅
+- Admin frontend targets admin-api exclusively ✅
+- Test suite passes; no false-red regressions ✅
+- User owns admin authentication going forward ✅
+
+---
+
+### 2. Admin Backend Consolidation (Hicks)
+**Decision Date:** 2026-03-22  
+**Agent:** Hicks (Backend)  
+**Status:** ✅ COMPLETE  
+
+**Decision:** Move admin auth/session/BFF surface from removed legacy service into dedicated `src/Opplat.AdminApi`. Make that project the sole admin backend.
+
+**Implementation:**
+- Re-hosted `/admin/session/*`, `/auth/bff/admin/*`, health endpoints in `src/Opplat.AdminApi`
+- Carried forward cookie/Bearer policy scheme, OIDC challenge, CSRF, claim normalization
+- Removed duplicate admin endpoint mappings from `Opplat.MainApp`
+- Removed admin-specific auth pipeline from MainApp
+- Cleaned admin-only environment variables from non-admin services
+
+**Validation:**
+- ✅ `dotnet build` succeeds
+- ✅ 65/65 auth tests passing
+- ✅ No regression from MainApp cleanup
+
+**Outcome:** Single admin backend owner; no duplication across hosts.
+
+---
+
+### 3. Admin Frontend Auth Removal (Vasquez)
+**Decision Date:** 2026-03-22  
+**Agent:** Vasquez (Frontend)  
+**Status:** ✅ COMPLETE  
+
+**Decision:** Remove all team-built auth/session/bootstrap/login/logout from admin client. Admin SPA becomes a plain shell targeting dedicated admin-api.
+
+**Implementation:**
+- Deleted `AuthContext.tsx` session bootstrap and OIDC integration
+- Removed login/logout/callback routes and auth redirect guards
+- Removed CSRF token acquisition and `react-oidc-context` dependencies
+- Created `TemporaryAdminShell` component for authenticated users
+- All `/admin/*` calls route to dedicated admin-api service
+
+**Validation:**
+- ✅ `npm run lint` passes
+- ✅ `npm run build` succeeds
+- ✅ Routes compile; no import errors
+
+**Outcome:** Admin SPA simplified to shell. User handles auth at admin-api level.
+
+---
+
+### 4. Legacy Admin Service Removal (Hudson)
+**Decision Date:** 2026-03-22  
+**Agent:** Hudson (DevOps)  
+**Status:** ✅ COMPLETE  
+
+**Decision:** Delete legacy `src/Services/Admin/Opplat.Services.Admin.Api/` directory and repoint all infrastructure to `src/Opplat.AdminApi`.
+
+**Implementation:**
+- Deleted `src/Services/Admin/` directory tree
+- Updated `docker-compose.yml` admin-api service Dockerfile path
+- Updated `opplat.slnx` solution references
+- Updated `README.md` documentation
+- Verified no remaining dependencies on legacy path
+
+**Validation:**
+- ✅ `dotnet build opplat.slnx` succeeds
+- ✅ `docker compose config` valid
+- ✅ No lingering references to legacy path
+
+**Outcome:** Legacy admin service completely removed. Modern admin-api is sole backend.
+
+---
+
+### 5. Admin Auth Removal Test Strategy (Bishop)
+**Decision Date:** 2026-03-22  
+**Agent:** Bishop (QA)  
+**Status:** ✅ COMPLETE  
+
+**Decision:** Retire legacy admin auth regression tests per user directive. Keep admin-api integration contract validation. Validate admin frontend dedicated-api routing.
+
+**Implementation:**
+- Retired regression tests pinning old shared admin auth/BFF surface
+- Retired admin SPA auth bootstrap assertions
+- Kept: Client SPA OIDC seams; admin frontend dedicated-api contract
+- Kept: MainApp tenant isolation seams
+- Added: Admin-api Docker/compose contract validation
+
+**Validation:**
+- ✅ 65/65 auth tests passing
+- ✅ No false-red regressions
+- ✅ Admin frontend build/lint passing
+
+**Outcome:** Test suite clean. Legacy assertions removed. Admin-api contract locked.
+
+---
+
+### 6. Coordinator Note: User Auth Ownership
+**Date:** 2026-03-22  
+**Status:** ℹ️ RECORDED  
+
+**Note:** User explicitly wants to handle admin authentication manually. Team-built admin client auth should stay removed as per this directive. This decision is preserved for future reference.
+
+---
+
 ## Session 11 Decisions (2026-03-22 — Temporary Admin Shell Mode)
 
 ### 1. User Directive: Admin as Minimal BFF Shell (elvis.crego)

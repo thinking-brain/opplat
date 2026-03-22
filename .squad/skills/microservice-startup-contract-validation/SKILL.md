@@ -28,5 +28,5 @@ Use this when a new or refactored service starts failing during `docker compose 
 
 - Admin API compose service publishes `8084:8080`
 - Container must answer `GET /health`
-- Runtime entrypoint is `dotnet Opplat.Services.Admin.Api.dll`
-- `Program.cs` must keep `AddControllers()` and `MapControllers()` so `HealthController` stays reachable
+- Runtime entrypoint is `dotnet Opplat.AdminApi.dll`
+- `Program.cs` must map the admin health endpoint directly from the root `src/Opplat.AdminApi` host so `/health` remains reachable without any legacy service project

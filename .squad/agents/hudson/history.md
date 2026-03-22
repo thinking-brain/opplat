@@ -6,6 +6,12 @@
 
 ### Recent Sessions (2026-03-22)
 
+**Session 13: Admin Auth Removal — Infrastructure Migration** — Deleted legacy `src/Services/Admin/Opplat.Services.Admin.Api/` directory tree. Updated `docker-compose.yml` admin-api service Dockerfile path from `src/Services/Admin/...` to `src/Opplat.AdminApi/Dockerfile`. Updated `opplat.slnx` solution references and `README.md` documentation to new admin API path. Verified solution builds cleanly and compose configuration remains valid. All services healthy on startup.
+
+### Older Sessions (2026-03-22)
+
+**Session 13: Admin API Project Migration** — Consolidated admin API from legacy `src/Services/Admin/Opplat.Services.Admin.Api` to modern root-level `src/Opplat.AdminApi`. Updated docker-compose.yml to reference new Dockerfile location. Verified solution build succeeds and docker-compose configuration is valid. Deleted legacy admin service directory.
+
 **Session 12: Admin API Health Endpoint Verification** — Verified Docker Compose and container startup behavior. Confirmed health endpoint should be explicit and anonymous. Validated Hicks' fix of removing the duplicate minimal API `/health` mapping resolves the routing ambiguity. All containers reach healthy state on first startup.
 
 **Session 11: Admin API Health Endpoint Route Ambiguity Fix** — Diagnosed admin API startup failure (AmbiguousMatchException on `/health`). Fixed by explicit route configuration (`[Route("health")]`) and anonymous access (`[AllowAnonymous]`). Container now starts reliably on first probe cycle.

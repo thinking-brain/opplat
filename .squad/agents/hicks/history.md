@@ -1,5 +1,37 @@
 ## Core Context
 
+### 2026-03-22 Session 13: Admin Auth Removal — Backend Consolidation
+
+**Role in Session 13:** Completed final admin auth removal cycle by consolidating admin auth/session/BFF surface from removed legacy service into dedicated `src/Opplat.AdminApi`, then removing duplicate admin endpoint mappings from `Opplat.MainApp`.
+
+**What Was Done:**
+1. **Consolidated Admin Backend:** Moved all admin BFF/session/login/logout/shell-mode contract into `src/Opplat.AdminApi`. Project now owns `/health`, `/healthcheck`, `/admin/session/*`, `/auth/bff/admin/*`.
+2. **Cleaned MainApp:** Removed admin endpoint mappings (`MapAdminEndpoints()`), removed admin auth pipeline setup (`AddAdminBffAuth()`), cleaned admin-only environment variable wiring from non-admin services.
+3. **Validated Integration:** ✅ `dotnet build` | ✅ 65/65 auth tests passing | ✅ No regressions from MainApp cleanup
+
+**Outcome:** `src/Opplat.AdminApi` is now the sole backend owner of admin auth/session. No duplication across hosts. Admin frontend has one stable backend origin.
+
+**Coordination:** Hudson deleted legacy service directory; Vasquez removed auth from admin client; Bishop retired legacy auth tests and validated admin-api contract.
+
+---
+
+### 2026-03-22 Session 13: Root Admin API Ownership Consolidation
+
+**Role in Session 13:** Migrated the live admin auth/session backend from the removed legacy service host into `src/Opplat.AdminApi` so the new root project is the only admin API backend.
+
+**Implementation:**
+- Replaced the template `Opplat.AdminApi` startup with the real admin BFF/auth pipeline (cookie + bearer policy scheme, OIDC challenge, CSRF enforcement, claim normalization, shell-mode gating).
+- Re-homed the admin session/login/logout/contracts and health endpoints under `src/Opplat.AdminApi\Endpoints\` and supporting auth/middleware namespaces.
+- Carried forward admin API configuration defaults into `src/Opplat.AdminApi\appsettings*.json` and updated the startup validation skill to point at `Opplat.AdminApi.dll`.
+
+**Validation:**
+- ✅ `dotnet build .\src\Opplat.AdminApi\Opplat.AdminApi.csproj`
+- ✅ `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --no-restore`
+
+**Outcome:** `src/Opplat.AdminApi` now owns the backend admin auth/session surface, the repo no longer depends on the removed legacy admin service project path, and the admin client can rely on the dedicated admin API without browser-side auth code.
+
+---
+
 ### 2026-03-22 Session 12: Admin API Compose Startup Fix
 
 **Role in Session 12:** Fixed admin API Docker Compose startup failure by removing duplicate `/health` endpoint mapping that created routing ambiguity.
@@ -156,6 +188,7 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key milestones: F
 
 ## Learnings
 
+- 2026-03-22: After splitting admin auth/BFF into the dedicated admin API, `Opplat.MainApp` should stay JwtBearer-only and stop owning `/admin/session*` or `/auth/bff/admin/*`; remove related compose/env wiring from the shared host at the same time.
 - Containerized APIs must validate Keycloak tokens against the browser-visible issuer (`Auth:Authority`) while using a separate internal discovery URL (`Auth:MetadataAddress`) for backchannel metadata/JWKS fetches.
 - For local Docker Keycloak, `--hostname=<public-url> --hostname-backchannel-dynamic=true` keeps admin/browser redirects on the public host without breaking backend token validation inside the Docker network.
 - For Entra-in-prod plus Keycloak-in-dev, the backend should stay on plain ASP.NET Core `AddJwtBearer` with OIDC discovery and a provider-neutral claim-normalization layer; provider-specific server packages add coupling without helping Keycloak parity.
