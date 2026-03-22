@@ -74,6 +74,18 @@ TenantValidation       // 3. Cross-check token tenant vs request tenant
 UseAuthorization()     // 4. Role/policy checks
 ```
 
+### Admin BFF Exception for Tenant Validation
+On a mixed-mode host where a SuperAdmin portal uses cookie-backed BFF auth but the rest of the API stays tenant-aware, do **not** force tenant claim matching during login/session bootstrap. Skip tenant validation for:
+
+- `/auth/bff/admin/*`
+- `/admin/session*`
+- OIDC callback endpoints such as `/signin-oidc-admin` and `/signout-callback-oidc-admin`
+
+Keep tenant validation active for tenant-scoped admin operations (for example `/admin/tenants/{tenantIdentifier}/users`) so auth remains simple while later tenant-specific features still have a guarded seam.
+
+### Preferred Admin Return Origin
+If the admin BFF accepts multiple local origins, add an explicit `Auth:AdminBff:DefaultOrigin` and use it as the safe fallback redirect target. Do **not** rely on the first `AllowedOrigins` entry, because missing `Origin` headers will otherwise send users to whichever port happens to be listed first.
+
 ### Dual IdP (Dev/Prod)
 Configure the same `Auth:Authority` env var to point at Keycloak locally and Auth0 in production. The backend doesn't need provider-specific code — OIDC discovery handles it.
 
@@ -121,6 +133,90 @@ For claim normalization, assume the same logical role can arrive as:
 - Keycloak: `realm_access.roles`, `resource_access.{client}.roles`, or flattened equivalents
 
 Do not overload Entra's directory `tid` claim as the product tenant identifier. Keep Opplat tenant identity on custom app claims like `tenant_id` / `tenant_identifier` so tenant routing survives provider swaps.
+
+### BFF Upgrade Path for Dual-SPA Apps
+When a product has **multiple SPAs talking to the same backend** and browser token storage starts to become the main risk, move auth to a shared BFF rather than teaching each SPA to stay an OIDC client forever.
+
+Preferred target:
+
+- browser apps stop parsing/storing access tokens
+- BFF becomes the confidential OIDC client
+- browser receives an HTTP-only session cookie plus a normalized `GET /bff/auth/session` payload
+- login/logout/refresh move to server endpoints such as `/bff/auth/login`, `/bff/auth/callback`, `/bff/auth/logout`
+- tenant-switch flows become explicit server actions (`/bff/auth/switch-tenant`) instead of ad hoc claim parsing in the browser
+
+For Opplat-style admin + tenant SPAs, prefer **one shared BFF/auth session layer** over one BFF per SPA when all of these are true:
+
+- same backend/API estate
+- same core role model (`SuperAdmin`, `TenantAdmin`, `TenantUser`)
+- same identity providers, just different app routes or UX
+- no compliance requirement to isolate the apps operationally
+
+Use separate BFFs only when origins, policies, or provider behavior must diverge materially. Otherwise a shared BFF reduces duplicated auth code, centralizes provider switching (Keycloak local / Entra prod), and gives one place to enforce CSRF, refresh-token rotation, and tenant-membership validation.
+
+### Mixed OIDC + BFF Contract Testing
+When a repo is mid-migration, do **not** keep asserting that every SPA uses the same auth stack. Split regression coverage by app:
+
+- keep tenant/client SPA tests pinned to browser OIDC files (`oidc.ts`, redirect callbacks, scope config)
+- move admin SPA tests to BFF seams (`/admin/session/*`, `/auth/bff/admin/*`, CSRF bootstrap, cookie-backed Axios, same-origin proxying)
+- remove or un-skip placeholder migration tests as soon as the real BFF files land
+
+This avoids false negatives like `FileNotFoundException` against deleted OIDC files while still protecting the new backend/frontend contract.
+
+During migration, keep the backend role/claim normalization seam provider-neutral, but move the **authoritative** tenant-membership decision into application/server logic. Let IdP tenant claims remain enrichment, not the source of truth, so the BFF can survive provider swaps without requiring identical token shaping.
+
+#### ASP.NET Core backend target shape
+For ASP.NET Core APIs already using `AddJwtBearer`, the lowest-risk migration path is usually **dual mode**:
+
+- add cookie auth + `AddOpenIdConnect` for browser/BFF sessions
+- keep `AddJwtBearer` for service-to-service calls and incremental endpoint migration
+- expose a small BFF contract such as `/bff/auth/login`, `/bff/auth/logout`, `/bff/auth/session`, and `/bff/auth/switch-tenant`
+- protect cookie-authenticated mutating requests with antiforgery/CSRF validation
+
+Prefer the existing main backend host for the first BFF cut when it already owns tenant resolution, claim normalization, and admin/auth orchestration. Split to a separate BFF service later only if scale, deployment isolation, or origin/policy differences become material.
+
+#### Dual Auth Scheme Selection Pattern
+Use `AddPolicyScheme` to route requests to the correct authentication handler at runtime:
+
+```csharp
+.AddPolicyScheme("AutoSelect", "Route to Cookie or JWT", options =>
+{
+    options.ForwardDefaultSelector = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/bff"))
+            return CookieAuthenticationDefaults.AuthenticationScheme;
+        
+        var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
+        if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            return JwtBearerDefaults.AuthenticationScheme;
+        
+        return CookieAuthenticationDefaults.AuthenticationScheme;
+    };
+});
+```
+
+Set `DefaultScheme` to the policy scheme. This avoids per-endpoint `[Authorize(AuthenticationSchemes = "...")]` annotations and keeps the routing concern in one place.
+
+Key rules:
+- Cookie `HttpOnly = true`, `SameSite = Lax`, `Secure` per environment
+- `SaveTokens = true` on `AddOpenIdConnect` — server holds access/refresh tokens
+- Antiforgery required on all mutating cookie-authenticated endpoints
+- `AllowAnyOrigin()` is **incompatible** with `AllowCredentials()` — use explicit origin allowlist for cookie endpoints
+- `IClaimsTransformation` fires for both schemes, so existing claim normalization works without changes
+- Middleware order: `UseAuthentication()` → tenant validation → `UseAntiforgery()` → `UseAuthorization()`
+
+For Opplat-style migrations where only the admin portal moves to BFF first, do **not** forward every non-bearer request to the cookie scheme. Keep JwtBearer as the default for non-admin APIs, then explicitly route `/admin`, `/auth/bff/admin`, and the admin OIDC callback paths to the cookie handler. That preserves legacy tenant/client API behavior while the admin SPA migrates incrementally.
+
+#### Development proxy + HTTPS redirect trap
+If a local SPA dev server proxies same-origin BFF traffic to ASP.NET Core over **HTTP**, `UseHttpsRedirection()` can break the BFF bootstrap contract even when production is correct. A route like `/admin/session/current-user` may get turned into an HTTP 307 redirect instead of the intended 401/200 JSON session response, and the proxy/browser layer can surface that as a generic 500.
+
+For admin-first BFF migrations, keep production HTTPS enforcement intact but consider skipping HTTPS redirection for the BFF/auth callback paths in **Development only**:
+
+- `/admin/*`
+- `/auth/bff/admin/*`
+- `signin-oidc` / signout callback paths used by the BFF
+
+That keeps local same-origin proxying stable without changing the production security posture.
 
 ### SPA Callback Completion
 For `BrowserRouter`-based SPAs, treat the post-signin callback as a navigation seam, not just a URL rewrite. After `react-oidc-context` / `oidc-client-ts` finishes processing the signin response, prefer `window.location.replace(returnTo)` over `window.history.replaceState(...)` so the app deterministically leaves `/auth/callback` instead of relying on router-observed history mutation.
@@ -257,6 +353,36 @@ When multiple SPAs (e.g., admin portal + tenant client) share the same backend A
 - Both clients share identical `defaultClientScopes` for consistent token claims
 
 Do NOT consolidate to a single client just because both apps call the same API. The overhead is minimal, and separation provides clean redirect URI management, session isolation, and future flexibility for per-client role restrictions.
+
+### Admin-First BFF SPA Alignment
+For an admin portal that migrates from browser-managed OIDC to a backend-managed cookie session, split the SPA contract into two endpoint families:
+
+- `/auth/bff/admin/*` for login/logout handoff
+- `/admin/session/*` for authenticated bootstrap data such as current user and CSRF metadata
+
+Do not keep legacy `/bff/auth/*` paths alive in the SPA once the backend exposes the admin-specific contract; a mixed prefix is easy to ship and guarantees 404s at runtime.
+
+For CSRF specifically, do **not** hardcode a header like `X-XSRF-TOKEN` and do not depend on reading the antiforgery cookie from JavaScript. Prefer a dedicated bootstrap call like `/admin/session/csrf` that returns both the request token and the required header name, then lazily reacquire it before mutating requests if the in-memory copy is missing.
+
+### Cookie BFF Dev Proxy Pattern
+For Vite-hosted local development against a cookie/OIDC BFF, proxy every backend path involved in the browser round trip, not just the JSON API:
+
+- `/admin`
+- `/auth`
+- `/signin-oidc-admin`
+- `/signout-callback-oidc-admin`
+
+Keep `changeOrigin: false` for those proxies so the backend sees the SPA host when it computes redirect URIs and sets host-scoped session cookies. If the proxy rewrites the Host header to the backend origin, local login can fail even though backend routes, cookies, and OIDC config are otherwise correct.
+
+### Current-User Endpoint Regression Pattern
+When an ASP.NET Core admin BFF endpoint builds its response with an explicit `AuthenticateAsync("AdminCookie")` call, integration tests must register that exact named scheme in the TestServer host, not just a generic default auth scheme.
+
+Recommended regression pair:
+
+- a **sparse-claim** authenticated cookie request against `/admin/session/current-user` that proves the endpoint returns `200 OK` with empty optional fields instead of throwing
+- a **happy-path** cookie request that proves the payload includes tenant claims plus session bootstrap metadata like login path, logout path, CSRF header name, and cookie expiration
+
+This catches the real admin SPA bootstrap seam and prevents fake-auth test hosts from masking 500s that only appear once the endpoint tries to read the cookie-auth result directly.
 
 
 ## References

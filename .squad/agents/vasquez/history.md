@@ -1,5 +1,45 @@
 ## Core Context
 
+### 2026-03-22 Session 10: Admin Auth Simplification Frontend Implementation
+
+**Role in Session 10:** Executed Ripley-approved simplification: removed tenant from auth context and types, aligned dev origin to 3201, validated lint/build.
+
+**Implementation:**
+- **types/index.ts:** Removed `tenantId`, `tenantIdentifier`, `tenantName` from `User` interface; removed `tenantId`, `tenantIdentifier` from `AuthSessionUser` and `AuthSessionPayload`
+- **AuthContext.tsx:** Removed `tenantId`, `tenantIdentifier` from `AuthContextType` interface and context value object; removed `persistTenantIdentifier` effect and import
+- **claims.ts:** Removed `SELECTED_TENANT_KEY` constant; removed `getStoredTenantIdentifier()` and `persistTenantIdentifier()` functions; removed tenant extraction from `buildAdminUser()`
+- **Dev origin:** Aligned to `http://localhost:3201` for Vite and Docker container
+
+**Validation:**
+- Lint: ✅ passed
+- Build: ✅ passed
+- Auth context simplified to identity-only (no tenant state)
+
+**Outcome:** Auth bootstrap is tenant-agnostic. Tenant choice remains feature-level concern (managed separately when needed). Admin SPA now cleaner and tighter.
+
+---
+
+### 2026-03-22 Session 9: Admin BFF Migration Frontend Repair (Lockout Protocol)
+
+**Role in Session 9:** Locked out by Ripley's defect discovery. Repaired four critical frontend integration defects:
+
+**Repairs Implemented:**
+1. **Route alignment:** Updated `bff.ts` constants to match backend canonical paths (`/admin/session/current-user`, `/admin/session/csrf`, `/auth/bff/admin/login`, `/auth/bff/admin/logout`).
+2. **Query param alignment:** Changed `returnTo` to `returnUrl` in `buildLoginUrl()` to match backend binding.
+3. **CSRF header fix:** Removed hardcoded `X-XSRF-TOKEN` header from `bff.ts`. Frontend now reads header name from `/admin/session/csrf` response.
+4. **CSRF token acquisition:** Implemented `fetchCsrfToken()` in `AuthContext.tsx` to call `/admin/session/csrf` after session restore. Parses `{ headerName, requestToken }` and caches token. `buildCsrfHeaders()` now uses backend-provided header name dynamically.
+
+**Additional Improvements:**
+- Fixed `AuthContext.tsx` callback logic to handle recovered sessions correctly.
+- Updated `axiosClient.ts` request interceptor to call `buildCsrfHeaders(config.method)` for all requests.
+- Auto-fetch fallback: if cached CSRF token is null, `buildCsrfHeaders()` re-fetches before returning.
+
+**Result:** All frontend BFF integration points now match backend routes exactly. CSRF flow is correct and dynamic. Coordinated with Hudson (Vite proxy) and Bishop (test assertions).
+
+**Status:** Ready for Ripley re-review.
+
+---
+
 ### 2026-03-21 Session 9: Live Keycloak State & Admin Storage Cleanup
 
 **Role in Session 9:** Diagnosed live Keycloak CORS behavior and implemented preventive storage hygiene.
@@ -90,3 +130,8 @@ See condensed Phase summaries above; extensive detailed work documented in team 
 - The admin SPA should prune stale `oidc-client-ts` entries on startup from both `localStorage` and `sessionStorage`; old `oidc.user:*` or `oidc.*` state records from a previous client/authority can muddy live auth debugging even when the current runtime config is correct.
 - For `react-oidc-context`, prefer passing `UserManagerSettings` directly into `<AuthProvider {...oidcSettings}>` and let the library own the `UserManager`; non-React consumers like Axios should read the serialized user from the documented `oidc.user:{authority}:{clientId}` storage key instead of sharing a singleton manager instance.
 - For provider-agnostic SPA auth, keep `react-oidc-context` + `oidc-client-ts` and move provider differences into runtime config: Entra should put API permissions in `scope` and disable `audience` query params, while Keycloak should keep `audience` off and rely on realm/client-scope audience mapping plus shared claim normalization.
+- A BFF migration would remove browser token/OIDC state from both React apps: `AuthContext`, callback handling, and Axios should pivot to a same-origin session bootstrap (`/bff/auth/session`) plus CSRF-protected cookie calls, with the admin app as the lowest-risk pilot because it has the simpler API surface.
+- For the admin SPA BFF rollout, keep `/auth/callback` as a pure session-restore spinner page during transition: it should only poll `/bff/auth/session`, never parse tokens, and hand users back to the requested route once the server session is available.
+- Cookie-backed admin auth is much cleaner when the frontend owns the same-origin seam: proxy `/bff/*` and `/admin/*` through Vite in local dev and through the admin Nginx container in compose so Axios can stay `withCredentials: true` without browser-managed bearer tokens.
+- The admin SPA now treats tenant selection as feature state instead of auth state: `src/opplat-admin/src/auth/AuthContext.tsx` restores only identity/roles from the BFF session, while tenant selection stays in `src/opplat-admin/src/auth/claims.ts` localStorage helpers for pages like `src/opplat-admin/src/pages/UsersPage.tsx`.
+- Local admin frontend development is standardized on `http://localhost:3201`, so `src/opplat-admin/vite.config.ts`, `src/opplat-admin/Dockerfile.dev`, and `docker-compose.override.yml` must stay aligned to avoid wrong-origin login redirects.

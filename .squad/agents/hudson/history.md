@@ -1,5 +1,41 @@
 ## Core Context
 
+### 2026-03-22 Session 10: Docker Dev Proxy Networking Fix (Admin Auth 500 Resolution)
+
+**Assigned by:** elvis.crego | **Diagnosed by:** Ripley | **Implemented by:** Hudson
+
+**Problem:** Admin frontend (`localhost:3201`) returned HTTP 500 on `/admin/session/current-user` due to Docker dev-mode proxy networking gap.
+
+**Root Cause:** The Vite dev server inside the admin-frontend container was proxying to `localhost:8080` (hardcoded default in vite.config.ts), which resolves to the container itself instead of the api service. Production nginx already correct; only dev config broken.
+
+**Fix Implemented:**
+1. **docker-compose.override.yml:** Added `VITE_DEV_PROXY_TARGET=http://api:8080` to admin-frontend environment. Vite proxy now resolves via the Docker bridge network to the api service container instead of loopback.
+2. **src/opplat-admin/Dockerfile.dev:** Corrected EXPOSE line from 5173 (Vite default) to 3001 (actual port mapping).
+
+**Verification:**
+- `docker-compose config --quiet` ✅ (syntax valid)
+- Vite config already supports `env.VITE_DEV_PROXY_TARGET` fallback chain
+- No code changes required; configuration-only fix per Ripley's blueprint
+
+**Outcome:** Docker dev admin auth flow unblocked. Next: Run `docker compose up -d` and test `GET http://localhost:3201/admin/session/current-user` (expect 401 unauthenticated, not 500).
+
+---
+
+### 2026-03-22 Session 9: Admin BFF Integration Repair (Vite Proxy & Dev Config)
+
+**Role in Session 9:** Locked out by Ripley's defect discovery on Vite proxy. Repaired proxy and configuration seams.
+
+**Repairs Implemented:**
+1. **Vite proxy expansion:** Added coverage for `/admin`, `/auth`, `/signin-oidc-admin`, `/signout-callback-oidc-admin`.
+2. **Cookie scope fix:** Set `changeOrigin: false` to preserve browser host so redirect URIs and cookies stay on SPA origin (localhost:3001).
+3. **OIDC callback paths:** Proxy now covers OIDC redirect endpoints (`/signin-oidc-admin`, `/signout-callback-oidc-admin`) so backend can redirect to SPA origin directly.
+
+**Result:** Browser cookies now set on correct origin; OIDC callbacks maintain cookie scope; admin login/logout flows work in local dev. Coordinated with Vasquez (frontend paths) and verified with Bishop (test suite).
+
+**Status:** Ready for Ripley re-review.
+
+---
+
 **Project:** Opplat — Multi-platform business management system (café/restaurant)  
 **Stack:** ASP.NET Core (net6.0 → net10.0) | EF Core | SQL Server | SignalR | OIDC (Auth0/Keycloak) | React 18  
 **Root:** C:\projects\personal\opplat | **Branch:** develop
@@ -328,6 +364,26 @@ When nginx runtime-config.js injected the minimal `openid`-only fallback, it ove
 
 **Task:** Assess whether two Keycloak clients increase runtime cost; validate admin portal redirect issue is properly fixed.
 
+---
+
+## Learnings
+
+### Docker Dev Proxy Network Isolation
+When Vite runs inside a Docker container and needs to proxy to an API on another container, hardcoded `localhost` breaks. The solution is:
+1. Make the proxy target configurable via environment variable in vite.config.ts
+2. Docker Compose override sets `VITE_DEV_PROXY_TARGET=http://<service-name>:port` (uses bridge network DNS)
+3. Local dev falls back to `localhost` (no Docker)
+4. Production bakes the target into the Dockerfile (static)
+
+**Key:** `changeOrigin: false` is critical for OIDC — keeps cookies and redirect URIs on the SPA origin, not the proxy target.
+
+### Configuration as Configuration
+This fix required ONLY environment variable and build config changes — zero application code modifications. The vite.config.ts was already designed to support the override. This is the cleanest possible DevOps pattern: ship the flexibility, then layer Docker overrides on top.
+
+### Dockerfile EXPOSE Consistency
+The EXPOSE instruction is informational; Docker doesn't enforce it. However, mismatches (EXPOSE 5173 in Dockerfile.dev when the actual port is 3001) confuse DevOps and documentation. Keep EXPOSE aligned with the actual port.
+
+
 **Findings:**
 
 1. **Two-Client OIDC Cost Impact: ZERO**
@@ -419,6 +475,11 @@ For local triage, verify in this exact order:
 3. a token-endpoint probe with explicit `Origin` and `client_id`
 
 If those three checks pass, prefer an operational reset (`docker compose up -d --force-recreate keycloak admin-frontend`) plus clearing browser site storage over further repo edits.
+
+### Pattern: Admin BFF CSRF Bootstrap and Proxy Alignment
+For the admin SPA's cookie-backed BFF flow, the browser must treat session bootstrap and CSRF bootstrap as separate steps: restore identity from `/admin/session/current-user`, then fetch antiforgery metadata from `/admin/session/csrf` and use the returned `headerName` + `requestToken` for all mutating requests. Do not hardcode the CSRF header name and do not try to read the antiforgery cookie from JavaScript if the backend marks it `HttpOnly`.
+
+For local Vite dev, proxy `/admin`, `/auth`, `/signin-oidc-admin`, and `/signout-callback-oidc-admin`, and keep `changeOrigin: false` so the backend still sees the SPA origin when it builds OIDC redirect URIs and sets the admin session cookie. Covering only `/bff`-style paths or rewriting the Host header breaks local cookie/session auth even when the backend implementation is correct.
 
 
 ## Session 5 Sprint — Live Scope Fix Completion (2026-03-21)
