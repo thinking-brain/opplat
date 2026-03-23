@@ -1,153 +1,43 @@
 ## Core Context
 
-### 2026-03-23 Session 15: Application Layer Remediation — Wave 1 Corrections (Owned by Hudson/Vasquez)
+### 2026-03-23 Session 15: Application Layer Remediation — Wave 1 (Locked Out)
 
-**Team Update (2026-03-23T10:14:08Z):** Ripley's Phase Gate 1 review rejected Wave 1. Reviewer lockout protocol activated — revisions assigned to Hudson (wiring + Inventory handlers) and Vasquez (controller archival). SalesEndpoints.cs and InventoryEndpoints.cs were incorrectly injecting legacy IService instead of IMediator; MediatR handlers were dead code. All 8 Inventory controllers remained active instead of archived. Hudson completed endpoint wiring rewrites and 8 Inventory handler modules (40+ request/handler pairs). Vasquez completed thin-host remediation and archived Sales controllers. Bishop encoded acceptance criteria as regression gates. Status: Sales passes MicroserviceHostArchitectureTests; Inventory pending Phase 2 controller archival.
+**Status:** LOCKED OUT — Revisions owned by Hudson/Vasquez per Ripley's reviewer lockout protocol.
 
-**Note:** Hicks locked out from revisions per Ripley's authority. Original author excluded from remediation ownership.
+**What Happened:** Ripley's Phase Gate 1 review rejected Wave 1 due to critical defects:
+1. SalesEndpoints.cs/InventoryEndpoints.cs injected legacy IService instead of IMediator (dead code)
+2. All 8 Inventory controllers remained active instead of archived
+3. Inventory Application project was a placeholder (only AssemblyMarker.cs)
 
----
+**Revision Ownership:** Original defect author (Hicks) excluded from corrections per architectural review protocol. Hudson owns wiring + Inventory handlers. Vasquez owns controller archival.
 
-### 2026-03-23 Session 14: Admin API 500 Fix — Backend Compatibility Layer
-
-**Role in Session 14 (Concluded):** Implemented backend schema compatibility to resolve admin API 500 errors caused by database schema drift.
-
-**What Was Done:**
-1. **Root Cause Diagnosis:** PostgreSQL `AdminTenants` table retained legacy `ConnectionString` schema; new code queried `DatabaseName`, `DatabaseSchema`, `UserCount`.
-2. **Compatibility Layer:** Created `src\Opplat.AdminApi\Data\AdminCatalogSchemaCompatibility.cs` invoked from `AdminPortalDataSeeder.InitializeAsync()` for startup-time schema reconciliation.
-3. **Compatibility Behaviors:**
-   - Add `DatabaseName`, `DatabaseSchema`, `UserCount` when missing
-   - Backfill `DatabaseName` from legacy connection string
-   - Derive `DatabaseSchema` from tenant identifier  
-   - Relax legacy `ConnectionString` NOT NULL constraint to allow new tenants
-4. **Frontend Drift Handling:** Backend accepts/emits `schema` alias without changing canonical server field name to support legacy frontend briefly.
-5. **Validation:** ✅ Admin API health endpoints operational | ✅ Tenant contract behavior validated | ✅ No regressions in integration tests
-
-**Outcome:** Admin API 500s resolved. New admin boundary preserved. Backend compatible with both legacy and modern client contracts.
+**Wave 1 Status:** Pending Vasquez Phase 2 controller archival completion, then Ripley re-review.
 
 ---
 
-### 2026-03-23 Session 14: Admin Tenant Boundary Refactor — Backend Implementation
+## Archived Context (Sessions 10–14)
 
-**Role in Session 14:** Implemented backend refactor for admin API boundary shift. Removed admin-owned tenant user routes, types, and persistence. Replaced full connection string storage with database/schema metadata plus subscription tracking fields.
+**Sessions 12–14 (Admin API Consolidation & Boundary Refactor):** Migrated admin auth/session/BFF from removed legacy service into dedicated `src/Opplat.AdminApi`. Removed admin-owned user management (users belong to tenant databases now). Updated AdminTenantInfo schema: removed `ConnectionString`, added `DatabaseName`, `DatabaseSchema`, `MaxUsers`, `CurrentUserCount`. Fixed docker compose startup (removed duplicate `/health` endpoint). Implemented temporary shell-mode gating for feature endpoints while preserving auth boundaries. Created AdminCatalogSchemaCompatibility layer to handle legacy-to-modern schema migration.
 
-**What Was Done:**
-1. **Model Updates:** Removed `AdminTenantUser` entity. Updated `AdminTenantInfo` schema: removed `ConnectionString`, added `DatabaseName`, `DatabaseSchema`, `MaxUsers`, `CurrentUserCount`.
-2. **Handler Cleanup:** Deleted all user CRUD handlers (`CreateTenantUserCommand`, `UpdateTenantUserCommand`, `SetUserRolesCommand`, `SetUserActiveCommand`, `GetAdminUsersQuery`, `GetTenantUsersQuery`).
-3. **Endpoint Cleanup:** Removed `/admin/users` and `/admin/tenants/{id}/users*` endpoints. Updated `/admin/tenants` endpoints to use new DTO shape.
-4. **Contract Updates:** Updated `AdminContracts.cs` — removed `AdminUserDto`, `AdminCreateUserRequest`, `AdminUpdateUserRequest`, `AdminSetUserRolesRequest`, `AdminSetUserActiveRequest`. Updated `AdminTenantDto` and `UpsertTenantRequest` with new fields.
-5. **Subscription Callback:** Added `UpdateTenantUserCountCommand` for tenant-to-admin user count reporting.
-6. **Validation:** ✅ dotnet build | ✅ 65/65 tests passing | ✅ New schema compiles and runs
+**Sessions 10–11 (Admin Auth Simplification):** Removed tenant context from admin session DTO. Pinned admin redirect fallback to 3201 via `Auth:AdminBff:DefaultOrigin` config. Added legacy client-id compatibility. Verified backend auth seams (session/csrf/login/logout all operationally sound).
 
-**Outcome:** Admin API backend now owns tenant catalog only. Users belong to tenant-owned databases. Admin tracks user counts for subscription enforcement, not user management.
-
-**Coordination:** Ripley approved decision; Vasquez aligned frontend types/pages; Bishop enforced boundary in tests.
+**Sessions 1–9 (Foundation & Initial Implementation):** Built admin API from template. Implemented initial endpoint structures, auth middleware, and admin session contract.
 
 ---
 
-### 2026-03-22 Session 13: Admin Auth Removal — Backend Consolidation
+## Project Context
 
-**Role in Session 13:** Completed final admin auth removal cycle by consolidating admin auth/session/BFF surface from removed legacy service into dedicated `src/Opplat.AdminApi`, then removing duplicate admin endpoint mappings from `Opplat.MainApp`.
+**Project:** Opplat — Multi-platform business management system  
+**Role:** Backend infrastructure, application-layer implementation  
+**Stack:** ASP.NET Core 10.0 | EF Core | SQL Server (Main) | PostgreSQL (Admin) | SignalR | JWT | React 18 | Keycloak  
+**Root:** C:\projects\personal\opplat | **Branch:** develop
 
-**What Was Done:**
-1. **Consolidated Admin Backend:** Moved all admin BFF/session/login/logout/shell-mode contract into `src/Opplat.AdminApi`. Project now owns `/health`, `/healthcheck`, `/admin/session/*`, `/auth/bff/admin/*`.
-2. **Cleaned MainApp:** Removed admin endpoint mappings (`MapAdminEndpoints()`), removed admin auth pipeline setup (`AddAdminBffAuth()`), cleaned admin-only environment variable wiring from non-admin services.
-3. **Validated Integration:** ✅ `dotnet build` | ✅ 65/65 auth tests passing | ✅ No regressions from MainApp cleanup
+**Key Patterns Established:**
+- Admin API is thin tenant catalog (MediatR handlers + PostgreSQL)
+- Multi-tenant MainApp hosts business logic (Sales/Inventory/Admin areas)
+- Thin-host principle — business logic in Application/Domain layers, hosts are composition roots
+- Schema compatibility layers handle gradual migrations (old contracts → new contracts)
 
-**Outcome:** `src/Opplat.AdminApi` is now the sole backend owner of admin auth/session. No duplication across hosts. Admin frontend has one stable backend origin.
-
-**Coordination:** Hudson deleted legacy service directory; Vasquez removed auth from admin client; Bishop retired legacy auth tests and validated admin-api contract.
-
----
-
-### 2026-03-22 Session 13: Root Admin API Ownership Consolidation
-
-**Role in Session 13:** Migrated the live admin auth/session backend from the removed legacy service host into `src/Opplat.AdminApi` so the new root project is the only admin API backend.
-
-**Implementation:**
-- Replaced the template `Opplat.AdminApi` startup with the real admin BFF/auth pipeline (cookie + bearer policy scheme, OIDC challenge, CSRF enforcement, claim normalization, shell-mode gating).
-- Re-homed the admin session/login/logout/contracts and health endpoints under `src/Opplat.AdminApi\Endpoints\` and supporting auth/middleware namespaces.
-- Carried forward admin API configuration defaults into `src/Opplat.AdminApi\appsettings*.json` and updated the startup validation skill to point at `Opplat.AdminApi.dll`.
-
-**Validation:**
-- ✅ `dotnet build .\src\Opplat.AdminApi\Opplat.AdminApi.csproj`
-- ✅ `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --no-restore`
-
-**Outcome:** `src/Opplat.AdminApi` now owns the backend admin auth/session surface, the repo no longer depends on the removed legacy admin service project path, and the admin client can rely on the dedicated admin API without browser-side auth code.
-
----
-
-### 2026-03-22 Session 12: Admin API Compose Startup Fix
-
-**Role in Session 12:** Fixed admin API Docker Compose startup failure by removing duplicate `/health` endpoint mapping that created routing ambiguity.
-
-**Problem:** Docker Compose health check reported service failure because `/health` endpoint threw `AmbiguousMatchException`. Both `HealthController.Get()` and minimal API `app.MapGet("/health", ...)` were matching the same route during startup.
-
-**Solution:**
-- File: `src/Services/Admin/Opplat.Services.Admin.Api/Program.cs`
-- Removed: Duplicate minimal API `/health` mapping
-- Preserved: Full admin BFF/session contract (`/admin/session/*`, `/auth/bff/admin/*`)
-
-**Validation:**
-- ✅ `dotnet build ./src/Services/Admin/Opplat.Services.Admin.Api/Opplat.Services.Admin.Api.csproj`
-- ✅ `docker compose up -d --build admin-api` → service reaches healthy state
-- ✅ `GET http://localhost:8084/health` returns HTTP 200 Healthy|admin
-
-**Outcome:** Admin API starts reliably without routing ambiguity. Compose stack fully operational.
-
-**Coordination:** Hudson verified health endpoint behavior; Bishop validated startup regression tests.
-
----
-
-### 2026-03-22 Session 12: Temporary Admin Shell Mode Backend Implementation
-
-**Role in Session 12:** Implemented minimal admin shell mode by adding configuration flag, gating non-critical feature endpoints, and preserving core auth seam.
-
-**Implementation:**
-1. **Shell Mode Configuration:** Added `Auth:AdminBff:ShellModeEnabled` to `appsettings.Development.json`
-2. **Session DTO Update:** Added `ShellModeEnabled` property so frontend detects shell mode at bootstrap
-3. **Feature Gating:** Tenant and user management endpoints return HTTP 503 when shell mode active
-4. **Core Auth Preservation:** `/admin/session/current-user`, `/admin/session/csrf`, login, logout all accessible regardless of shell state
-
-**Validation:**
-- Auth test suite: 17/17 passing ✅
-- No regression in core session/CSRF/login/logout paths
-- Feature-gating logic verified
-- Backend auth seam operationally sound
-
-**Outcome:** Shell mode ready for production troubleshooting. Auth boundaries clean and tested.
-
----
-
-### 2026-03-22 Session 11: Admin Auth Runtime Seam Verification
-
-**Role in Session 11:** Verified admin auth backend seam is operationally sound by running comprehensive contract tests covering both authentication and authorization boundaries.
-
-**Verification:**
-- `GET /admin/session/current-user` endpoint: Anonymous returns 401; Authenticated SuperAdmin returns 200 with session payload
-- `GET /admin/session/csrf` endpoint: Anonymous returns 401; Authenticated SuperAdmin returns 200 with `{ headerName, requestToken }`
-- Test suite: `AuthEndpointAuthorizationIntegrationTests` **17/17 passed**
-
-**Finding:** No backend contract regression detected. Backend auth seam is architecturally sound for local dev. If browser still sees 403 on `/admin/session/current-user`, cause is authorization (signed-in user missing `SuperAdmin` role), not backend contract defect. Frontend runtime brittleness (deduplication, CSRF failure tolerance) is independent concern properly scoped to frontend repair.
-
-**Outcome:** Backend validation complete. Admin auth simplification rollout ready for production use.
-
----
-
-### 2026-03-22 Session 10: Admin Auth Simplification Backend Implementation
-
-**Role in Session 10:** Executed Ripley-approved simplification: removed tenant from admin session DTO, pinned redirect fallback to 3201 via `Auth:AdminBff:DefaultOrigin` config, added legacy client-id compat, updated tests to match tenant-free contract.
-
-**Implementation:**
-- **TenantValidationMiddleware:** Skip tenant validation for `/auth/bff/admin/*`, `/admin/session*`, `/signin-oidc-admin`, `/signout-callback-oidc-admin`
-- **AdminEndpoints.cs:** Use `Auth:AdminBff:DefaultOrigin` as fallback; removed duplicate `/admin/session` endpoint (keep only `/admin/session/current-user`)
-- **AuthOptions.cs:** Added `AdminBff.DefaultOrigin` property
-- **Program.cs:** Map legacy `Auth:ClientIdAdmin` / `Auth:ClientSecretAdmin` env vars to `Auth:AdminBff:ClientId` for current deployments
-- **appsettings*.json:** Set `Auth:AdminBff:DefaultOrigin` to `http://localhost:3201`
-- **AdminSessionUserDto:** Removed `TenantId` and `TenantIdentifier` properties; `BuildSessionUser()` no longer extracts tenant claims
-
-**Tests Updated:**
-- `AuthEndpointAuthorizationIntegrationTests` updated to expect tenant-free admin session DTO
 - Tenant context validation tests shifted to tenant-scoped admin API endpoints only
 - Full suite passes: `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj`
 

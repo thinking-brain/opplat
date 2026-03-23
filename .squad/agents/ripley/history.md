@@ -4,41 +4,45 @@
 **Role:** Architect, senior reviewer, design validation, reviewer lockout enforcement  
 **Root:** C:\projects\personal\opplat | **Branch:** develop
 
+## Core Context
+
+**Project:** Opplat — Multi-platform business management system (café/restaurant)  
+**Role:** Architect, senior reviewer, design validation, reviewer lockout enforcement  
+**Root:** C:\projects\personal\opplat | **Branch:** develop
+
 ### Recent Sessions (2026-03-23)
 
-**Session 20: Application Layer Remediation — Phase Gate 1 Re-Entry (Pending)**
+**Session 20: Application Layer Remediation — Phase Gate 1 Review & Lockout Protocol**
 
-**Status:** AWAITING RE-REVIEW. Wave 1 corrected by Hudson/Vasquez per reviewer lockout protocol.
+**Status:** REJECTED & LOCKED. First rejection with reviewer lockout protocol enforcement.
 
-**Artifacts Staged for Re-Review:**
-- **SalesEndpoints.cs** (Hudson) — All 15+ endpoints now inject IMediator instead of legacy IService
-- **InventoryEndpoints.cs** (Hudson + Vasquez) — All 8 endpoint groups wired to IMediator
-- **Inventory Handler Modules** (Hudson) — 8 handler files: Products, ProductClassifications, ProductGroups, Storages, MovementTypes, Inventories, ProductMovements, CommandResult
-- **Sales Controllers** (Vasquez) — All 5 archived with `*_Archived` suffix, routes commented
-- **Inventory Controllers** (Vasquez Phase 2 pending) — 8 controllers pending archival (deferred per scope)
-- **MicroserviceHostArchitectureTests.cs** (Bishop) — Regression gates now enforce thin-host pattern
+**Review Outcome:**
+- **SalesEndpoints.cs:** ⚠️ PARTIAL — Endpoints correctly archived, BUT endpoints still inject legacy IService (dead code)
+- **InventoryEndpoints.cs:** ❌ REJECTED — Same wiring defect + controllers not archived
+- **Inventory Module:** ❌ REJECTED — No handlers implemented (only AssemblyMarker.cs)
+- **Regression Tests:** ⏳ PENDING — Bishop to encode acceptance criteria as gates
 
-**Acceptance Criteria Ready for Validation:**
-1. Sales endpoints all inject IMediator and call handlers ✅
-2. Sales controllers archived ✅
-3. Inventory endpoints all inject IMediator and call handlers ✅
-4. Inventory handlers implemented (8 modules, 40+ pairs) ✅
-5. Inventory controllers archived (⏳ Phase 2)
-6. Tests assert thin-host pattern enforcement ✅
+**Defects Found:**
+1. Endpoints inject `IProductService`, `IToppingService` directly — MediatR handlers exist but are never called
+2. Inventory controllers remain active (ProductsController, InventoriesController, etc.)
+3. Inventory Application project is a placeholder
 
-**Next Step:** Ripley to validate against updated criteria and regression gates. If cleared, Wave 2 (MainApp Areas) planning begins.
+**Reviewer Lockout Protocol Enforced:**
+Per Ripley's authority, original defect author (Hicks) excluded from revision ownership:
+- **SalesEndpoints.cs** → Hudson (wiring fix)
+- **InventoryEndpoints.cs** → Hudson (wiring) + Vasquez (archival)
+- **Inventory Handlers** → Hudson (creation)
+- **Tests** → Bishop (regression gates)
+
+**Correction Wave Status:** Awaiting Hudson/Vasquez Phase 2 completion (Inventory controller archival), then scheduled for re-review.
 
 ---
 
 **Session 19: Application Layer Refactor — Design Review & Approval**— Ran full Design Review ceremony for Elvis's request to consolidate business logic into class libraries with MediatR. APPROVED with detailed architecture decision. Key findings: (1) Module Application projects exist but are empty placeholders; (2) Legacy IService<T,K> pattern in Domain/Services needs migration to MediatR handlers; (3) 13 controllers in MainApp/Areas, 5 in Sales microservice, 8+ in Inventory microservice need conversion to minimal API. Decision: Multiple Application libraries per bounded context (not single shared), new Opplat.Application.Abstractions for cross-cutting behaviors, handlers inject DbContext directly. Conversion order: Sales microservice → Inventory microservice → MainApp Areas (lowest to highest risk). Phase gates with test requirements at each stage. Agent assignments: Hudson (project config), Hicks (handlers + endpoints), Bishop (tests), Vasquez (none needed).
 
-**Session 18: Admin Tenant Boundary Refactor — Architecture Validation & Approval**— Reviewed and approved Elvis's directive to remove users from admin database scope and replace full connection strings with DatabaseName+SchemaName. APPROVED with full contract specification for backend/frontend/testing. Key decision: Admin API becomes a thin tenant catalog system. Users move to tenant-owned databases. Admin tracks MaxUsers/CurrentUserCount for subscription enforcement only. Major architectural boundary correction — admin is no longer responsible for user management. Hicks implemented backend changes (model/handlers/endpoints), Vasquez aligned frontend (removed UsersPage, updated tenant forms, updated types), Bishop enforced new boundary in regression tests. All validation passed: dotnet build, dotnet test (65/65), npm lint, npm build, docker compose config. Wrote comprehensive decision document with migration notes and rejected alternatives.
+---
 
-### Prior Recent Sessions (2026-03-23)
-
-**Session 17: Admin API Boundary Shift Review — User & Connection Isolation** — Reviewed Elvis's proposal to remove users from admin DB and replace full connection strings with DatabaseName+SchemaName. APPROVED with full boundary definition. Key changes: (1) Users move to tenant-owned databases, admin only tracks user count for subscription enforcement; (2) AdminTenantInfo loses ConnectionString, gains DatabaseName, SchemaName, MaxUsers, CurrentUserCount; (3) Delete all user CRUD handlers/endpoints; (4) Add tenant callback endpoint for user count updates. Wrote decision note with detailed contract changes for Hicks (backend), Vasquez (frontend), Bishop (tests), Hudson (migrations). This is a major boundary correction — admin becomes a thin tenant catalog, not a user management system.
-
-### Prior Sessions (2026-03-22)
+### Prior Sessions (2026-03-22 and earlier)
 
 **Session 16: Admin API MediatR + PostgreSQL Migration — Architecture Review & Approval** — Reviewed and approved user request to replace stores/services with MediatR handlers and switch to PostgreSQL. Approved with guidance (2026-03-22T22:27:00Z). Key findings: (1) AdminPortalStore is mock in-memory data, not persisted; (2) MediatR pattern already established in MainApp; (3) Npgsql already referenced in csproj. Decision: separate postgres container for admin-api only, dedicated AdminDbContext for tenant/user CRUD, handler pattern mirroring MainApp/Features. Auth pipeline and endpoint contracts FROZEN — implementation touches business logic only. Ripley-approved boundaries: MUST PRESERVE auth pipeline (cookie/OIDC/JWT), endpoint contracts (/admin/* routes), session contracts (DTO shapes locked). MUST AVOID modifying MainApp DB config, sharing DbContext, adding postgres dependency to other services. Hudson/Hicks/Bishop coordinated execution. All tests passing (65/65), docker-compose valid, builds green. Session complete.
 
@@ -114,4 +118,14 @@
 3. **Handler existence != handler usage** — Sales module has full MediatR handlers implemented but SalesEndpoints.cs never calls them. Dead code until endpoints are rewired.
 
 4. **Microservice hosts need dedicated regression tests** — MainApp and AdminApi have architecture tests, but microservices lack coverage for the same patterns. Test parity across all hosts is required.
+
+### Session 21 Learnings (Phase Gate 1 Re-Review — APPROVED)
+
+1. **Remediation verified complete** — All defects from Session 20 corrected: Inventory's 8 controllers archived with `_Archived` suffix and route attributes commented, Sales and Inventory endpoints both inject `[FromServices] IMediator` and call handlers directly, no legacy IService injection in endpoint files.
+
+2. **Thin-host contract validated** — Both Program.cs files are sub-25 LOC, no AddControllers/MapControllers, proper assembly scanning for MediatR handlers via `AddOpplatApplication()`, shared middleware through `UseOpplatMicroserviceHost()`.
+
+3. **Architecture test coverage now adequate** — `MicroserviceThinHostArchitectureTests.cs` has three tests: SalesApiHost thin-host validation, InventoryApiHost thin-host validation, and Inventory controller archival verification. Tests assert no legacy service injection, MediatR usage, and proper archival format.
+
+4. **Host registrations follow module pattern** — `AddSalesModuleServices()` delegates to `AddSalesApplication()`, same for Inventory. No direct `AddScoped` in host extensions — keeps module ownership clear.
 

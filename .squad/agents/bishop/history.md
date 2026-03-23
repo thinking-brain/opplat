@@ -1,202 +1,45 @@
 ## Core Context
 
-### 2026-03-23 Session 14: Admin API 500 Fix — Regression Coverage & Contract Validation
+### 2026-03-23 Session 15: Application Layer Remediation — Wave 1 Regression Gates
 
-**Role in Session 14 (Concluded):** Added page-level regression guards for admin SPA to prevent silent contract drift post-backend boundary change.
+**Role:** Encoded Ripley's Phase Gate 1 remediation criteria as architecture-contract tests in MicroserviceHostArchitectureTests.cs.
 
-**What Was Done:**
-1. **Page-Layer Assertions:** Added missing regression guards at `DashboardPage.tsx` and `TenantsPage.tsx` to ensure admin SPA bootstrap payloads and tenant CRUD forms match backend contract.
-2. **Testing Strategy:** Kept runtime HTTP assertions for `/admin/tenants` JSON shape, kept API-wrapper/type assertions, added page-level source-contract assertions for bootstrap and form payload fields.
-3. **Coverage Impact:** Future backend changes reintroducing old tenant fields like `connectionString` or missing new fields like `databaseSchema` will fail tests pre-runtime instead of leaving admin SPA to discover them as 500 errors.
-4. **Validation:** ✅ Full admin-related test suite passing (65/65) | ✅ Focused and full test runs validated | ✅ Frontend contract assertions enforced
+**Key Action:** Added regression gates that enforce thin-host pattern:
+- No `AddControllers()` in microservice Program.cs
+- Endpoints inject `IMediator` (not legacy IService)
+- Controllers archived with `_Archived` suffix, routes commented
+- MediatR handlers exist and are discoverable
 
-**Outcome:** Admin API regression coverage strengthened. Page-level assertions prevent silent SPA drift. Tests fail fast on boundary changes.
-
----
-
-### 2026-03-23 Session 14: Admin Tenant Boundary Refactor — Test Validation & Regression Coverage
-
-**Role in Session 14:** Enforced admin API boundary shift in regression test layer. Reset coverage to validate new tenant catalog scope.
-
-**What Was Done:**
-1. **Admin Contract Tests:** Reset `AdminApiContractTests` to require new schema: `DatabaseName`, `DatabaseSchema`, `MaxUsers`, `CurrentUserCount`. Tests now fail if any user-owned fields remain in admin contracts.
-2. **Boundary Enforcement:** Regression coverage rejects any remaining `/admin/users` endpoints, admin-owned user DTOs, or full `ConnectionString` fields in admin API shape.
-3. **Frontend Contract Tests:** Fixed `FrontendAuthContractTests` to align with new admin SPA shape (catalog only, no users). Tests no longer expect user management routes or bearer token handling in admin SPA.
-4. **Test Results:** ✅ All 65/65 tests passing | ✅ Frontend build: 0 errors | ✅ Frontend lint: passing
-
-**Outcome:** Regression coverage enforces new architectural boundary. Any future code that tries to reintroduce admin-owned user management or exposed connection strings will fail validation immediately.
-
-**Validation:**
-- ✅ `dotnet build src\Opplat.AdminApi\Opplat.AdminApi.csproj --no-restore`
-- ✅ `dotnet test test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --no-restore` (65/65 pass)
-- ✅ `npm --prefix src\opplat-admin run lint`
-- ✅ `npm --prefix src\opplat-admin run build`
-- ✅ `docker compose config --quiet`
-
-**Coordination:** Ripley approved boundary definition; Hicks implemented backend; Vasquez aligned frontend; Bishop locked coverage.
+**Outcome:** Sales passes gate; Inventory fails (pending Phase 2 controller archival). Regression gates now prevent architectural drift—future regressions fail automatically instead of requiring manual review checklists.
 
 ---
 
-### 2026-03-22 Session 13: Admin Auth Removal — Test Cleanup and Validation
+## Archived Context (Sessions 1–14)
 
-**Role in Session 13:** Completed final admin auth removal cycle by retiring legacy admin auth regression tests per user directive and validating `src/Opplat.AdminApi` integration.
+**Sessions 13–14 (Admin Boundary Refactor):** Enforced admin API boundary shift in test layer. Reset coverage to validate new tenant catalog scope. AdminApiContractTests now require `DatabaseName`, `DatabaseSchema`, `MaxUsers`, `CurrentUserCount`; reject `/admin/users` endpoints and full `ConnectionString` fields. Frontend contract tests aligned to admin-only tenant catalog (no users).
 
-**What Was Done:**
-1. **Retired Legacy Tests:** Removed regression tests pinning old shared admin auth/BFF surface in MainApp. Removed admin SPA auth bootstrap assertions (user owns auth now).
-2. **Kept Essential Coverage:** Preserved client SPA OIDC seams; preserved admin frontend dedicated-api routing contract; preserved MainApp tenant isolation seams.
-3. **Validated Admin API Split:** Verified `src/Opplat.AdminApi` project structure, Docker Compose wiring, health endpoint routing, admin frontend proxy contract.
-4. **Final Results:** ✅ 65/65 auth tests passing | ✅ No false-red regressions | ✅ Compose startup validation passing
+**Sessions 10–12 (Admin API Stabilization):** Added startup-contract assertions for admin API Docker compose wiring (port 8084, `/health` probe, Dockerfile entrypoint), temporary shell-mode feature gating (endpoints 503 when shell active, auth always accessible), sparse-claims regression coverage, and BFF session contract validation.
 
-**Outcome:** Test suite clean. Legacy assertions removed. Admin-api contract locked. Ready for production.
+**Sessions 8–9 (Two-Client OIDC & Callback Recovery):** Validated two-client Keycloak architecture (separate clients for opplat-react and opplat-admin). Pinned realm contract, callback recovery flow, and protected route behavior. Repaired test suite after Ripley's defect discovery (removed assertions targeting deleted oidc.ts, rewrote FrontendAuthContractTests).
 
-**Coordination:** Hicks consolidated admin auth; Vasquez removed auth from admin client; Hudson deleted legacy service directory.
+**Sessions 6–7 (Admin Auth Refactor):** Added regression coverage for admin auth simplification (tenant-agnostic bootstrap, origin-based fallback), admin BFF session contract, and Keycloak realm configuration.
+
+**Sessions 1–5 (Foundation):** Built initial test suite foundations (auth, contract, CORS validation).
 
 ---
-
-### 2026-03-22 Session 12: Admin API Startup Regression Coverage
-
-**Role in Session 12:** Added focused startup-contract assertions to pin admin API compose port binding, `/health` probe path, controller mapping, and Dockerfile runtime entrypoint.
-
-**Coverage Added:**
-- File: `test/Opplat.MainApp.Test/Auth/AdminApiSplitContractTests.cs`
-- Assertions: Admin API compose port `8084`, `/health` probe returns 200, `HealthController` explicit route, Dockerfile entrypoint correct
-- Container health check: Verified `docker compose up -d admin-api` yields healthy container
-- Validation stance: Startup is green only when source contracts pass **and** `http://localhost:8084/health` responds
-
-**Test Results:**
-- ✅ Focused AdminApi startup regression tests pass
-- ✅ No regressions in existing test suite
-
-**Outcome:** Startup regression coverage locked. Compose startup is deterministic and verifiable.
-
-**Coordination:** Hicks removed duplicate routing; Hudson verified health endpoint behavior.
-
----
-
-### 2026-03-22 Session 12: Temporary Admin Shell Mode Test Coverage
-
-**Role in Session 12:** Locked temporary admin shell mode contract by implementing focused regression tests covering feature gating and auth boundary preservation.
-
-**Implementation:**
-1. **Shell Mode Contract Tests:** Feature endpoints return 503 when shell mode active; core auth routes always accessible
-2. **Auth Preservation Tests:** `/admin/session/current-user`, `/admin/session/csrf`, login, logout all work regardless of shell state
-3. **BFF Integration Tests:** Cookie auth, CSRF flow, redirect origin all passing
-4. **Regression Guards:** Shell mode cannot silently break auth; feature gates cannot silently re-enable without code change
-
-**Test Suite Status:**
-- Full auth test suite: **65/65 passing** ✅
-- Feature-gate tests: All green
-- Auth core tests: All green
-- No regression from prior work
-
-**Outcome:** Shell mode contract locked in. Regression points are executable guardrails. Ready for deployment.
-
----
-
-### 2026-03-22 Session 11: Admin Auth Simplification Test Coverage
-
-**Role in Session 11:** Added focused regression coverage for simplified admin auth contract.
-
-**Test Additions:**
-1. **Admin bootstrap tenant-agnostic:** `/admin/session/current-user` returns 200 with session DTO for SuperAdmin principal even when tenant claims are absent
-2. **Origin regression pinned:** Integration test exercises `/auth/bff/admin/login` with `Origin: http://localhost:3201` and relative `returnUrl`; future fallback changes cannot silently bounce admins to 3001
-3. **Tenant isolation verified:** Tenant-scoped admin API routes remain isolated via `X-Tenant-Identifier` header and route/header alignment tests
-
-**Test Suite Status:**
-- Admin auth-focused tests: ✅ green
-- No regression in tenant isolation or admin management endpoints
-- All assertions aligned to tenant-free session contract
-
-**Outcome:** Auth simplification locked in. Regression points are executable guardrails.
-
----
-
-### 2026-03-22 Session 9: Admin BFF Test Suite Repair (Lockout Protocol)
-
-**Role in Session 9:** Locked out by Ripley's defect discovery on test suite. Repaired test assertions to match current implementation.
-
-**Repairs Implemented:**
-1. **Rewrote `FrontendAuthContractTests.cs`:** Now targets mixed-auth tree: `opplat-react` remains browser-managed OIDC; `opplat-admin` now uses server-backed BFF session contract. Removed 12 failing assertions targeting removed `oidc.ts` file.
-2. **Un-skipped `AdminBffSessionContractTests.cs`:** Rewrote to validate actual BFF implementation shape: `/admin/session/current-user`, `/admin/session/csrf`, `/auth/bff/admin/login`, `/auth/bff/admin/logout`, antiforgery contract, cookie/OIDC dual mode.
-3. **Updated `KeycloakRealmContractTests.cs`:** Changed validation from OIDC client config to BFF-driven config (`VITE_BFF_BASE_URL`, logout redirect).
-
-**Validation Results:**
-- `dotnet test test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter "FullyQualifiedName~Auth"` ✅
-- `dotnet test test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj` ✅
-- 50 tests pass, 0 skip, 0 fail.
-
-**Consequence:** Auth suite now reflects current integrated tree instead of targeting deleted/pre-migration code paths. All regression coverage active and green.
-
-**Status:** Ready for Ripley re-review.
-
----
-
-### 2026-03-22 Session 10: Admin Current-User 500 Sparse-Claims Regression Coverage
-
-**Role in Session 10:** Added focused regression coverage for `/admin/session/current-user` endpoint after Ripley diagnosed Docker dev proxy networking issue (not auth design defect).
-
-**Test Coverage Added:**
-1. **Sparse-claims principal test** — Validates endpoint returns `200 OK` with session DTO even when optional profile/tenant fields are missing. Guards against null-reference 500 reintroduction during live bootstrap.
-2. **Healthy full-claim principal test** — Validates complete BFF session DTO with all expected fields, login/logout/CSRF metadata.
-
-**Implementation Details:**
-- Registered both default test scheme and exact `"AdminCookie"` named scheme in TestHost
-- Exercises actual `AuthenticateAsync("AdminCookie")` path that live admin SPA hits from `http://localhost:3201`
-- Pinned contract ensures endpoint shape is defended against future claim-shape regressions
-
-**Validation Results:**
-- Full auth test suite: **56/56 passing** ✅
-- Sparse-claim test: ✅ Green
-- Healthy-claim test: ✅ Green
-- No regressions from prior session
-
-**Consequence:** Backend regression suite now guards endpoint contract. Any future change that reintroduces null-path errors on sparse claims will surface as test failure instead of leaving admin SPA to discover at runtime.
-
-**Status:** Testing complete. Docker proxy fix implementation (Hudson) can proceed with confidence that endpoint contract is defended.
-
----
-
-
-**Role in Session 8:** Validated regression test suite coverage for two-client model and callback recovery. Confirmed:
-1. Realm contract tests already pin exactly two SPA clients with correct origin families
-2. Callback contract tests already verify restored sessions override transient error state
-3. Protected route tests already validate auth-error only shows when truly unauthenticated
-4. Repo contract validates `http://localhost:3201` for `opplat-admin` client
-
-**Finding:** CORS failure on token endpoint is compatible with repo being correct. A live Keycloak CORS miss can indicate stale container state even when source is correct. Regression suite now serves as early detection: if callback or protected route tests fail, the callback recovery seam (not the realm) is the problem.
-
-**Cross-Team Coordination:** Bishop confirmed repo contract with Hudson (infrastructure), Vasquez (frontend), and Ripley (architecture validation).
-Added comprehensive regression test coverage validating the two-client Keycloak architecture and callback recovery flow:
-1. Realm contract tests pin exactly two SPA clients with expected origin families
-2. Frontend callback contract tests require both SPAs to prefer restored authenticated session over transient shared auth errors
-3. Protected route contract tests validate recovered sessions unblock UI before showing auth errors
-
-All builds passing, all tests passing. Two-client Keycloak contract now guarded in test suite.
-
-### Callback Regression Contract Coverage (2026-03-21 Session 6b)
-Added focused test coverage for callback return-target handling in \FrontendAuthContractTests.cs\ pinning safe recovery seam.
-
-## Archived Context (Prior Sessions)
-
-See \.squad/orchestration-log/\ for detailed session outcomes. Key testing milestones: admin callback regression coverage (2026-03-21 Session 6b), two-client contract validation (2026-03-21 Session 7).
 
 ## Project Context
 
-**Project:** Opplat — Multi-platform business management system (café/restaurant)
-**Requested by:** elvis.crego
-**Stack:** ASP.NET Core 10.0 | EF Core | SQL Server | SignalR | JWT | React 18
-**Solution root:** C:\projects\personal\opplat
-**Branch:** develop
+**Project:** Opplat — Multi-platform business management system (café/restaurant)  
+**Stack:** ASP.NET Core 10.0 | EF Core | SQL Server | PostgreSQL (Admin) | SignalR | JWT | React 18 | Keycloak  
+**Root:** C:\projects\personal\opplat | **Branch:** develop
 
-## Solution Structure
+**Key Architecture Patterns:**
+- Regression tests as architectural guardrails — failures prevent silent drift
+- Thin-host principle — business logic in class libraries, hosts are composition roots
+- Two-client OIDC model — separate auth flows for admin (BFF) and client (browser-managed OIDC)
+- Admin boundary isolation — admin owns tenant catalog only, users belong to tenant-managed databases
 
-- src/Opplat.MainApp/ — ASP.NET Core Web API (net10.0)
-- src/Opplat.Domain/ — Business logic (net10.0)
-- src/Opplat.Infrastructure/ — Data access, EF Core (net10.0)
-- src/Opplat.Shared/ — Common utilities (net10.0)
-- src/opplat-react/ — Client React 18 SPA (Vite, MUI, React Router)
-- src/opplat-admin/ — Admin React 18 SPA
-- test/Opplat.MainApp.Test/ — xunit tests (net10.0)
 
 ## Key Architecture
 
