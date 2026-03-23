@@ -1,5 +1,24 @@
 ## Core Context
 
+### 2026-03-23 Session 14: Admin API 500 Fix — Backend Compatibility Layer
+
+**Role in Session 14 (Concluded):** Implemented backend schema compatibility to resolve admin API 500 errors caused by database schema drift.
+
+**What Was Done:**
+1. **Root Cause Diagnosis:** PostgreSQL `AdminTenants` table retained legacy `ConnectionString` schema; new code queried `DatabaseName`, `DatabaseSchema`, `UserCount`.
+2. **Compatibility Layer:** Created `src\Opplat.AdminApi\Data\AdminCatalogSchemaCompatibility.cs` invoked from `AdminPortalDataSeeder.InitializeAsync()` for startup-time schema reconciliation.
+3. **Compatibility Behaviors:**
+   - Add `DatabaseName`, `DatabaseSchema`, `UserCount` when missing
+   - Backfill `DatabaseName` from legacy connection string
+   - Derive `DatabaseSchema` from tenant identifier  
+   - Relax legacy `ConnectionString` NOT NULL constraint to allow new tenants
+4. **Frontend Drift Handling:** Backend accepts/emits `schema` alias without changing canonical server field name to support legacy frontend briefly.
+5. **Validation:** ✅ Admin API health endpoints operational | ✅ Tenant contract behavior validated | ✅ No regressions in integration tests
+
+**Outcome:** Admin API 500s resolved. New admin boundary preserved. Backend compatible with both legacy and modern client contracts.
+
+---
+
 ### 2026-03-23 Session 14: Admin Tenant Boundary Refactor — Backend Implementation
 
 **Role in Session 14:** Implemented backend refactor for admin API boundary shift. Removed admin-owned tenant user routes, types, and persistence. Replaced full connection string storage with database/schema metadata plus subscription tracking fields.
@@ -219,6 +238,8 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key milestones: F
 - `Program.cs` now tolerates the legacy config key `Auth:ClientIdAdmin` as an override for `Auth:AdminBff:ClientId`, which keeps current compose/runtime wiring working while the team finishes auth simplification.
 - In the dedicated admin microservice, `/health` must be owned by a single endpoint; keeping both `HealthController.Get` and `app.MapGet("/health", ...)` causes `AmbiguousMatchException`, which breaks Docker health checks and leaves the container unhealthy even though the app booted.
 - 2026-03-22: For dedicated admin CRUD in `src/Opplat.AdminApi`, the clean persistence seam is a single PostgreSQL-backed Identity `DbContext` that also owns tenant catalog rows; MediatR handlers can query/update that context directly while tests swap it to EF InMemory and reuse the same seeder.
+- 2026-03-23: `src\Opplat.AdminApi\Data\AdminPortalDataSeeder.cs` now has to reconcile legacy `AdminTenants` schemas before seeding because `EnsureCreated()` does not migrate renamed columns or dropped constraints on an existing PostgreSQL database; the compatibility logic lives in `src\Opplat.AdminApi\Data\AdminCatalogSchemaCompatibility.cs`.
+- 2026-03-23: The live admin client still posts/reads tenant schema as `schema`, so `src\Opplat.AdminApi\Endpoints\AdminContracts.cs` exposes a backward-compatible JSON alias while the canonical backend field remains `DatabaseSchema`.
 
 ### 2026-03-22 Session 14: Admin Tenant/User Minimal API Delivery
 

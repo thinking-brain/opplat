@@ -1,5 +1,19 @@
 ## Core Context
 
+### 2026-03-23 Session 14: Admin API 500 Fix — Regression Coverage & Contract Validation
+
+**Role in Session 14 (Concluded):** Added page-level regression guards for admin SPA to prevent silent contract drift post-backend boundary change.
+
+**What Was Done:**
+1. **Page-Layer Assertions:** Added missing regression guards at `DashboardPage.tsx` and `TenantsPage.tsx` to ensure admin SPA bootstrap payloads and tenant CRUD forms match backend contract.
+2. **Testing Strategy:** Kept runtime HTTP assertions for `/admin/tenants` JSON shape, kept API-wrapper/type assertions, added page-level source-contract assertions for bootstrap and form payload fields.
+3. **Coverage Impact:** Future backend changes reintroducing old tenant fields like `connectionString` or missing new fields like `databaseSchema` will fail tests pre-runtime instead of leaving admin SPA to discover them as 500 errors.
+4. **Validation:** ✅ Full admin-related test suite passing (65/65) | ✅ Focused and full test runs validated | ✅ Frontend contract assertions enforced
+
+**Outcome:** Admin API regression coverage strengthened. Page-level assertions prevent silent SPA drift. Tests fail fast on boundary changes.
+
+---
+
 ### 2026-03-23 Session 14: Admin Tenant Boundary Refactor — Test Validation & Regression Coverage
 
 **Role in Session 14:** Enforced admin API boundary shift in regression test layer. Reset coverage to validate new tenant catalog scope.
@@ -206,6 +220,7 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key testing miles
 - For the simplified admin rollout, auth/session regressions should treat tenant context as optional at sign-in bootstrap: assert sparse admin cookie claims still succeed with empty tenant fields, while keeping tenant-header validation pinned only on tenant-scoped admin API routes.
 - Source-contract tests in this repo should resolve the root via a shared helper that accepts both `opplat.sln` and `opplat.slnx`; otherwise solution-file churn creates false-red auth failures unrelated to the behavior under test.
 - For the admin API MediatR/PostgreSQL migration, the safest regression pattern is dual coverage: execute the real endpoint handlers against an in-memory `AdminTenantIdentityDbContext` seeded with PostgreSQL-shaped tenant data, and separately pin source contracts for `AddMediatR`, `IMediator` endpoint injection, `UseNpgsql`, and tenant-claim normalization.
+- When the admin API boundary drops user CRUD, add page-level source-contract tests for `src/opplat-admin/src/pages/DashboardPage.tsx` and `TenantsPage.tsx` in addition to API wrapper tests; route/type assertions alone will miss stale calls to removed `/admin/users` flows or old tenant fields such as `connectionString`.
 
 ---
 

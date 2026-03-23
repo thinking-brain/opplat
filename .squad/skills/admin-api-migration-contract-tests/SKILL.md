@@ -19,6 +19,7 @@ Use this when a backend is changing internals (for example, store/service logic 
 - Keep the main contract tests at the HTTP layer so route shapes, status codes, payloads, and tenant isolation stay protected while implementation moves underneath.
 - Seed an in-memory EF Core context with realistic migration-era data, including provider-shaped connection strings if the frontend or DTOs expose them.
 - Add a small source-contract suite to pin critical infrastructure seams such as DI registration, provider selection, and key framework dependencies.
+- When an API boundary removes or renames fields, add page-level source-contract tests for the consuming SPA screens as well as API-wrapper tests; otherwise stale feature code can keep calling removed endpoints or old DTO fields even while lower-level contracts stay green.
 - For multitenancy, verify both positive isolation (`/admin/users?tenantIdentifier=...`) and negative isolation (tenant-scoped endpoints do not leak users from other tenants).
 - For JWT/OIDC migrations, assert claim normalization on the exact auth component used by the target service.
 

@@ -1965,3 +1965,44 @@ All checks passed:
 - **Hicks:** Backend refactor (models, handlers, endpoints, commands)
 - **Vasquez:** Frontend alignment (pages, types, routes, API client)
 - **Bishop:** Validation & regression coverage enforcement
+
+
+---
+
+## Session 14 Decisions (2026-03-23 — Admin API 500 Fix)
+
+# Bishop — Admin API 500 Regression Coverage
+
+- Added missing regression guards at the admin SPA page layer, not just the API wrapper layer.
+- Reason: the recent admin boundary change removed legacy user flows and renamed tenant metadata, but existing tests mostly pinned routes/types. That left `DashboardPage.tsx` and `TenantsPage.tsx` free to drift and still trigger broken bootstrap calls after backend changes.
+- New testing stance:
+  - keep runtime HTTP assertions for `/admin/tenants` JSON shape
+  - keep API-wrapper/type assertions
+  - add page-level source-contract assertions for dashboard bootstrap and tenant CRUD form payload fields
+- Expected effect: future backend boundary changes that reintroduce `/admin/users` dependencies or old tenant fields like `connectionString` should fail tests before reaching the admin app runtime.
+
+
+---
+
+## Hicks — Admin API 500 fix
+
+- The immediate 500 root cause was backend-side schema drift in PostgreSQL: the live `AdminTenants` table still had the legacy `ConnectionString` shape, while the new code queried `DatabaseName`, `DatabaseSchema`, and `UserCount`.
+- We are preserving the new admin boundary. The fix is startup-time schema reconciliation in `src\Opplat.AdminApi\Data\AdminCatalogSchemaCompatibility.cs`, invoked from `AdminPortalDataSeeder.InitializeAsync()`, instead of restoring the old persistence contract.
+- Compatibility behavior:
+  - add `DatabaseName`, `DatabaseSchema`, and `UserCount` when missing
+  - backfill `DatabaseName` from the legacy connection string and derive `DatabaseSchema` from the tenant identifier
+  - relax the legacy `ConnectionString` NOT NULL constraint so new tenants can be created without persisting secrets again
+- There is also current frontend drift: the admin client still uses `schema` instead of `databaseSchema`. Backend now accepts/emits a `schema` alias without changing the canonical server field name.
+
+
+---
+
+# Vasquez — admin API 500 fix
+
+- Date: 2026-03-23
+- Context: The admin boundary refactor renamed tenant schema fields in the dedicated admin API contract from the frontend's old `schema` shape to `databaseSchema` (`DatabaseSchema` in C#). The admin SPA still rendered and posted `schema`.
+- Decision: Align the frontend contract to the backend instead of adding compatibility shims or reviving removed user/admin fields.
+- Consequences:
+  - `src\opplat-admin\src\types\index.ts` now models tenant payloads with `databaseSchema`.
+  - `TenantsPage` and `DashboardPage` read/write `databaseSchema` while keeping the UI label as “Schema”.
+  - Frontend contract tests now pin `databaseSchema` so future admin API refactors fail fast in CI.

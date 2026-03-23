@@ -4,6 +4,30 @@
 **Stack:** ASP.NET Core (net10.0) | React 18 | OIDC (Auth0/Keycloak) | Vite  
 **Root:** C:\projects\personal\opplat | **Branch:** develop
 
+### 2026-03-23 Session 14: Admin API 500 Fix — Frontend Contract Alignment
+
+**Role in Session 14 (Concluded):** Aligned admin frontend tenant contract to backend `databaseSchema` field and removed stale user CRUD calls from admin API client surface.
+
+**What Was Done:**
+1. **Contract Alignment:**
+   - Updated `src\opplat-admin\src\types\index.ts` to model tenant payloads with `databaseSchema` 
+   - Changed `TenantsPage` and `DashboardPage` to read/write `databaseSchema` (UI label remains "Schema")
+
+2. **Removed Stale User Calls:**
+   - Removed user CRUD operations from admin client
+   - Deleted legacy auth/session/bootstrap dependencies
+   - Removed admin-specific API client surface not in modern admin boundary
+
+3. **Contract Testing:**
+   - Added frontend contract tests pinning `databaseSchema` field
+   - Ensures future admin API refactors fail fast in CI
+
+**Validation:** ✅ `npm run lint` passes | ✅ `npm run build` succeeds | ✅ Contract tests pinned to databaseSchema
+
+**Outcome:** Frontend contract aligned to backend. Removed deprecated user flows. Admin SPA now uses modern admin-api contract exclusively.
+
+---
+
 ### Recent Sessions (2026-03-23)
 
 **Session 15: Admin Tenant Boundary Refactor — Frontend Alignment** — Aligned admin SPA to enforce tenant catalog scope. Removed admin-side user management: deleted `UsersPage.tsx`, removed user CRUD API methods from `admin.api.ts`, removed user-related types from TypeScript interfaces, removed `/users` route from navigation. Updated `TenantsPage` to accept `databaseName` and `schema` instead of `connectionString`. Updated `DashboardPage` to show tenant metrics with `userCount` aggregation (no user details). Updated `AdminTenant` interface to reflect new contract (no `ConnectionString`, added `databaseName`, `schema`, `userCount`). Updated `SettingsPage` to remove tenant selection state. All builds and lint checks passing. Admin now handles only tenant catalog (create, list, update, deactivate) with subscription visibility via user counts.
@@ -53,3 +77,7 @@
 - **Shell Mode:** Temporary authenticated empty page (TemporaryAdminShell component); features hidden until auth stabilizes
 - **API Target:** Dedicated admin API at `8084`; frontend proxies to it exclusively
 - **State Management:** Auth context with session/CSRF separation, lazy CSRF reacquisition
+
+## Learnings
+
+- 2026-03-23 — The current dedicated admin API tenant contract uses `databaseSchema` in JSON (`DatabaseSchema` in C#), not `schema`. The admin frontend must send and read `databaseSchema` in `src\opplat-admin\src\types\index.ts`, `src\opplat-admin\src\pages\TenantsPage.tsx`, and `src\opplat-admin\src\pages\DashboardPage.tsx` to stay aligned with `src\Opplat.AdminApi\Endpoints\AdminContracts.cs`.
