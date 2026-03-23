@@ -36,6 +36,9 @@ If module `Application` projects already exist but the web app must remain the p
 ### Archive controllers during minimal API rollout
 When converting an existing HTTP surface to minimal APIs, keep the old controller files as reference artifacts but rename the classes to `*Controller_Archived`, remove route attributes, and stop calling `MapControllers()` for that host. This preserves route knowledge during the migration without leaving two active endpoint stacks.
 
+### Inject MediatR explicitly at the endpoint edge
+For thin-host minimal APIs, inject `[FromServices] IMediator` in each endpoint lambda and send application commands/queries from there. This makes the mediator boundary obvious in source and helps architecture tests distinguish thin endpoint surfaces from direct service injection.
+
 ### Keep host DTO mapping at the edge
 If module application handlers should stay free of host-specific contracts, let handlers return domain entities or simple command results, then translate those results to host DTOs (for example `ResponseDto`) inside the minimal endpoint file. That keeps the class library portable while still preserving the existing HTTP contract.
 

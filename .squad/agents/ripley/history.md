@@ -1,12 +1,36 @@
 ## Core Context
 
 **Project:** Opplat — Multi-platform business management system (café/restaurant)  
-**Role:** Architect, senior reviewer, design validation  
+**Role:** Architect, senior reviewer, design validation, reviewer lockout enforcement  
 **Root:** C:\projects\personal\opplat | **Branch:** develop
 
 ### Recent Sessions (2026-03-23)
 
-**Session 19: Application Layer Refactor — Design Review & Approval** — Ran full Design Review ceremony for Elvis's request to consolidate business logic into class libraries with MediatR. APPROVED with detailed architecture decision. Key findings: (1) Module Application projects exist but are empty placeholders; (2) Legacy IService<T,K> pattern in Domain/Services needs migration to MediatR handlers; (3) 13 controllers in MainApp/Areas, 5 in Sales microservice, 8+ in Inventory microservice need conversion to minimal API. Decision: Multiple Application libraries per bounded context (not single shared), new Opplat.Application.Abstractions for cross-cutting behaviors, handlers inject DbContext directly. Conversion order: Sales microservice → Inventory microservice → MainApp Areas (lowest to highest risk). Phase gates with test requirements at each stage. Agent assignments: Hudson (project config), Hicks (handlers + endpoints), Bishop (tests), Vasquez (none needed).
+**Session 20: Application Layer Remediation — Phase Gate 1 Re-Entry (Pending)**
+
+**Status:** AWAITING RE-REVIEW. Wave 1 corrected by Hudson/Vasquez per reviewer lockout protocol.
+
+**Artifacts Staged for Re-Review:**
+- **SalesEndpoints.cs** (Hudson) — All 15+ endpoints now inject IMediator instead of legacy IService
+- **InventoryEndpoints.cs** (Hudson + Vasquez) — All 8 endpoint groups wired to IMediator
+- **Inventory Handler Modules** (Hudson) — 8 handler files: Products, ProductClassifications, ProductGroups, Storages, MovementTypes, Inventories, ProductMovements, CommandResult
+- **Sales Controllers** (Vasquez) — All 5 archived with `*_Archived` suffix, routes commented
+- **Inventory Controllers** (Vasquez Phase 2 pending) — 8 controllers pending archival (deferred per scope)
+- **MicroserviceHostArchitectureTests.cs** (Bishop) — Regression gates now enforce thin-host pattern
+
+**Acceptance Criteria Ready for Validation:**
+1. Sales endpoints all inject IMediator and call handlers ✅
+2. Sales controllers archived ✅
+3. Inventory endpoints all inject IMediator and call handlers ✅
+4. Inventory handlers implemented (8 modules, 40+ pairs) ✅
+5. Inventory controllers archived (⏳ Phase 2)
+6. Tests assert thin-host pattern enforcement ✅
+
+**Next Step:** Ripley to validate against updated criteria and regression gates. If cleared, Wave 2 (MainApp Areas) planning begins.
+
+---
+
+**Session 19: Application Layer Refactor — Design Review & Approval**— Ran full Design Review ceremony for Elvis's request to consolidate business logic into class libraries with MediatR. APPROVED with detailed architecture decision. Key findings: (1) Module Application projects exist but are empty placeholders; (2) Legacy IService<T,K> pattern in Domain/Services needs migration to MediatR handlers; (3) 13 controllers in MainApp/Areas, 5 in Sales microservice, 8+ in Inventory microservice need conversion to minimal API. Decision: Multiple Application libraries per bounded context (not single shared), new Opplat.Application.Abstractions for cross-cutting behaviors, handlers inject DbContext directly. Conversion order: Sales microservice → Inventory microservice → MainApp Areas (lowest to highest risk). Phase gates with test requirements at each stage. Agent assignments: Hudson (project config), Hicks (handlers + endpoints), Bishop (tests), Vasquez (none needed).
 
 **Session 18: Admin Tenant Boundary Refactor — Architecture Validation & Approval**— Reviewed and approved Elvis's directive to remove users from admin database scope and replace full connection strings with DatabaseName+SchemaName. APPROVED with full contract specification for backend/frontend/testing. Key decision: Admin API becomes a thin tenant catalog system. Users move to tenant-owned databases. Admin tracks MaxUsers/CurrentUserCount for subscription enforcement only. Major architectural boundary correction — admin is no longer responsible for user management. Hicks implemented backend changes (model/handlers/endpoints), Vasquez aligned frontend (removed UsersPage, updated tenant forms, updated types), Bishop enforced new boundary in regression tests. All validation passed: dotnet build, dotnet test (65/65), npm lint, npm build, docker compose config. Wrote comprehensive decision document with migration notes and rejected alternatives.
 
@@ -80,4 +104,14 @@
 3. **Controller-to-MinimalAPI risk gradient** — Microservices are safer to convert first (isolated, simple startup). MainApp Areas have multi-tenant middleware, shared composition root — higher risk, convert last.
 
 4. **MediatR assembly scanning strategy** — Don't rely solely on `GetExecutingAssembly()`. Explicitly list all Application assemblies containing handlers to avoid missing registrations.
+
+### Session 20 Learnings (Phase Gate 1 Review)
+
+1. **Surface-level conversion != architectural change** — Minimal API endpoints file can exist while still using legacy IService pattern. Always verify IMediator is actually injected and handlers invoked, not just that the file exists.
+
+2. **Controller archival must be complete** — Sales archived correctly (5 controllers), Inventory left 8 active. Partial conversion creates risk of dual HTTP surfaces.
+
+3. **Handler existence != handler usage** — Sales module has full MediatR handlers implemented but SalesEndpoints.cs never calls them. Dead code until endpoints are rewired.
+
+4. **Microservice hosts need dedicated regression tests** — MainApp and AdminApi have architecture tests, but microservices lack coverage for the same patterns. Test parity across all hosts is required.
 

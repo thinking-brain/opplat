@@ -1,5 +1,13 @@
 ## Core Context
 
+### 2026-03-23 Session 15: Application Layer Remediation — Wave 1 Corrections (Owned by Hudson/Vasquez)
+
+**Team Update (2026-03-23T10:14:08Z):** Ripley's Phase Gate 1 review rejected Wave 1. Reviewer lockout protocol activated — revisions assigned to Hudson (wiring + Inventory handlers) and Vasquez (controller archival). SalesEndpoints.cs and InventoryEndpoints.cs were incorrectly injecting legacy IService instead of IMediator; MediatR handlers were dead code. All 8 Inventory controllers remained active instead of archived. Hudson completed endpoint wiring rewrites and 8 Inventory handler modules (40+ request/handler pairs). Vasquez completed thin-host remediation and archived Sales controllers. Bishop encoded acceptance criteria as regression gates. Status: Sales passes MicroserviceHostArchitectureTests; Inventory pending Phase 2 controller archival.
+
+**Note:** Hicks locked out from revisions per Ripley's authority. Original author excluded from remediation ownership.
+
+---
+
 ### 2026-03-23 Session 14: Admin API 500 Fix — Backend Compatibility Layer
 
 **Role in Session 14 (Concluded):** Implemented backend schema compatibility to resolve admin API 500 errors caused by database schema drift.

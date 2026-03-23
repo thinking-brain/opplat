@@ -81,3 +81,4 @@
 ## Learnings
 
 - 2026-03-23 — The current dedicated admin API tenant contract uses `databaseSchema` in JSON (`DatabaseSchema` in C#), not `schema`. The admin frontend must send and read `databaseSchema` in `src\opplat-admin\src\types\index.ts`, `src\opplat-admin\src\pages\TenantsPage.tsx`, and `src\opplat-admin\src\pages\DashboardPage.tsx` to stay aligned with `src\Opplat.AdminApi\Endpoints\AdminContracts.cs`.
+- 2026-03-23 — For the converted Sales and Inventory microservice hosts, keep the HTTP layer thin by having minimal endpoint lambdas inject `[FromServices] IMediator`, send application commands/queries, and leave DTO translation (`ResponseDto`, `InventoryDto`) in the endpoint file while archiving the old controllers as `*Controller_Archived`.
