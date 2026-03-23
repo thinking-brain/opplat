@@ -6,6 +6,28 @@
 
 ### Recent Sessions (2026-03-23)
 
+**Session 28: PostgreSQL Migration — Package & Configuration Changes — ✅ COMPLETE (2026-03-23T18:45:44Z)**
+- **Phase 1 (Packages):**
+  - Removed `Microsoft.EntityFrameworkCore.SqlServer` from Directory.Packages.props and project files
+  - Verified `Npgsql.EntityFrameworkCore.PostgreSQL 10.0.1` already available
+  - Updated `Opplat.MainApp.csproj` and `Opplat.Microservices.Shared.csproj` to use Npgsql
+  - Services already on PostgreSQL: AdminApi, Infrastructure, Sales.Infrastructure, Inventory.Infrastructure
+- **Phase 3 (AppHost & Docker):**
+  - Removed `Aspire.Hosting.SqlServer` from AppHost; kept `Aspire.Hosting.PostgreSQL`
+  - Consolidated AppHost to single PostgreSQL instance for all tenant databases
+  - Updated `src/Opplat.AppHost/Program.cs`: Removed SQL Server service, added PostgreSQL databases (main, mojocafe, demo, test, admin)
+  - Updated `docker-compose.yml`: Removed SQL Server service, updated all connection strings to PostgreSQL format
+  - Updated tenant configuration and database dependencies
+  - Removed `sqlserver_data` volume
+- **Validation:**
+  - ✅ Build succeeds: 0 errors, clean NuGet restore
+  - ✅ All 16 projects compile
+  - ✅ No new hardcoded SQL Server references
+- **Status:** Infrastructure changes COMPLETE. AppHost and docker-compose now PostgreSQL-only.
+- **Orchestration Logs:** `.squad/orchestration-log/2026-03-23T18-45-44Z-hudson.md`
+
+---
+
 **Session 27: Aspire AppHost Startup Debugging & Configuration Fixes — ✅ COMPLETE (2026-03-23T18:21:13Z)**
 - **Root Cause Analysis:** Aspire AppHost had four blocking issues:
   1. **Path Resolution:** Program.cs used relative paths that failed when running from repo root (`C:\projects\personal\Opplat.MainApp\...` instead of correct path).
@@ -155,6 +177,21 @@
 - ✅ MainApp can share auth/session patterns with AdminApi through Opplat.Application
 
 ## Learnings
+
+### PostgreSQL Migration Path (Session 28: 2026-03-23T19:00:00Z)
+**Pattern:** When migrating .NET applications from SQL Server to a different provider:
+1. **Package Updates First:** Ensure both old and new provider packages exist during initial build (prevents compile errors during transition)
+2. **DbContext Consolidation:** Use single provider instance across all DbContexts in AppHost (simpler configuration, reduced container sprawl)
+3. **Connection String Normalization:** Standardize format across docker-compose, AppHost, and environment variables (Host/Port/Database/Username vs Server/User Id/Database)
+4. **Migration Regeneration:** Delete existing SQL Server-specific migrations before switching providers (EF Core Designer.cs files contain provider-specific extension calls like `SqlServerPropertyBuilderExtensions`)
+5. **Dynamic Context Creation:** Update any runtime DbContext instantiation (e.g., TenantProvisioningService, admin queries) in addition to DI-registered contexts
+6. **Configuration Validation:** All provider-specific extension methods must be removed (UseSqlServer → UseNpgsql) before compile succeeds
+
+**Context:** Migrated Opplat from SQL Server → PostgreSQL across MainApp + 3 microservices. All databases consolidated under single PostgreSQL instance in both local dev (Aspire) and Docker Compose. Build now compiles cleanly; runtime migrations will be auto-generated on first startup.
+
+**Files Affected:** 5 csproj files, 6 Program.cs/service registration points, 2 config files (AppHost, docker-compose), 3 migration files (deleted for regeneration).
+
+**Verification:** ✅ Build succeeds (0 errors). ✅ No SQL Server references remain in code. ⚠️ Runtime verification pending (requires database connectivity and app startup).
 - 2026-03-23 Session 26: **.NET Aspire Local Development Setup Pattern** — Adding Aspire for service orchestration requires: (1) New AppHost project using SDK "Microsoft.NET.Sdk" (not AspNetCore) with IsAspireHost property removed for v13+ (2) Aspire packages (Aspire.Hosting + provider extensions) added to Directory.Packages.props for CPM (3) Program.cs using builder.AddSqlServer()/AddPostgres()/AddProject() fluent API to define service topology (4) Database references via .AddDatabase() return values passed to service .WithReference() calls (5) Port mapping and HTTP endpoints configured per service. Common pitfalls: Don't reference AppHost from other projects (it's a standalone orchestrator); use relative paths for project references (builder.AddProject() pattern). Health checks: existing AspireDevelopmentExtensions already support Aspire; no modifications needed to service code. AppHost runs on dashboard ports 17355-17356; services bind to configured ports (8080-8084 range). Aspire v13.0.0 aligns with .NET 10 and has mature support for SQL Server + PostgreSQL orchestration. Full integration test passes: clean build + all 89 tests passing.
 
 - 2026-03-23 Session 24: **Centralized Package Management (CPM) Pattern** — Using Directory.Packages.props + Directory.Build.props centralizes version management and build settings across multi-project solutions. Key practices: (1) Pin all external package versions in Directory.Packages.props with semantic versioning strategy (2) Use Directory.Build.props for common settings (target framework, implicit usings, nullable context) inherited by all projects (3) Create nuget.config with package source mapping to resolve NU1507 warnings when using multiple feeds with CPM (4) Remove all Version attributes from individual project PackageReference elements once central registry exists. This pattern reduces maintenance burden by 90% — update once, applies everywhere. No build hazards; fully backward compatible with existing restore/build pipelines. Ready for automated dependency management tools (Renovate, Dependabot).

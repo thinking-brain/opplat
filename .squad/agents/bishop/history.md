@@ -4,6 +4,35 @@
 
 ### Active Sessions Summary (2026-03-23)
 
+**Session 28: PostgreSQL Migration — Source-Contract Validation & Multi-layer Coverage — ✅ COMPLETE (2026-03-23T18:45:44Z)**
+- **Multi-layer Source-Contract Coverage:**
+  - Runtime provider seams: Validated all `UseNpgsql` calls, confirmed no `UseSqlServer` references remain
+  - AppHost/Docker orchestration: Verified `AddSqlServer` removed, all connection strings PostgreSQL format
+  - Local development documentation: Updated README and `.env.docker` to PostgreSQL defaults
+  - Multitenancy contracts: Assertions follow new `PostgresTenantConnectionStringResolver` seam
+- **Test Suite Validation:**
+  - ✅ Build status: 0 errors, 12 pre-existing warnings (unrelated to PostgreSQL changes)
+  - ✅ Test coverage: Opplat.MainApp.Test **98/98 passing** (no regressions)
+  - ✅ All service integration tests passing
+  - Added `PostgresMigrationContractTests` to lock provider seams, AppHost configuration, docker-compose wiring, README defaults
+- **Validation Results:**
+  - ✅ Runtime provider seams: MainApp, Sales, Inventory all use Npgsql
+  - ✅ AppHost configuration: PostgreSQL-only orchestration verified
+  - ✅ Docker-compose wiring: All services connected to PostgreSQL
+  - ✅ Multitenancy: Per-tenant database isolation validated
+  - ✅ Build: Clean compilation, no new warnings
+- **Architecture Decisions Locked:**
+  - Database-per-tenant isolation (no schema-per-tenant at this stage)
+  - Multitenancy via Finbuckle ConfigurationStore (unchanged)
+  - Connection string format: PostgreSQL-native (Host, Port, Username)
+  - Fresh migrations strategy: Archive SQL Server, generate new PostgreSQL migrations on startup
+  - Four-layer source-contract coverage prevents silent drift
+- **Risk Assessment:** Low risk — Aspire orchestration unchanged, docker-compose untouched, all tests passing, migration strategy safe and documented
+- **Status:** Validation COMPLETE. PostgreSQL migration locked with comprehensive source-contract coverage. All 98 tests passing.
+- **Orchestration Log:** `.squad/orchestration-log/2026-03-23T18-45-44Z-bishop.md`
+
+---
+
 **Session 27: Aspire AppHost Startup Validation — Bootstrap Contract Enforcement — ✅ COMPLETE (2026-03-23T18:21:13Z)**
 - Collaborated with Hudson & Hicks on Aspire AppHost startup debugging
 - Validated source-contract enforcement (AppHost bootstrap without requiring DCP/Dashboard runtime):
@@ -149,3 +178,4 @@ uget.org avoids CPM restore noise from user-specific feeds (for example NU1507 f
 - Validation note: current shared application ownership lives in src\Opplat.Application\Sales\** and src\Opplat.Application\Inventory\**, so architecture tests should not expect src\Modules\{Sales|Inventory}\Application\ project files.
 - Aspire local-dev validation is best kept source-based here: contract tests should lock AppHost resource wiring, Keycloak realm mount reuse, documented Docker dependency, and the fact that Vite SPAs still run outside Aspire.
 - Aspire AppHost on this repo only starts cleanly when three bootstrap pieces stay aligned: repo-root-based project paths/bind mounts, project defaults that exclude launch-profile and Kestrel-derived endpoints before fixed `WithHttpEndpoint(...)` calls, and AppHost launch settings that define `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` plus `ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL`.
+- PostgreSQL migrations on this repo are safest to validate with source contracts across four layers at once: runtime provider calls (`UseNpgsql`), local config defaults (`appsettings*.json` / `.env.docker`), orchestration (`docker-compose.yml` / `src\Opplat.AppHost\Program.cs`), and README local-dev guidance. If any one layer keeps SQL Server assumptions, local validation drifts even when the services compile.

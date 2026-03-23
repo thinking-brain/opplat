@@ -4,6 +4,33 @@
 
 ### Active Sessions Summary (2026-03-23)
 
+**Session 28: PostgreSQL Migration — Runtime Provider & Seam Changes — ✅ COMPLETE (2026-03-23T18:45:44Z)**
+- **Phase 2 (Runtime Wiring):**
+  - Updated all DbContext registrations: `UseSqlServer()` → `UseNpgsql()` across all projects
+  - Updated `src/Opplat.MainApp/Program.cs` DbContext registration
+  - Updated `src/Opplat.Microservices.Shared/Extensions/ServiceCollectionExtensions.cs` DbContext registration
+  - Updated `src/Opplat.MainApp/Data/DesignTimeDbContextFactory.cs` to use PostgreSQL connection string format
+- **Phase 3 (Tenant Provisioning & Admin):**
+  - Updated `src/Opplat.MainApp/Services/TenantProvisioningService.cs` to use PostgreSQL
+  - Updated `src/Opplat.MainApp/Features/Admin/Queries/GetAdminUsersQuery.cs` to use PostgreSQL
+- **Thin-Host PostgreSQL Seam Design:**
+  - Tenant database access resolved at request time through Npgsql
+  - Tenants configurable via full `ConnectionString` (legacy support) OR catalog metadata (`DatabaseName` + optional `DatabaseSchema`)
+  - Allows smooth transition during wider architecture migration
+- **Migration Management:**
+  - Deleted SQL Server-specific migrations: `20221121050808_Initial.*`, `20221123213125_RemoveDuende.*`, `20221123231550_AddCostTabs.*`, `OpplatDbContextModelSnapshot.cs`
+  - Rationale: EF Core will auto-generate fresh PostgreSQL migrations on first app startup
+- **AppHost & Local Development:**
+  - AppHost now provisions PostgreSQL databases for main + tenant slices
+  - Passes tenant metadata alongside connection strings
+  - All environment variables updated to PostgreSQL format
+- **Admin Catalog Compatibility:**
+  - Catalog resolver can derive database names from both PostgreSQL and legacy SQL Server connection strings
+- **Status:** Runtime changes COMPLETE. All DbContext, tenant provisioning, and admin queries use PostgreSQL.
+- **Orchestration Log:** `.squad/orchestration-log/2026-03-23T18-45-44Z-hicks.md`
+
+---
+
 **Session 27: Aspire AppHost Startup Debugging — Runtime Configuration Fixes — ✅ COMPLETE (2026-03-23T18:21:13Z)**
 - Collaborated with Hudson & Bishop on diagnosing Aspire AppHost startup failures
 - Fixed path resolution defects: Worked with Hudson on `FindRepoRoot()` + `RepoPath()` helpers in Program.cs for absolute path computation from repo root
@@ -140,3 +167,5 @@ See `.squad/orchestration-log/` for detailed session outcomes and `.squad/decisi
 - For Aspire local-dev readiness without touching project/package wiring, keep each ASP.NET host thin and add one host-level seam that standardizes `/health` + `/alive`, trusts forwarded headers only in Development, and skips HTTPS redirection unless an HTTPS binding is actually configured.
 - In Opplat's AppHost, `builder.AddProject(path)` and container bind mounts must be resolved from a stable repo-root helper instead of assuming the caller's working directory; otherwise `dotnet run --project src\Opplat.AppHost` can point at `C:\projects\personal\Opplat.*` and fail before orchestration starts.
 - When an Aspire AppHost forces explicit fixed HTTP ports for existing ASP.NET Core services, exclude launch-profile and Kestrel-derived endpoints first; otherwise `WithHttpEndpoint(...)` collides with the implicit `http` endpoint from launch settings and the host dies before any service starts.
+- For the PostgreSQL migration, keep ASP.NET hosts thin by moving tenant database selection into a small resolver that accepts either a full tenant connection string or catalog metadata (`DatabaseName` + optional `DatabaseSchema`) and then hands EF a finalized Npgsql connection string.
+- Safe runtime migration work can switch `UseSqlServer` call sites, design-time factories, tenant provisioning, and AppHost/dev connection defaults to Npgsql before schema-per-tenant and production catalog decisions are finalized, as long as existing tenant `ConnectionString` values still remain valid.

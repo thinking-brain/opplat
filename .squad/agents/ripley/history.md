@@ -22,7 +22,18 @@
 
 ---
 
-### Session 26 Summary (2026-03-23)
+### Session 28 Summary (2026-03-23)
+
+**PostgreSQL Migration — Design & Approval — APPROVED**
+- Designed and approved PostgreSQL-first migration shape across MainApp, Sales, Inventory
+- Confirmed AdminApi remains on PostgreSQL (no change required)
+- Multitenancy strategy locked: database-per-tenant via Finbuckle (no schema-per-tenant)
+- Implementation guardrails documented per phase and agent (Hudson: packages, Hicks: runtime, Bishop: validation)
+- Approved deferral of per-tenant schema strategy to future iteration
+- Decision record merged into `.squad/decisions.md` — Session 28 PostgreSQL section
+- Orchestration logs: `.squad/orchestration-log/2026-03-23T18-45-44Z-ripley.md`
+
+---
 
 **Aspire Local Development Architecture — APPROVED & IMPLEMENTED**
 - Approved single AppHost orchestrating MainApp, AdminApi, Sales API, Inventory API
@@ -110,4 +121,33 @@ See `.squad/orchestration-log/` for detailed session outcomes and `.squad/decisi
 - Bishop: AppHost smoke tests, dual-mode validation
 
 **Lesson:** Aspire integrates best when treating .NET apps as native projects and external deps (DBs, auth) as containers. Frontend SPAs benefit from their own HMR tooling.
+
+### Session 27 (2026-03-23): PostgreSQL Migration Design — APPROVED
+
+**Request:** Migrate all services from SQL Server to PostgreSQL.
+
+**Analysis:**
+- Current state: MainApp/Sales/Inventory use SQL Server; AdminApi already on PostgreSQL
+- Multitenancy: Finbuckle with per-tenant database isolation (not schema-per-tenant)
+- Npgsql packages already referenced across most projects
+- Existing SQL Server migrations must be archived, not converted
+
+**Design Decision:**
+1. **Provider swap** — `UseSqlServer()` → `UseNpgsql()` in all DbContext registrations
+2. **Multitenancy unchanged** — Per-tenant databases; ConfigurationStore resolves connection strings
+3. **Fresh migrations** — Archive SQL Server migrations, generate new PostgreSQL-native migrations
+4. **Identity columns** — Remove `UseIdentityColumns()`; let Npgsql handle auto-increment
+
+**Phased Approach:**
+- Phase 1 (Hudson): Package cleanup — remove SqlServer packages
+- Phase 2 (Hicks): Runtime wiring — Program.cs, ServiceCollectionExtensions
+- Phase 3 (Hicks): AppHost/Docker — connection strings, database resources
+- Phase 4-5 (Bishop): Migration generation + validation
+
+**Constraints Documented:**
+- No raw SQL in handlers (flag any for review)
+- Preserve connection string key names
+- Database naming convention: underscore (`opplat_main` not `opplat-main`)
+
+**Lesson:** Database provider migrations are cleanest when EF Core migrations are regenerated fresh rather than converted. Archive don't delete — rollback path must remain viable.
 

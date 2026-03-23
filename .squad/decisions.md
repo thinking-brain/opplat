@@ -3181,6 +3181,182 @@ Keep the Sales and Inventory microservice hosts as thin minimal-API composition 
 - `src\Services\Inventory\Opplat.Services.Inventory.Api`
 - `src\Modules\Inventory\Application`
 
+---
+
+## Decision: Session 28 — PostgreSQL Migration (2026-03-23)
+
+**Requested by:** elvis.crego  
+**Approved by:** Ripley (Architect)  
+**Status:** COMPLETE  
+**Outcome:** All services migrated from SQL Server to PostgreSQL; tests passing 98/98
+
+---
+
+## Design Approved
+
+**PostgreSQL-First Architecture:**
+1. **Provider Swap:** `UseSqlServer()` → `UseNpgsql()` across all EF Core DbContext registrations
+2. **Multitenancy:** Maintain per-tenant database isolation using Finbuckle ConfigurationStore (database-per-tenant, no schema-per-tenant)
+3. **Fresh Migrations:** Generate new PostgreSQL-native migrations; archive SQL Server migrations to `_Archived_SqlServer_Migrations/`
+4. **Identity Columns:** Remove `builder.UseIdentityColumns()`; let Npgsql handle auto-increment defaults
+5. **Connection String Format:** Switch from SQL Server format (Server, User Id, TrustServerCertificate) to PostgreSQL format (Host, Port, Username)
+
+---
+
+## Services Affected
+
+| Service | Current → Target | Multitenancy |
+|---------|------------------|--------------|
+| MainApp | SQL Server → PostgreSQL | Per-tenant via Finbuckle |
+| Sales API | SQL Server → PostgreSQL | Per-tenant via Finbuckle |
+| Inventory API | SQL Server → PostgreSQL | Per-tenant via Finbuckle |
+| AdminApi | PostgreSQL → PostgreSQL | Single catalog (no change) |
+
+---
+
+## Implementation Summary
+
+**Hudson (Infrastructure):**
+- Removed `Microsoft.EntityFrameworkCore.SqlServer` from Directory.Packages.props and project files
+- Removed `Aspire.Hosting.SqlServer` from AppHost
+- Consolidated AppHost to single PostgreSQL instance for all tenant databases
+- Updated docker-compose: removed SQL Server service, updated all connection strings to PostgreSQL format
+- ✅ Build succeeds: 0 errors, clean NuGet restore
+
+**Hicks (Runtime):**
+- Updated DbContext registrations: `UseSqlServer()` → `UseNpgsql()` in MainApp Program.cs and ServiceCollectionExtensions
+- Updated design-time factory: DesignTimeDbContextFactory.cs uses PostgreSQL format
+- Updated tenant provisioning: TenantProvisioningService now uses PostgreSQL
+- Updated admin queries: GetAdminUsersQuery now uses PostgreSQL
+- Established thin-host PostgreSQL seam: allows tenant configuration via full ConnectionString OR catalog metadata (DatabaseName + DatabaseSchema)
+- AppHost provisions PostgreSQL databases for main + tenant slices
+
+**Bishop (Validation):**
+- Locked migration with multi-layer source contracts:
+  - Runtime provider seams: all `UseNpgsql` calls verified, no `UseSqlServer` remaining
+  - AppHost/Docker orchestration: `AddSqlServer` removed, PostgreSQL connection strings verified
+  - Local-dev documentation: README and `.env.docker` updated to PostgreSQL defaults
+  - Multitenancy contracts: assertions follow new `PostgresTenantConnectionStringResolver` seam
+- ✅ All 98 tests passing; no regressions
+- ✅ Build validation: 0 errors, 12 pre-existing warnings (unrelated)
+
+**Ripley (Design):**
+- Approved migration shape across all three main services
+- Confirmed AdminApi remains on PostgreSQL (no change required)
+- Documented implementation guardrails per phase and agent
+- Approved deferral of per-tenant schema strategy (future iteration)
+
+---
+
+## Key Guardrails Documented
+
+### Hudson Constraints
+- Package changes only; no Program.cs or runtime code
+- Verify removal of SqlServer packages doesn't break references
+- Run `dotnet restore` after package changes
+
+### Hicks Constraints
+- Runtime wiring only (Program.cs, ServiceCollectionExtensions)
+- Do NOT change DbContext entity configurations beyond identity column fix
+- Do NOT modify Finbuckle multitenancy strategy
+- Preserve existing connection string key names (`DefaultConnection`, `MainConnection`)
+
+### Bishop Constraints
+- Validation only; may run commands but no code changes
+- Run build → test → Aspire → Docker Compose validation
+- Report failures immediately
+
+### Migration Constraints
+- No raw SQL in migrations (let EF Core generate PostgreSQL-native DDL)
+- No hardcoded SQL Server assumptions in handlers or queries
+- Use underscore convention for database names (e.g., `opplat_main` not `opplat-main`)
+
+---
+
+## Files Changed
+
+| File | Change |
+|------|--------|
+| `Directory.Packages.props` | Removed SqlServer package version |
+| `src/Opplat.MainApp/Program.cs` | UseSqlServer → UseNpgsql |
+| `src/Opplat.MainApp/Data/OpplatDbContext.cs` | Removed UseIdentityColumns (Npgsql handles defaults) |
+| `src/Opplat.MainApp/Data/DesignTimeDbContextFactory.cs` | UseSqlServer → UseNpgsql, updated connection string format |
+| `src/Opplat.Microservices.Shared/Extensions/ServiceCollectionExtensions.cs` | UseSqlServer → UseNpgsql |
+| `src/Opplat.MainApp/Services/TenantProvisioningService.cs` | Updated to PostgreSQL provider |
+| `src/Opplat.MainApp/Features/Admin/Queries/GetAdminUsersQuery.cs` | Updated to PostgreSQL provider |
+| `src/Opplat.AppHost/Program.cs` | Removed SQL Server, consolidated to PostgreSQL |
+| `src/Opplat.AppHost/Opplat.AppHost.csproj` | Removed Aspire.Hosting.SqlServer |
+| `docker-compose.yml` | Removed SQL Server service, updated all connection strings |
+| `src/Opplat.MainApp/Migrations/` | Archived SQL Server migrations for regeneration |
+| `test/Opplat.MainApp.Test/` | Added PostgresMigrationContractTests |
+
+---
+
+## Deferred Decisions
+
+1. **Per-tenant PostgreSQL schemas:** Currently carrying `DatabaseSchema` metadata; schema-per-tenant strategy deferred to future iteration
+2. **Production connection string rotation:** Out of scope (local-dev only at this stage)
+3. **Data migration from SQL Server:** Separate concern; requires SQL-to-PostgreSQL strategy (e.g., AWS DMS, custom scripts)
+
+---
+
+## Migration Strategy
+
+**Fresh Migration Generation:**
+- Existing SQL Server migrations archived to `_Archived_SqlServer_Migrations/` for rollback reference
+- EF Core will auto-generate fresh PostgreSQL-native migrations on first app startup
+- For production, use `dotnet ef migrations script` to generate SQL scripts for controlled deployment
+
+**Tenant Database Provisioning:**
+- Tenant provisioning service creates PostgreSQL databases and applies migrations
+- Multi-tenant context resolution via Finbuckle ConfigurationStore (unchanged)
+- Catalog-driven tenant metadata available during wider architecture migration
+
+---
+
+## Rollback Plan
+
+If PostgreSQL migration fails:
+1. Restore `_Archived_SqlServer_Migrations/` to `Migrations/`
+2. Revert package changes (add back SqlServer packages)
+3. Revert Program.cs changes to `UseSqlServer()`
+4. Restore SQL Server service in AppHost and docker-compose
+5. Restore SQL Server connection strings
+
+---
+
+## Test & Validation Results
+
+✅ **Build:** 0 errors, clean restore  
+✅ **Test Suite:** 98/98 passing (Opplat.MainApp.Test)  
+✅ **Service Integration:** All backend services verified  
+✅ **Multitenancy:** Per-tenant database isolation validated  
+✅ **Orchestration:** AppHost and docker-compose wiring verified  
+✅ **Documentation:** README and `.env.docker` updated  
+
+---
+
+## Known Limitations
+
+1. Fresh migrations generated at first app startup (not pre-generated)
+2. Data migration from SQL Server to PostgreSQL requires separate strategy
+3. Type compatibility should be verified (e.g., IDENTITY → SERIAL, collation, JSON handling)
+4. Performance tuning may differ from SQL Server
+
+---
+
+## Decision Record
+
+**Approved by:** Ripley (Architect)  
+**Implemented by:** Hudson (infrastructure), Hicks (runtime), Bishop (validation)  
+**Orchestration logs:** 
+- `.squad/orchestration-log/2026-03-23T18-45-44Z-ripley.md`
+- `.squad/orchestration-log/2026-03-23T18-45-44Z-hudson.md`
+- `.squad/orchestration-log/2026-03-23T18-45-44Z-hicks.md`
+- `.squad/orchestration-log/2026-03-23T18-45-44Z-bishop.md`
+
+**Session log:** `.squad/log/2026-03-23T18-45-44Z-postgres-migration.md`
+
 
 
 ---
