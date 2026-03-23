@@ -26,6 +26,13 @@ Hosts should call:
 
 Avoid reintroducing repository/service wiring directly in the host.
 
+### For mixed-host MainApp migrations, pin both route families
+When converting one MainApp area at a time, keep `MapControllers()` only for still-live MVC surfaces, remove the converted area's conventional route entries from `Program.cs`, archive the retired controllers in place, and map the same endpoint module under both the root and tenant-aware prefixes (for example `/sales/*` and `/{__tenant__}/sales/*`).
+
+Back it with two regression seams:
+- source-contract tests that assert `Program.cs` maps `Map{Module}Endpoints()` and archived controllers reference the replacement endpoint file
+- executable endpoint-surface tests that enumerate route patterns and authorization metadata so root/tenant parity and edge authorization do not silently drift
+
 ### Update Docker restore graphs with every new project reference
 If a Dockerfile copies `.csproj` files individually before restore, add every newly referenced Application project there immediately. Otherwise local builds can pass while container restores fail.
 

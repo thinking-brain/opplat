@@ -1,5 +1,43 @@
 ## Core Context
 
+### 2026-03-23 Session 17: MainApp Sales Regression Gates — Phase Gate 1 Authorized
+
+**Status:** ✅ COMPLETE (81/81 passing) — Pending Ripley Phase Gate 2 review
+
+**Role:** Architecture + regression test suite validation for MainApp Sales endpoints
+
+**What Happened:** Following Phase Gate 1 approval, validated Hicks's Sales conversion with comprehensive regression gates, extending the Inventory validation pattern.
+
+1. **Architecture Regression Tests**
+   - Extended `MicroserviceHostArchitectureTests.cs` to cover MainApp Sales patterns
+   - Added contract assertions for thin-host pattern:
+     - No `AddControllers()` registration
+     - All endpoints inject `IMediator` (no legacy `IService` types)
+     - Controllers archived with `_Archived` suffix, routes commented
+     - MediatR handlers exist and are discoverable
+     - `MapSalesEndpoints()` call present in routing
+
+2. **Sales-Specific Authorization Seam Validation**
+   - Pinned authorization boundary: sales-list endpoints protected
+   - Product-list endpoints unannotated (per spec)
+   - Verified auth contract consistent across dual route surfaces
+
+3. **Route Surface Validation**
+   - Legacy root `/sales/*` paths verified (non-tenant)
+   - Tenant-aware `/{__tenant__}/sales/*` paths verified
+   - Confirmed both surfaces routed to MediatR endpoints (not controllers)
+
+4. **Decision Logged**
+   - `.squad/decisions/inbox/bishop-mainapp-sales-tests.md` → merged to decisions.md
+   - Why: Mixed-host regression contract protects Sales rollout without breaking Inventory
+   - Impact: Architecture guardrails now prevent silent drift; future regressions fail automatically
+
+**Test Result:** ✅ **81/81 PASSING** (79 inherited from Inventory + 2 new Sales-specific tests)
+
+**Next Step:** Pending Ripley Phase Gate 2 review for merge authorization
+
+---
+
 ### 2026-03-23 Session 16: MainApp Inventory Regression Gates — Phase Gate 1 Authorized
 
 **Status:** ✅ COMPLETE (79/79 passing) — Pending Ripley Phase Gate 2 review
@@ -105,6 +143,7 @@
 - When the admin API boundary drops user CRUD, add page-level source-contract tests for `src/opplat-admin/src/pages/DashboardPage.tsx` and `TenantsPage.tsx` in addition to API wrapper tests; route/type assertions alone will miss stale calls to removed `/admin/users` flows or old tenant fields such as `connectionString`.
 - When hosts switch from direct `AddMediatR(...)` calls to the shared `AddOpplatApplication(...)` wrapper, keep the regression seam split across both files: assert the host calls the wrapper and assert the wrapper still registers MediatR assemblies. That catches DI drift without overfitting tests to one registration style.
 - For MainApp area-by-area migrations, the safest inventory regression gate is a mixed-host contract: keep `MapControllers()` only for still-live MVC areas, remove the converted area's conventional routes, map the same minimal endpoint module under both `/inventory` and `/{__tenant__}/inventory`, and archive the retired controllers so the old surface cannot silently reactivate.
+- For MainApp Sales rollouts, pair converted-surface source contracts with executable route-metadata tests: pin `app.MapSalesEndpoints();`, require both `/sales/*` and `/{__tenant__}/sales/*`, assert the sales list endpoint keeps authorization while product reads stay unannotated, and verify archived Sales controllers still reference `Features/Sales/SalesEndpoints.cs` so mixed-host drift fails fast.
 
 ---
 

@@ -2573,3 +2573,58 @@ The Sales area in MainApp is next. It shares the same multi-tenant routing compl
 ## Notes
 
 MainApp still uses `MapControllers()` for remaining areas not yet converted (e.g., other MVC areas). This is expected during wave-based conversion. Remove once all areas migrated.
+
+---
+
+## Session 14 Decisions (2026-03-23 — MainApp Sales Wave)
+
+### 1. Hicks — MainApp Sales Wave
+**Decision Date:** 2026-03-23  
+**Agent:** Hicks (Backend)  
+**Status:** ✅ COMPLETE  
+
+**Decision:** Convert `src\Opplat.MainApp\Areas\Sales` to a thin-host minimal API surface in `src\Opplat.MainApp\Features\Sales\SalesEndpoints.cs`.
+
+**Implementation:**
+- Created `Features/Sales/SalesEndpoints.cs` with MediatR-injected minimal APIs
+- Dual route surfaces: `/sales/*` (non-tenant) + `/{__tenant__}/sales/*` (tenant-scoped)
+- Authorization seam retained on sales-list endpoints only
+- Archived legacy `Areas\Sales` controllers with `_Archived` suffix
+- Commented out all route attributes to prevent accidental activation
+- Updated `Program.cs` to remove live Sales MVC route registration and add `app.MapSalesEndpoints()`
+- Kept `MapControllers()` for remaining live MVC surfaces
+
+**Rationale:** Sales already has MediatR-backed handlers in `src\Modules\Sales\Application`. This conversion matches the approved Inventory pattern and keeps tenant routing behavior consistent during mixed-host transition.
+
+**Consequences:**
+- MainApp Sales business behavior now crosses HTTP boundary only through minimal APIs + MediatR
+- Archived Sales controllers remain as route-reference artifacts without live route attributes
+- Reduces risk of duplicate endpoint registration while rest of MainApp still uses MVC where needed
+
+---
+
+### 2. Bishop — MainApp Sales Regression Gates
+**Decision Date:** 2026-03-23  
+**Agent:** Bishop (Testing)  
+**Status:** ✅ COMPLETE (81/81 PASSING)  
+
+**Decision:** Lock the MainApp Sales migration behind the same mixed-host regression shape already used for Inventory: source-contract checks for thin-host composition plus executable endpoint-surface tests.
+
+**Implementation:**
+- Extended `MicroserviceHostArchitectureTests.cs` to cover MainApp Sales patterns
+- Architecture contract assertions:
+  - No `AddControllers()` registration in Program.cs
+  - All endpoints inject `IMediator` (no legacy `IService` types)
+  - Controllers archived with `_Archived` suffix, routes commented
+  - MediatR handlers exist and are discoverable
+  - `MapSalesEndpoints()` call present in routing
+- Route surface validation: Both `/sales/*` and `/{__tenant__}/sales/*` routed to MediatR endpoints
+- Authorization seam validation: sales-list endpoints protected, product-list endpoints unannotated (per spec)
+
+**Rationale:** Sales rollout is landing inside still-mixed MainApp host, so source-only checks are not enough. Route/metadata tests catch accidental route loss or duplicate surface reactivation.
+
+**Test Results:** ✅ **81/81 PASSING** (79 inherited + 2 new Sales-specific tests)
+
+**Consequences:**
+- Future Sales host changes must preserve thin-host composition, MediatR endpoint handlers, dual route families, and controller archival markers or regression suite fails
+- Architecture guardrails prevent silent drift; future regressions fail automatically

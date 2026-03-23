@@ -162,3 +162,15 @@ Per Ripley's authority, original defect author (Hicks) excluded from revision ow
 
 4. **Test coverage expanded for MainApp surfaces** — `ConvertedSurfaceArchitectureTests.cs` validates: (a) Program.cs maps converted features via minimal API extensions, (b) endpoint modules stay mediator-backed and controller-free, (c) archived controllers stay unmapped after conversion.
 
+### Session 23 Learnings (MainApp Sales Wave — APPROVED)
+
+1. **MainApp Sales conversion complete** — All 5 Sales controllers archived with `_Archived` suffix, route attributes commented, replacement file referenced. SalesEndpoints.cs maps all feature slices (Products, Toppings, ProductTags, CostTabs) via minimal API with explicit `[FromServices] IMediator` injection.
+
+2. **Dual route shapes preserved** — `/sales` (non-tenant) and `/{__tenant__}/sales` (tenant-prefixed) both map to the same handler functions via `MapSalesGroup()` reuse. Multi-tenant middleware continues to work unchanged.
+
+3. **Narrow auth seam validated** — Only `/sales` list endpoint has RequireAuthorization(); child endpoints (/products, /toppings, etc.) stay unannotated, matching original controller behavior. Test coverage validates this boundary via `MapSalesEndpoints_KeepSalesListProtectedWhileOtherSalesReadsStayUnannotated`.
+
+4. **MediatR handlers verified** — Sales module Application project has real handlers (not placeholders): ListProductsQueryHandler, CreateProductCommandHandler, UpdateProductCommandHandler, DeleteProductCommandHandler, plus full coverage for Toppings, ProductTags, CostTabs, and Sales entities.
+
+5. **Test regression suite adequate** — 81 tests passing, including architecture tests for: endpoint-to-MediatR wiring, controller archival format, route surface coverage for both tenant/non-tenant paths, and auth seam validation.
+

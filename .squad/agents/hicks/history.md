@@ -1,5 +1,40 @@
 ## Core Context
 
+### 2026-03-23 Session 17: MainApp Sales Wave — Phase Gate 1 Authorized
+
+**Status:** ✅ COMPLETE — Pending Ripley Phase Gate 2 review
+
+**Role:** Sales endpoints implementation + controller archival (Phase Gate 1 authorized wave)
+
+**What Happened:** Following Inventory success, executed Sales conversion as second MainApp area within mixed-host architecture.
+
+1. **Sales Endpoints Implementation**
+   - Created `Features/Sales/SalesEndpoints.cs` with MediatR-injected minimal APIs
+   - Mapped dual route surfaces: `/{__tenant__}/sales/*` (tenant-scoped) + `/sales/*` (root)
+   - All endpoints inject `IMediator` for handler dispatch
+   - Authorization seam retained on sales-list endpoints only
+
+2. **Controller Archival**
+   - Archived legacy Sales controllers with `_Archived` suffix
+   - Commented out all route attributes to prevent accidental activation
+   - Files retained as reference artifacts in source tree
+
+3. **Program.cs Routing Update**
+   - Removed live conventional Sales MVC route registration
+   - Added `app.MapSalesEndpoints()` call
+   - Preserved `MapControllers()` for remaining live MVC surfaces
+
+4. **Decision Logged**
+   - `.squad/decisions/inbox/hicks-mainapp-sales-wave.md` → merged to decisions.md
+   - Why: Sales follows Inventory pattern; host still has live MVC areas
+   - Consequence: Explicit MediatR boundary at endpoint layer; dual route surfaces
+
+**Test Status:** Bishop validated 81/81 passing (79 inherited + 2 new Sales-specific tests)
+
+**Next Step:** Pending Ripley Phase Gate 2 review for merge authorization
+
+---
+
 ### 2026-03-23 Session 16: MainApp Inventory Wave — Phase Gate 1 Authorized
 
 **Status:** ✅ COMPLETE — Pending Ripley Phase Gate 2 review
@@ -157,6 +192,7 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key milestones: F
 
 ## Learnings
 
+- 2026-03-23: For MainApp Sales area retirement, the clean migration mirrors Inventory: add dual minimal API groups for `/sales/*` and `/{__tenant__}/sales/*`, keep only the sales-list endpoint authorized, remove Sales conventional routes from `Program.cs`, and archive the old area controllers in place with `_Archived` markers plus commented routing metadata.
 - 2026-03-22: After splitting admin auth/BFF into the dedicated admin API, `Opplat.MainApp` should stay JwtBearer-only and stop owning `/admin/session*` or `/auth/bff/admin/*`; remove related compose/env wiring from the shared host at the same time.
 - 2026-03-23: For first-wave controller retirement in isolated module services, the clean split is module `Application` handlers over repository interfaces plus host-side minimal endpoints that only bind HTTP concerns and translate command results to DTOs; implement handlers against shared `Opplat.Application.Abstractions` request contracts and keep the old controllers archived with route attributes removed until the rollout finishes.
 - Containerized APIs must validate Keycloak tokens against the browser-visible issuer (`Auth:Authority`) while using a separate internal discovery URL (`Auth:MetadataAddress`) for backchannel metadata/JWKS fetches.
