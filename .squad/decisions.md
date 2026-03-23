@@ -2006,3 +2006,64 @@ All checks passed:
   - `src\opplat-admin\src\types\index.ts` now models tenant payloads with `databaseSchema`.
   - `TenantsPage` and `DashboardPage` read/write `databaseSchema` while keeping the UI label as “Schema”.
   - Frontend contract tests now pin `databaseSchema` so future admin API refactors fail fast in CI.
+
+---
+
+## 5. Application Layer Refactor Wave 1 (Ripley, Hudson, Hicks, Bishop)
+**Decision Date:** 2026-03-23
+**Agents:** Ripley (Architect), Hudson (Infrastructure), Hicks (Implementation), Bishop (Testing)
+**Status:** ✅ APPROVED & IMPLEMENTED (Phase Gate 1)
+
+**Decision:** Execute first application-layer refactor wave:
+1. Create shared infrastructure: Opplat.Application.Abstractions + Opplat.Application
+2. Populate Modules.Sales.Application with MediatR request/handler slices (Products, Toppings, ProductTags, CostTabs, Sales CRUD)
+3. Convert Services.Sales.Api from controllers to minimal API endpoints
+4. Archive legacy controllers (rename, remove route attributes) instead of deleting
+5. Add regression coverage for thin-host pattern, DI seams, multitenancy guards
+
+**Architecture:**
+`
+src/
+├── Opplat.Application.Abstractions/    # MediatR contracts, shared behaviors
+├── Opplat.Application/                 # AddOpplatApplication registration seam
+├── Modules/
+│   ├── Sales/
+│   │   └── Application/                # MediatR handlers for Products, Toppings, etc.
+│   └── Inventory/
+│       └── Application/                # (Phase 2)
+└── Opplat.MainApp/
+    └── Features/                       # Account, License, Menus handlers
+`
+
+**MediatR Wiring:** Each host registers handlers from dependent Application assemblies:
+- AddOpplatApplication(...) scans defined assemblies (validated via ServiceCollectionExtensions contract)
+- Handlers inject DbContext directly; no extra service layer
+- Minimal endpoints (MapGroup("/sales")) delegate to IMediator
+
+**Validation:**
+- ✅ dotnet build opplat.slnx (all projects, including Sales API)
+- ✅ dotnet test opplat.slnx (Opplat.MainApp.Test: 74/74)
+- ✅ Route contracts unchanged (endpoint shapes preserved)
+- ✅ Regression gates locked (thin hosts, DI seams, multitenancy)
+
+**Phase Gate 1 (Approved):**
+- [x] Abstractions + Application created
+- [x] Sales Application handlers complete (≥5 handler slices)
+- [x] Sales.Api controllers → minimal endpoints + MediatR
+- [x] Build + tests green
+- [x] New handler unit tests added
+
+**Rejection of Alternatives:**
+- Single shared Opplat.Application → Creates cross-context coupling
+- Keep IService<T,K> with MediatR wrappers → Unnecessary indirection
+- Convert MainApp controllers first → Higher risk (multi-tenant middleware)
+- Delete controllers immediately → Loses reference implementation
+
+**Next Phases:**
+- Phase 2: Inventory microservice (same pattern)
+- Phase 3: MainApp Areas/Sales, Areas/Inventory (shared composition, multi-tenant regression)
+
+**Lesson Captured:** Staged migration with explicit DI seams (AddOpplatApplication) allows independent versioning + testing without coupling bounded contexts. Archive pattern preserves refactoring knowledge during transition.
+
+---
+

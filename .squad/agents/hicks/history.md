@@ -226,6 +226,7 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key milestones: F
 ## Learnings
 
 - 2026-03-22: After splitting admin auth/BFF into the dedicated admin API, `Opplat.MainApp` should stay JwtBearer-only and stop owning `/admin/session*` or `/auth/bff/admin/*`; remove related compose/env wiring from the shared host at the same time.
+- 2026-03-23: For first-wave controller retirement in isolated module services, the clean split is module `Application` handlers over repository interfaces plus host-side minimal endpoints that only bind HTTP concerns and translate command results to DTOs; implement handlers against shared `Opplat.Application.Abstractions` request contracts and keep the old controllers archived with route attributes removed until the rollout finishes.
 - Containerized APIs must validate Keycloak tokens against the browser-visible issuer (`Auth:Authority`) while using a separate internal discovery URL (`Auth:MetadataAddress`) for backchannel metadata/JWKS fetches.
 - For local Docker Keycloak, `--hostname=<public-url> --hostname-backchannel-dynamic=true` keeps admin/browser redirects on the public host without breaking backend token validation inside the Docker network.
 - For Entra-in-prod plus Keycloak-in-dev, the backend should stay on plain ASP.NET Core `AddJwtBearer` with OIDC discovery and a provider-neutral claim-normalization layer; provider-specific server packages add coupling without helping Keycloak parity.
@@ -309,4 +310,28 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key milestones: F
 - ✅ `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter "AdminApiMinimalEndpointContractTests|AdminApiMigrationContractTests" -p:UseAppHost=false`
 
 **Outcome:** Admin API now treats tenant users as tenant-owned data, while still exposing the count needed for subscription governance. Sensitive tenant DB connectivity details are no longer stored or returned by this service.
+
+
+### 2026-03-23 Session 15: App Layer Wave 1 — Sales Refactor Implementation
+**Role:** Backend implementation for first application-layer refactor wave
+**Outcome:** ✅ Sales Application handlers complete; SalesEndpoints.cs owns HTTP contract; legacy controllers archived
+
+**What Was Done:**
+1. Populated Modules\Sales\Application\ with MediatR request/handler slices:
+   - Products/ (CreateProductCommand, UpdateProductCommand, DeleteProductCommand, GetProductsQuery)
+   - Toppings/ (CRUD handlers)
+   - ProductTags/ (CRUD handlers)
+   - CostTabs/ (CRUD handlers)
+   - Sales/ (CRUD handlers)
+2. Created Services.Sales.Api\Endpoints\SalesEndpoints.cs minimal API group mapping all routes
+3. Updated Program.cs: AddMediatR wiring + MapSalesEndpoints() instead of MapControllers()
+4. Archived legacy controllers (renamed, route attributes removed)
+5. Validation: ✅ Sales API build green
+
+**Coordination:**
+- Hudson provided shared wiring (Opplat.Application.Abstractions + Opplat.Application)
+- Bishop locked regression coverage for thin-host pattern
+- Phase Gate 1 approved for Sales refactor
+
+---
 

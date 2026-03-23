@@ -33,6 +33,12 @@ If a feature like Sales already depends on an Inventory entity, keep that depend
 ### Neutralize duplicate application layers
 If module `Application` projects already exist but the web app must remain the presentation root, keep those projects as placeholders and remove duplicate controllers/endpoints. That preserves the intended module skeleton without introducing two competing HTTP surfaces.
 
+### Archive controllers during minimal API rollout
+When converting an existing HTTP surface to minimal APIs, keep the old controller files as reference artifacts but rename the classes to `*Controller_Archived`, remove route attributes, and stop calling `MapControllers()` for that host. This preserves route knowledge during the migration without leaving two active endpoint stacks.
+
+### Keep host DTO mapping at the edge
+If module application handlers should stay free of host-specific contracts, let handlers return domain entities or simple command results, then translate those results to host DTOs (for example `ResponseDto`) inside the minimal endpoint file. That keeps the class library portable while still preserving the existing HTTP contract.
+
 ## Examples
 
 ```text

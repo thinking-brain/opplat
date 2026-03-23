@@ -6,7 +6,9 @@
 
 ### Recent Sessions (2026-03-23)
 
-**Session 18: Admin Tenant Boundary Refactor — Architecture Validation & Approval** — Reviewed and approved Elvis's directive to remove users from admin database scope and replace full connection strings with DatabaseName+SchemaName. APPROVED with full contract specification for backend/frontend/testing. Key decision: Admin API becomes a thin tenant catalog system. Users move to tenant-owned databases. Admin tracks MaxUsers/CurrentUserCount for subscription enforcement only. Major architectural boundary correction — admin is no longer responsible for user management. Hicks implemented backend changes (model/handlers/endpoints), Vasquez aligned frontend (removed UsersPage, updated tenant forms, updated types), Bishop enforced new boundary in regression tests. All validation passed: dotnet build, dotnet test (65/65), npm lint, npm build, docker compose config. Wrote comprehensive decision document with migration notes and rejected alternatives.
+**Session 19: Application Layer Refactor — Design Review & Approval** — Ran full Design Review ceremony for Elvis's request to consolidate business logic into class libraries with MediatR. APPROVED with detailed architecture decision. Key findings: (1) Module Application projects exist but are empty placeholders; (2) Legacy IService<T,K> pattern in Domain/Services needs migration to MediatR handlers; (3) 13 controllers in MainApp/Areas, 5 in Sales microservice, 8+ in Inventory microservice need conversion to minimal API. Decision: Multiple Application libraries per bounded context (not single shared), new Opplat.Application.Abstractions for cross-cutting behaviors, handlers inject DbContext directly. Conversion order: Sales microservice → Inventory microservice → MainApp Areas (lowest to highest risk). Phase gates with test requirements at each stage. Agent assignments: Hudson (project config), Hicks (handlers + endpoints), Bishop (tests), Vasquez (none needed).
+
+**Session 18: Admin Tenant Boundary Refactor — Architecture Validation & Approval**— Reviewed and approved Elvis's directive to remove users from admin database scope and replace full connection strings with DatabaseName+SchemaName. APPROVED with full contract specification for backend/frontend/testing. Key decision: Admin API becomes a thin tenant catalog system. Users move to tenant-owned databases. Admin tracks MaxUsers/CurrentUserCount for subscription enforcement only. Major architectural boundary correction — admin is no longer responsible for user management. Hicks implemented backend changes (model/handlers/endpoints), Vasquez aligned frontend (removed UsersPage, updated tenant forms, updated types), Bishop enforced new boundary in regression tests. All validation passed: dotnet build, dotnet test (65/65), npm lint, npm build, docker compose config. Wrote comprehensive decision document with migration notes and rejected alternatives.
 
 ### Prior Recent Sessions (2026-03-23)
 
@@ -40,6 +42,7 @@
 4. **Admin Module Location** — Standalone admin app (`src/opplat-admin/`), not built into MainApp; cleaner separation, future flexibility
 5. **Admin API MediatR + PostgreSQL** — Replace mock stores with MediatR handlers, dedicated postgres instance for admin-api; auth pipeline frozen, handlers get DbContext directly
 6. **Admin Boundary Shift — User & Connection Isolation** — Admin API owns tenant catalog only, not users. Users belong to tenant DBs. Admin tracks MaxUsers/CurrentUserCount for subscription enforcement. ConnectionString replaced with DatabaseName+SchemaName (credentials resolved at runtime).
+7. **Application Layer Refactor** — Multiple Application libraries per bounded context + shared Opplat.Application.Abstractions. MediatR handlers replace IService<T,K> pattern. Thin API hosts keep only startup/endpoints. Controller-to-MinimalAPI conversion order: microservices first (low risk), MainApp Areas last (higher risk due to multi-tenant middleware).
 
 ### Key Architectural Patterns
 
@@ -67,4 +70,14 @@
 3. **Multi-database compose pattern** — Safe to add postgres alongside sqlserver; admin-api targets postgres, all other services stay on sqlserver. No cross-service impact if connection strings isolated (`AdminConnection` vs `DefaultConnection`).
 
 4. **Auth isolation pattern works** — Auth pipeline (cookie/JWT/OIDC) can remain frozen while business logic layer is completely replaced. Clean separation validated.
+
+### Session 19 Learnings
+
+1. **Module Application projects were planned but never populated** — Sales and Inventory have empty Application projects with only AssemblyMarker.cs. Infrastructure already exists and works. Just need to add MediatR handlers.
+
+2. **Legacy IService<T,K> pattern in Opplat.Shared** — BaseService wraps repositories with CRUD boilerplate. MediatR handlers should replace this — handlers call repositories directly, no extra service layer.
+
+3. **Controller-to-MinimalAPI risk gradient** — Microservices are safer to convert first (isolated, simple startup). MainApp Areas have multi-tenant middleware, shared composition root — higher risk, convert last.
+
+4. **MediatR assembly scanning strategy** — Don't rely solely on `GetExecutingAssembly()`. Explicitly list all Application assemblies containing handlers to avoid missing registrations.
 

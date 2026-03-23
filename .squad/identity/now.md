@@ -1,11 +1,9 @@
 ---
-updated_at: 2026-03-23T00:04:41Z
-focus_area: Admin API boundary fully refactored; admin owns tenant catalog only, not users. Users belong to tenant-owned databases. Subscription tracking via MaxUsers/CurrentUserCount. Connection strings factored to DatabaseName+SchemaName. All validation passed; ready for next phase (tenant selector UI, Keycloak hardening, dead env var cleanup, user count sync pattern).
+updated_at: 2026-03-23T08:42:15Z
+focus_area: Planning shared application-layer refactor across admin and client surfaces; move logic into class libraries with MediatR-centered handlers; thin API hosts; convert non-minimal APIs to minimal APIs.
 active_issues: []
 ---
 
 # What We're Focused On
 
-Admin API boundary refactor complete: removed admin-owned user CRUD entirely; users now belong to tenant-owned databases with admin tracking only subscription-relevant metadata (MaxUsers, CurrentUserCount). Tenant records store DatabaseName/SchemaName instead of full connection strings (credentials resolved at runtime via vault/config). AdminTenantInfo schema updated; all user DTOs, handlers, endpoints removed. Frontend aligned: removed UsersPage, updated tenant forms, updated types. Backend compiles, all 65 tests pass, frontend builds/lints clean, docker-compose valid. Next: tenant selector UI for client apps, Keycloak client hardening (confidential + secret), dead env var cleanup from docker-compose, implement user count sync (tenant → admin callback or periodic polling).
-
-
+Planning and executing a solution-wide architecture refactor so admin and client logic lives in class libraries, MediatR handles application use cases, and web API projects keep only host-specific concerns like startup and endpoint definitions. Also inventorying and converting remaining controller-based APIs to minimal APIs while preserving existing behavior.

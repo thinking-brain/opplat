@@ -221,6 +221,7 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key testing miles
 - Source-contract tests in this repo should resolve the root via a shared helper that accepts both `opplat.sln` and `opplat.slnx`; otherwise solution-file churn creates false-red auth failures unrelated to the behavior under test.
 - For the admin API MediatR/PostgreSQL migration, the safest regression pattern is dual coverage: execute the real endpoint handlers against an in-memory `AdminTenantIdentityDbContext` seeded with PostgreSQL-shaped tenant data, and separately pin source contracts for `AddMediatR`, `IMediator` endpoint injection, `UseNpgsql`, and tenant-claim normalization.
 - When the admin API boundary drops user CRUD, add page-level source-contract tests for `src/opplat-admin/src/pages/DashboardPage.tsx` and `TenantsPage.tsx` in addition to API wrapper tests; route/type assertions alone will miss stale calls to removed `/admin/users` flows or old tenant fields such as `connectionString`.
+- When hosts switch from direct `AddMediatR(...)` calls to the shared `AddOpplatApplication(...)` wrapper, keep the regression seam split across both files: assert the host calls the wrapper and assert the wrapper still registers MediatR assemblies. That catches DI drift without overfitting tests to one registration style.
 
 ---
 
@@ -372,3 +373,37 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key testing miles
 - ✅ `npm run build` in `src\\opplat-admin`
 
 **Outcome:** Frontend auth contract tests now match the landed admin boundary and are green again. Existing `MimeKit` NU1902 warnings remain unchanged.
+
+### 2026-03-23 Session 15: App Layer Wave 1 — Regression Coverage & Validation
+**Role:** Testing + regression coverage for first application-layer refactor wave
+**Outcome:** ✅ Regression coverage complete; Opplat.MainApp.Test 74/74 green; Phase Gate 1 gates locked
+
+**What Was Done:**
+1. Updated architecture regression suite to treat AddOpplatApplication(...) as approved host-level MediatR seam
+2. Added source-contract guardrail on ServiceCollectionExtensions.cs (AddMediatR contract pinned)
+3. Added converted-host surface assertions:
+   - Opplat.MainApp account/license/menu features on minimal endpoints
+   - Archived controllers remain un-mapped
+   - Route logic stays in endpoint modules, not Program.cs
+4. Expanded multitenancy/auth regression checks:
+   - X-Tenant-Identifier header resolution
+   - Finbuckle enforcement in OpplatDbContext
+   - Middleware tenant-identifier rejection
+   - Claim normalization (tenant_id / tenant_identifier)
+5. Refreshed admin migration contract test
+6. Validation: ✅ Opplat.MainApp.Test: 74/74 passing
+
+**Phase Gate 1 Approval:**
+- [x] Abstractions + Application created
+- [x] Sales Application handlers complete (≥5 slices)
+- [x] Sales.Api → minimal endpoints + MediatR
+- [x] Build + tests green
+- [x] Regression gates locked
+
+**Coordination:**
+- Validated Hicks Sales refactor (handlers, endpoints, archives)
+- Validated Hudson infrastructure (DI seams, project references)
+- Ready to enforce same coverage on Inventory + MainApp phases
+
+---
+

@@ -56,3 +56,33 @@
 - **Microservices:** Main API (8080), Sales (8083), Inventory (8082), Admin API (8084) — Admin isolated on Postgres
 - **Keycloak (8180):** Local OIDC; Auth0 for prod
 - **Database:** SQL Server (main apps) + PostgreSQL (admin API), multi-tenant via X-Tenant-Identifier header and EF filters
+
+## Learnings
+- 2026-03-23: Shared application-layer setup works cleanly when hosts register MediatR through a root `Opplat.Application` extension and module Application projects own their DI wiring (`AddSalesApplication`, `AddInventoryApplication`). This lets hosts stay focused on startup + endpoints while still compiling against domain contracts during staged migrations.
+- 2026-03-23: When moving host dependencies upward into new application projects, update Dockerfile restore COPY lists at the same time or containerized `dotnet restore` will fail before publish.
+
+### 2026-03-23 Session 15: App Layer Wave 1 — Shared Infrastructure Setup
+**Role:** Project configuration + infrastructure for first application-layer refactor wave
+**Outcome:** ✅ Opplat.Application.Abstractions + Opplat.Application created; module DI ownership established; minimal endpoint mapping wired
+
+**What Was Done:**
+1. Created Opplat.Application.Abstractions (MediatR contracts + shared behaviors)
+2. Created Opplat.Application (AddOpplatApplication registration seam)
+3. Module Application projects own DI registration (AddSalesApplication, AddInventoryApplication)
+4. Updated Sales.Api + Inventory.Api: minimal endpoint mapping, removed controller mapping from shared startup
+5. Updated project references across solution
+6. Updated Dockerfile restore-copy graphs
+7. Validation: ✅ Solution builds cleanly; opplat.slnx green
+
+**Architecture Established:**
+- Hosts register handlers via AddOpplatApplication(...) + module-specific registrations
+- Module Application projects own their DI; hosts call shared registration instead of hand-wiring
+- Thin hosts: startup + DI + endpoint definitions only
+
+**Coordination:**
+- Unblocks Hicks Sales refactor (handlers can reference Application abstractions)
+- Enables Bishop regression suite (approved MediatR seam established)
+- Ready for Inventory phase after Sales validation
+
+---
+
