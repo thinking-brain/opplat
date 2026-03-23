@@ -4,6 +4,13 @@
 
 ### Active Sessions Summary (2026-03-23)
 
+**Session 20: .NET Maintenance Batch — Source Warning Fixes & CPM Validation** — ✅ COMPLETE
+- Hicks fixed 3 real backend warnings (ServiceResponse<T>.Value nullability, SalesService.Get(string) override, BaseRepository exception logging)
+- Hudson's CPM rollout completed (Directory.Packages.props, Directory.Build.props, nuget.config)
+- Bishop validated: build succeeds, 89/89 tests passing, architecture regression tests updated
+- Decisions merged into `.squad/decisions.md` (Session 15 entry created)
+- Package governance finalized: 23 managed versions, all 15 projects inherit via central props
+
 **Session 19: Shared Admin/Client Contracts Extraction** — ✅ COMPLETE
 - Extracted canonical admin session DTOs into `src\Opplat.Application.Abstractions\Admin\AdminSessionContracts.cs` (single source of truth)
 - Extracted auth constants into `src\Opplat.Application.Abstractions\Auth\` (centralized, consistent across hosts)
@@ -99,3 +106,7 @@ See `.squad/orchestration-log/` for detailed session outcomes and `.squad/decisi
 - MainApp and both microservice hosts currently stay coherent by explicitly composing module application assemblies (`Program.cs` + endpoint `using` statements), so the safer discovery fix is documentation/facade cleanup rather than flattening the module application projects.
 
 - When MainApp and AdminApi share identical admin-session/auth contract types, extract the canonical DTOs/constants into `src\Opplat.Application.Abstractions\` and let each host keep only the divergent runtime pieces (for example OIDC normalization or tenant persistence) so shared contracts converge without flattening module handlers.
+- When the user explicitly overrides the modular-boundary preference and asks for flattened business logic, move the request/handler slices plus command-result types into `src\Opplat.Application\{Sales|Inventory}\`, add the needed module domain/infrastructure references there, and leave `src\Modules\{Sales|Inventory}\Application\` as thin DI/composition wrappers only.
+- After a flattening move, hosts should scan only `Opplat.Application` for MediatR handlers (`AddOpplatApplication(Assembly.GetExecutingAssembly())`) while continuing to call `AddSalesApplication` / `AddInventoryApplication` for module-specific repository/service registration so startup stays thin without losing module wiring.
+- The fixable .NET source warnings in this branch were legacy code warnings, not startup/minimal-API regressions: `src\Opplat.Shared\Services\Service.cs` needed nullable-annotation cleanup, `src\Modules\Sales\Domain\Services\SalesService.cs` needed an explicit `override`, and `src\Opplat.Infrastructure\Common\BaseRepository.cs` should log caught exceptions instead of discarding them.
+- While Hudson's centralized package management rollout is in flight, solution-level validation is blocked by restore/config warnings (`NU1008`/`NU1507`) rather than backend source compilation; Hicks should limit warning-remediation work to code paths and report the package-source/PackageReference blockers instead of editing project files.

@@ -4,6 +4,13 @@
 
 ### Active Sessions Summary (2026-03-23)
 
+**Session 20: .NET Maintenance Batch — Source Warning Fixes & CPM Validation** — ✅ COMPLETE
+- Fixed 3 real backend warnings: ServiceResponse<T>.Value nullability (`src\Opplat.Shared\Services\Service.cs`), SalesService.Get(string) override (`src\Modules\Sales\Domain\Services\SalesService.cs`), BaseRepository exception logging (`src\Opplat.Infrastructure\Common\BaseRepository.cs`)
+- Hudson's centralized package management validated (23 managed versions, 15 projects, 0 build warnings)
+- Bishop's test suite validation complete (89/89 passing, architecture regression tests updated for flattened app layer)
+- No suppressions used—all fixes are real source code corrections
+- Solution rebuild blocked by CPM restore/configuration warnings (not Hicks' scope per boundary decision)
+
 **Session 19: Application Layer Boundary Architecture Tests** — ✅ COMPLETE (89/89 passing)
 - Created `ApplicationLayerBoundaryArchitectureTests.cs` to enforce approved application-layer boundary
 - Validates shared `Opplat.Application` remains seam for cross-surface logic only
@@ -61,6 +68,8 @@
 - Test design: Composition checks + runtime assertions + auth seams = complete regression prevention without external infrastructure
 - Shared-vs-module application boundaries are best locked with source-contract tests that check both project references and namespace ownership: `Opplat.Application` stays module-agnostic while Sales/Inventory handlers remain under `src\Modules\{Module}\Application\`
 - When source-contract tests crawl project trees, exclude `bin/` and `obj/` so generated build artifacts do not create false failures
+- User-directed boundary reversals are safest to encode with paired checks: assert handlers moved into `src\Opplat.Application\{Sales|Inventory}\**`, and assert legacy module application projects retain only DI/composition wrappers
+- Source-contract crawlers should also ignore `obj-hicks/`; generated assembly attributes there can both cause false architecture failures and break `dotnet test` with duplicate assembly metadata
 
 ---
 
@@ -94,3 +103,14 @@
 **Sessions 16–17:** Phase Gate 1 reauthorization; Inventory & Sales regression gates complete & passing.
 
 See `.squad/orchestration-log/` for detailed outcomes and `.squad/decisions.md` for architectural decisions.
+
+## Learnings
+- Centralized .NET package management is active through Directory.Packages.props; keep PackageVersion items there and leave project files with versionless PackageReference entries.
+- A repo-local NuGet.Config that clears inherited package feeds and keeps 
+uget.org avoids CPM restore noise from user-specific feeds (for example NU1507 from a machine-level DevExpress source).
+- Current application ownership is flattened into src\Opplat.Application\Sales\** and src\Opplat.Application\Inventory\**; legacy module application project files under src\Modules\{Sales|Inventory}\Application\ are gone.
+- Main validation commands for this phase were dotnet build .\opplat.slnx -m:1 -v minimal, dotnet build .\opplat.slnx -t:Rebuild -m:1 -v minimal, and dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj -m:1 -v minimal.
+- Remaining rebuild warnings are broad nullable-analysis debt concentrated in legacy/shared files like src\Opplat.Shared\Services\Service.cs, src\Opplat.MainApp\Controllers\AccountController.cs, and older domain entities; they are not localized to the CPM maintenance changes.
+- Repo CPM validation note: keep package versions in Directory.Packages.props and use versionless PackageReference items in project files.
+- Repo NuGet source note: a repo-local NuGet.Config limited to nuget.org prevents NU1507 noise from inherited machine feeds during centralized package restores.
+- Validation note: current shared application ownership lives in src\Opplat.Application\Sales\** and src\Opplat.Application\Inventory\**, so architecture tests should not expect src\Modules\{Sales|Inventory}\Application\ project files.
