@@ -12,6 +12,29 @@
 
 ### Recent Sessions (2026-03-23)
 
+**Session 21: MainApp Inventory Conversion — APPROVED (Phase Gate 2)**
+
+**Status:** ✅ APPROVED. Second-wave conversion accepted with full regression coverage.
+
+**Review Outcome:**
+- **InventoryEndpoints.cs:** ✅ APPROVED — MediatR-backed endpoints, both routes working
+- **Controller Archival:** ✅ APPROVED — All 8 controllers archived with `_Archived` suffix, routes commented
+- **Regression Tests:** ✅ APPROVED — 79/79 passing, thin-host pattern gates + movement-type auth seam validated
+- **Thin Host Pattern:** ✅ APPROVED — Program.cs under 25 LOC, minimal API only, no `AddControllers()`
+
+**Evidence:**
+- All 8 controllers archived: Products, ProductClassifications, ProductGroups, Storages, UnitsOfMeasurement, MovementTypes, Inventories, ProductMovements
+- `InventoryEndpoints.cs` properly injects `[FromServices] IMediator`
+- Both route surfaces working: `/inventory` + `/{__tenant__}/inventory`
+- Regression tests enforce thin-host + MediatR-only contracts
+
+**Next Wave Authorization:**
+- **AUTHORIZED:** Sales Area in MainApp (similar pattern to Inventory)
+- Target: Archive Sales controllers, create SalesEndpoints.cs, ensure MediatR handlers, add regression tests
+- Note: MainApp still uses `MapControllers()` for unmanaged areas (expected during wave-based conversion)
+
+---
+
 **Session 20: Application Layer Remediation — Phase Gate 1 Review & Lockout Protocol**
 
 **Status:** REJECTED & LOCKED. First rejection with reviewer lockout protocol enforcement.

@@ -2526,3 +2526,50 @@ Conversion order within MainApp:
 
 - Immediate MainApp conversion without Phase Gate 1 completion — rejected; builds trust in the pattern first
 - Parallel conversion of all areas — rejected; sequential reduces risk of composition root conflicts
+
+
+---
+
+# MainApp Inventory Conversion Wave — APPROVED
+
+**Date:** 2026-03-23  
+**Reviewer:** Ripley  
+**Status:** ✅ APPROVED  
+
+## Scope Reviewed
+
+MainApp Inventory area conversion to minimal API with MediatR-backed application logic.
+
+## Checklist
+
+| Criterion | Status |
+|-----------|--------|
+| Thin host (Program.cs keeps routing + config only) | ✅ |
+| Minimal API endpoint module (`InventoryEndpoints.cs`) | ✅ |
+| MediatR-backed application logic (handlers invoked, not IService) | ✅ |
+| Tenant route preserved (`/{__tenant__}/inventory`) | ✅ |
+| Non-tenant route preserved (`/inventory`) | ✅ |
+| Controllers archived (`*_Archived`, route attrs commented) | ✅ |
+| Regression test coverage | ✅ |
+
+## Evidence
+
+- **Controllers:** All 8 Inventory controllers archived: Products, ProductClassifications, ProductGroups, Storages, UnitsOfMeasurement, MovementTypes, Inventories, ProductMovements
+- **Endpoints:** `InventoryEndpoints.cs` injects `[FromServices] IMediator`, calls `mediator.Send()` for all operations
+- **Route shapes:** Both `/inventory` and `/{__tenant__}/inventory` route groups defined
+- **Handler registration:** `AddOpplatApplication()` explicitly includes `Opplat.Modules.Inventory.Application.AssemblyMarker`
+- **Tests:** 11/11 architecture tests pass, including `ConvertedSurfaceArchitectureTests` specifically validating MainApp inventory conversion
+
+## Next Wave Authorization
+
+**AUTHORIZED:** Sales Area in MainApp
+
+The Sales area in MainApp is next. It shares the same multi-tenant routing complexity but follows the same patterns already validated in Inventory. Team should proceed with:
+1. Archive Sales area controllers
+2. Create `Features/Sales/SalesEndpoints.cs` mapping both tenant and non-tenant routes
+3. Ensure MediatR handler invocations (not legacy ISalesService)
+4. Add regression tests in `ConvertedSurfaceArchitectureTests`
+
+## Notes
+
+MainApp still uses `MapControllers()` for remaining areas not yet converted (e.g., other MVC areas). This is expected during wave-based conversion. Remove once all areas migrated.
