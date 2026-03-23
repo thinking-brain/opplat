@@ -36,6 +36,9 @@ If module `Application` projects already exist but the web app must remain the p
 ### Archive controllers during minimal API rollout
 When converting an existing HTTP surface to minimal APIs, keep the old controller files as reference artifacts but rename the classes to `*Controller_Archived`, remove route attributes, and stop calling `MapControllers()` for that host. This preserves route knowledge during the migration without leaving two active endpoint stacks.
 
+### Retire one area at a time in mixed hosts
+If the web host still has other live MVC areas, archive only the converted area's controllers, remove only that area's conventional route registrations, and keep `MapControllers()` for the remaining surfaces. Pair the new minimal API module with both tenant-prefixed and legacy route groups so multitenant middleware keeps working without forcing every caller onto the tenant path immediately.
+
 ### Inject MediatR explicitly at the endpoint edge
 For thin-host minimal APIs, inject `[FromServices] IMediator` in each endpoint lambda and send application commands/queries from there. This makes the mediator boundary obvious in source and helps architecture tests distinguish thin endpoint surfaces from direct service injection.
 

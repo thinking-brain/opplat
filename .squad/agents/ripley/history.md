@@ -129,3 +129,13 @@ Per Ripley's authority, original defect author (Hicks) excluded from revision ow
 
 4. **Host registrations follow module pattern** — `AddSalesModuleServices()` delegates to `AddSalesApplication()`, same for Inventory. No direct `AddScoped` in host extensions — keeps module ownership clear.
 
+### Session 22 Learnings (MainApp Inventory Wave — APPROVED)
+
+1. **MainApp Inventory conversion complete** — All 8 Inventory controllers archived with `_Archived` suffix, route attributes commented, replacement file referenced. InventoryEndpoints.cs maps all feature slices via minimal API with explicit `[FromServices] IMediator` injection.
+
+2. **Dual route shapes preserved** — `/inventory` (non-tenant) and `/{__tenant__}/inventory` (tenant-prefixed) both map to the same handler functions via `MapInventoryGroup()` reuse. Multi-tenant middleware continues to work unchanged.
+
+3. **MediatR assembly scanning correct** — MainApp Program.cs explicitly lists `Opplat.Modules.Inventory.Application.AssemblyMarker` in `AddOpplatApplication()` call, ensuring handler discovery without relying on convention.
+
+4. **Test coverage expanded for MainApp surfaces** — `ConvertedSurfaceArchitectureTests.cs` validates: (a) Program.cs maps converted features via minimal API extensions, (b) endpoint modules stay mediator-backed and controller-free, (c) archived controllers stay unmapped after conversion.
+

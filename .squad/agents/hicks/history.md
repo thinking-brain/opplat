@@ -1,5 +1,39 @@
 ## Core Context
 
+### 2026-03-23 Session 16: MainApp Inventory Wave — Phase Gate 1 Authorized
+
+**Status:** ✅ COMPLETE — Pending Ripley Phase Gate 2 review
+
+**Role:** Inventory endpoints implementation + controller archival (Phase Gate 1 authorized wave)
+
+**What Happened:** Following Phase Gate 1 approval authorizing MainApp Areas conversion, executed Inventory conversion as first area within MainApp host.
+
+1. **Inventory Endpoints Implementation**
+   - Created `Features/Inventory/InventoryEndpoints.cs` with MediatR-injected minimal APIs
+   - Mapped dual route surfaces: `/{__tenant__}/inventory/*` (tenant-scoped) + `/inventory/*` (root)
+   - All endpoints inject `IMediator` for handler dispatch
+
+2. **Controller Archival**
+   - Archived 8 Inventory controllers with `_Archived` suffix
+   - Commented out all route attributes to prevent accidental activation
+   - Files retained as reference artifacts in source tree
+
+3. **Program.cs Routing Update**
+   - Removed live conventional Inventory MVC route registration
+   - Added `app.MapInventoryEndpoints()` call
+   - Preserved Sales and other non-Inventory MVC routing active
+
+4. **Decision Logged**
+   - `.squad/decisions/inbox/hicks-mainapp-inventory-wave.md` → merged to decisions.md
+   - Why: Inventory is first approved MainApp area; host still has live Sales MVC
+   - Consequence: Explicit MediatR boundary at endpoint layer; dual route surfaces
+
+**Test Status:** Bishop validated 79/79 passing (77 inherited + 2 new movement-type auth seams)
+
+**Next Step:** Pending Ripley Phase Gate 2 review for merge authorization
+
+---
+
 ### 2026-03-23 Session 15: Application Layer Remediation — Wave 1 (Locked Out)
 
 **Status:** LOCKED OUT — Revisions owned by Hudson/Vasquez per Ripley's reviewer lockout protocol.
@@ -132,6 +166,7 @@ See \.squad/orchestration-log/\ for detailed session outcomes. Key milestones: F
 - For Opplat's BFF migration, the clean first backend shape is a shared ASP.NET Core BFF session layer hosted in `Opplat.MainApp`: server-side OIDC code flow, HTTP-only cookies, CSRF protection, and provider-neutral tenant membership lookup, while keeping JwtBearer available for downstream service-to-service or transitional callers.
 - For an admin-first BFF cut on a mixed-mode API host, route `/admin`, `/auth/bff/admin`, and OIDC callback paths to the cookie scheme while leaving all other unauthenticated API traffic on JwtBearer by default; otherwise legacy tenant APIs start challenging against the admin cookie flow.
 - In Development, an admin SPA that proxies BFF traffic to the backend over HTTP can turn ASP.NET Core `UseHttpsRedirection()` on `/admin` and `/auth/bff/admin` into frontend-visible 500s; preserve the BFF contract by skipping HTTPS redirection for those admin BFF paths (and callbacks) in dev only.
+- For MainApp area migrations on the shared multi-tenant host, convert one area at a time by adding dual minimal API groups for both `/{__tenant__}/feature/*` and `/feature/*`, archive only that area's controllers, and remove just that area's conventional routes while leaving `MapControllers()` in place for still-live MVC surfaces.
 - Admin auth/session is currently tenant-optional by design: `TenantValidationMiddleware` should bypass `/auth/bff/admin/*`, `/admin/session*`, and the OIDC callback paths so SuperAdmin login/bootstrap never depends on tenant claims.
 - Admin BFF return URLs should use an explicit `Auth:AdminBff:DefaultOrigin` (`http://localhost:3201`) instead of relying on the first `AllowedOrigins` entry; the redirect logic lives in `src/Opplat.MainApp/Features/Admin/AdminEndpoints.cs`.
 - `Program.cs` now tolerates the legacy config key `Auth:ClientIdAdmin` as an override for `Auth:AdminBff:ClientId`, which keeps current compose/runtime wiring working while the team finishes auth simplification.

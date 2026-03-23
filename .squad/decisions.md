@@ -2428,3 +2428,101 @@ Keep the Sales and Inventory microservice hosts as thin minimal-API composition 
 - `src\Services\Inventory\Opplat.Services.Inventory.Api`
 - `src\Modules\Inventory\Application`
 
+
+
+---
+
+# Bishop — MainApp Inventory regression gate
+
+## Decision
+
+MainApp Inventory should be protected by a mixed-host regression contract during rollout:
+
+1. `Program.cs` maps `app.MapInventoryEndpoints();`
+2. Legacy inventory area routes (`InventoryArea`, `tenant-inventory`) stay removed
+3. The endpoint module serves both `/inventory/*` and `/{__tenant__}/inventory/*`
+4. Inventory endpoints inject `IMediator` rather than legacy `I*Service` types
+5. Retained inventory controller files are archived with `_Archived` markers and commented route attributes
+
+## Why
+
+MainApp still carries live MVC Sales endpoints, so the host cannot be treated like a fully controller-free microservice yet. This contract lets Inventory move to thin minimal APIs now without breaking tenant resolution or allowing the old controller stack to come back unnoticed.
+
+## Test Impact
+
+- Source-contract coverage now pins the Program mapping, MediatR endpoint wiring, and archived-controller state.
+- Route-surface coverage now pins both legacy root and tenant-aware inventory paths plus the existing movement-type authorization seam.
+
+
+---
+
+# MainApp Inventory wave decisions
+
+**Date:** 2026-03-23  
+**Owner:** Hicks
+
+## Decision
+
+Convert `Opplat.MainApp` Inventory from live area controllers to host-local minimal APIs backed by `Opplat.Modules.Inventory.Application` MediatR handlers, while keeping the shared host composition root and multitenant middleware unchanged.
+
+## Why
+
+- Inventory is the first approved MainApp area to move to the thin-host pattern.
+- `Opplat.MainApp` still has live MVC surfaces outside Inventory, so removing `AddControllers()` / `MapControllers()` would break unrelated routes.
+- The host already owns tenant resolution and validation, so the safest contract-preserving shape is two Inventory route groups: `/{__tenant__}/inventory/*` and `/inventory/*`.
+
+## Consequences
+
+- Inventory controller files remain in source as `*_Archived` reference artifacts with route attributes commented out, so there is no live dual surface for the area.
+- `Program.cs` stops registering Inventory conventional routes, but keeps Sales and other MVC routing active.
+- Inventory request handling now crosses the MediatR boundary explicitly at the endpoint layer, while DTO shaping (`ResponseDto`, `InventoryDto`) stays in the host.
+
+
+---
+
+# Phase Gate 1 — APPROVED
+
+**Date:** 2026-03-23  
+**Decision:** Approve remediated Sales and Inventory microservice hosts  
+**Reviewer:** Ripley (Architect)
+
+## Summary
+
+Phase Gate 1 artifacts re-reviewed after Session 20 rejection. All defects corrected. Microservice hosts now satisfy the approved architecture:
+
+- ✅ **Thin hosts** — Both Program.cs files are sub-25 LOC with no business logic
+- ✅ **Minimal APIs** — No AddControllers/MapControllers; all endpoints via MapGroup pattern
+- ✅ **MediatR-backed** — All endpoint lambdas inject `[FromServices] IMediator` and call handlers
+- ✅ **Controllers archived** — All 5 Sales + 8 Inventory controllers renamed to `*_Archived`, route attributes commented
+- ✅ **Architecture tests** — `MicroserviceThinHostArchitectureTests.cs` covers thin-host pattern and archival
+- ✅ **Full regression** — 77 tests pass, 0 failures
+
+## Verification Evidence
+
+| Check | Sales API | Inventory API |
+|-------|-----------|---------------|
+| Program.cs LOC | 23 | 23 |
+| AddControllers | ❌ Absent | ❌ Absent |
+| MapControllers | ❌ Absent | ❌ Absent |
+| IMediator injection | ✅ | ✅ |
+| Legacy IService injection | ❌ Absent | ❌ Absent |
+| Controllers archived | 5/5 | 8/8 |
+| Architecture tests | ✅ Pass | ✅ Pass |
+
+## Next Wave Authorization
+
+**AUTHORIZED:** Proceed to Phase Gate 2 — **MainApp Areas conversion**
+
+Target: Convert MainApp/Areas controllers (Sales, Inventory, Admin sections) to minimal APIs with MediatR handlers.
+
+Risk level: Higher than microservices due to multi-tenant middleware and shared composition root.
+
+Conversion order within MainApp:
+1. Inventory area (fewer dependencies)
+2. Sales area (cross-module coupling with Inventory)
+3. Admin area (last, pending tenant boundary stabilization)
+
+## Rejected Alternatives
+
+- Immediate MainApp conversion without Phase Gate 1 completion — rejected; builds trust in the pattern first
+- Parallel conversion of all areas — rejected; sequential reduces risk of composition root conflicts
