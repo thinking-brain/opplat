@@ -1,17 +1,25 @@
 ## Core Context
 
-**CURRENT FOCUS:** Phase Gate 1 authorization wave for MainApp area-by-area migration to thin-host minimal APIs with comprehensive regression test coverage.
+**CURRENT FOCUS:** Phase Gate 1 authorization wave for MainApp area-by-area migration to thin-host minimal APIs with comprehensive regression test coverage. **Session 18 COMPLETE**: Final regression gates locked thin-host composition, auth seams, and controller archival.
 
 ### Active Sessions Summary (2026-03-23)
 
-**Session 17: MainApp Sales Regression Gates** — ✅ COMPLETE (81/81 passing), pending Ripley Phase Gate 2 review
+**Session 18: MainApp Final Regression Gates** — ✅ COMPLETE (86/86 passing), pending Ripley Phase Gate 2 review
+- Extended `ConvertedSurfaceArchitectureTests.cs` to validate final thin-host pattern (no `AddControllers`, all modules mapped)
+- Extended `MultitenancyConfigurationTests.cs` to validate tenant-scoped admin endpoint routing
+- Extended `AuthEndpointAuthorizationIntegrationTests.cs` to validate auth seam enforcement
+- All tests execute without live database or external infrastructure
+- Final result: 86/86 PASSING (includes all inherited + session-specific gates)
+- Architecture contracts enforce composition: `Program.cs` thin-host, no MVC activation
+
+**Session 17: MainApp Sales Regression Gates** — ✅ COMPLETE (81/81 passing), Phase Gate 2 approved by Ripley
 - Extended `MicroserviceHostArchitectureTests.cs` to validate Sales thin-host pattern
 - Architecture contract assertions: no `AddControllers()`, endpoints inject `IMediator`, controllers archived, handlers discoverable
 - Sales-specific auth seam validation: sales-list protected, product-list unannotated
 - Route surface validation: both `/sales/*` and `/{__tenant__}/sales/*` routed to MediatR
 - Test delta: 79 inherited + 2 new Sales-specific = 81/81 PASSING
 
-**Session 16: MainApp Inventory Regression Gates** — ✅ COMPLETE (79/79 passing), pending Ripley Phase Gate 2 review
+**Session 16: MainApp Inventory Regression Gates** — ✅ COMPLETE (79/79 passing), Phase Gate 2 approved by Ripley
 - Extended architecture tests to cover Inventory thin-host pattern
 - Movement-type authorization seam validation across dual route families
 - All tests executable without live database or external infrastructure
@@ -29,6 +37,7 @@
 
 ### Key Outcomes
 
+- **Session 18 Completion (2026-03-23):** Final regression gates locked — mixed source/runtime contract approach distinguishes "archived reference" from "active MVC routing". Architecture tests enforce thin-host composition (no `AddControllers`/`MapControllers`), endpoint wiring, and auth seam enforcement.
 - **Phase Gate 1 Reauthorization** (2026-03-23): Following defect corrections, Ripley re-approved MainApp area migration. Both Inventory & Sales authorized with passing regression gates (79/79, 81/81).
 - **Regression Gate Innovation**: Encoded review criteria as architecture-contract tests. Prevents accidental route loss, duplicate endpoint activation, IService regression, or controller re-activation without explicit code changes.
 - **Admin API Consolidation** (2026-03-22): Removed admin auth/BFF from MainApp. Dedicated `src/Opplat.AdminApi` owns tenant catalog + admin endpoints.
@@ -39,6 +48,8 @@
 - Authorization seams documented per area (e.g., sales-list protected, product-list unannotated)
 - Dual route families require auth consistency assertions across both surfaces
 - Regression gates prevent silent drift—future violations fail automatically instead of requiring manual checklists
+- **Mixed source/runtime validation:** Final MainApp minimal-API gates assert both host-level controller removal (`AddControllers`/`MapControllers`) and file-level archival markers so legacy controller code can remain as reference without reactivating live routing
+- Test design: Composition checks + runtime assertions + auth seams = complete regression prevention without external infrastructure
 
 ---
 

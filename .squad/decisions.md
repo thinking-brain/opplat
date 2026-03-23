@@ -1977,6 +1977,91 @@ All checks passed:
 - Reason: the recent admin boundary change removed legacy user flows and renamed tenant metadata, but existing tests mostly pinned routes/types. That left `DashboardPage.tsx` and `TenantsPage.tsx` free to drift and still trigger broken bootstrap calls after backend changes.
 - New testing stance:
   - keep runtime HTTP assertions for `/admin/tenants` JSON shape
+
+---
+
+## Session 18 Decisions (2026-03-23 — MainApp Final Minimal API Wave)
+
+### 1. Hicks — MainApp Final Minimal API Wiring
+**Decision Date:** 2026-03-23  
+**Agent:** Hicks (Backend)  
+**Status:** ✅ IMPLEMENTED
+
+**Decision:** Treat `src\Opplat.MainApp` as a thin composition root only: explicitly map every surviving minimal endpoint module from `Program.cs`, including the retained admin module, and remove MVC controller registration/mapping entirely once the archived controller surface is no longer needed at runtime.
+
+**Rationale:** The host had already archived its controller files, but `AddControllers()` / `MapControllers()` still left the MVC activation path available. Finishing the wave by listing each minimal endpoint module directly in `Program.cs` keeps auth/tenant middleware centralized while ensuring no controller-owned API surface can be reactivated accidentally.
+
+**Implementation:**
+- Removed `AddControllers()` registration from `Program.cs`
+- Removed `MapControllers()` routing call
+- Explicitly wired all surviving endpoint modules: `AdminEndpoints`, `SalesEndpoints`, `InventoryEndpoints`
+- Preserved tenant resolution and validation middleware ordering
+- Preserved endpoint-level authorization policies
+- Kept archived controllers as reference artifacts only (no runtime reactivation path)
+
+**Validation:**
+- ✅ Solution build: 0 errors, 7 warnings
+- ✅ MainApp test suite: 86/86 passing
+
+**Outcome:** Thin-host composition locked; no MVC controller reactivation possible.
+
+---
+
+### 2. Bishop — MainApp Final Regression Gates
+**Decision Date:** 2026-03-23  
+**Agent:** Bishop (Test & Validation)  
+**Status:** ✅ IMPLEMENTED
+
+**Decision:** Treat the final MainApp migration gate as a mixed source/runtime contract:
+- Source contracts prove `Program.cs` stays thin (`AddControllers`/`MapControllers` absent, endpoint modules mapped)
+- Endpoint-module contracts prove MediatR owns admin/client feature logic
+- Auth integration tests prove tenant-scoped admin routes only succeed when resolved tenant header and normalized tenant claims agree
+
+**Rationale:** The MainApp wave leaves archived controllers in-tree for reference, so route safety cannot be inferred from file presence alone. We need tests that distinguish "archived source remains" from "MVC routing was reactivated" and tests that pin the tenant/auth seam at the actual HTTP boundary.
+
+**Implementation:**
+- Extended `ConvertedSurfaceArchitectureTests.cs` to validate final thin-host pattern (no `AddControllers`, all modules mapped)
+- Extended `MultitenancyConfigurationTests.cs` to validate tenant-scoped admin endpoint routing
+- Extended `AuthEndpointAuthorizationIntegrationTests.cs` to validate auth seam enforcement
+- All tests execute without live database or external infrastructure
+
+**Validation:**
+- ✅ Test suite: 86/86 passing (inherited + session-specific gates)
+- ✅ Architecture contracts enforce composition: `Program.cs` thin-host, no MVC activation
+- ✅ Runtime validation: tenant resolution, auth seams, endpoint authorization
+
+**Evidence:**
+- `test/Opplat.MainApp.Test/Architecture/ConvertedSurfaceArchitectureTests.cs`
+- `test/Opplat.MainApp.Test/Architecture/MultitenancyConfigurationTests.cs`
+- `test/Opplat.MainApp.Test/Auth/AuthEndpointAuthorizationIntegrationTests.cs`
+
+**Outcome:** Regression prevention locked; future violations fail automatically instead of requiring manual checklists.
+
+---
+
+### 3. Ripley — MainApp Final Wave Phase Gate 2 Review (Pending)
+**Decision Date:** 2026-03-23  
+**Agent:** Ripley (Architect/Reviewer)  
+**Status:** ⏳ PENDING
+
+**Task:** Perform final Phase Gate 2 closeout review of MainApp minimal API migration wave.
+
+**Review Scope:**
+- Thin-host composition: `Program.cs` thin-host pattern, no `AddControllers`/`MapControllers`
+- Endpoint module ownership: All mapped modules found, MediatR-backed logic confirmed
+- Controller archival: All controllers archived with `_Archived` suffix, routes commented
+- Multitenancy & auth: Tenant-scoped admin endpoints, auth seam validation
+- Regression coverage: 86/86 tests passing, architecture contracts enforced
+
+**Evidence Sources:**
+- `src/Opplat.MainApp/Program.cs` (wiring)
+- `src/Opplat.MainApp.Domain/Features/*/Endpoints.cs` (all areas)
+- `test/Opplat.MainApp.Test/Architecture/ConvertedSurfaceArchitectureTests.cs` (gates)
+- Build output & test results
+
+**Next Phase:** If approved, MainApp minimal API migration wave concludes; decision to document and commit.
+
+---
   - keep API-wrapper/type assertions
   - add page-level source-contract assertions for dashboard bootstrap and tenant CRUD form payload fields
 - Expected effect: future backend boundary changes that reintroduce `/admin/users` dependencies or old tenant fields like `connectionString` should fail tests before reaching the admin app runtime.
