@@ -4,6 +4,15 @@
 
 ### Active Sessions Summary (2026-03-23)
 
+**Session 19: Shared Admin/Client Contracts Extraction** — ✅ COMPLETE
+- Extracted canonical admin session DTOs into `src\Opplat.Application.Abstractions\Admin\AdminSessionContracts.cs` (single source of truth)
+- Extracted auth constants into `src\Opplat.Application.Abstractions\Auth\` (centralized, consistent across hosts)
+- Repointed MainApp and AdminApi admin endpoints to reference shared contracts instead of local copies
+- Repointed host auth constant wrappers to shared constants
+- Preserved host-specific auth implementations (MainApp and AdminApi remain separate, only shared contracts extracted)
+- Build validation: ✅ Success (no new errors), ✅ No test regressions
+- Result: Eliminated duplication while preserving host autonomy; module projects can now reference shared contracts via Abstractions layer
+
 **Session 18: MainApp Final Minimal API Wave** — ✅ COMPLETE, pending Ripley Phase Gate 2 review
 - Removed `AddControllers()` / `MapControllers()` from `Program.cs`
 - Explicitly wired all surviving endpoint modules: `AdminEndpoints`, `SalesEndpoints`, `InventoryEndpoints`
@@ -82,3 +91,11 @@
 **Sessions 16–17:** Phase Gate 1 reauthorization; Inventory & Sales waves complete & passing gates.
 
 See `.squad/orchestration-log/` for detailed session outcomes and `.squad/decisions.md` for architectural decisions.
+
+## Learnings
+
+- Flattening `src\Modules\{Sales|Inventory}\Application\` into `src\Opplat.Application\{Module}\` would simplify MediatR assembly scanning, but it breaks the current thin-host modular boundary by forcing Sales and Inventory hosts to ship each other's handlers through one shared application assembly.
+- In this repo, `src\Opplat.Application\DependencyInjection\ServiceCollectionExtensions.cs` is a registration seam, while module `Application\DependencyInjection\ServiceCollectionExtensions.cs` files still own module service/repository wiring; moving handlers without moving that ownership would leave application concerns split across two places.
+- MainApp and both microservice hosts currently stay coherent by explicitly composing module application assemblies (`Program.cs` + endpoint `using` statements), so the safer discovery fix is documentation/facade cleanup rather than flattening the module application projects.
+
+- When MainApp and AdminApi share identical admin-session/auth contract types, extract the canonical DTOs/constants into `src\Opplat.Application.Abstractions\` and let each host keep only the divergent runtime pieces (for example OIDC normalization or tenant persistence) so shared contracts converge without flattening module handlers.

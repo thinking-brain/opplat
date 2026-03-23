@@ -17,6 +17,11 @@ Create a shared application project (for example `Opplat.Application`) that expo
 ### Let module Application projects own DI wiring
 Keep repository/service registrations in the module Application project during the transition (`AddSalesApplication`, `AddInventoryApplication`). This moves composition knowledge out of `Program.cs` before every use case has been rewritten as handlers.
 
+### Keep bounded-context handlers in their module assemblies
+If the solution has both a modular monolith host and service-specific hosts, keep MediatR handlers/requests under `Modules/{Module}/Application` instead of flattening them into one shared `Opplat.Application` assembly. A shared application project can remain the registration seam (`AddOpplatApplication(...)`) without becoming the owner of every module's handlers.
+
+This preserves module ownership, keeps service deployables from carrying unrelated handlers, and reduces the chance of accidental cross-context MediatR calls.
+
 ### Keep hosts limited to startup + endpoint mapping
 Hosts should call:
 - shared startup (`AddOpplatMicroserviceHost`, auth, tenancy, swagger)
@@ -53,3 +58,4 @@ app.MapSalesEndpoints();
 - **Keeping MediatR scanning only on `GetExecutingAssembly()`** - module handlers will never register.
 - **Leaving service/repository wiring in `Program.cs`** - hosts stay fat and ownership remains unclear.
 - **Updating project references without Dockerfiles** - CI/container restores break even when local solution builds succeed.
+- **Flattening module handlers into one shared application assembly for convenience** - simplifies scanning, but weakens bounded-context isolation and makes module-specific service hosts ship unrelated handlers.

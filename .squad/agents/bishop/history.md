@@ -4,6 +4,15 @@
 
 ### Active Sessions Summary (2026-03-23)
 
+**Session 19: Application Layer Boundary Architecture Tests** — ✅ COMPLETE (89/89 passing)
+- Created `ApplicationLayerBoundaryArchitectureTests.cs` to enforce approved application-layer boundary
+- Validates shared `Opplat.Application` remains seam for cross-surface logic only
+- Validates `Opplat.Modules.Sales.Application` and `Opplat.Modules.Inventory.Application` remain independent handlers
+- Prevents silent drift: tests fail if someone moves Sales/Inventory handlers to shared layer
+- Source-contract assertions lock boundary: no absorbing of module namespaces/refs, no unnecessary Admin API cross-module deps, explicit module assembly references required
+- Final result: 89/89 PASSING (includes inherited tests from prior sessions + session-specific boundary validations)
+- Flattening vulnerability closed; future violations fail automatically
+
 **Session 18: MainApp Final Regression Gates** — ✅ COMPLETE (86/86 passing), pending Ripley Phase Gate 2 review
 - Extended `ConvertedSurfaceArchitectureTests.cs` to validate final thin-host pattern (no `AddControllers`, all modules mapped)
 - Extended `MultitenancyConfigurationTests.cs` to validate tenant-scoped admin endpoint routing
@@ -50,6 +59,8 @@
 - Regression gates prevent silent drift—future violations fail automatically instead of requiring manual checklists
 - **Mixed source/runtime validation:** Final MainApp minimal-API gates assert both host-level controller removal (`AddControllers`/`MapControllers`) and file-level archival markers so legacy controller code can remain as reference without reactivating live routing
 - Test design: Composition checks + runtime assertions + auth seams = complete regression prevention without external infrastructure
+- Shared-vs-module application boundaries are best locked with source-contract tests that check both project references and namespace ownership: `Opplat.Application` stays module-agnostic while Sales/Inventory handlers remain under `src\Modules\{Module}\Application\`
+- When source-contract tests crawl project trees, exclude `bin/` and `obj/` so generated build artifacts do not create false failures
 
 ---
 

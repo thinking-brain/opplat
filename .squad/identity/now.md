@@ -1,9 +1,9 @@
 ---
-updated_at: 2026-03-23T08:42:15Z
-focus_area: Planning shared application-layer refactor across admin and client surfaces; move logic into class libraries with MediatR-centered handlers; thin API hosts; convert non-minimal APIs to minimal APIs.
+updated_at: 2026-03-23T10:18:10Z
+focus_area: Evaluating and potentially flattening module application logic into the global Opplat.Application project while preserving module folder structure, MediatR wiring, and thin hosts.
 active_issues: []
 ---
 
 # What We're Focused On
 
-Planning and executing a solution-wide architecture refactor so admin and client logic lives in class libraries, MediatR handles application use cases, and web API projects keep only host-specific concerns like startup and endpoint definitions. Also inventorying and converting remaining controller-based APIs to minimal APIs while preserving existing behavior.
+Revisiting the application-layer structure after the refactor to determine whether module application logic should live under the global Opplat.Application project instead of separate module application projects. The goal is to keep module-specific folders for discoverability while preserving class-library boundaries, MediatR-driven use cases, thin hosts, and current route/auth/multitenancy behavior.

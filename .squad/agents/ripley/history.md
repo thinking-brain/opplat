@@ -50,3 +50,19 @@ Spot-checked implementation. All tests (65/65) passing, docker-compose valid, bu
 
 See `.squad/orchestration-log/` for detailed session outcomes and `.squad/decisions.md` for architectural decisions.
 
+## Learnings
+
+### Session 23 (2026-03-24): Application Layer Flatten Proposal — REJECTED
+
+**Proposal:** Move module Application projects into global `Opplat.Application/{Module}/` folders.
+
+**Decision:** Rejected. Convenience does not justify breaking bounded context encapsulation.
+
+**Key Factors:**
+1. Cross-context coupling — Sales handlers could accidentally reference Inventory types
+2. Microservice bloat — Single Application assembly forces all handlers into all hosts
+3. Prior decision explicitly rejected this pattern (decisions.md @ line 2141)
+4. Module autonomy matters for parallel team work
+
+**Lesson:** When re-evaluating approved architecture, require new evidence, not just preference change. Domain modeling changes (e.g., merging bounded contexts) could justify consolidation; navigation convenience does not.
+

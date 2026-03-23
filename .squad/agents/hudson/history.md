@@ -4,7 +4,11 @@
 **Stack:** ASP.NET Core (net10.0) | EF Core | PostgreSQL (Admin API) / SQL Server (Main) | SignalR | OIDC (Auth0/Keycloak) | React 18  
 **Root:** C:\projects\personal\opplat | **Branch:** develop
 
-### Recent Sessions (2026-03-22)
+### Recent Sessions (2026-03-23)
+
+**Session 17: Shared Application Wiring Alignment (Complete)** — Aligned project references so module Application projects can consume shared Opplat.Application and Opplat.Application.Abstractions without flattening module boundaries. Added forward-facing references to `Opplat.Modules.Sales.Application` and `Opplat.Modules.Inventory.Application` from `Opplat.Application` (in addition to existing `Opplat.Application.Abstractions` refs). Ensured `Opplat.AdminApi` references both for consistency. Verified: ✅ Clean build (0 errors, 4 pre-existing warnings), ✅ No circular dependencies, ✅ Assembly load order correct for MediatR scanning. Coordinate with Bishop (architecture tests) and Hicks (shared contract implementation). Wiring ready for multi-assembly handler registration across shared and module-specific Application projects (2026-03-23T13:51:29Z).
+
+### Prior Sessions (2026-03-22)
 
 **Session 16: Admin API PostgreSQL Migration — Infrastructure Modernization (Complete)** — Migrated Opplat.AdminApi to PostgreSQL from SQL Server. Updated csproj: replaced Microsoft.EntityFrameworkCore.SqlServer with Npgsql.EntityFrameworkCore.PostgreSQL (v10.0.1). Added MediatR (v12.4.1) package for handler registration. Updated docker-compose.yml: added postgres:17-alpine service (port 5432, opplat_admin DB, postgres/Admin123* creds, pg_isready health check, postgres_data volume); kept SQL Server for main APIs. Modified admin-api service depends_on to use postgres; updated connection strings to PostgreSQL format (Host/Port/Database/Username/Password). Updated Program.cs to register AdminTenantIdentityDbContext with UseNpgsql(). Updated AdminTenantProvisioningService and AdminTenantUserService to use UseNpgsql() in CreateDbContext(). Added PostgreSQL connection string to appsettings.json for local dev. Verified: ✅ dotnet build, ✅ docker-compose config, ✅ Admin API now isolated on postgres while Main/Sales/Inventory remain on SQL Server. Session complete (2026-03-22T22:27:00Z).
 
@@ -57,7 +61,48 @@
 - **Keycloak (8180):** Local OIDC; Auth0 for prod
 - **Database:** SQL Server (main apps) + PostgreSQL (admin API), multi-tenant via X-Tenant-Identifier header and EF filters
 
+### 2026-03-23 Session 22: Shared Application Wiring Completion — Infrastructure Maintenance
+**Role:** Verify and adjust solution/project wiring after flattening rejection
+**Outcome:** ✅ Module Application projects wired to access shared Opplat.Application; AdminApi references Opplat.Application.Abstractions; clean build with zero errors
+
+**What Was Done:**
+1. **Analyzed Project Dependencies**
+   - Identified Sales.Application + Inventory.Application only referenced Opplat.Application.Abstractions, NOT Opplat.Application
+   - AdminApi referenced Opplat.Application but NOT Opplat.Application.Abstractions (inconsistent)
+   - This blocked module projects from accessing any shared admin/client application logic
+
+2. **Applied Wiring Fixes**
+   - ✅ Added `Opplat.Modules.Sales.Application` → `Opplat.Application` reference (maintains Abstractions ref)
+   - ✅ Added `Opplat.Modules.Inventory.Application` → `Opplat.Application` reference (maintains Abstractions ref)
+   - ✅ Added `Opplat.AdminApi` → `Opplat.Application.Abstractions` reference (consistency with modules)
+
+3. **Verified Wiring Completeness**
+   - ✅ No circular dependencies introduced
+   - ✅ All ApplicationMarkers accessible by hosts for MediatR assembly scanning
+   - ✅ Module DI registrations (AddSalesApplication, AddInventoryApplication) remain independent
+   - ✅ Shared logic (handlers, DTOs) now discoverable in Opplat.Application for both AdminApi and MainApp
+
+4. **Build Validation**
+   - ✅ Clean build: 0 errors, 4 pre-existing MimeKit warnings (CVE-2024-36118, not in scope)
+   - ✅ All projects compile to correct net10.0 targets
+   - ✅ No restoration issues; docker-compose ready
+
+**Architecture Post-Fix:**
+- Opplat.Application: Shared MediatR orchestrator + admin/client DTOs/handlers (hosts: AdminApi, MainApp)
+- Opplat.Application.Abstractions: MediatR contracts (refs: all Application projects, hosts)
+- Module Application projects: Module-specific handlers, domain service DI
+- Hosts maintain startup/middleware control; modules own bounded-context logic
+
+**Support for Hicks' Shared Admin/Client Work:**
+- ✅ Handlers in Opplat.Application now discoverable by both AdminApi and MainApp
+- ✅ Shared DTOs can live in Opplat.Application without module duplication
+- ✅ AdminApi can use module-agnostic patterns (tenant identity, auth context) from shared layer
+- ✅ MainApp can share auth/session patterns with AdminApi through Opplat.Application
+
 ## Learnings
+- 2026-03-23 Session 22: **Module → Shared Application Wiring Pattern** — When modules must stay as separate Application projects (not flattened), they still need references to the root Opplat.Application to access shared handlers/DTOs. Without this reference, modules are isolated and can only reach Abstractions. Forward dependency (Modules → Opplat.Application) is safe and necessary; back-references (Opplat.Application → Modules) must never exist. This pattern allows shared admin/client logic to live centrally while preserving module independence for domain services and handlers.
+
+- 2026-03-23: **App-Layer Flatten Assessment Complete** — Flattening module application logic (handlers, DTOs, DI) from `Opplat.Modules.Sales.Application` and `Opplat.Modules.Inventory.Application` into global `Opplat.Application` with module subfolders (`Opplat.Application/Sales/`, `Opplat.Application/Inventory/`) is architecturally safe, introduces NO circular references, NO missing deps, and yields net simplification: -2 projects, single DI coordinator, cleaner host csproj files. Migration is mechanical (namespace updates + folder moves + csproj refs). Estimated 1.5hrs to complete. No build hazards identified; strong recommendation to proceed. Full assessment saved to `.squad/decisions/inbox/hudson-flatten-app-layer-assessment.md`.
 - 2026-03-23: Shared application-layer setup works cleanly when hosts register MediatR through a root `Opplat.Application` extension and module Application projects own their DI wiring (`AddSalesApplication`, `AddInventoryApplication`). This lets hosts stay focused on startup + endpoints while still compiling against domain contracts during staged migrations.
 - 2026-03-23: When moving host dependencies upward into new application projects, update Dockerfile restore COPY lists at the same time or containerized `dotnet restore` will fail before publish.
 - 2026-03-23: Minimal API endpoints don't need explicit `[FromServices]` binding—parameters are injected automatically. Injecting `IMediator` directly works fine without attribute decoration in ASP.NET Core 10.0 minimal APIs.
