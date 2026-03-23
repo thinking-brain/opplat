@@ -14,22 +14,28 @@ src/Opplat.Application/                    [Central Application Library]
 ├─ Sales/                                   [Module folder—was separate project]
 │  ├─ Products/                             [Handler groups by bounded context]
 │  ├─ Toppings/
-│  ├─ DependencyInjection/                  [Private DI extensions]
 │  └─ Common/
 ├─ Inventory/                               [Module folder—was separate project]
 │  ├─ Products/
 │  ├─ Storages/
-│  ├─ DependencyInjection/                  [Private DI extensions]
 │  └─ Common/
 ├─ DependencyInjection/                     [Central Coordinator]
 │  └─ ServiceCollectionExtensions.cs        [Registers all modules + MediatR]
+└─ AssemblyMarker.cs
+
+src/Modules/Sales/Application/              [Retained wrapper project]
+├─ DependencyInjection/                     [Module repo/service registration]
+└─ AssemblyMarker.cs                        [Optional placeholder / compatibility seam]
+
+src/Modules/Inventory/Application/          [Retained wrapper project]
+├─ DependencyInjection/
 └─ AssemblyMarker.cs
 ```
 
 ### Benefits
 - **Single assembly**: All handlers in one DLL → faster assembly loading, unified MediatR scan
 - **Clear discoverability**: All app logic in `src/Opplat.Application/`, modules as subfolders
-- **Simpler host projects**: Hosts reference 1 app project instead of N (hosts only do minimal API wiring)
+- **Thinner handler scanning**: Hosts scan one application assembly for MediatR while module wrappers still own service/repository registration
 - **Flexible scaling**: New modules added as new folders, no new projects needed
 
 ---
@@ -38,10 +44,10 @@ src/Opplat.Application/                    [Central Application Library]
 
 ### 1. Dependency Graph Validation
 ```
-Module Applications must NOT reference global Opplat.Application
-(If they do, moving them creates cycles—STOP.)
+Global Opplat.Application must be allowed to reference the module Domain/Infrastructure projects needed by the moved handlers.
+Module Application projects may continue to reference Opplat.Application if they stay as wrappers only.
 
-✅ Safe if: Module Infra/Domain form isolated DAG and global app only references modules.
+✅ Safe if: moved handlers compile against module domain/repository abstractions without introducing domain↔application cycles.
 ```
 
 ### 2. Assembly Scanning Impact
@@ -74,15 +80,11 @@ Grep all host/test projects for old namespaces
 mkdir src/Opplat.Application/Sales
 mkdir src/Opplat.Application/Inventory
 
-# 2. Copy all files from source modules
-cp -Recurse src/Modules/Sales/Application/* src/Opplat.Application/Sales/
-cp -Recurse src/Modules/Inventory/Application/* src/Opplat.Application/Inventory/
+# 2. Move MediatR request/handler slices and command-result types
+cp src/Modules/Sales/Application/*Requests.cs src/Opplat.Application/Sales/
+cp src/Modules/Inventory/Application/*Requests.cs src/Opplat.Application/Inventory/
 
-# 3. Delete source module app projects
-rm -Recurse src/Modules/Sales/Application/
-rm -Recurse src/Modules/Inventory/Application/
-rm src/Modules/Sales/Application/*.csproj
-rm src/Modules/Inventory/Application/*.csproj
+# 3. Leave module Application projects in place with only DI/marker files
 ```
 
 ### Phase 2: Project References (csproj)
@@ -95,19 +97,7 @@ rm src/Modules/Inventory/Application/*.csproj
 <ProjectReference Include="..\Modules\Inventory\Infrastructure\Opplat.Modules.Inventory.Infrastructure.csproj" />
 ```
 
-**Update host projects (API, MainApp csproj):**
-```xml
-<!-- Remove old module app references -->
-<!-- <ProjectReference Include="..\Modules\Sales\Application\..." /> -->
-<!-- <ProjectReference Include="..\Modules\Inventory\Application\..." /> -->
-
-<!-- Keep module domain references if needed (usually not) -->
-```
-
-**Update solution file (*.slnx):**
-```xml
-<!-- Remove project entries for deleted modules.Sales.Application, modules.Inventory.Application -->
-```
+**Host project references may stay in place** if they still call module DI wrapper extensions such as `AddSalesApplication()` / `AddInventoryApplication()`.
 
 ### Phase 3: Namespace Updates (Code)
 **Find/Replace Pattern:**
@@ -125,16 +115,12 @@ Files affected:
 - Integration test setup (if present)
 - Dockerfile COPY statements (unlikely, but verify)
 
-### Phase 4: DI Consolidation
-**Centralize in target app's DependencyInjection/ServiceCollectionExtensions.cs:**
+### Phase 4: DI & startup wiring
+**Keep MediatR centralized in the target app but preserve module DI wrappers:**
 ```csharp
 using System.Reflection;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Opplat.Modules.Sales.Domain.Repositories;
-using Opplat.Modules.Sales.Domain.Services;
-using Opplat.Modules.Sales.Infrastructure.Repositories;
-// ... inventory imports
 
 namespace Opplat.Application.DependencyInjection;
 
@@ -150,26 +136,7 @@ public static class ServiceCollectionExtensions
             .ToArray();
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(assemblies));
-        services.AddSalesApplication();       // Private helper
-        services.AddInventoryApplication();   // Private helper
 
-        return services;
-    }
-
-    private static IServiceCollection AddSalesApplication(
-        this IServiceCollection services)
-    {
-        // Register all Sales domain services/repos
-        services.AddScoped<IProductService, ProductService>();
-        // ... etc
-        return services;
-    }
-
-    private static IServiceCollection AddInventoryApplication(
-        this IServiceCollection services)
-    {
-        // Register all Inventory domain services/repos
-        // ... etc
         return services;
     }
 }
@@ -187,7 +154,8 @@ builder.Services.AddInventoryApplication();
 
 // NEW:
 builder.Services.AddOpplatApplication(Assembly.GetExecutingAssembly());
-// All modules auto-registered; no separate extension calls
+builder.Services.AddSalesApplication();
+builder.Services.AddInventoryApplication();
 ```
 
 ---
@@ -210,7 +178,7 @@ builder.Services.AddOpplatApplication(Assembly.GetExecutingAssembly());
 ### Code Review Checklist
 - [ ] All namespace imports updated
 - [ ] No hardcoded assembly names remain in reflection/string references
-- [ ] DI extensions are private (not public) to avoid re-registration
+- [ ] Module DI wrapper projects no longer contain live `*Requests.cs` handler files
 - [ ] AssemblyMarker in target app is in root namespace for MediatR scanning
 
 ---
@@ -221,10 +189,9 @@ builder.Services.AddOpplatApplication(Assembly.GetExecutingAssembly());
 **Cause:** MediatR scans wrong assembly, or handler assembly not passed to `AddMediatR()`  
 **Prevention:** Verify `typeof(AssemblyMarker).Assembly` points to NEW location post-move
 
-### Hazard: Circular Dependencies
-**Cause:** Module app was referenced by global app before migration  
-**Prevention:** Pre-migration verify: `grep -r "Modules\.(Sales|Inventory)\.Application" src/Opplat.Application/`  
-If any found, break those imports first.
+### Hazard: Flattening too much
+**Cause:** Moving DI/service-registration code into the shared app along with handlers  
+**Prevention:** Keep `Modules/{Module}/Application/DependencyInjection` as the module-specific composition seam unless the team explicitly wants to centralize infrastructure/service registration too.
 
 ### Hazard: Namespace Collisions
 **Cause:** Two modules with identical class names in same folder hierarchy  
@@ -238,10 +205,10 @@ If any found, break those imports first.
 
 ## When NOT to Use This Pattern
 
-- **Multi-version scenarios:** If modules must ship with different versions, keep separate projects
-- **External consumption:** If module app logic is published as NuGet package, keep it as separate project
-- **Team boundaries:** If different teams own modules and need strict boundaries, separate projects are clearer
-- **Build optimization:** If monolithic assembly conflicts with incremental build strategy
+- **Multi-version scenarios:** If modules must ship with different versions, keep separate handler assemblies
+- **External consumption:** If module app logic is published as NuGet package, keep it as a separate project
+- **Strict service isolation:** If each microservice must avoid carrying unrelated handlers entirely, keep handlers in their own module assembly
+- **Build optimization:** If monolithic handler assembly conflicts with incremental build strategy
 
 ---
 

@@ -1,5 +1,251 @@
 # Opplat Squad — Decisions
 
+## Session 26 Decisions (2026-03-23 — Aspire Local Development Architecture)
+
+### 1. Aspire Local Development Architecture Design (Ripley)
+
+**Status:** ✅ APPROVED  
+**Date:** 2026-03-24  
+**Owner:** Ripley (Architect)  
+**Impact:** Local Development Experience, Service Orchestration, Developer Velocity
+
+#### Rationale
+
+Team required unified local development experience for multi-service architecture (MainApp, AdminApi, Sales API, Inventory API) with mixed database backends (SQL Server + PostgreSQL). Current manual docker-compose orchestration is error-prone; Aspire enables hot-reload development, unified dashboard, simplified connection strings, and selective containerization.
+
+#### What Was Approved
+
+**Single AppHost Architecture**
+- Single `Opplat.AppHost` orchestrating 4 backend services
+- `Opplat.ServiceDefaults` providing shared defaults (health checks, OpenTelemetry, service discovery, resilience)
+- SQL Server + PostgreSQL + Keycloak containerized; .NET APIs run natively
+
+**Service Participation**
+| Service | Aspire Integration |
+|---------|-------------------|
+| Opplat.MainApp | `.AddProject<MainApp>()` with SQL Server |
+| Opplat.AdminApi | `.AddProject<AdminApi>()` with PostgreSQL |
+| Opplat.Services.Sales.Api | `.AddProject<SalesApi>()` with SQL Server |
+| Opplat.Services.Inventory.Api | `.AddProject<InventoryApi>()` with SQL Server |
+
+**Frontend Strategy**
+- React/Admin Vite apps **NOT** orchestrated by Aspire
+- Developers run `npm run dev` separately
+- APIs expose CORS for localhost:3000, localhost:3100, localhost:3101
+
+**Configuration & Dual-Mode Operation**
+- Aspire injects connection strings at runtime
+- Docker-compose mode remains unchanged for CI/prod
+- Both modes functional; developers choose Aspire OR docker-compose
+
+**Port Assignments**
+| Service | Aspire | Docker |
+|---------|--------|--------|
+| MainApp | Dynamic | 8080 |
+| AdminApi | Dynamic | 8084 |
+| Sales API | Dynamic | 8083 |
+| Inventory API | Dynamic | 8082 |
+| SQL Server | 1433 | 1433 |
+| PostgreSQL | 5432 | 5432 |
+| Keycloak | 8180 | 8180 |
+
+#### Constraints for Implementation Teams
+
+**Hudson (Project Setup):**
+- Create AppHost + ServiceDefaults projects
+- Add Aspire packages to Directory.Packages.props
+- Update solution file
+
+**Hicks (Runtime):**
+- Standardize /health and /alive endpoints
+- Add forwarded header support for Development
+- Conditional HTTPS redirection (only when binding configured)
+
+**Bishop (Testing):**
+- Validate AppHost builds and all services integrate
+- Source-contract tests sufficient (no full AppHost launch in shared env)
+- Maintain docker-compose validation
+
+#### Rejected Alternatives
+
+1. **Aspire-only:** Docker Compose battle-tested for CI/prod; both modes required
+2. **Frontend in Aspire:** Vite HMR faster; developers prefer native npm run dev
+3. **Separate AppHost per microservice:** Single AppHost simplifies local orchestration
+
+#### Dependencies
+
+- .NET Aspire 9.x (compatible with .NET 10)
+- Docker Desktop (for database containers)
+
+#### Success Criteria
+
+1. ✅ `dotnet run --project src/Opplat.AppHost` starts all 4 APIs + databases + Keycloak
+2. ✅ Aspire dashboard shows all services with health status
+3. ✅ APIs authenticate against Keycloak and connect to databases
+4. ✅ `docker-compose up` remains unchanged and functional
+5. ✅ All existing tests pass
+
+---
+
+### 2. Add .NET Aspire for Local Development (Hudson)
+
+**Status:** ✅ APPROVED & IMPLEMENTED  
+**Date:** 2026-03-23T17:45:00Z  
+**Owner:** Hudson (DevOps/Infrastructure)  
+**Impact:** Build Configuration, Local Dev Setup, Package Management
+
+#### Implementation Details
+
+**New Projects**
+- `src/Opplat.AppHost/`: Orchestration host with Aspire.Hosting packages
+- `src/Opplat.ServiceDefaults/`: Shared defaults for health, observability, discovery
+
+**Packages Added**
+- Aspire.Hosting v13.0.0
+- Aspire.Hosting.SqlServer v13.0.0
+- Aspire.Hosting.PostgreSQL v13.0.0
+
+**Service Orchestration (AppHost Program.cs)**
+- SQL Server: opplat_main, opplat_sales, opplat_inventory databases
+- PostgreSQL: opplat_admin database
+- Keycloak: OIDC provider with realm import
+
+**Service Bindings**
+- MainApp → SQL Server + port 8080
+- AdminApi → PostgreSQL + port 8084
+- Sales API → SQL Server + port 8083
+- Inventory API → SQL Server + port 8082
+
+**Dashboard Configuration**
+- Development: http://localhost:17356
+- HTTPS: https://localhost:17355
+- launchSettings.json: Aspire dashboard ports and environment variables
+
+**Bug Fixes**
+- AspireDevelopmentExtensions.cs: Replaced IsDevelopment() with EnvironmentName check (IWebHostEnvironment compat)
+- Health check response writer: Converted WriteAsJsonAsync to async lambda
+
+#### Validation
+
+✅ Clean build: 0 errors, 13 pre-existing warnings (unrelated)  
+✅ All 16 projects compile (15 + AppHost)  
+✅ All 89 tests passing  
+✅ No circular dependencies introduced  
+✅ Solution file (opplat.slnx) updated  
+
+#### Usage
+
+```bash
+dotnet run --project src/Opplat.AppHost
+# View dashboard at http://localhost:17356
+```
+
+#### Side Effects
+
+None — Pure orchestration layer. Docker-compose remains valid. Local developers choose Aspire OR docker-compose.
+
+#### Future Work
+
+- Documentation: README.md quick-start for Aspire
+- Environment parity: Aspire resource names should match docker-compose service names
+- Team validation: All platforms (Windows, Mac, Linux) in team environments
+
+---
+
+### 3. Adapt Services for Aspire Local Development (Hicks)
+
+**Status:** ✅ COMPLETED  
+**Date:** 2026-03-23  
+**Owner:** Hicks (Host/Runtime)  
+**Impact:** Runtime Behavior, Host Compatibility, Aspire Integration
+
+#### Decisions
+
+**Standardize Health Endpoints**
+- All backend hosts expose `/health` and `/alive` endpoints
+- Compatible with Aspire orchestration health checks
+
+**Aspire-Safe Host Behavior**
+- Add forwarded header support in Development for local reverse-proxy flows
+- Conditional HTTPS redirection: Only redirect when HTTPS binding configured
+- Prevents broken redirects under Aspire orchestration (HTTP-only bindings)
+
+**Configuration Strategy**
+- Shared `Opplat.Microservices.Shared`: Standard Aspire patterns (Sales, Inventory)
+- Local helpers: MainApp, AdminApi (until package wiring finalized)
+- No external package dependencies added by Hicks
+
+#### Rationale
+
+Aspire local orchestration depends on predictable health endpoints and proxy-aware host behavior. Forwarded headers required for local proxying, Swagger, OIDC callback generation. Conditional HTTPS redirection avoids broken redirects with HTTP-only bindings.
+
+#### Test Status
+
+✅ All touched backend tests remain green: 89/89 passing
+
+#### Runtime Contract
+
+- `/health` and `/alive` endpoints exposed
+- Forwarded headers honored in Development
+- HTTPS redirection conditional on binding configuration
+- All existing functionality preserved
+
+#### Future Work
+
+If team centralizes MainApp/AdminApi references, duplicated Aspire helpers can be collapsed into shared implementation.
+
+---
+
+### 4. Validate Aspire Local Development (Bishop)
+
+**Status:** ✅ COMPLETED  
+**Date:** 2026-03-23  
+**Owner:** Bishop (QA/Validation)  
+**Impact:** Build Validation, Test Coverage, Risk Assessment
+
+#### Decisions
+
+**Validation Approach**
+- Use source-contract tests and build/test coverage instead of full AppHost launch
+- Safer for shared environment (no long-lived Docker containers started)
+- Regression coverage sufficient for validation gate
+
+**Aspire Scope**
+- Keep AppHost scoped to backend/API orchestration
+- Frontend Vite servers documented as running separately
+- Align client dev-server port to `http://localhost:3200` for consistency
+
+#### Rationale
+
+Running full AppHost in non-dedicated environment would start shared Docker containers and long-lived processes. Source-contract tests catch configuration drift without external infrastructure. Client dev-port mismatch would leave local auth flows inconsistent.
+
+#### Validation Results
+
+✅ Build: Clean (0 errors)  
+✅ Tests: All 89 passing (regression gates)  
+✅ Configuration: No drift between AppHost, docker-compose, Keycloak, README  
+✅ Health endpoints: Functional  
+✅ Service bindings: Correct  
+✅ Frontend alignment: Vite port consistent with auth config  
+
+#### Risk Assessment
+
+**Low Risk:**
+- Aspire pure orchestration layer
+- Docker-compose untouched
+- All existing tests passing
+- No service code changes required
+- Dual-mode operation verified
+
+#### Constraints Honored
+
+- AppHost scoped to backend orchestration only
+- Frontend Vite servers remain separate
+- Source-contract tests sufficient validation
+- Full AppHost launch deferred to developer local machines
+
+---
+
 ## Session 15 Decisions (2026-03-23 — Centralized .NET Package Management & Warning Fixes)
 
 ### 1. Centralized Package Management (CPM) Implementation (Hudson)

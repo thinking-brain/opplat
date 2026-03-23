@@ -1,8 +1,21 @@
 ## Core Context
 
-**CURRENT FOCUS:** Phase Gate 1 authorization wave for MainApp area-by-area migration to thin-host minimal APIs (MediatR-driven). **Session 18 COMPLETE**: Final minimal API wave — removed all MVC registration, wired all endpoint modules, locked thin-host composition.
+**CURRENT FOCUS:** Phase Gate 1 authorization wave for MainApp area-by-area migration to thin-host minimal APIs (MediatR-driven). **Session 18 COMPLETE**: Final minimal API wave — removed all MVC registration, wired all endpoint modules, locked thin-host composition. **Session 26 COMPLETE**: Aspire-safe runtime seams (/health, /alive, forwarded headers, conditional HTTPS).
 
 ### Active Sessions Summary (2026-03-23)
+
+**Session 26: Aspire Local Development — Runtime Seams & Host Adaptation — COMPLETE (2026-03-23)**
+- Standardized /health and /alive endpoints across MainApp, AdminApi, Sales API, Inventory API
+- Added forwarded header support in Development for local Aspire reverse-proxy flows
+- Conditional HTTPS redirection: Only redirect when HTTPS binding configured (prevents broken redirects under Aspire HTTP-only orchestration)
+- Shared patterns in `Opplat.Microservices.Shared`: Sales, Inventory APIs use standard Aspire helpers
+- Local helpers: MainApp, AdminApi kept local until package/reference wiring finalized
+- No package dependencies added by Hicks (Hudson's responsibility)
+- Runtime contract locked: /health, /alive, forwarded headers, conditional HTTPS; Program.cs calls `builder.AddServiceDefaults()`
+- Validation: ✅ All touched backend tests green (89/89 passing)
+- Result: All 4 hosts ready for Aspire orchestration with predictable health endpoints, proxy-aware behavior
+- Decision merged: `.squad/decisions.md` Session 26 Hicks subsection
+- Orchestration log: `.squad/orchestration-log/20260323T175012Z-hicks.md`
 
 **Session 20: .NET Maintenance Batch — Source Warning Fixes & CPM Validation** — ✅ COMPLETE
 - Hicks fixed 3 real backend warnings (ServiceResponse<T>.Value nullability, SalesService.Get(string) override, BaseRepository exception logging)
@@ -110,3 +123,4 @@ See `.squad/orchestration-log/` for detailed session outcomes and `.squad/decisi
 - After a flattening move, hosts should scan only `Opplat.Application` for MediatR handlers (`AddOpplatApplication(Assembly.GetExecutingAssembly())`) while continuing to call `AddSalesApplication` / `AddInventoryApplication` for module-specific repository/service registration so startup stays thin without losing module wiring.
 - The fixable .NET source warnings in this branch were legacy code warnings, not startup/minimal-API regressions: `src\Opplat.Shared\Services\Service.cs` needed nullable-annotation cleanup, `src\Modules\Sales\Domain\Services\SalesService.cs` needed an explicit `override`, and `src\Opplat.Infrastructure\Common\BaseRepository.cs` should log caught exceptions instead of discarding them.
 - While Hudson's centralized package management rollout is in flight, solution-level validation is blocked by restore/config warnings (`NU1008`/`NU1507`) rather than backend source compilation; Hicks should limit warning-remediation work to code paths and report the package-source/PackageReference blockers instead of editing project files.
+- For Aspire local-dev readiness without touching project/package wiring, keep each ASP.NET host thin and add one host-level seam that standardizes `/health` + `/alive`, trusts forwarded headers only in Development, and skips HTTPS redirection unless an HTTPS binding is actually configured.

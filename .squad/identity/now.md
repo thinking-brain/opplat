@@ -1,9 +1,9 @@
 ---
-updated_at: 2026-03-23T10:18:10Z
-focus_area: Evaluating and potentially flattening module application logic into the global Opplat.Application project while preserving module folder structure, MediatR wiring, and thin hosts.
+updated_at: 2026-03-23T17:34:12Z
+focus_area: Adding .NET Aspire for local development orchestration across the existing Opplat services and apps.
 active_issues: []
 ---
 
 # What We're Focused On
 
-Revisiting the application-layer structure after the refactor to determine whether module application logic should live under the global Opplat.Application project instead of separate module application projects. The goal is to keep module-specific folders for discoverability while preserving class-library boundaries, MediatR-driven use cases, thin hosts, and current route/auth/multitenancy behavior.
+The user wants .NET Aspire added for local development. The team should design an Aspire-based local orchestration flow that fits the current multi-service repository, implement the required AppHost/service-defaults wiring, and validate that local builds and startup contracts still work.

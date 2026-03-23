@@ -10,13 +10,28 @@
 - **Admin API MediatR + PostgreSQL** — Replace mock stores with MediatR handlers, dedicated postgres for admin-api; auth pipeline frozen
 - **Application Layer Refactor** — Multiple Application libraries per bounded context + MediatR handlers replace IService pattern. Thin API hosts keep only startup/endpoints
 - **Controller-to-MinimalAPI Conversion** — Microservices first (Sales, Inventory), MainApp Areas last. All archived with `_Archived` suffix + commented route attributes
+- **Aspire Local Development** — Single AppHost orchestrating 4 backend services + SQL Server, PostgreSQL, Keycloak. Dual-mode: Aspire for dev, docker-compose for CI/prod. Frontend Vite apps remain separate.
 
 **Patterns Established:**
 - Role-to-Surface Mapping: SuperAdmin → admin portal; TenantAdmin/TenantUser → client app with admin features per tenant
 - Dual route shapes preserved in MainApp (non-tenant + tenant-prefixed routes) via MapSalesGroup/MapInventoryGroup reuse
 - Regression gates pin thin-host composition (no AddControllers/MapControllers), MediatR ownership, auth seams at HTTP boundary
+- Aspire-safe host behavior: /health, /alive endpoints; forwarded headers in Development; conditional HTTPS redirection
 
-**Status:** Phase Gate approvals completed for Sales & Inventory conversions (Sessions 20–21). Session 22 final wave pending Phase Gate 2 closeout review.
+**Status:** Aspire local development approved and implemented (Session 26). All 4 services ready for orchestration. Phase Gate 2 closeout pending.
+
+---
+
+### Session 26 Summary (2026-03-23)
+
+**Aspire Local Development Architecture — APPROVED & IMPLEMENTED**
+- Approved single AppHost orchestrating MainApp, AdminApi, Sales API, Inventory API
+- Approved ServiceDefaults pattern: health checks, OpenTelemetry, service discovery, resilience
+- Approved dual-mode operation: Aspire for dev (hot-reload), docker-compose for CI/prod (unchanged)
+- Approved frontend strategy: React/Admin Vite apps remain separate (npm run dev); not orchestrated
+- Assigned Hudson (setup), Hicks (runtime), Bishop (validation) with clear constraints
+- Decision record merged into `.squad/decisions.md` — Session 26 Aspire section
+- Orchestration logs: `.squad/orchestration-log/20260323T175012Z-ripley.md`
 
 ---
 
@@ -52,17 +67,47 @@ See `.squad/orchestration-log/` for detailed session outcomes and `.squad/decisi
 
 ## Learnings
 
-### Session 23 (2026-03-24): Application Layer Flatten Proposal — REJECTED
+### Session 23 (2026-03-24): Application Layer Flatten Proposal — REJECTED → OVERRIDDEN
 
 **Proposal:** Move module Application projects into global `Opplat.Application/{Module}/` folders.
 
-**Decision:** Rejected. Convenience does not justify breaking bounded context encapsulation.
+**Initial Decision:** Rejected. Convenience does not justify breaking bounded context encapsulation.
 
-**Key Factors:**
+**Override:** User explicitly directed flattening to proceed. User authority supersedes architect preference.
+
+**Key Factors (original rejection):**
 1. Cross-context coupling — Sales handlers could accidentally reference Inventory types
 2. Microservice bloat — Single Application assembly forces all handlers into all hosts
 3. Prior decision explicitly rejected this pattern (decisions.md @ line 2141)
 4. Module autonomy matters for parallel team work
 
-**Lesson:** When re-evaluating approved architecture, require new evidence, not just preference change. Domain modeling changes (e.g., merging bounded contexts) could justify consolidation; navigation convenience does not.
+**Guardrails Set (post-override):**
+- Hosts remain thin (MediatR dispatch only)
+- Domain/Infrastructure stay in module folders
+- Legacy IService pattern must be removed
+- Architecture tests updated to match new structure
+- 10-step sequencing constraint documented
+
+**Lesson:** User is final authority. When overridden, shift role from blocking to safe execution. Document guardrails, not objections.
+
+### Session 24 (2026-03-24): Aspire Local Development Architecture — APPROVED
+
+**Request:** Add .NET Aspire for local development orchestration.
+
+**Analysis:**
+- Current stack: 4 API hosts (MainApp, AdminApi, Sales, Inventory), PostgreSQL + SQL Server databases, Keycloak OIDC
+- Docker Compose exists and must remain functional for CI/prod-like runs
+
+**Design Decision:**
+1. **AppHost** — Single orchestrator for all 4 APIs + container resources (DBs, Keycloak)
+2. **ServiceDefaults** — Shared OpenTelemetry, health checks, service discovery, resilience
+3. **Dual-mode operation** — Aspire for fast dev loop, Docker Compose for CI/integration
+4. **Frontend excluded** — React/Admin SPAs run via native Vite dev servers, not Aspire
+
+**Constraints Documented:**
+- Hudson: Project creation, package refs, solution updates
+- Hicks: Program.cs wiring, connection string injection, Keycloak env vars
+- Bishop: AppHost smoke tests, dual-mode validation
+
+**Lesson:** Aspire integrates best when treating .NET apps as native projects and external deps (DBs, auth) as containers. Frontend SPAs benefit from their own HMR tooling.
 

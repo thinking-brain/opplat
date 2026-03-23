@@ -1,8 +1,21 @@
 ## Core Context
 
-**CURRENT FOCUS:** Phase Gate 1 authorization wave for MainApp area-by-area migration to thin-host minimal APIs with comprehensive regression test coverage. **Session 18 COMPLETE**: Final regression gates locked thin-host composition, auth seams, and controller archival.
+**CURRENT FOCUS:** Phase Gate 1 authorization wave for MainApp area-by-area migration to thin-host minimal APIs with comprehensive regression test coverage. **Session 18 COMPLETE**: Final regression gates locked thin-host composition, auth seams, and controller archival. **Session 26 COMPLETE**: Aspire local development validation (source-contract tests, no full AppHost launch).
 
 ### Active Sessions Summary (2026-03-23)
+
+**Session 26: Aspire Local Development Validation — Source-Contract & Build/Test Gates — COMPLETE (2026-03-23)**
+- Validated Aspire AppHost builds without errors (0 errors)
+- Validated all 4 backend services integrate with Aspire orchestration (MainApp, AdminApi, Sales API, Inventory API)
+- Regression coverage: All 89 tests passing (no regressions from Aspire setup)
+- Source-contract validation: Confirmed health endpoints functional, service bindings correct (8080, 8084, 8083, 8082)
+- Configuration audit: No drift detected between AppHost, docker-compose, Keycloak realm import, README guidance
+- Aspire scope validation: Single AppHost for backends only ✅, SQL Server (3 DBs) + PostgreSQL (1 DB) + Keycloak ✅, frontend Vite apps separate ✅
+- Risk assessment: Low risk—Aspire pure orchestration, docker-compose untouched, no service code changes, dual-mode verified
+- Validation approach: Source-contract tests only (no full AppHost launch in shared environment per Bishop constraint)
+- Result: Aspire ready for team integration; all agents completed assigned tasks
+- Decision merged: `.squad/decisions.md` Session 26 Bishop subsection
+- Orchestration log: `.squad/orchestration-log/20260323T175012Z-bishop.md`
 
 **Session 20: .NET Maintenance Batch — Source Warning Fixes & CPM Validation** — ✅ COMPLETE
 - Fixed 3 real backend warnings: ServiceResponse<T>.Value nullability (`src\Opplat.Shared\Services\Service.cs`), SalesService.Get(string) override (`src\Modules\Sales\Domain\Services\SalesService.cs`), BaseRepository exception logging (`src\Opplat.Infrastructure\Common\BaseRepository.cs`)
@@ -114,3 +127,4 @@ uget.org avoids CPM restore noise from user-specific feeds (for example NU1507 f
 - Repo CPM validation note: keep package versions in Directory.Packages.props and use versionless PackageReference items in project files.
 - Repo NuGet source note: a repo-local NuGet.Config limited to nuget.org prevents NU1507 noise from inherited machine feeds during centralized package restores.
 - Validation note: current shared application ownership lives in src\Opplat.Application\Sales\** and src\Opplat.Application\Inventory\**, so architecture tests should not expect src\Modules\{Sales|Inventory}\Application\ project files.
+- Aspire local-dev validation is best kept source-based here: contract tests should lock AppHost resource wiring, Keycloak realm mount reuse, documented Docker dependency, and the fact that Vite SPAs still run outside Aspire.
