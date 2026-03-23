@@ -1,9 +1,9 @@
 ---
-updated_at: 2026-03-23T17:34:12Z
-focus_area: Adding .NET Aspire for local development orchestration across the existing Opplat services and apps.
+updated_at: 2026-03-23T18:01:18Z
+focus_area: Debugging why the new Aspire AppHost does not run locally and fixing the startup/orchestration flow.
 active_issues: []
 ---
 
 # What We're Focused On
 
-The user wants .NET Aspire added for local development. The team should design an Aspire-based local orchestration flow that fits the current multi-service repository, implement the required AppHost/service-defaults wiring, and validate that local builds and startup contracts still work.
+The user reports that running the Aspire host is not working. The team is reproducing the failure, fixing AppHost/runtime issues, and validating the local-development flow end to end.

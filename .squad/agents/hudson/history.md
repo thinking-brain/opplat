@@ -6,6 +6,34 @@
 
 ### Recent Sessions (2026-03-23)
 
+**Session 27: Aspire AppHost Startup Debugging & Configuration Fixes — ✅ COMPLETE (2026-03-23T18:21:13Z)**
+- **Root Cause Analysis:** Aspire AppHost had four blocking issues:
+  1. **Path Resolution:** Program.cs used relative paths that failed when running from repo root (`C:\projects\personal\Opplat.MainApp\...` instead of correct path).
+  2. **Endpoint Name Conflicts:** Multiple projects (keycloak, mainapp, sales-api, inventory-api, admin-api) all defined HTTP endpoints with the same auto-generated name "http", causing `Aspire.Hosting.DistributedApplicationException`.
+  3. **SDK/Package Mismatch:** AppHost.csproj used both `Sdk="Aspire.AppHost.Sdk"` and package reference `Aspire.Hosting.AppHost`, causing configuration confusion.
+  4. **Runtime Dependency Missing:** DCP executable and Aspire Dashboard binaries not found at startup (system-level setup issue, outside Hudson scope).
+
+- **Fixes Implemented:**
+  1. **Path Resolution:** Added `FindRepoRoot()` function to locate `opplat.slnx` at runtime and compute absolute paths. Created `RepoPath()` helper for all project paths and bind mounts. Now resolves correctly from any working directory.
+  2. **Endpoint Configuration:** Added `ConfigureProjectDefaults()` helper that sets both `ExcludeLaunchProfile = true` and `ExcludeKestrelEndpoints = true` for all projects. This prevents Aspire from loading endpoint definitions from individual project launchSettings.json files. All projects now use unique endpoint names (mainapp-http, sales-api-http, inventory-api-http, admin-api-http, keycloak-http).
+  3. **SDK Update:** Changed Opplat.AppHost.csproj from `Microsoft.NET.Sdk` to `Aspire.AppHost.Sdk/13.0.0`. Removed `Aspire.Hosting.AppHost` package reference (SDK provides it). Kept only direct hosting packages: `Aspire.Hosting`, `Aspire.Hosting.SqlServer`, `Aspire.Hosting.PostgreSQL`.
+  4. **Remaining Blocker:** DCP and Dashboard runtime components still missing. This is a system-level setup issue requiring external dependency installation (not code/config). Isolated for team handoff.
+
+- **Validation Checkpoints:**
+  - ✅ Clean build: `dotnet build src/Opplat.AppHost` succeeds (0 errors, 12 pre-existing warnings)
+  - ✅ Path resolution: Program.cs correctly resolves all project paths from repo root
+  - ✅ Endpoint naming: All HTTP endpoints have unique names (no conflicts)
+  - ✅ Project configuration: All 4 services use ConfigureProjectDefaults
+  - ✅ Regression tests: 89/89 passing (no service code regressions)
+  - ⚠️ Runtime blocker: Missing DCP/Dashboard (system dependency, not codebase issue)
+
+- **Status:** Code/configuration fixes COMPLETE. AppHost ready to run once DCP and Dashboard are available. See `.squad/decisions.md` Session 27 for full decision document.
+- **Team Outcomes:**
+  - Hudson: Diagnosed path resolution, endpoint naming, and SDK/package mismatch issues. Implemented all three fixes.
+  - Hicks: Collaborated on path resolution and endpoint naming fixes; verified AppHost configuration.
+  - Bishop: Validated source contracts, build, regression tests, and configuration alignment. Documented bootstrap contract for future maintenance.
+- **Orchestration Logs:** `.squad/orchestration-log/2026-03-23T18-21-13Z-{hudson,hicks,bishop}.md`
+
 **Session 26: .NET Aspire Local Development Infrastructure Setup — COMPLETE (2026-03-23T17:45:00Z)**
 - Designed & approved single AppHost orchestration architecture (Ripley): MainApp, AdminApi, Sales API, Inventory API with SQL Server (3 DBs) + PostgreSQL (1 DB) + Keycloak
 - Implemented Hudson scope: Created `src/Opplat.AppHost` and `src/Opplat.ServiceDefaults` projects with Aspire.Hosting v13.0.0 (SQL Server + PostgreSQL extensions)

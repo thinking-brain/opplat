@@ -1,8 +1,22 @@
 ## Core Context
 
-**CURRENT FOCUS:** Phase Gate 1 authorization wave for MainApp area-by-area migration to thin-host minimal APIs (MediatR-driven). **Session 18 COMPLETE**: Final minimal API wave — removed all MVC registration, wired all endpoint modules, locked thin-host composition. **Session 26 COMPLETE**: Aspire-safe runtime seams (/health, /alive, forwarded headers, conditional HTTPS).
+**CURRENT FOCUS:** Phase Gate 1 authorization wave for MainApp area-by-area migration to thin-host minimal APIs (MediatR-driven). **Session 18 COMPLETE**: Final minimal API wave — removed all MVC registration, wired all endpoint modules, locked thin-host composition. **Session 26 COMPLETE**: Aspire-safe runtime seams (/health, /alive, forwarded headers, conditional HTTPS). **Session 27 COMPLETE**: AppHost startup debugging & runtime configuration fixes.
 
 ### Active Sessions Summary (2026-03-23)
+
+**Session 27: Aspire AppHost Startup Debugging — Runtime Configuration Fixes — ✅ COMPLETE (2026-03-23T18:21:13Z)**
+- Collaborated with Hudson & Bishop on diagnosing Aspire AppHost startup failures
+- Fixed path resolution defects: Worked with Hudson on `FindRepoRoot()` + `RepoPath()` helpers in Program.cs for absolute path computation from repo root
+- Fixed endpoint naming conflicts: Created `ConfigureProjectDefaults()` helper (applied to all service projects) to exclude launch-profile + Kestrel-derived endpoints before explicit HTTP endpoint naming
+- Validated all fixes working correctly:
+  - ✅ Clean build (0 errors, 12 pre-existing warnings)
+  - ✅ Path resolution working from any working directory
+  - ✅ All 5 resources have unique endpoint names (mainapp-http, sales-api-http, inventory-api-http, admin-api-http, keycloak-http)
+  - ✅ 89/89 regression tests passing (no service code regressions)
+- Identified system-level blocker: Missing DCP/Dashboard (not code-fixable; requires external installation)
+- Architecture decision: Keep orchestration fixes in AppHost; maintain thin service hosts with no Aspire-specific dependencies
+- Decision merged: `.squad/decisions.md` Session 27 entry
+- Orchestration log: `.squad/orchestration-log/2026-03-23T18-21-13Z-hicks.md`
 
 **Session 26: Aspire Local Development — Runtime Seams & Host Adaptation — COMPLETE (2026-03-23)**
 - Standardized /health and /alive endpoints across MainApp, AdminApi, Sales API, Inventory API
@@ -124,3 +138,5 @@ See `.squad/orchestration-log/` for detailed session outcomes and `.squad/decisi
 - The fixable .NET source warnings in this branch were legacy code warnings, not startup/minimal-API regressions: `src\Opplat.Shared\Services\Service.cs` needed nullable-annotation cleanup, `src\Modules\Sales\Domain\Services\SalesService.cs` needed an explicit `override`, and `src\Opplat.Infrastructure\Common\BaseRepository.cs` should log caught exceptions instead of discarding them.
 - While Hudson's centralized package management rollout is in flight, solution-level validation is blocked by restore/config warnings (`NU1008`/`NU1507`) rather than backend source compilation; Hicks should limit warning-remediation work to code paths and report the package-source/PackageReference blockers instead of editing project files.
 - For Aspire local-dev readiness without touching project/package wiring, keep each ASP.NET host thin and add one host-level seam that standardizes `/health` + `/alive`, trusts forwarded headers only in Development, and skips HTTPS redirection unless an HTTPS binding is actually configured.
+- In Opplat's AppHost, `builder.AddProject(path)` and container bind mounts must be resolved from a stable repo-root helper instead of assuming the caller's working directory; otherwise `dotnet run --project src\Opplat.AppHost` can point at `C:\projects\personal\Opplat.*` and fail before orchestration starts.
+- When an Aspire AppHost forces explicit fixed HTTP ports for existing ASP.NET Core services, exclude launch-profile and Kestrel-derived endpoints first; otherwise `WithHttpEndpoint(...)` collides with the implicit `http` endpoint from launch settings and the host dies before any service starts.

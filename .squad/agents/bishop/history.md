@@ -1,8 +1,28 @@
 ## Core Context
 
-**CURRENT FOCUS:** Phase Gate 1 authorization wave for MainApp area-by-area migration to thin-host minimal APIs with comprehensive regression test coverage. **Session 18 COMPLETE**: Final regression gates locked thin-host composition, auth seams, and controller archival. **Session 26 COMPLETE**: Aspire local development validation (source-contract tests, no full AppHost launch).
+**CURRENT FOCUS:** Phase Gate 1 authorization wave for MainApp area-by-area migration to thin-host minimal APIs with comprehensive regression test coverage. **Session 18 COMPLETE**: Final regression gates locked thin-host composition, auth seams, and controller archival. **Session 26 COMPLETE**: Aspire local development validation (source-contract tests, no full AppHost launch). **Session 27 COMPLETE**: AppHost startup validation & bootstrap contract documentation.
 
 ### Active Sessions Summary (2026-03-23)
+
+**Session 27: Aspire AppHost Startup Validation — Bootstrap Contract Enforcement — ✅ COMPLETE (2026-03-23T18:21:13Z)**
+- Collaborated with Hudson & Hicks on Aspire AppHost startup debugging
+- Validated source-contract enforcement (AppHost bootstrap without requiring DCP/Dashboard runtime):
+  - ✅ Path helpers: `FindRepoRoot()` + `RepoPath()` correctly computed
+  - ✅ Endpoint configuration: `ConfigureProjectDefaults()` applied to all 4 service projects
+  - ✅ All 5 resources have unique HTTP endpoint names (no conflicts)
+  - ✅ AppHost launchSettings.json contains ASPIRE_* environment variables
+- Locked 3-layer bootstrap contract for future maintenance:
+  - Layer 1: Path computation (FindRepoRoot + RepoPath)
+  - Layer 2: Endpoint configuration (ConfigureProjectDefaults + unique names)
+  - Layer 3: AppHost launch settings (ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL + ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL)
+- Validation results:
+  - ✅ Build succeeds: `dotnet build src/Opplat.AppHost` → 0 errors, 12 pre-existing warnings
+  - ✅ Regression suite: 89/89 tests passing (no service code regressions)
+  - ✅ Configuration audit: All 3 bootstrap layers aligned and documented
+  - ⚠️ Runtime launch: Blocked by missing DCP/Dashboard (system-level setup, not code-fixable)
+- Architecture decision: Treat Aspire startup as multi-layer bootstrap contract. Source tests validate Layers 1–2; Layer 3 requires environment setup validation once DCP/Dashboard available.
+- Decision merged: `.squad/decisions.md` Session 27 entry
+- Orchestration log: `.squad/orchestration-log/2026-03-23T18-21-13Z-bishop.md`
 
 **Session 26: Aspire Local Development Validation — Source-Contract & Build/Test Gates — COMPLETE (2026-03-23)**
 - Validated Aspire AppHost builds without errors (0 errors)
@@ -128,3 +148,4 @@ uget.org avoids CPM restore noise from user-specific feeds (for example NU1507 f
 - Repo NuGet source note: a repo-local NuGet.Config limited to nuget.org prevents NU1507 noise from inherited machine feeds during centralized package restores.
 - Validation note: current shared application ownership lives in src\Opplat.Application\Sales\** and src\Opplat.Application\Inventory\**, so architecture tests should not expect src\Modules\{Sales|Inventory}\Application\ project files.
 - Aspire local-dev validation is best kept source-based here: contract tests should lock AppHost resource wiring, Keycloak realm mount reuse, documented Docker dependency, and the fact that Vite SPAs still run outside Aspire.
+- Aspire AppHost on this repo only starts cleanly when three bootstrap pieces stay aligned: repo-root-based project paths/bind mounts, project defaults that exclude launch-profile and Kestrel-derived endpoints before fixed `WithHttpEndpoint(...)` calls, and AppHost launch settings that define `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` plus `ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL`.

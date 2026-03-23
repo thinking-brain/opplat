@@ -86,6 +86,13 @@ builder.AddServiceDefaults();  // Early in pipeline
 3. **Fixed infra ports** — Databases and auth use fixed ports for tool compatibility
 4. **Dynamic app ports** — Aspire assigns ports to .NET projects
 
+## Opplat runtime guardrails
+
+- If the AppHost is launched from the repo root with `dotnet run --project src\{Solution}.AppHost`, resolve `AddProject(...)` file paths and bind mounts from a repo-root helper instead of relying on ad-hoc relative strings.
+- When you intentionally pin ASP.NET Core project ports with `WithHttpEndpoint(...)`, set project defaults to exclude launch-profile and Kestrel-derived endpoints first. Otherwise Aspire can import an implicit `http` endpoint from `launchSettings.json` and fail with a duplicate-endpoint exception before startup.
+- For this repo's AppHost, use the versioned SDK form (`Aspire.AppHost.Sdk/13.x`) so the CLI can resolve the AppHost SDK without relying on a preinstalled workload resolver.
+- AppHost `Properties\launchSettings.json` must include `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` and `ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL` for each profile; without them `dotnet run` can build successfully and still crash before orchestration starts.
+
 ## Anti-Patterns
 
 - **Don't** containerize frontends in Aspire (HMR is faster native)
