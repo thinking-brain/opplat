@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Opplat.Application.Abstractions\Opplat.Application.Abstractions.csproj" />
+    <ProjectReference Include="..\Opplat.Domain\Opplat.Domain.csproj" />
+    <ProjectReference Include="..\Opplat.Infrastructure\Opplat.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Inventory\Domain\Opplat.Modules.Inventory.Domain.csproj" />
+    <ProjectReference Include="..\Modules\Inventory\Infrastructure\Opplat.Modules.Inventory.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Sales\Domain\Opplat.Modules.Sales.Domain.csproj" />
+    <ProjectReference Include="..\Modules\Sales\Infrastructure\Opplat.Modules.Sales.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+</Project>

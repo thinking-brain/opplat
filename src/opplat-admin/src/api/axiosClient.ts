@@ -4,7 +4,6 @@ import axios, {
   type AxiosRequestConfig,
   type InternalAxiosRequestConfig,
 } from 'axios';
-import { getOidcUser, removeOidcUser } from '../auth/oidc';
 import { appConfig } from '../runtimeConfig';
 
 declare module 'axios' {
@@ -32,6 +31,7 @@ const setHeader = (
 const createAxiosClient = (baseURL: string): AxiosInstance => {
   const client = axios.create({
     baseURL,
+    withCredentials: true,
     headers: {
       'Content-Type': 'application/json',
     },
@@ -39,10 +39,8 @@ const createAxiosClient = (baseURL: string): AxiosInstance => {
 
   client.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
-      const oidcUser = await getOidcUser();
-      const accessToken = oidcUser?.access_token;
-      if (accessToken) {
-        setHeader(config, 'Authorization', `Bearer ${accessToken}`);
+      if (!config.headers?.has?.('X-Requested-With')) {
+        setHeader(config, 'X-Requested-With', 'XMLHttpRequest');
       }
 
       const tenantIdentifier = config.tenantIdentifier;
@@ -57,16 +55,7 @@ const createAxiosClient = (baseURL: string): AxiosInstance => {
 
   client.interceptors.response.use(
     (response) => response,
-    async (error) => {
-      if (error.response?.status === 401) {
-        await removeOidcUser();
-        if (!window.location.pathname.startsWith('/login')) {
-          window.location.assign(appConfig.authLogoutRedirectPath);
-        }
-      }
-
-      return Promise.reject(error);
-    },
+    (error) => Promise.reject(error),
   );
 
   return client;

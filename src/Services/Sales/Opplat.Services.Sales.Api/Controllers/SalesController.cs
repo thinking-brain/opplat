@@ -1,3 +1,6 @@
+// SalesController has been replaced by Endpoints/SalesEndpoints.cs (Minimal API + MediatR).
+// This file is kept for reference only and is not mapped by the host.
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Opplat.Modules.Sales.Domain.Entities;
@@ -6,13 +9,13 @@ using Opplat.Shared.Services;
 
 namespace Opplat.Services.Sales.Api.Controllers;
 
-[Authorize]
-[Route("[controller]")]
-public class SalesController : ControllerBase
+// [Authorize]
+// [Route("[controller]")]
+public class SalesController_Archived : ControllerBase
 {
     private ISalesService _saleService;
 
-    public SalesController(ISalesService saleService)
+    public SalesController_Archived(ISalesService saleService)
     {
         _saleService = saleService;
     }

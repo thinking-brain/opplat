@@ -1,10 +1,8 @@
 import React from 'react';
 import {
   Alert,
-  Button,
   Card,
   CardContent,
-  Chip,
   Grid,
   List,
   ListItem,
@@ -12,35 +10,26 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { useAuth } from '../auth/AuthContext';
-import { getStoredTenantIdentifier, persistTenantIdentifier } from '../auth/claims';
 import { PageHeader } from '../components/PageHeader';
 import { appConfig } from '../runtimeConfig';
 
 const runtimeEntries: Array<[string, string]> = [
   ['App name', appConfig.appName],
-  ['API URL', appConfig.adminApiUrl],
-  ['OIDC authority', appConfig.authAuthority],
-  ['OIDC client', appConfig.authClientId],
-  ['OIDC audience', appConfig.authAudience],
-  ['OIDC scope', appConfig.authScope],
-  ['Redirect path', appConfig.authRedirectPath],
-  ['Silent renew path', appConfig.authSilentRedirectPath],
+  ['Admin API base', appConfig.adminApiUrl || 'Same-origin (/admin/*)'],
+  ['Auth ownership', 'Handled outside the admin SPA'],
+  ['Session bootstrap', 'Removed from the client shell'],
 ];
 
 export const SettingsPage: React.FC = () => {
-  const { user, roles } = useAuth();
-  const selectedTenant = getStoredTenantIdentifier();
-
   return (
     <Stack spacing={3}>
       <PageHeader
         title="Settings"
-        subtitle="Referencia del entorno, proveedor OIDC y modelo de acceso del portal administrativo."
+        subtitle="Referencia del entorno y comportamiento del shell administrativo sin autenticación integrada."
       />
       <Alert severity="info">
-        El portal admin está reservado para SuperAdmin. La gestión de usuarios TenantAdmin y TenantUser
-        se hace desde la sección de usuarios de la app cliente.
+        La app admin ya no inicia sesión, restaura sesión ni ejecuta logout. Usa este shell para trabajar
+        contra el admin API mientras resuelves la autenticación por tu cuenta.
       </Alert>
       <Grid container spacing={2}>
         <Grid item xs={12} lg={6}>
@@ -63,23 +52,11 @@ export const SettingsPage: React.FC = () => {
           <Card variant="outlined" sx={{ height: '100%' }}>
             <CardContent>
               <Stack spacing={2}>
-                <Typography variant="h6">Current session</Typography>
-                <Typography><strong>Usuario:</strong> {user?.username ?? 'N/A'}</Typography>
-                <Typography>
-                  <strong>Nombre:</strong> {[user?.name, user?.lastName].filter(Boolean).join(' ') || 'N/A'}
+                <Typography variant="h6">Admin API scope</Typography>
+                <Typography color="text.secondary">
+                  El admin API es responsable solo del catálogo multitenant. La gestión de usuarios pertenece
+                  al tenant y se resuelve dentro de su propia aplicación.
                 </Typography>
-                <Typography><strong>Email:</strong> {user?.email || 'N/A'}</Typography>
-                <Typography><strong>Tenant seleccionado:</strong> {selectedTenant || 'Ninguno'}</Typography>
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  {roles.length > 0 ? (
-                    roles.map((role) => <Chip key={role} label={role} color="primary" variant="outlined" />)
-                  ) : (
-                    <Chip label="Sin roles" variant="outlined" />
-                  )}
-                </Stack>
-                <Button variant="outlined" onClick={() => persistTenantIdentifier(null)}>
-                  Limpiar tenant seleccionado
-                </Button>
               </Stack>
             </CardContent>
           </Card>

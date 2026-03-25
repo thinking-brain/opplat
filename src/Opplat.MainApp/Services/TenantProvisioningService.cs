@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Opplat.MainApp.Auth;
 using Opplat.MainApp.Data;
 using Opplat.MainApp.Models;
@@ -18,13 +19,22 @@ public class TenantProvisioningService
     public async Task ProvisionTenantAsync(AppTenantInfo tenantInfo)
     {
         using var scope = _serviceProvider.CreateScope();
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+        var defaultConnectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? configuration.GetConnectionString("MainConnection")
+            ?? throw new InvalidOperationException("A default tenant connection string must be configured.");
+        var tenantConnectionString = PostgresTenantConnectionStringResolver.Resolve(
+            tenantInfo,
+            defaultConnectionString);
 
         var optionsBuilder = new DbContextOptionsBuilder<OpplatDbContext>();
-        optionsBuilder.UseSqlServer(tenantInfo.ConnectionString);
+        optionsBuilder.UseNpgsql(tenantConnectionString);
+
+        await EnsureSchemaExistsAsync(tenantConnectionString, tenantInfo.DatabaseSchema);
 
         await using var context = new OpplatDbContext(optionsBuilder.Options, null);
 
-        await context.Database.MigrateAsync();
+        await context.Database.EnsureCreatedAsync();
 
         foreach (var roleName in AuthRoles.TenantAssignable)
         {
@@ -81,5 +91,20 @@ public class TenantProvisioningService
                 await context.SaveChangesAsync();
             }
         }
+    }
+
+    private static async Task EnsureSchemaExistsAsync(string connectionString, string? databaseSchema)
+    {
+        if (string.IsNullOrWhiteSpace(databaseSchema))
+            return;
+
+        var escapedSchema = databaseSchema.Trim().Replace("\"", "\"\"");
+
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = $"CREATE SCHEMA IF NOT EXISTS \"{escapedSchema}\";";
+        await command.ExecuteNonQueryAsync();
     }
 }

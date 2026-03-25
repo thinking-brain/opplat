@@ -1,10 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   AppBar,
-  Avatar,
   Box,
-  Button,
   Chip,
   CssBaseline,
   Divider,
@@ -25,7 +23,6 @@ import {
   Menu as MenuIcon,
   Settings as SettingsIcon,
 } from '@mui/icons-material';
-import { useAuth } from '../auth/AuthContext';
 import { appConfig } from '../runtimeConfig';
 
 const drawerWidth = 260;
@@ -40,28 +37,13 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/', icon: <DashboardIcon />, description: 'Resumen administrativo' },
   { label: 'Tenants', path: '/tenants', icon: <TenantsIcon />, description: 'Catálogo y estado' },
-  { label: 'Settings', path: '/settings', icon: <SettingsIcon />, description: 'Entorno y sesión' },
+  { label: 'Settings', path: '/settings', icon: <SettingsIcon />, description: 'Entorno del shell' },
 ];
 
 export const Layout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, roles, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const initials = useMemo(() => {
-    const fullName = `${user?.name ?? ''} ${user?.lastName ?? ''}`.trim();
-    if (!fullName) {
-      return user?.username?.slice(0, 2).toUpperCase() ?? 'AD';
-    }
-
-    return fullName
-      .split(' ')
-      .slice(0, 2)
-      .map((part) => part[0])
-      .join('')
-      .toUpperCase();
-  }, [user]);
 
   const handleNavigation = (path: string): void => {
     navigate(path);
@@ -74,7 +56,7 @@ export const Layout: React.FC = () => {
         <Stack spacing={1}>
           <Typography variant="h6">{appConfig.appName}</Typography>
           <Typography variant="body2" color="text.secondary">
-            Administración centralizada para SuperAdmin.
+            Shell administrativo desacoplado del flujo de autenticación.
           </Typography>
         </Stack>
       </Toolbar>
@@ -132,29 +114,23 @@ export const Layout: React.FC = () => {
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="h6">Portal administrativo</Typography>
             <Typography variant="body2" color="text.secondary">
-              Catálogo de tenants y configuración de plataforma.
+              Shell React sin flujo de login propio. La autenticación se resuelve fuera de esta SPA.
             </Typography>
           </Box>
           <Stack direction="row" spacing={1.5} alignItems="center">
             <Chip
-              label={roles.length > 0 ? roles.join(', ') : 'Sin roles'}
+              label="Auth manual"
               color="secondary"
               variant="outlined"
             />
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Avatar sx={{ bgcolor: 'primary.main' }}>{initials}</Avatar>
-              <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-                <Typography variant="body2" fontWeight={600}>
-                  {user ? `${user.name} ${user.lastName}`.trim() || user.username : 'Administrador'}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {user?.email || user?.username}
-                </Typography>
-              </Box>
-            </Stack>
-            <Button color="inherit" variant="outlined" onClick={() => { void logout(); }}>
-              Logout
-            </Button>
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+              <Typography variant="body2" fontWeight={600}>
+                {appConfig.appName}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {appConfig.adminApiUrl || 'Same-origin (/admin/*)'}
+              </Typography>
+            </Box>
           </Stack>
         </Toolbar>
       </AppBar>

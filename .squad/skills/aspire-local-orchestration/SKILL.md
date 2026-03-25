@@ -82,7 +82,7 @@ builder.AddServiceDefaults();  // Early in pipeline
 ## Constraints
 
 1. **Dual-mode required** — Both Aspire and Docker Compose must work
-2. **Frontend excluded** — SPAs use native dev servers (Vite, npm)
+2. **Frontends stay native** — SPAs should run as Vite/npm processes for HMR, but Aspire can orchestrate them via `AddViteApp(...)`
 3. **Fixed infra ports** — Databases and auth use fixed ports for tool compatibility
 4. **Dynamic app ports** — Aspire assigns ports to .NET projects
 
@@ -92,6 +92,10 @@ builder.AddServiceDefaults();  // Early in pipeline
 - When you intentionally pin ASP.NET Core project ports with `WithHttpEndpoint(...)`, set project defaults to exclude launch-profile and Kestrel-derived endpoints first. Otherwise Aspire can import an implicit `http` endpoint from `launchSettings.json` and fail with a duplicate-endpoint exception before startup.
 - For this repo's AppHost, use the versioned SDK form (`Aspire.AppHost.Sdk/13.x`) so the CLI can resolve the AppHost SDK without relying on a preinstalled workload resolver.
 - AppHost `Properties\launchSettings.json` must include `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` and `ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL` for each profile; without them `dotnet run` can build successfully and still crash before orchestration starts.
+- When a host-launched project still needs explicit `ConnectionStrings__*` overrides, feed them from Aspire resources with `database.Resource.ConnectionStringExpression`. Hardcoding `Host=postgres` only works for container-to-container traffic, and `GetConnectionString()` is not available on `IResourceBuilder<PostgresDatabaseResource>` in Aspire 13.
+- Keep AppHost runtime probes resilient to missing XML-doc outputs: Swagger XML comments should be conditional (`if (File.Exists(xmlPath))`) so `/health` and other non-doc endpoints do not fail during local orchestration.
+- For Vite SPAs, add `Aspire.Hosting.JavaScript`, register the app with `AddViteApp(...)`, pin the frontend port with `WithHttpEndpoint(port: ..., env: "PORT")`, and use a `dev:aspire` script/config that reads `PORT`, binds to `127.0.0.1`, keeps `strictPort`, and disables `open` when AppHost launches the app.
+- For browser-facing SPA env vars under Aspire, inject loopback URLs (`http://localhost:...`) or endpoint references resolved for the host network. Do not use internal container/service DNS names in `VITE_*` settings because the Vite process and the browser both run on the host machine in this repo.
 
 ## Anti-Patterns
 

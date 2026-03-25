@@ -103,6 +103,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
         }
         catch (System.Exception ex)
         {
+            _logger.LogError(ex, "Error finding entity of type {EntityType}.", typeof(T).Name);
             return default(T);
         }
     }
@@ -117,6 +118,7 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
         }
         catch (System.Exception ex)
         {
+            _logger.LogError(ex, "Error listing entities of type {EntityType}.", typeof(T).Name);
             return new List<T>();
         }
     }
@@ -130,7 +132,8 @@ public class BaseRepository<T> : IRepository<T> where T : class, IEntity
         }
         catch (System.Exception ex)
         {
-            return null;
+            _logger.LogError(ex, "Error querying entities of type {EntityType}.", typeof(T).Name);
+            return Enumerable.Empty<T>().AsQueryable();
         }
     }
 

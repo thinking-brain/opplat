@@ -2,8 +2,9 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-# Use npm ci for production: requires exact lock file match to ensure reproducible builds
-RUN npm ci
+# Use npm install because the current Vite dependency tree resolves optional peers
+# differently across npm versions and breaks npm ci in Docker.
+RUN npm install --no-audit --no-fund
 
 COPY . .
 RUN npm run build
@@ -21,6 +22,14 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    location /admin/ {
+        proxy_pass http://admin-api:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -37,15 +46,7 @@ RUN cat <<'EOF' > /docker-entrypoint.d/40-runtime-config.sh
 cat <<CONFIG > /usr/share/nginx/html/runtime-config.js
 window.__OPPLAT_RUNTIME_CONFIG__ = {
   VITE_APP_NAME: "${VITE_APP_NAME:-Opplat Admin}",
-  VITE_API_URL: "${VITE_API_URL:-http://localhost:5000}",
-  VITE_ADMIN_API_URL: "${VITE_ADMIN_API_URL:-${VITE_API_URL:-http://localhost:5000}}",
-  VITE_AUTH_AUTHORITY: "${VITE_AUTH_AUTHORITY:-http://localhost:8180/realms/opplat}",
-  VITE_AUTH_CLIENT_ID: "${VITE_AUTH_CLIENT_ID:-opplat-admin}",
-  VITE_AUTH_AUDIENCE: "${VITE_AUTH_AUDIENCE:-opplat-api}",
-  VITE_AUTH_SCOPE: "${VITE_AUTH_SCOPE:-openid profile email offline_access}",
-  VITE_AUTH_REDIRECT_PATH: "${VITE_AUTH_REDIRECT_PATH:-/auth/callback}",
-  VITE_AUTH_SILENT_REDIRECT_PATH: "${VITE_AUTH_SILENT_REDIRECT_PATH:-/auth/silent-renew}",
-  VITE_AUTH_LOGOUT_REDIRECT_PATH: "${VITE_AUTH_LOGOUT_REDIRECT_PATH:-/login}"
+  VITE_ADMIN_API_URL: "${VITE_ADMIN_API_URL:-}"
 };
 CONFIG
 EOF

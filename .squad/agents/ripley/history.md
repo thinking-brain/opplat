@@ -151,3 +151,41 @@ See `.squad/orchestration-log/` for detailed session outcomes and `.squad/decisi
 
 **Lesson:** Database provider migrations are cleanest when EF Core migrations are regenerated fresh rather than converted. Archive don't delete — rollback path must remain viable.
 
+### Session 29 (2026-03-25): Module 1 — Identity Provider Foundation — APPROVED & IMPLEMENTED
+
+**Request:** Implement Tenant-requirements.md Module 1.
+
+**Analysis:**
+- Module 1 has 5 sub-requirements: 3 Azure portal tasks (no code), 2 code deliverables
+- OIDC authentication (1.3) was already complete via provider-neutral JwtBearer stack
+- Graph API client (1.2) was completely missing — core deliverable
+- `oid` claim normalization gap: Entra uses `oid`, Keycloak uses `sub`
+
+**Design Decisions:**
+1. **Graph API client in Infrastructure** — `IGraphUserService` interface in Abstractions, `GraphUserService` implementation in Infrastructure. Clean Architecture boundary preserved.
+2. **Conditional registration** — `GraphApi:Enabled` flag toggles between real Graph SDK client and `NoOpGraphUserService` for local dev (Keycloak has no Graph API).
+3. **OID claim normalization** — Added `NormalizeObjectId()` to `OidcClaimsNormalizer`. Entra `oid` preserved if present; Keycloak `sub` promoted to `oid` as fallback.
+4. **UUID-based UPN** — `{Guid.NewGuid()}@{TenantDomain}` for collision-safe user creation.
+5. **AdminApi wired first** — Graph service registered in AdminApi (super admin operations). MainApp will consume it when Module 4 (registration flow) is implemented.
+
+**Key File Paths:**
+- Interface: `src/Opplat.Application.Abstractions/Identity/IGraphUserService.cs`
+- Implementation: `src/Opplat.Infrastructure/Identity/GraphUserService.cs`
+- No-op: `src/Opplat.Infrastructure/Identity/NoOpGraphUserService.cs`
+- Options: `src/Opplat.Infrastructure/Identity/GraphApiOptions.cs`
+- Registration: `src/Opplat.Infrastructure/DependencyInjection/ServiceCollectionExtensions.cs`
+- Claim types: `src/Opplat.Application.Abstractions/Auth/AuthClaimTypes.cs` (ObjectId, Subject)
+- Normalizer: `src/Opplat.MainApp/Auth/OidcClaimsNormalizer.cs` (NormalizeObjectId)
+
+**Packages Added:** Microsoft.Graph 5.103.0, Azure.Identity 1.19.0, Microsoft.Extensions.Http.Resilience 10.0.0
+
+**Test Results:** 128/128 passing (13 new tests added).
+
+**Risks Documented:**
+- GraphServiceClient not mockable with Moq — use contract + no-op tests
+- User.ReadWrite.All is high-privilege — document in deployment runbooks
+- Certificate-based auth not yet implemented (ClientSecret only)
+- Retry pipeline for 429/503 not yet wired into Graph SDK HttpClient
+
+**Lesson:** When a requirements module mixes code deliverables with manual Azure config tasks, decompose first and document the manual steps in the decision record. Don't try to automate Azure portal configuration from application code.
+

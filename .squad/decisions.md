@@ -4401,3 +4401,698 @@ This refactoring is architecturally sound, introduces zero build hazards, and yi
 - **Requested By:** elvis.crego
 - **Status:** Ready for implementation
 
+
+---
+
+## Session 29 Decisions (2026-03-25 — Module 1 Identity Foundation)
+
+### bishop-client-apps.md
+
+# Bishop — Aspire client apps contract
+
+- Decision: Treat the two React/Vite frontends as first-class Aspire resources in AppHost via `Aspire.Hosting.JavaScript` + `AddViteApp(...)`, while keeping Docker Compose as the production-style topology.
+- Why: This gives one local inner-loop entry point without replacing native Vite/HMR workflows. The contract stays source-based and is covered by tests over AppHost wiring, `dev:aspire` scripts, fixed frontend ports, and README guidance.
+- Validation: `dotnet build .\src\Opplat.AppHost\Opplat.AppHost.csproj`, `npm --prefix .\src\opplat-react run build`, `npm --prefix .\src\opplat-admin run build`, and `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj -nologo -v minimal`.
+
+---
+
+### bishop-module1-retry-tests.md
+
+# Bishop — Module 1 retry test decision
+
+- Decision: validate Module 1 transient Graph retries by exercising `Opplat.Infrastructure.Identity.GraphUserService` against a fake `HttpMessageHandler`, instead of relying on source-text assertions alone.
+- Reasoning: the production retry seam already lives inside `GraphUserService`, so the tightest executable regression gate is to drive real `GraphServiceClient` calls through that seam and count actual POST/PATCH attempts on 429/503 responses.
+- Test shape:
+  - use Graph-shaped JSON error payloads with `Retry-After` / `x-ms-retry-after-ms` set to zero so the tests stay fast without altering production retry math
+  - assert outbound bearer auth + request JSON for the Graph user lifecycle payloads
+  - cover both eventual success after transient failures and terminal failure after retries are exhausted
+
+---
+
+### bishop-module1-tests.md
+
+# Bishop Module 1 test decision
+
+- Module 1 Graph regression coverage should use the live `HttpClient` seam in `GraphUserService` rather than source-only assertions: tests can capture outgoing JSON, bearer token headers, and transient 429/503 retry behavior with a custom `HttpMessageHandler`.
+- Admin session regression coverage should lock the current contract exactly as implemented: bearer auth returns the stable Entra `oid` plus the presented access token, while cookie auth keeps the same stable user/object ID surface but leaves `accessToken` null.
+- Keep `oid` normalization checks in the shared OIDC claim tests so future provider changes still preserve the stable Graph-facing identifier.
+
+---
+
+### bishop-module1.md
+
+# Bishop — Module 1 test gating
+
+## Decision
+
+- Treat `oid` normalization and session-user extraction as the first executable Module 1 regression gates.
+- Keep Graph retry/error-handling and Graph account-management suites in the test plan, but block them on the introduction of a real Graph abstraction/service seam.
+- Keep immediate MainApp account coverage contract-level only: `/auth/account/reset-password` and `/auth/account/change-password` should currently be tested as IdP handoff endpoints, not as local password mutation flows.
+
+## Why
+
+- The codebase already exposes stable auth seams in both hosts: `src\Opplat.MainApp\Auth\OidcClaimsTransformation.cs`, `src\Opplat.MainApp\Auth\OidcClaimsNormalizer.cs`, `src\Opplat.MainApp\Features\Admin\AdminEndpoints.cs`, `src\Opplat.AdminApi\Auth\OidcClaimsNormalizer.cs`, and `src\Opplat.AdminApi\Endpoints\AdminEndpoints.cs`.
+- `src\Opplat.MainApp\Features\Account\AccountEndpoints.cs` explicitly delegates interactive login and password operations to the external identity provider, so those endpoints are best locked with route/status/message contracts until Entra-backed behavior replaces the placeholders.
+- The repository currently has no `Microsoft.Graph`, `Azure.Identity`, `Polly`, `AddHttpClient`, or Graph-specific infrastructure code, so retry and payload assertions would be speculative unless a concrete Graph client seam is added first.
+
+## Test consequences
+
+- Add/extend source + unit + integration tests around `oid` → stable user-id normalization and `sub` fallback behavior in the existing auth test suites.
+- Add endpoint-surface/auth integration checks for MainApp account routes that currently hand off to the IdP.
+- Defer Graph client contract/unit/integration suites until the team lands the Graph client factory/service in the chosen host.
+
+---
+
+### bishop-validate-aspire-db-access.md
+
+## Proposed decision
+
+For Opplat.AppHost, explicit backend database environment overrides must come from Aspire PostgreSQL resource expressions (`*.Resource.ConnectionStringExpression`) rather than hardcoded hostnames.
+
+## Why
+
+- Host-launched ASP.NET Core projects cannot reliably use the container-internal hostname `postgres`; that broke AppHost-local API database access.
+- `GetConnectionString()` is not the Aspire 13 API on `IResourceBuilder<PostgresDatabaseResource>`, so that attempted fix does not compile.
+- Source-contract regression tests now lock this seam so future AppHost edits fail fast before runtime.
+
+## Validation notes
+
+- `dotnet build .\src\Opplat.AppHost\Opplat.AppHost.csproj -m:1 -v minimal`
+- `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj -m:1 -v minimal`
+- AppHost relaunch showed MainApp, Sales, and Inventory `/health` endpoints returning 200 after the connection-string fix.
+
+---
+
+### hicks-module1-implementation.md
+
+# Hicks Module 1 Implementation Decision
+
+## Decision
+Default `src\Opplat.AdminApi\appsettings.json` to Azure Entra ID placeholders and keep `appsettings.Development.json` on local Keycloak overrides.
+
+## Why
+Module 1 requires Entra ID to be the explicit live OIDC/Bearer target, but the repo still relies on local Keycloak for developer startup. This split keeps the runtime seam shippable for Entra without breaking local development or forcing a second auth host.
+
+## Consequences
+- `Auth:Provider` plus `Auth:Entra:*` is now the explicit config seam for production/admin environments.
+- Admin session endpoints remain the token handoff surface for both cookie/OIDC and bearer callers.
+- Future MainApp work should stay bearer-only unless a small compatibility seam is truly necessary.
+
+---
+
+### hicks-module1-retry-fix.md
+
+# Hicks — Module 1 Graph retry fix
+
+- Decision: keep Graph transient-failure handling inside `Opplat.Infrastructure.Identity.GraphUserService` instead of pushing it into ASP.NET host middleware or comments-only configuration.
+- Reasoning: Module 1 explicitly requires retry behavior for Graph 429/503 responses, and this seam already owns the user-lifecycle operations. Per-call retries keep the logic production-real, host-agnostic, and easy to exercise later by injecting `TimeProvider`.
+- Implementation shape:
+  - retry only for HTTP 429 and 503
+  - honor `Retry-After` / `x-ms-retry-after-ms` when Graph sends a hint
+  - otherwise use bounded exponential backoff from `GraphApiOptions`
+  - keep AdminApi OIDC/session behavior unchanged
+
+---
+
+### hicks-module1.md
+
+# Hicks — Module 1 backend ownership
+
+## Decision
+
+- Use `src\Opplat.AdminApi` as the sole Module 1 interactive authentication and Entra integration host.
+- Keep `src\Opplat.MainApp` as a bearer-token resource API for tenant traffic.
+- Extend shared auth contracts in `src\Opplat.Application.Abstractions\Auth\` for any new stable claim names (notably `oid`), then normalize them in both hosts.
+
+## Why
+
+- `src\Opplat.AdminApi\Program.cs` already owns the full admin auth stack: policy scheme, `AddJwtBearer`, `AddCookie`, `AddOpenIdConnect("AdminOidc")`, antiforgery, and cookie session storage.
+- `src\Opplat.AdminApi\Endpoints\AdminEndpoints.cs` already exposes the live login/session/logout/auth bootstrap surface under `/auth/bff/admin/*` and `/admin/session*`.
+- `src\Opplat.MainApp\Program.cs` currently registers only `AddJwtBearer`, while `src\Opplat.MainApp\Features\Account\AccountEndpoints.cs` explicitly says interactive login is delegated to the external identity provider.
+- `src\Opplat.MainApp\Features\Admin\AdminEndpoints.cs` still contains legacy BFF routes referencing `AdminOidc` and `AdminCookie`, but those schemes are not configured in the live MainApp host, so they should not become the Module 1 entry point.
+
+## Configuration placement
+
+- Keep provider-neutral token validation settings in the existing `Auth` section on both hosts (`Authority`, optional `MetadataAddress`, `Audience`, role claim settings).
+- Add Entra-specific confidential-client and Graph settings only to AdminApi for Module 1: tenant ID, client ID, secret/certificate reference, Graph base URL, UPN domain/suffix, and retry settings.
+- Source secrets from environment/user-secrets/Key Vault rather than checked-in values.
+
+## Implementation implications
+
+- Reuse `AuthOptions`, `OidcClaimsTransformation`, and `OidcClaimsNormalizer` as the JWT/OIDC validation seams instead of introducing a separate claim-processing path.
+- Add `oid` to the shared auth claim constants and have both AdminApi and MainApp normalize/extract it from tokens so later tenant/user mapping can rely on one stable contract.
+- Implement the Graph client behind an application/infrastructure abstraction and compose it from AdminApi, because that host already owns the Entra-facing login boundary.
+
+---
+
+### hudson-aspire-postgres-hostname.md
+
+# Decision: Aspire AppHost PostgreSQL Hostname Resolution
+
+**Date:** 2026-03-23  
+**Engineer:** Hudson (DevOps/Infra)  
+**Status:** ✅ Resolved & Implemented  
+**Scope:** AppHost database connectivity configuration  
+
+## Problem Statement
+
+When users launched the Aspire AppHost (`dotnet run --project src\Opplat.AppHost`), the orchestrated API services (mainapp, sales-api, inventory-api, admin-api) could not connect to the PostgreSQL database. The services would fail with connection timeout or "host not found" errors when attempting database operations.
+
+## Root Cause
+
+The AppHost `Program.cs` file contained a helper function `BuildPostgresConnectionString()` that hardcoded the database hostname as `127.0.0.1`:
+
+```csharp
+static string BuildPostgresConnectionString(string databaseName) =>
+    $"Host=127.0.0.1;Port=5432;Database={databaseName};Username=postgres;Password={PostgresPasswordValue}";
+```
+
+### Why This Fails in Aspire
+
+1. **Local Standalone:** When running Aspire on a developer's machine without orchestration, using `127.0.0.1` works fine because the database is on the local host.
+2. **Aspire Orchestration:** When Aspire's Distributed Cloud Platform (DCP) orchestrates services, each service runs in an isolated container within the DCP's managed network. Services cannot reach `127.0.0.1` because:
+   - `127.0.0.1` refers to the container's own loopback interface, not the host machine
+   - The PostgreSQL container is available to other services via its service name (`postgres`) within the Aspire network DNS
+   - Container-to-container communication uses service hostnames, not `localhost` addresses
+
+## Decision
+
+**Change the hostname in `BuildPostgresConnectionString()` from `127.0.0.1` to `postgres`.**
+
+### Rationale
+
+- **Aspire Pattern:** .NET Aspire services communicate via service hostnames when resources are orchestrated. The PostgreSQL resource is registered in the AppHost as `"postgres"` (line 13), making `postgres` the DNS-resolvable hostname within the Aspire network.
+- **Backward Compatibility:** The change affects only the AppHost orchestration path. Services that run independently or in Docker Compose still work because:
+  - Docker Compose's bridge network resolves container names (the postgres service container is named `opplat-postgres` but exports `postgres` as its hostname)
+  - This matches the existing docker-compose.yml configuration
+- **Minimal Surface:** Only one line of code; no changes to other configuration or connection string format.
+
+## Implementation
+
+**File:** `src/Opplat.AppHost/Program.cs`  
+**Change:**
+
+```csharp
+// Before
+static string BuildPostgresConnectionString(string databaseName) =>
+    $"Host=127.0.0.1;Port=5432;Database={databaseName};Username=postgres;Password={PostgresPasswordValue}";
+
+// After
+static string BuildPostgresConnectionString(string databaseName) =>
+    $"Host=postgres;Port=5432;Database={databaseName};Username=postgres;Password={PostgresPasswordValue}";
+```
+
+**Scope of Impact:**
+- Used by 4 services: mainapp, sales-api, inventory-api, admin-api
+- Each service receives connection strings for 5 databases: main-db, mojocafe-db, demo-db, test-db, admin-db
+- All environment variables injected via `.WithEnvironment()` calls
+
+## Validation
+
+- ✅ **Compilation:** `dotnet build src\Opplat.AppHost` succeeds (0 errors)
+- ✅ **Service References:** All 4 projects (mainapp, sales-api, inventory-api, admin-api) properly reference database resources
+- ✅ **Connection String Format:** Npgsql-compatible PostgreSQL connection string format maintained
+- ✅ **No Logic Changes:** No C# code logic modified; only configuration constant
+
+## Testing Recommendation
+
+Once DCP/Aspire Dashboard runtime is available:
+1. Run `dotnet run --project src\Opplat.AppHost` from repo root
+2. Wait for all services to initialize (dashboard at `https://localhost:15xxx`)
+3. Test API endpoints: `http://localhost:8080/health` (mainapp), `http://localhost:8083/health` (sales-api), etc.
+4. Verify database queries succeed (confirm no "host not found" or timeout errors in logs)
+
+## Related Artifacts
+
+- **AppHost Path Resolution:** Session 27 established dynamic path resolution via `FindRepoRoot()` and `RepoPath()` helpers
+- **Endpoint Configuration:** Session 27 added `ConfigureProjectDefaults()` to isolate endpoint naming
+- **PostgreSQL Migration:** Session 28 migrated all services to PostgreSQL; this change ensures Aspire orchestration connectivity works correctly
+
+---
+
+**Document:** `.squad/decisions/inbox/hudson-aspire-postgres-hostname.md`  
+**Task:** hudson-diagnose-aspire-db-config  
+
+---
+
+### hudson-client-apps.md
+
+# Hudson — Client apps in Aspire
+
+- Decision: keep both SPAs inside the AppHost as native Vite resources via `Aspire.Hosting.JavaScript` / `AddViteApp(...)`.
+- Why: this is the thinnest AppHost-native option available in the current Aspire version, preserves fast HMR, keeps the established `3200` / `3201` local ports, and avoids inventing extra wrappers or container-only frontend flows.
+- Implementation notes:
+  - `src\Opplat.AppHost\Program.cs` wires `client-app` and `admin-app` with `AddViteApp(...)` and the shared `dev:aspire` convention.
+  - `src\opplat-react` and `src\opplat-admin` Vite configs honor `PORT`, bind to `127.0.0.1`, keep `strictPort` under Aspire, and suppress `open` while AppHost is launching them.
+  - Frontend env injection stays browser-safe by using localhost-facing API/auth targets, while the admin SPA keeps same-origin development via `VITE_DEV_PROXY_TARGET`.
+  - Validation completed with AppHost build, Aspire contract tests, and both frontend production builds.
+
+---
+
+### hudson-module1.md
+
+# Hudson — Module 1 Audit & Decisions
+
+## Status
+Audit complete. Configuration surface identified. Azure/Entra ID foundation requires new packages and configuration, but .NET framework and base authentication are ready.
+
+## Key Findings
+
+### ✅ Current State (Good News)
+
+1. **Target Framework**: Already net10.0 (Directory.Build.props line 7)
+2. **Package Management**: Centralized in Directory.Packages.props with latest versions:
+   - EF Core 10.0.5
+   - AspNetCore packages 10.0.5
+   - JwtBearer 10.0.5
+   - OpenIdConnect 10.0.5 ✅ (foundation for OIDC)
+   - Finbuckle.MultiTenant.AspNetCore 7.0.1 ✅ (already present)
+   - Swashbuckle 7.3.1 ✅
+
+3. **Authentication Foundation Exists**:
+   - JwtBearer middleware configured (Program.cs lines 75–95)
+   - AuthOptions class with Entra ID authority support (AuthOptions.cs line 7)
+   - OidcClaimsTransformation middleware (OidcClaimsTransformation.cs)
+   - Role extraction via AuthOptions + OidcClaimsNormalizer
+
+4. **Database & ORM Ready**:
+   - EF Core 10.0.5 with PostgreSQL (Npgsql)
+   - MultiTenant context enforcing via Finbuckle
+   - IdentityDbContext<Usuario> for user management
+   - Connection string routing per tenant
+
+5. **Multi-Tenant Foundation**:
+   - AppTenantInfo model with IsActive flag (models/AppTenantInfo.cs)
+   - TenantCatalogStore in place
+   - Per-tenant connection routing (PostgresTenantConnectionStringResolver)
+   - DbContext enforces EnforceMultiTenant() on SaveChanges
+
+### ⚠️ Module 1 Requirements NOT YET IMPLEMENTED
+
+#### 1.1 Entra ID App Registration
+- **Status**: Manual Azure portal task, not code.
+- **Deliverables**: tenant_id, client_id, client_secret (or certificate)
+- **Storage**: Will be placed in appSettings or environment variables (see below)
+
+#### 1.2 Microsoft Graph API Client
+- **Status**: NOT implemented. Requires new NuGet package: `Microsoft.Graph` (9.x or 10.x for net10)
+- **Missing Code**: 
+  - GraphApiClient class (client credentials authentication)
+  - Methods: Create user, Enable user, Disable user, Delete user, Trigger password reset
+  - Async/retry logic with Polly or built-in HttpClientFactory patterns
+- **Location**: Propose `src/Opplat.Application/Services/GraphApiService.cs`
+
+#### 1.3 OIDC Authentication Endpoint
+- **Status**: PARTIALLY READY. JwtBearer + OpenIdConnect configured, but NOT YET:
+  - Explicit endpoint returning token to client after Entra ID login
+  - OID claim extraction and exposure to client
+- **Code Location**: Likely need `AuthController.cs` with `/auth/login`, `/auth/token`, `/auth/logout`
+
+#### 1.4 MFA Enforcement
+- **Status**: Out of scope (Entra ID Conditional Access / Security Defaults)
+- **Implementation**: Azure portal policy, not code
+
+#### 1.5 Self-Service Password Reset (SSPR)
+- **Status**: Out of scope (Entra ID SSPR feature)
+- **Implementation**: Azure portal feature, not code
+
+### 🔴 Missing Configuration / Options Classes
+
+#### Entra ID / Graph Options
+**Required new class**: `EntraIdOptions.cs` in `Opplat.MainApp/Auth/`
+
+```csharp
+public sealed class EntraIdOptions
+{
+    public const string SectionName = "EntraId";
+    
+    public string TenantId { get; set; } = string.Empty;
+    public string ClientId { get; set; } = string.Empty;
+    public string ClientSecret { get; set; } = string.Empty;
+    public string? CertificatePath { get; set; } // Alternative to ClientSecret
+    
+    // Graph API endpoints
+    public string GraphApiEndpoint { get; set; } = "https://graph.microsoft.com/v1.0";
+    
+    // User creation defaults
+    public string UserPrincipalNameSuffix { get; set; } = "@yourtenant.onmicrosoft.com";
+    public bool ForceChangePasswordOnNextSignIn { get; set; } = true;
+    
+    // Retry policy
+    public int MaxRetryAttempts { get; set; } = 3;
+    public int RetryDelayMilliseconds { get; set; } = 1000;
+}
+```
+
+### 🔴 Missing appsettings Configuration
+
+**Required in appsettings.json & appsettings.Development.json**:
+
+```json
+{
+  "EntraId": {
+    "TenantId": "YOUR_TENANT_ID",
+    "ClientId": "YOUR_CLIENT_ID",
+    "ClientSecret": "YOUR_CLIENT_SECRET",
+    "GraphApiEndpoint": "https://graph.microsoft.com/v1.0",
+    "UserPrincipalNameSuffix": "@yourtenant.onmicrosoft.com",
+    "ForceChangePasswordOnNextSignIn": true,
+    "MaxRetryAttempts": 3,
+    "RetryDelayMilliseconds": 1000
+  }
+}
+```
+
+⚠️ **Security**: ClientSecret should NOT be hardcoded. Use:
+- Azure Key Vault for production
+- Environment variables for dev/test
+- User Secrets (dotnet user-secrets) for local development
+
+### 🔴 Missing Environment Variables
+
+For secure credential handling:
+```
+ENTRA_ID_TENANT_ID=<guid>
+ENTRA_ID_CLIENT_ID=<guid>
+ENTRA_ID_CLIENT_SECRET=<secret>
+```
+
+Program.cs should map these to EntraIdOptions.
+
+### 🔴 Missing NuGet Packages
+
+**Add to Directory.Packages.props**:
+
+```xml
+<PackageVersion Include="Microsoft.Graph" Version="10.0.x" />
+<PackageVersion Include="Azure.Identity" Version="1.x" />
+<PackageVersion Include="Polly" Version="8.x" /> <!-- For retry logic -->
+<PackageVersion Include="Polly.Extensions.Http" Version="3.x" />
+```
+
+**Reasoning**:
+- `Microsoft.Graph`: Official SDK for Graph API client credentials flow
+- `Azure.Identity`: Handles Entra ID authentication (ClientSecretCredential)
+- `Polly`: Resilient HTTP client patterns (retry, circuit breaker)
+
+### 🔴 Missing Service Implementation
+
+**Location**: `src/Opplat.Application/Services/GraphApiService.cs`
+
+**Interface**:
+```csharp
+public interface IGraphApiService
+{
+    Task<string> CreateUserAsync(string email, string upn, string displayName);
+    Task EnableUserAsync(string userObjectId);
+    Task DisableUserAsync(string userObjectId);
+    Task DeleteUserAsync(string userObjectId);
+    Task TriggerPasswordResetAsync(string userObjectId);
+}
+```
+
+**Dependency Injection**: Register in Program.cs:
+```csharp
+builder.Services.Configure<EntraIdOptions>(
+    builder.Configuration.GetSection(EntraIdOptions.SectionName));
+builder.Services.AddScoped<IGraphApiService, GraphApiService>();
+```
+
+### 🔴 Missing Authentication Endpoint
+
+**Location**: `src/Opplat.MainApp/Controllers/AuthController.cs`
+
+**Endpoints**:
+- `POST /auth/login` — Trigger Entra ID OIDC flow
+- `GET /auth/callback` — Handle Entra ID callback (extract OID)
+- `POST /auth/token` — Issue/refresh token to client
+- `POST /auth/logout` — Logout and token revocation
+
+### 📋 Azure Portal Prerequisites (Manual, Not Code)
+
+1. **Entra ID Application Registration**:
+   - Register backend app (single-tenant)
+   - Grant permission: `User.ReadWrite.All` (app-level, not delegated)
+   - Generate client secret (or upload certificate)
+   - Record: Tenant ID, Client ID, Client Secret
+
+2. **Entra ID Conditional Access / Security Defaults**:
+   - Enable MFA enforcement via Conditional Access policy
+   - Enable SSPR for all users
+
+3. **Azure AD Redirect URIs** (if using delegated auth later):
+   - `https://yourdomain/auth/callback`
+
+---
+
+## Decisions Made
+
+### Package Strategy
+- ✅ Keep current net10.0 target
+- ✅ Add `Microsoft.Graph 10.0.x` (latest stable for net10)
+- ✅ Add `Azure.Identity 1.x` (Entra ID authentication)
+- ✅ Add `Polly 8.x` for retry/resilience (optional but recommended)
+
+### Configuration Approach
+- ✅ Use `EntraIdOptions` class (consistent with existing `AuthOptions`)
+- ✅ Read from appsettings.json / environment variables
+- ✅ Do NOT hardcode secrets in code
+- ✅ Use Azure Key Vault in production (future infrastructure task)
+
+### Code Location
+- ✅ GraphApiService → `Opplat.Application/Services/`
+- ✅ EntraIdOptions → `Opplat.MainApp/Auth/`
+- ✅ AuthController.cs → `Opplat.MainApp/Controllers/`
+
+---
+
+## Next Steps for Implementation Phase 1
+
+1. **Hudson** (infra):
+   - Add `Microsoft.Graph`, `Azure.Identity`, `Polly` to Directory.Packages.props
+   - Verify build succeeds with new packages
+
+2. **Developer** (auth logic):
+   - Create `EntraIdOptions.cs` class
+   - Create `IGraphApiService` interface + `GraphApiService` implementation
+   - Update `appsettings.json` with EntraId section (secrets via env vars)
+   - Create `AuthController.cs` with login/callback/logout endpoints
+   - Update `Program.cs` to register EntraIdOptions and IGraphApiService
+
+3. **DevOps/Azure**:
+   - Register backend app in Entra ID portal
+   - Capture Tenant ID, Client ID, Client Secret
+   - Configure MFA + SSPR in tenant
+   - Store secrets in Key Vault for production
+
+---
+
+## Audit Checklist for Module 1
+
+- [x] Framework version: net10.0 ✅
+- [x] JWT auth configured ✅
+- [x] OpenIdConnect package present ✅
+- [x] Multi-tenant foundation in place ✅
+- [x] Database context supports Identity ✅
+- [ ] Entra ID options class — PENDING
+- [ ] Microsoft.Graph package — PENDING
+- [ ] Azure.Identity package — PENDING
+- [ ] Graph API service implementation — PENDING
+- [ ] Authentication endpoints (login/callback/logout) — PENDING
+- [ ] appsettings configuration for Entra ID — PENDING
+- [ ] Environment variable mapping — PENDING
+
+---
+
+## Risk Assessment
+
+**Low Risk**:
+- Adding NuGet packages (well-tested, widely used)
+- Adding EntraIdOptions class (follows existing pattern)
+- Registering services (standard DI pattern)
+
+**Medium Risk**:
+- Graph API client-credentials flow (ensure retry/error handling is robust)
+- JWT token handling + OID extraction (standard, but requires testing)
+
+**External Risk (not code)**:
+- Entra ID tenant registration must be accurate (wrong Tenant ID = auth failures)
+- Secrets management setup (if compromised = account takeover)
+
+---
+
+## Learnings for Future Modules
+
+- AppTenantInfo already has `IsActive` flag — future modules can use this for tenant status management
+- PostgreSQL schema-per-tenant is configured — ready for Module 3 provisioning
+- IdentityDbContext<Usuario> is in place — can extend Usuario model for Entra OID later
+- Finbuckle.MultiTenant is already wired — no additional multi-tenancy plumbing needed
+
+---
+
+### ripley-module1.md
+
+# Module 1 — Identity Provider Foundation — Architecture Decisions
+
+**Author:** Ripley  
+**Date:** 2026-03-25  
+**Status:** APPROVED & IMPLEMENTED
+
+---
+
+## Scope Decomposition
+
+Module 1 has five sub-requirements. Three are Azure portal configuration (no code), two are code deliverables:
+
+| Sub-Req | Type | Decision |
+|---------|------|----------|
+| 1.1 Entra ID App Registration | Manual Azure | Document only. No code needed. |
+| 1.2 Graph API Client | Code | Implemented: interface + real + no-op implementation |
+| 1.3 OIDC Authentication Endpoint | Code (mostly done) | Gap filled: `oid` claim normalization for Entra tokens |
+| 1.4 MFA Enforcement | Manual Azure | Conditional Access / Security Defaults. Document only. |
+| 1.5 SSPR | Manual Azure | Entra portal configuration. Document only. |
+
+---
+
+## Decision 1: Graph API Client Architecture
+
+**Interface:** `IGraphUserService` in `Opplat.Application.Abstractions.Identity`  
+**Real implementation:** `GraphUserService` in `Opplat.Infrastructure.Identity`  
+**No-op stub:** `NoOpGraphUserService` in `Opplat.Infrastructure.Identity`  
+**Configuration:** `GraphApiOptions` bound from `GraphApi` config section
+
+**Why:**
+- Clean Architecture: interface in abstractions, implementation in infrastructure
+- Conditional registration: when `GraphApi:Enabled = false` (local dev with Keycloak), the no-op stub is injected
+- Service principal client-credentials flow (not delegated) — matches requirement 1.2
+
+**Operations implemented:**
+1. `CreateUserAsync` — POST /v1.0/users with UUID-based UPN
+2. `EnableUserAsync` — PATCH accountEnabled: true
+3. `DisableUserAsync` — PATCH accountEnabled: false
+4. `DeleteUserAsync` — DELETE /v1.0/users/{oid}
+5. `ResetPasswordAsync` — PATCH forceChangePasswordNextSignIn: true
+
+**UPN format:** `{Guid.NewGuid()}@{TenantDomain}` — collision-safe per requirement.
+
+---
+
+## Decision 2: OID Claim Normalization
+
+**Problem:** Entra ID uses `oid` as the stable object identifier. Keycloak uses `sub`. Downstream code (especially Graph API calls) needs a consistent claim to find the user's Entra object ID.
+
+**Solution:** Added `NormalizeObjectId()` to `OidcClaimsNormalizer`:
+- If `oid` claim exists → keep it (Entra path)
+- If only `sub` exists → copy to `oid` claim (Keycloak fallback path)
+- If neither → no claim added
+
+**Added constants:** `AuthClaimTypes.ObjectId` ("oid") and `AuthClaimTypes.Subject` ("sub") in `Opplat.Application.Abstractions.Auth`
+
+**Why this works:** In production (Entra), `oid` arrives natively. In local dev (Keycloak), `sub` is the user identifier — it gets promoted to `oid` so downstream code has one claim to check.
+
+---
+
+## Decision 3: Conditional Graph Client Registration
+
+**Pattern:**
+```
+GraphApi:Enabled = true → real GraphServiceClient + GraphUserService
+GraphApi:Enabled = false → NoOpGraphUserService (logs warnings, returns success)
+```
+
+**Why:** Local development uses Keycloak — there's no Graph API to call. The no-op stub prevents crashes and lets upstream flows (registration, user management) proceed in dev.
+
+**Wired in:** `AdminApi/Program.cs` via `services.AddGraphUserService(configuration)`
+
+---
+
+## Decision 4: Package Additions
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| Microsoft.Graph | 5.103.0 | Graph API SDK |
+| Azure.Identity | 1.19.0 | ClientSecretCredential for service principal auth |
+| Microsoft.Extensions.Http.Resilience | 10.0.0 | Future: Polly-based retry pipeline for Graph HttpClient |
+
+All managed via `Directory.Packages.props` (CPM).
+
+---
+
+## Decision 5: AdminApi Gets Infrastructure Reference
+
+Added `Opplat.Infrastructure` project reference to `Opplat.AdminApi.csproj`. This is the correct dependency direction — AdminApi is the host that wires infrastructure services.
+
+---
+
+## Risks & Mitigations
+
+1. **Graph SDK not mockable with Moq** — GraphServiceClient has complex constructors. Tests use source-code contract assertions and no-op validation instead of direct mocking. Integration tests against a real Entra tenant are recommended before production.
+
+2. **User.ReadWrite.All is a high-privilege permission** — Must be documented in deployment runbooks. Consent must come from a Global Admin.
+
+3. **No retry pipeline wired yet** — `Microsoft.Extensions.Http.Resilience` package is added but the Graph SDK uses its own HttpClient internally. Custom retry handler for 429/503 should be configured in a follow-up when the Graph client goes into production use.
+
+4. **Certificate-based auth not implemented** — Only `ClientSecretCredential` is wired. `CertificateThumbprint` option exists in config but throws if used. Certificate auth can be added when needed for production hardening.
+
+---
+
+## Azure Portal Setup (Manual — Not Code)
+
+### 1.1 Entra ID App Registration
+1. Azure Portal → Microsoft Entra ID → App registrations → New registration
+2. Name: `opplat-backend-service`
+3. Supported account types: Single tenant
+4. API Permissions → Add: `Microsoft Graph` → Application → `User.ReadWrite.All`
+5. Grant admin consent
+6. Certificates & secrets → New client secret
+7. Store `TenantId`, `ClientId`, `ClientSecret` in environment config (never in code)
+
+### 1.4 MFA Enforcement
+- Security → Conditional Access → New policy → All users → Require MFA
+- OR: Security → Security defaults → Enable
+
+### 1.5 SSPR
+- Password reset → All users → Enable
+- Authentication methods: Email + Phone
+
+---
+
+## Files Changed
+
+**New files:**
+- `src/Opplat.Application.Abstractions/Identity/IGraphUserService.cs`
+- `src/Opplat.Infrastructure/Identity/GraphApiOptions.cs`
+- `src/Opplat.Infrastructure/Identity/GraphUserService.cs`
+- `src/Opplat.Infrastructure/Identity/NoOpGraphUserService.cs`
+- `src/Opplat.Infrastructure/DependencyInjection/ServiceCollectionExtensions.cs`
+- `test/Opplat.MainApp.Test/Identity/GraphUserServiceTests.cs`
+- `test/Opplat.MainApp.Test/Identity/NoOpGraphUserServiceTests.cs`
+- `test/Opplat.MainApp.Test/Identity/GraphServiceRegistrationTests.cs`
+- `test/Opplat.MainApp.Test/Auth/OidClaimNormalizationTests.cs`
+
+**Modified files:**
+- `Directory.Packages.props` — added Microsoft.Graph, Azure.Identity, Http.Resilience
+- `src/Opplat.Application.Abstractions/Auth/AuthClaimTypes.cs` — added ObjectId, Subject
+- `src/Opplat.Infrastructure/Opplat.Infrastructure.csproj` — added package + project refs
+- `src/Opplat.AdminApi/Opplat.AdminApi.csproj` — added Infrastructure ref
+- `src/Opplat.AdminApi/Program.cs` — wired AddGraphUserService
+- `src/Opplat.AdminApi/appsettings.json` — added GraphApi section
+- `src/Opplat.MainApp/Auth/AuthClaimTypes.cs` — added ObjectId, Subject
+- `src/Opplat.MainApp/Auth/OidcClaimsNormalizer.cs` — added NormalizeObjectId
+- `test/Opplat.MainApp.Test/Opplat.MainApp.Test.csproj` — added Infrastructure + Abstractions refs
+
+---
+
+### vasquez-client-apps.md
+
+# Vasquez — Client apps in Aspire
+
+- Decision: keep both React SPAs as native Vite processes inside Aspire using `AddViteApp(...)` instead of containers or custom Node wrappers.
+- Why: this preserves fast HMR, keeps the team’s expected `3200/3201` ports stable, and lets AppHost inject the local API/Auth assumptions the frontends already use.
+- Implementation notes:
+  - `src\Opplat.AppHost` now references `Aspire.Hosting.JavaScript`
+  - `src\opplat-react` and `src\opplat-admin` run through `dev:aspire`
+  - Both Vite configs now honor `PORT` and skip `open` when `OPPLAT_RUNNING_IN_ASPIRE=true`
+
+---
+

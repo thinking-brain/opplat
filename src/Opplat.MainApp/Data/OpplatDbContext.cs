@@ -29,7 +29,7 @@ public class OpplatDbContext : IdentityDbContext<Usuario>, IMultiTenantDbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.UseIdentityColumns();
+        builder.UseIdentityByDefaultColumns();
         base.OnModelCreating(builder);
         
         builder.ConfigureMultiTenant();

@@ -1,4 +1,3 @@
-using System.IO;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using Opplat.MainApp.Auth;
@@ -32,6 +31,36 @@ public class OidcClaimsTransformationTests
         await transformation.TransformAsync(principal);
 
         Assert.Equal("bishop", principal.FindFirst(ClaimTypes.Name)?.Value);
+    }
+
+    [Fact]
+    public async Task TransformAsync_AddsStableObjectIdFromSubjectWhenOidIsMissing()
+    {
+        var transformation = CreateTransformation();
+        var principal = CreatePrincipal(new Claim(AuthClaimTypes.Subject, "entra-oid-123"));
+
+        await transformation.TransformAsync(principal);
+
+        var objectIds = principal.FindAll(AuthClaimTypes.ObjectId).Select(claim => claim.Value).ToList();
+
+        Assert.Single(objectIds);
+        Assert.Equal("entra-oid-123", objectIds[0]);
+    }
+
+    [Fact]
+    public async Task TransformAsync_PreservesExistingObjectIdWithoutDuplicates()
+    {
+        var transformation = CreateTransformation();
+        var principal = CreatePrincipal(
+            new Claim(AuthClaimTypes.ObjectId, "existing-oid"),
+            new Claim(AuthClaimTypes.Subject, "subject-oid"));
+
+        await transformation.TransformAsync(principal);
+
+        var objectIds = principal.FindAll(AuthClaimTypes.ObjectId).Select(claim => claim.Value).ToList();
+
+        Assert.Single(objectIds);
+        Assert.Equal("existing-oid", objectIds[0]);
     }
 
     [Fact]
@@ -79,7 +108,7 @@ public class OidcClaimsTransformationTests
     [Fact]
     public void Source_MapsRolesFromProviderSpecificClaims()
     {
-        var source = File.ReadAllText(ResolveRepoFile("src", "Opplat.MainApp", "Auth", "OidcClaimsTransformation.cs"));
+        var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Auth", "OidcClaimsTransformation.cs");
 
         Assert.Contains("AuthClaimTypes.RealmAccess", source);
         Assert.Contains("AuthClaimTypes.Roles", source);
@@ -103,6 +132,32 @@ public class OidcClaimsTransformationTests
         Assert.Equal("tenant-a", tenantClaims[0]);
     }
 
+    [Fact]
+    public async Task TransformAsync_PreservesExistingTenantIdentifierClaimsWithoutDuplicates()
+    {
+        var transformation = CreateTransformation();
+        var principal = CreatePrincipal(
+            new Claim(AuthClaimTypes.TenantIdentifier, "mojocafe"),
+            new Claim("https://opplat.com/tenant_identifier", "demo"));
+
+        await transformation.TransformAsync(principal);
+
+        var tenantIdentifiers = principal.FindAll(AuthClaimTypes.TenantIdentifier).Select(claim => claim.Value).ToList();
+
+        Assert.Single(tenantIdentifiers);
+        Assert.Equal("mojocafe", tenantIdentifiers[0]);
+    }
+
+    [Fact]
+    public void Source_NormalizesTenantClaimsThroughSharedNormalizer()
+    {
+        var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Auth", "OidcClaimsNormalizer.cs");
+
+        Assert.Contains("NormalizeClaim(identity, AuthClaimTypes.TenantId", source);
+        Assert.Contains("NormalizeClaim(identity, AuthClaimTypes.TenantIdentifier", source);
+        Assert.Contains("identity.AddClaim(new Claim(targetClaimType, claimValue));", source);
+    }
+
     private static OidcClaimsTransformation CreateTransformation()
     {
         return new OidcClaimsTransformation(Options.Create(new AuthOptions
@@ -114,22 +169,5 @@ public class OidcClaimsTransformationTests
     private static ClaimsPrincipal CreatePrincipal(params Claim[] claims)
     {
         return new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType: "Bearer"));
-    }
-
-    private static string ResolveRepoFile(params string[] segments)
-    {
-        var current = AppContext.BaseDirectory;
-
-        while (!string.IsNullOrEmpty(current))
-        {
-            if (File.Exists(Path.Combine(current, "opplat.sln")))
-            {
-                return Path.Combine(new[] { current }.Concat(segments).ToArray());
-            }
-
-            current = Directory.GetParent(current)?.FullName!;
-        }
-
-        throw new DirectoryNotFoundException("Could not locate repository root from test output directory.");
     }
 }

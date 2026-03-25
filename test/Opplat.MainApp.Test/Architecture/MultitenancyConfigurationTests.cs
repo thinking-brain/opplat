@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Opplat.MainApp.Data;
 using Opplat.MainApp.Models;
+using Opplat.MainApp.Test.Auth;
 
 namespace Opplat.MainApp.Test.Architecture;
 
@@ -27,29 +28,55 @@ public class MultitenancyConfigurationTests
     [Fact]
     public void Program_ConfiguresDbContextToPreferTenantConnectionString()
     {
-        var current = AppContext.BaseDirectory;
-        string? repoRoot = null;
+        var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Program.cs");
 
-        while (!string.IsNullOrEmpty(current))
-        {
-            if (File.Exists(Path.Combine(current, "opplat.sln")))
-            {
-                repoRoot = current;
-                break;
-            }
-
-            current = Directory.GetParent(current)?.FullName;
-        }
-
-        Assert.False(string.IsNullOrEmpty(repoRoot));
-
-        var programPath = Path.Combine(repoRoot!, "src", "Opplat.MainApp", "Program.cs");
-
-        var source = File.ReadAllText(programPath);
-
-        Assert.Contains("tenantAccessor?.MultiTenantContext?.TenantInfo?.ConnectionString", source);
+        Assert.Contains("tenantAccessor?.MultiTenantContext?.TenantInfo", source);
+        Assert.Contains("PostgresTenantConnectionStringResolver.Resolve(", source);
         Assert.Contains("GetConnectionString(\"DefaultConnection\")", source);
         Assert.Contains("GetConnectionString(\"MainConnection\")", source);
+    }
+
+    [Fact]
+    public void Program_ConfiguresTenantResolutionFromRouteAndHeader()
+    {
+        var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Program.cs");
+
+        Assert.Contains("builder.Services.AddMultiTenant<AppTenantInfo>()", source);
+        Assert.Contains(".WithRouteStrategy(\"__tenant__\")", source);
+        Assert.Contains(".WithHeaderStrategy(\"X-Tenant-Identifier\")", source);
+        Assert.Contains(".WithStore<TenantCatalogStore>(ServiceLifetime.Singleton)", source);
+        Assert.Contains("app.UseMultiTenant();", source);
+    }
+
+    [Fact]
+    public void OpplatDbContext_ConfiguresAndEnforcesFinbuckleIsolation()
+    {
+        var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Data", "OpplatDbContext.cs");
+
+        Assert.Contains("builder.ConfigureMultiTenant();", source);
+        Assert.Contains("this.EnforceMultiTenant();", source);
+        Assert.Contains("TenantMismatchMode => TenantMismatchMode.Throw", source);
+        Assert.Contains("TenantNotSetMode => TenantNotSetMode.Throw", source);
+    }
+
+    [Fact]
+    public void TenantScopedAdminHandlers_DeriveIsolationMetadataFromTheResolvedTenantContext()
+    {
+        var getTenantUsers = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Admin", "Queries", "GetTenantUsersQuery.cs");
+        var createTenantUser = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Admin", "Commands", "CreateTenantUserCommand.cs");
+
+        Assert.Contains("public record GetTenantUsersQuery() : IRequest<List<AdminUserDto>>;", getTenantUsers);
+        Assert.Contains("var tenant = _tenantAccessor.MultiTenantContext?.TenantInfo;", getTenantUsers);
+        Assert.Contains("TenantId = tenant?.Id ?? string.Empty,", getTenantUsers);
+        Assert.Contains("TenantIdentifier = tenant?.Identifier ?? string.Empty,", getTenantUsers);
+        Assert.DoesNotContain("GetTenantUsersQuery(string", getTenantUsers, StringComparison.Ordinal);
+
+        Assert.Contains("var tenant = _tenantAccessor.MultiTenantContext?.TenantInfo;", createTenantUser);
+        Assert.Contains("TenantId = tenant?.Id ?? string.Empty,", createTenantUser);
+        Assert.Contains("TenantIdentifier = tenant?.Identifier ?? string.Empty,", createTenantUser);
+        Assert.Contains("TenantName = tenant?.Name ?? string.Empty,", createTenantUser);
+        Assert.DoesNotContain("string TenantIdentifier", createTenantUser, StringComparison.Ordinal);
+        Assert.DoesNotContain("string TenantId", createTenantUser, StringComparison.Ordinal);
     }
 
     private static IMultiTenantContextAccessor<AppTenantInfo> CreateTenantAccessor(string tenantId, string tenantIdentifier)

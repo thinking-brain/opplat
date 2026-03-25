@@ -180,6 +180,8 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
         Identifier = tenant.Identifier,
         Name = tenant.Name,
         ConnectionString = tenant.ConnectionString,
+        DatabaseName = tenant.DatabaseName,
+        DatabaseSchema = tenant.DatabaseSchema,
         JwtSigningKey = tenant.JwtSigningKey,
         IsActive = tenant.IsActive
     };

@@ -10,18 +10,16 @@ using Opplat.MainApp.Auth;
 using Opplat.MainApp.Data;
 using Opplat.MainApp.Features.Admin;
 using Opplat.MainApp.Features.Account;
+using Opplat.MainApp.Hosting;
+using Opplat.MainApp.Features.Inventory;
 using Opplat.MainApp.Features.License;
 using Opplat.MainApp.Features.Menus;
+using Opplat.MainApp.Features.Sales;
 using Opplat.MainApp.Models;
 using Opplat.MainApp.Middleware;
 using Opplat.MainApp.Services;
 using Opplat.MainApp.Utils;
-using SalesServices = Opplat.Modules.Sales.Domain.Services;
-using SalesRepositories = Opplat.Modules.Sales.Domain.Repositories;
-using InfrastructureSalesRepositories = Opplat.Modules.Sales.Infrastructure.Repositories;
-using InventoryServices = Opplat.Modules.Inventory.Domain.Services;
-using InventoryRepositories = Opplat.Modules.Inventory.Domain.Repositories;
-using InfrastructureInventoryRepositories = Opplat.Modules.Inventory.Infrastructure.Repositories;
+using Opplat.Application.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
@@ -29,6 +27,7 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 var authSection = builder.Configuration.GetSection(AuthOptions.SectionName);
 var authOptions = authSection.Get<AuthOptions>() ?? new AuthOptions();
+var requireHttpsMetadata = !builder.Environment.IsDevelopment();
 
 // ============================================
 // MULTI-TENANT CONFIGURATION
@@ -42,11 +41,14 @@ builder.Services.AddMultiTenant<AppTenantInfo>()
 builder.Services.AddDbContext<OpplatDbContext>((serviceProvider, options) =>
 {
     var tenantAccessor = serviceProvider.GetService<IMultiTenantContextAccessor<AppTenantInfo>>();
-    var connectionString = tenantAccessor?.MultiTenantContext?.TenantInfo?.ConnectionString 
-        ?? builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? builder.Configuration.GetConnectionString("MainConnection");
-    
-    options.UseSqlServer(connectionString);
+    var defaultConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? builder.Configuration.GetConnectionString("MainConnection")
+        ?? throw new InvalidOperationException("A default or tenant connection string must be configured.");
+    var connectionString = PostgresTenantConnectionStringResolver.Resolve(
+        tenantAccessor?.MultiTenantContext?.TenantInfo,
+        defaultConnectionString);
+
+    options.UseNpgsql(connectionString);
 });
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -63,46 +65,18 @@ builder.Services.AddTransient<Microsoft.AspNetCore.Authentication.IClaimsTransfo
 // ============================================
 builder.Services.AddScoped<LicenciaService>();
 builder.Services.AddScoped<MenuLoader>();
+builder.Services.AddScoped<TenantProvisioningService>();
 
 // ============================================
 // MEDIATR
 // ============================================
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-// Sales DI configurations
-builder.Services.AddScoped<SalesServices.IProductService, SalesServices.ProductService>();
-builder.Services.AddScoped<SalesRepositories.IProductRepository, InfrastructureSalesRepositories.ProductsRepository>();
-builder.Services.AddScoped<SalesServices.IToppingService, SalesServices.ToppingService>();
-builder.Services.AddScoped<SalesRepositories.IToppingRepository, InfrastructureSalesRepositories.ToppingRepository>();
-builder.Services.AddScoped<SalesServices.IProductTagService, SalesServices.ProductTagService>();
-builder.Services.AddScoped<SalesRepositories.IProductTagRepository, InfrastructureSalesRepositories.ProductTagRepository>();
-builder.Services.AddScoped<SalesServices.ICostTabService, SalesServices.CostTabService>();
-builder.Services.AddScoped<SalesRepositories.ICostTabRepository, InfrastructureSalesRepositories.CostTabRepository>();
-// Inventory DI configurations
-builder.Services.AddScoped<InventoryServices.IProductClassificationService, InventoryServices.ProductClassificationService>();
-builder.Services.AddScoped<InventoryRepositories.IProductClassificationRepository, InfrastructureInventoryRepositories.ProductClassificationRepository>();
-builder.Services.AddScoped<InventoryServices.IProductGroupService, InventoryServices.ProductGroupService>();
-builder.Services.AddScoped<InventoryRepositories.IProductGroupRepository, InfrastructureInventoryRepositories.ProductGroupRepository>();
-builder.Services.AddScoped<InventoryServices.IProductService, InventoryServices.ProductService>();
-builder.Services.AddScoped<InventoryRepositories.IProductRepository, InfrastructureInventoryRepositories.ProductsRepository>();
-builder.Services.AddScoped<InventoryServices.IStorageService, InventoryServices.StorageService>();
-builder.Services.AddScoped<InventoryRepositories.IStorageRepository, InfrastructureInventoryRepositories.StorageRepository>();
-builder.Services.AddScoped<InventoryServices.IMovementTypeService, InventoryServices.MovementTypeService>();
-builder.Services.AddScoped<InventoryServices.IProductMovementService, InventoryServices.ProductMovementService>();
-builder.Services.AddScoped<InventoryRepositories.IMovementsRepository, InfrastructureInventoryRepositories.ProductMovementRepository>();
-builder.Services.AddScoped<InventoryServices.IInventoryService, InventoryServices.InventoryService>();
-builder.Services.AddScoped<InventoryRepositories.IInventoryRepository, InfrastructureInventoryRepositories.InventoryRepository>();
+builder.Services.AddOpplatApplication(Assembly.GetExecutingAssembly());
 
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.SaveToken = true;
-        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        options.RequireHttpsMetadata = requireHttpsMetadata;
         options.MapInboundClaims = false;
         options.Authority = authOptions.Authority;
         if (!string.IsNullOrWhiteSpace(authOptions.MetadataAddress))
@@ -130,17 +104,25 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc(builder.Configuration["Documentation:Version"], new OpenApiInfo
+    var docVersion = builder.Configuration["Documentation:Version"] ?? "1.0.0";
+    var docTitle = builder.Configuration["Documentation:Title"] ?? "Opplat API";
+    var docDescription = builder.Configuration["Documentation:Description"] ?? "";
+    var termsUrl = builder.Configuration["Documentation:TermUrl"] ?? "https://example.com/terms";
+    var contactName = builder.Configuration["Documentation:ContactName"] ?? "Support";
+    var contactEmail = builder.Configuration["Documentation:ContactEmail"] ?? "support@example.com";
+    var contactUrl = builder.Configuration["Documentation:ContactUrl"] ?? "https://example.com/contact";
+
+    c.SwaggerDoc(docVersion, new OpenApiInfo
     {
-        Version = builder.Configuration["Documentation:Version"],
-        Title = builder.Configuration["Documentation:Title"],
-        Description = builder.Configuration["Documentation:Description"],
-        TermsOfService = new Uri(builder.Configuration["Documentation:TermUrl"]),
+        Version = docVersion,
+        Title = docTitle,
+        Description = docDescription,
+        TermsOfService = new Uri(termsUrl),
         Contact = new OpenApiContact
         {
-            Name = builder.Configuration["Documentation:ContactName"],
-            Email = builder.Configuration["Documentation:ContactEmail"],
-            Url = new Uri(builder.Configuration["Documentation:ContactUrl"])
+            Name = contactName,
+            Email = contactEmail,
+            Url = new Uri(contactUrl)
         }
     });
     c.AddSecurityDefinition(name: "Bearer", securityScheme: new OpenApiSecurityScheme
@@ -171,7 +153,8 @@ builder.Services.AddSwaggerGen(c =>
     // Set the comments path for the Swagger JSON and UI.
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    c.IncludeXmlComments(xmlPath);
+    if (File.Exists(xmlPath))
+        c.IncludeXmlComments(xmlPath);
 });
 
 builder.Services.AddCors(options =>
@@ -179,16 +162,21 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: "CorsPolicy",
         policy =>
         {
-            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
         });
 });
 
 builder.Services.AddSignalR();
-builder.Services.AddControllers();
-// builder.Services.AddControllersWithViews();
-// builder.Services.AddRazorPages();
+builder.Services.AddOpplatAspireDevelopmentSupport(builder.Environment);
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+    await ProvisionDevelopmentTenantsAsync(app);
+
+app.UseOpplatAspireDevelopmentSupport();
 
 // Add multi-tenant middleware EARLY in the pipeline
 app.UseMultiTenant();
@@ -202,7 +190,7 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+app.UseHttpsRedirectionIfConfigured();
 app.UseCors("CorsPolicy");
 app.UseRouting();
 app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
@@ -220,38 +208,28 @@ app.UseAuthorization();
 // MULTI-TENANT AWARE ROUTING
 // ============================================
 
-// MVC attribute-routing for Sales & Inventory area controllers
-app.MapControllers();
-
-// Area convention routes (backward compat)
-app.MapAreaControllerRoute(
-            name: "SalesArea",
-            areaName: "Sales",
-            pattern: "Sales/{controller=Home}/{action=Index}/{id?}");
-
-app.MapAreaControllerRoute(
-            name: "InventoryArea",
-            areaName: "inventory",
-            pattern: "inventory/{controller=Home}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
-    name: "tenant-sales",
-    pattern: "{__tenant__}/Sales/{controller=Home}/{action=Index}/{id?}",
-    defaults: new { area = "Sales" });
-
-app.MapControllerRoute(
-    name: "tenant-inventory",
-    pattern: "{__tenant__}/inventory/{controller=Home}/{action=Index}/{id?}",
-    defaults: new { area = "inventory" });
-
 // ============================================
-// MINIMAL API ENDPOINTS (Account / License / Menus)
+// MINIMAL API ENDPOINTS (Admin / Account / Inventory / License / Menus / Sales)
 // ============================================
+app.MapOpplatHealthEndpoints("main-api");
 app.MapAdminEndpoints();
 app.MapAccountEndpoints();
+app.MapInventoryEndpoints();
 app.MapLicenseEndpoints();
 app.MapMenusEndpoints();
+app.MapSalesEndpoints();
 
 // app.MapFallbackToFile("index.html");
 
 app.Run();
+
+static async Task ProvisionDevelopmentTenantsAsync(WebApplication app)
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+    var tenantProvisioningService = scope.ServiceProvider.GetRequiredService<TenantProvisioningService>();
+    var tenants = await tenantStore.GetAllAsync();
+
+    foreach (var tenant in tenants.Where(tenant => tenant.IsActive))
+        await tenantProvisioningService.ProvisionTenantAsync(tenant);
+}

@@ -13,7 +13,7 @@ public enum ServiceStatus
 public class ServiceResponse<T> where T : IEntity
 {
     public ServiceStatus Status { get; set; }
-    public T? Value { get; set; }
+    public T Value { get; set; }
     public IEnumerable<T> List { get; set; }
     public string Message { get; set; }
 }

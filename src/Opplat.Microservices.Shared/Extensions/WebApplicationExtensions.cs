@@ -9,6 +9,7 @@ public static class WebApplicationExtensions
 {
     public static WebApplication UseOpplatMicroserviceHost(this WebApplication app)
     {
+        app.UseOpplatAspireDevelopmentSupport();
         app.UseMultiTenant();
 
         if (!app.Environment.IsDevelopment())
@@ -16,7 +17,7 @@ public static class WebApplicationExtensions
             app.UseHsts();
         }
 
-        app.UseHttpsRedirection();
+        app.UseHttpsRedirectionIfConfigured();
         app.UseRouting();
         app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
         app.UseSwaggerUI(c =>

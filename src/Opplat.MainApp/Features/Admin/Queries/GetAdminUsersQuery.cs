@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Opplat.MainApp.Data;
 using Opplat.MainApp.Models;
@@ -13,13 +14,16 @@ public record GetAdminUsersQuery(string? TenantIdentifier) : IRequest<List<Admin
 public sealed class GetAdminUsersQueryHandler : IRequestHandler<GetAdminUsersQuery, List<AdminUserDto>>
 {
     private readonly IMultiTenantStore<AppTenantInfo> _tenantStore;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<GetAdminUsersQueryHandler> _logger;
 
     public GetAdminUsersQueryHandler(
         IMultiTenantStore<AppTenantInfo> tenantStore,
+        IConfiguration configuration,
         ILogger<GetAdminUsersQueryHandler> logger)
     {
         _tenantStore = tenantStore;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -29,18 +33,21 @@ public sealed class GetAdminUsersQueryHandler : IRequestHandler<GetAdminUsersQue
             .Where(tenant => tenant.IsActive)
             .Where(tenant => string.IsNullOrWhiteSpace(request.TenantIdentifier) ||
                              string.Equals(tenant.Identifier, request.TenantIdentifier, StringComparison.OrdinalIgnoreCase))
-            .Where(tenant => !string.IsNullOrWhiteSpace(tenant.ConnectionString))
+            .Where(tenant => !string.IsNullOrWhiteSpace(tenant.ConnectionString) || !string.IsNullOrWhiteSpace(tenant.DatabaseName))
             .OrderBy(tenant => tenant.Name)
             .ToList();
 
         var users = new List<AdminUserDto>();
+        var defaultConnectionString = _configuration.GetConnectionString("DefaultConnection")
+            ?? _configuration.GetConnectionString("MainConnection")
+            ?? throw new InvalidOperationException("A default tenant connection string must be configured.");
         foreach (var tenant in tenants)
         {
             try
             {
                 await using var db = new OpplatDbContext(
                     new DbContextOptionsBuilder<OpplatDbContext>()
-                        .UseSqlServer(tenant.ConnectionString)
+                        .UseNpgsql(PostgresTenantConnectionStringResolver.Resolve(tenant, defaultConnectionString))
                         .Options);
 
                 var tenantUsers = await db.Users

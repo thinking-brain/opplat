@@ -9,10 +9,10 @@ namespace Opplat.MainApp.Dtos
     {
         public Guid ProductId { get; set; }
 
-        public string Product { get; set; }
+        public string Product { get; set; } = string.Empty;
 
         public decimal Quantity { get; set; }
 
-        public string Unit { get; set; }
+        public string Unit { get; set; } = string.Empty;
     }
 }

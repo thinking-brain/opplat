@@ -1,17 +1,17 @@
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: opplat-sqlserver
+  postgres:
+    image: postgres:17-alpine
+    container_name: opplat-postgres
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=${SA_PASSWORD:-Admin123*}
-      - MSSQL_PID=Developer
+      - POSTGRES_DB=${POSTGRES_DB:-opplat_admin}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-Admin123*}
     ports:
-      - "${SQLSERVER_PORT:-1433}:1433"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - sqlserver_data:/var/opt/mssql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD:-Admin123*}" -C -Q "SELECT 1" || exit 1
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -56,7 +56,7 @@ services:
       dockerfile: src/Opplat.MainApp/Dockerfile
     container_name: opplat-api
     depends_on:
-      sqlserver:
+      postgres:
         condition: service_healthy
       keycloak:
         condition: service_healthy
@@ -65,25 +65,24 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=opplat-main;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
-      - ConnectionStrings__MainConnection=Server=sqlserver,1433;Database=opplat-main;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - ConnectionStrings__DefaultConnection=Host=postgres,5432;Database=opplat-main;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
+      - ConnectionStrings__MainConnection=Host=postgres,5432;Database=opplat-main;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
       - Auth__Authority=${AUTH__AUTHORITY:-http://localhost:${KEYCLOAK_PORT:-8180}/realms/${KEYCLOAK_REALM:-opplat}}
       - Auth__MetadataAddress=${AUTH__METADATA_ADDRESS:-http://keycloak:8180/realms/${KEYCLOAK_REALM:-opplat}/.well-known/openid-configuration}
       - Auth__Audience=${AUTH__AUDIENCE:-opplat-api}
       - Auth__ClientIdClient=${AUTH__CLIENT_ID_CLIENT:-opplat-client}
-      - Auth__ClientIdAdmin=${AUTH__CLIENT_ID_ADMIN:-opplat-admin}
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Id=mojocafe
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Identifier=mojocafe
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Name=MojoCafe
-      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__ConnectionString=Server=sqlserver,1433;Database=opplat-mojocafe;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__ConnectionString=Host=postgres,5432;Database=opplat-mojocafe;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Id=demo
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Identifier=demo
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Name=Demo
-      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__ConnectionString=Server=sqlserver,1433;Database=opplat-demo;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__ConnectionString=Host=postgres,5432;Database=opplat-demo;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Id=test
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Identifier=test
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Name=Test
-      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__ConnectionString=Server=sqlserver,1433;Database=opplat-test;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__ConnectionString=Host=postgres,5432;Database=opplat-test;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
     healthcheck:
       test:
         [
@@ -103,7 +102,7 @@ services:
       dockerfile: src/Services/Sales/Opplat.Services.Sales.Api/Dockerfile
     container_name: opplat-sales-api
     depends_on:
-      sqlserver:
+      postgres:
         condition: service_healthy
       keycloak:
         condition: service_healthy
@@ -114,25 +113,24 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=opplat-main;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
-      - ConnectionStrings__MainConnection=Server=sqlserver,1433;Database=opplat-main;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - ConnectionStrings__DefaultConnection=Host=postgres,5432;Database=opplat-main;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
+      - ConnectionStrings__MainConnection=Host=postgres,5432;Database=opplat-main;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
       - Auth__Authority=${AUTH__AUTHORITY:-http://localhost:${KEYCLOAK_PORT:-8180}/realms/${KEYCLOAK_REALM:-opplat}}
       - Auth__MetadataAddress=${AUTH__METADATA_ADDRESS:-http://keycloak:8180/realms/${KEYCLOAK_REALM:-opplat}/.well-known/openid-configuration}
       - Auth__Audience=${AUTH__AUDIENCE:-opplat-api}
       - Auth__ClientIdClient=${AUTH__CLIENT_ID_CLIENT:-opplat-client}
-      - Auth__ClientIdAdmin=${AUTH__CLIENT_ID_ADMIN:-opplat-admin}
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Id=mojocafe
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Identifier=mojocafe
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Name=MojoCafe
-      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__ConnectionString=Server=sqlserver,1433;Database=opplat-mojocafe;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__ConnectionString=Host=postgres,5432;Database=opplat-mojocafe;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Id=demo
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Identifier=demo
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Name=Demo
-      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__ConnectionString=Server=sqlserver,1433;Database=opplat-demo;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__ConnectionString=Host=postgres,5432;Database=opplat-demo;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Id=test
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Identifier=test
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Name=Test
-      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__ConnectionString=Server=sqlserver,1433;Database=opplat-test;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__ConnectionString=Host=postgres,5432;Database=opplat-test;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
       - Documentation__Title=Opplat Sales Service
       - Documentation__Description=Sales microservice API
     healthcheck:
@@ -154,7 +152,7 @@ services:
       dockerfile: src/Services/Inventory/Opplat.Services.Inventory.Api/Dockerfile
     container_name: opplat-inventory-api
     depends_on:
-      sqlserver:
+      postgres:
         condition: service_healthy
       keycloak:
         condition: service_healthy
@@ -165,27 +163,64 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=opplat-main;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
-      - ConnectionStrings__MainConnection=Server=sqlserver,1433;Database=opplat-main;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - ConnectionStrings__DefaultConnection=Host=postgres,5432;Database=opplat-main;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
+      - ConnectionStrings__MainConnection=Host=postgres,5432;Database=opplat-main;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
       - Auth__Authority=${AUTH__AUTHORITY:-http://localhost:${KEYCLOAK_PORT:-8180}/realms/${KEYCLOAK_REALM:-opplat}}
       - Auth__MetadataAddress=${AUTH__METADATA_ADDRESS:-http://keycloak:8180/realms/${KEYCLOAK_REALM:-opplat}/.well-known/openid-configuration}
       - Auth__Audience=${AUTH__AUDIENCE:-opplat-api}
       - Auth__ClientIdClient=${AUTH__CLIENT_ID_CLIENT:-opplat-client}
-      - Auth__ClientIdAdmin=${AUTH__CLIENT_ID_ADMIN:-opplat-admin}
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Id=mojocafe
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Identifier=mojocafe
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Name=MojoCafe
-      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__ConnectionString=Server=sqlserver,1433;Database=opplat-mojocafe;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__ConnectionString=Host=postgres,5432;Database=opplat-mojocafe;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Id=demo
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Identifier=demo
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Name=Demo
-      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__ConnectionString=Server=sqlserver,1433;Database=opplat-demo;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__ConnectionString=Host=postgres,5432;Database=opplat-demo;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Id=test
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Identifier=test
       - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Name=Test
-      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__ConnectionString=Server=sqlserver,1433;Database=opplat-test;User Id=sa;Password=${SA_PASSWORD:-Admin123*};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__ConnectionString=Host=postgres,5432;Database=opplat-test;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin123*}
       - Documentation__Title=Opplat Inventory Service
       - Documentation__Description=Inventory microservice API
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bash -lc \"exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /health HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q 'HTTP/1.1 200'\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - opplat-network
+
+  admin-api:
+    build:
+      context: .
+      dockerfile: src/Opplat.AdminApi/Dockerfile
+    container_name: opplat-admin-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "${ADMIN_API_PORT:-8084}:8080"
+    expose:
+      - "8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB:-opplat_admin};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Admin123*}
+      - ConnectionStrings__AdminConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB:-opplat_admin};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Admin123*}
+      - Auth__Authority=${AUTH__AUTHORITY:-http://localhost:${KEYCLOAK_PORT:-8180}/realms/${KEYCLOAK_REALM:-opplat}}
+      - Auth__MetadataAddress=${AUTH__METADATA_ADDRESS:-http://keycloak:8180/realms/${KEYCLOAK_REALM:-opplat}/.well-known/openid-configuration}
+      - Auth__Audience=${AUTH__AUDIENCE:-opplat-api}
+      - Auth__ClientIdClient=${AUTH__CLIENT_ID_CLIENT:-opplat-client}
+      - Documentation__Title=Opplat Admin Service
+      - Documentation__Description=Admin microservice API
     healthcheck:
       test:
         [
@@ -213,6 +248,8 @@ services:
         condition: service_healthy
       inventory-api:
         condition: service_healthy
+      admin-api:
+        condition: service_healthy
     ports:
       - "${FRONTEND_PORT:-3100}:80"
     environment:
@@ -233,23 +270,17 @@ services:
       dockerfile: Dockerfile
     container_name: opplat-admin-frontend
     depends_on:
-      keycloak:
-        condition: service_healthy
-      api:
+      admin-api:
         condition: service_healthy
     ports:
       - "${ADMIN_FRONTEND_PORT:-3101}:80"
     environment:
-      - VITE_API_URL=${VITE_API_URL:-http://localhost:${API_PORT:-8080}}
-      - VITE_AUTH_AUTHORITY=${VITE_ADMIN_AUTH_AUTHORITY:-http://localhost:${KEYCLOAK_PORT:-8180}/realms/${KEYCLOAK_REALM:-opplat}}
-      - VITE_AUTH_CLIENT_ID=${VITE_ADMIN_AUTH_CLIENT_ID:-opplat-admin}
-      - VITE_AUTH_AUDIENCE=${VITE_ADMIN_AUTH_AUDIENCE:-opplat-api}
-      - VITE_AUTH_SCOPE=${VITE_ADMIN_AUTH_SCOPE:-openid profile email offline_access}
+      - VITE_ADMIN_API_URL=${VITE_ADMIN_API_URL:-}
     networks:
       - opplat-network
 
 volumes:
-  sqlserver_data:
+  postgres_data:
     driver: local
 
 networks:

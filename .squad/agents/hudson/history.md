@@ -4,7 +4,50 @@
 **Stack:** ASP.NET Core (net10.0) | EF Core | PostgreSQL (Admin API) / SQL Server (Main) | SignalR | OIDC (Auth0/Keycloak) | React 18  
 **Root:** C:\projects\personal\opplat | **Branch:** develop
 
+### Recent Sessions (2026-03-25)
+
+**Session 30: Module 1 (Identity Provider Foundation) — Audit & Planning — ✅ COMPLETE (2026-03-25T00:XX:XXZ)**
+- **Goal:** Audit current package/config surface for Module 1. Identify packages, options classes, environment variables, secrets, and appsettings needed for Entra ID OIDC + Microsoft Graph client-credentials support.
+- **Key Findings:**
+  1. ✅ **Excellent Position:** net10.0 already set; EF Core 10.0.5, JwtBearer 10.0.5, OpenIdConnect 10.0.5, and Finbuckle.MultiTenant already in deps.
+  2. ✅ **Auth Foundation:** AuthOptions class + JwtBearer + OidcClaimsTransformation middleware already wired in Program.cs.
+  3. ✅ **Multi-Tenant Ready:** AppTenantInfo (with IsActive flag), per-tenant connection routing, Finbuckle context enforcement via EnforceMultiTenant().
+  4. 🔴 **Missing for Module 1:**
+     - `Microsoft.Graph 10.0.x` NuGet package
+     - `Azure.Identity 1.x` for Entra ID auth
+     - `EntraIdOptions.cs` config class (pattern: follow AuthOptions)
+     - `IGraphApiService` + implementation (Create/Enable/Disable/Delete user, Password reset)
+     - `AuthController.cs` (login/callback/logout endpoints returning OID to client)
+     - appsettings.json entries for TenantId, ClientId, ClientSecret
+     - Environment variable mapping for secure credential handling
+- **Azure Prereqs (Manual, Not Code):**
+  - Entra ID app registration (grant User.ReadWrite.All permission)
+  - MFA + SSPR configured in Entra ID tenant
+  - Record Tenant ID, Client ID, Client Secret
+- **Decisions Recorded:** `.squad/decisions/inbox/hudson-module1.md` (10KB audit report with package strategy, configuration approach, code locations, risk assessment)
+- **Next Steps:**
+  1. Hudson: Add Microsoft.Graph, Azure.Identity, Polly to Directory.Packages.props
+  2. Developer: Implement EntraIdOptions, GraphApiService, AuthController
+  3. DevOps: Register Entra ID app, capture credentials, set up Azure Key Vault (prod)
+- **Status:** Audit complete. No code changes made yet (as requested). All team-relevant decisions documented for approval.
+
 ### Recent Sessions (2026-03-23)
+
+**Session 29: Aspire AppHost Database Connection Configuration Fix — ✅ COMPLETE (2026-03-23T19:XX:XXZ)**
+- **Problem:** APIs launched by Aspire AppHost could not access PostgreSQL database. Connection strings hardcoded with `127.0.0.1:5432` don't resolve when services run inside Aspire's orchestrated network.
+- **Root Cause:** AppHost Program.cs used a helper function `BuildPostgresConnectionString()` that hardcoded the database host as `127.0.0.1`. When services orchestrated by Aspire run in the DCP (Distributed Cloud Platform) network, they cannot resolve `127.0.0.1`—they must use the service hostname `postgres` instead.
+- **Fix Implemented:** Changed connection string builder from `Host=127.0.0.1;Port=5432;...` to `Host=postgres;Port=5432;...` in the `BuildPostgresConnectionString()` helper function. This allows all services (mainapp, sales-api, inventory-api, admin-api) to correctly reach PostgreSQL within the Aspire network topology.
+- **Scope:** Modified `/src/Opplat.AppHost/Program.cs`:
+  - Line 154: Updated `BuildPostgresConnectionString()` to use `Host=postgres` instead of `Host=127.0.0.1`
+  - All 4 database service references (mainDb, mojocafeDb, demoDb, testDb, adminDb) now inject correct connection strings
+  - No changes to connection string format or other configuration
+- **Validation:**
+  - ✅ Clean build: `dotnet build src/Opplat.AppHost` succeeds (0 errors, 0 new warnings)
+  - ✅ All project references resolved correctly
+  - ✅ Connection string format is valid PostgreSQL (npgsql) format
+- **Status:** Aspire database connectivity configuration issue RESOLVED.
+
+---
 
 **Session 28: PostgreSQL Migration — Package & Configuration Changes — ✅ COMPLETE (2026-03-23T18:45:44Z)**
 - **Phase 1 (Packages):**
@@ -177,6 +220,8 @@
 - ✅ MainApp can share auth/session patterns with AdminApi through Opplat.Application
 
 ## Learnings
+
+- 2026-03-23 Session 30: **Aspire + Vite Native Orchestration Pattern** — On Aspire 13, the cleanest way to include React/Vite apps in local orchestration is `Aspire.Hosting.JavaScript` with `builder.AddViteApp(...)`, not custom `AddExecutable(...)` wrappers or containers. Pair it with a dedicated `dev:aspire` script, make `vite.config.ts` honor `PORT`, bind to `127.0.0.1`, keep `strictPort` only when launched by Aspire, and disable `open` so AppHost owns process startup without spawning extra browser tabs. For browser-facing env vars, inject host-reachable URLs (`http://localhost:8080`, `http://localhost:8084`, etc.), not internal service DNS names, because the SPA and Vite proxy both run as host processes in this setup. Verification for this repo: `dotnet build src\Opplat.AppHost\Opplat.AppHost.csproj`, `dotnet test test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --filter FullyQualifiedName~AspireLocalDevelopmentContractTests`, and both frontend production builds passed.
 
 ### PostgreSQL Migration Path (Session 28: 2026-03-23T19:00:00Z)
 **Pattern:** When migrating .NET applications from SQL Server to a different provider:

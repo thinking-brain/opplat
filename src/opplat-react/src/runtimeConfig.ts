@@ -46,10 +46,10 @@ const defaultUseAudienceQueryParam = authAudience.length > 0 && !isKeycloakAutho
 
 export const appConfig = {
   appName: readConfig('VITE_APP_NAME', 'Opplat Client'),
-  apiUrl: readConfig('VITE_API_URL', 'http://localhost:5000'),
-  authApiUrl: readConfig('VITE_AUTH_API_URL', readConfig('VITE_API_URL', 'http://localhost:5000')),
-  salesApiUrl: readConfig('VITE_SALES_API_URL', readConfig('VITE_API_URL', 'http://localhost:5000')),
-  inventoryApiUrl: readConfig('VITE_INVENTORY_API_URL', readConfig('VITE_API_URL', 'http://localhost:5000')),
+  apiUrl: readConfig('VITE_API_URL', 'http://localhost:8080'),
+  authApiUrl: readConfig('VITE_AUTH_API_URL', readConfig('VITE_API_URL', 'http://localhost:8080')),
+  salesApiUrl: readConfig('VITE_SALES_API_URL', readConfig('VITE_API_URL', 'http://localhost:8080')),
+  inventoryApiUrl: readConfig('VITE_INVENTORY_API_URL', readConfig('VITE_API_URL', 'http://localhost:8080')),
   authAuthority,
   authClientId: readConfig('VITE_AUTH_CLIENT_ID', 'opplat-client'),
   authAudience,

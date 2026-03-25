@@ -1,19 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Finbuckle.MultiTenant.EntityFrameworkCore" Version="7.0.1" />
+    <PackageReference Include="Finbuckle.MultiTenant.EntityFrameworkCore" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Opplat.Microservices.Shared\Opplat.Microservices.Shared.csproj" />
+    <ProjectReference Include="..\..\..\Opplat.Application\Opplat.Application.csproj" />
     <ProjectReference Include="..\..\..\Modules\Inventory\Domain\Opplat.Modules.Inventory.Domain.csproj" />
-    <ProjectReference Include="..\..\..\Modules\Inventory\Infrastructure\Opplat.Modules.Inventory.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -12,7 +12,8 @@ public class ModuleFileManager
 
     public void UnZipModule(string file, string moduleName)
     {
-        var path = Path.Combine(_configuration.GetValue<string>("ModulesDirectory"), moduleName);
+        var modulesDir = _configuration.GetValue<string>("ModulesDirectory") ?? throw new InvalidOperationException("ModulesDirectory configuration not found");
+        var path = Path.Combine(modulesDir, moduleName);
         var directory = new DirectoryInfo(path);
         if (!directory.Exists)
         {

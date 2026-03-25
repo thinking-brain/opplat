@@ -30,10 +30,8 @@ services:
       - ./src/opplat-admin:/app
       - /app/node_modules
     ports:
-      - "3201:3001"
+      - "3201:3201"
     environment:
-      - VITE_API_URL=http://localhost:8080
-      - VITE_AUTH_AUTHORITY=http://localhost:8180/realms/opplat
-      - VITE_AUTH_CLIENT_ID=opplat-admin
-      - VITE_AUTH_AUDIENCE=opplat-api
-      - VITE_AUTH_SCOPE=openid profile email offline_access
+      - VITE_DEV_PROXY_TARGET=http://admin-api:8080
+      - VITE_ADMIN_API_URL=http://localhost:8084
+

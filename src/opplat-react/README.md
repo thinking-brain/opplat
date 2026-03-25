@@ -35,7 +35,10 @@ npm install
 npm run dev
 ```
 
-The Vite server runs on `http://localhost:3000`.
+The Vite server runs on `http://localhost:3200`.
+
+When Aspire launches this SPA, it uses the `dev:aspire` script on the same port and injects the
+local API/Auth endpoints automatically.
 
 ## Docker runtime config
 

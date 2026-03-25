@@ -1,3 +1,6 @@
+// ProductsController has been replaced by Endpoints/SalesEndpoints.cs (Minimal API + MediatR).
+// This file is kept for reference only and is not mapped by the host.
+
 using Microsoft.AspNetCore.Mvc;
 using Opplat.Modules.Sales.Domain.Entities;
 using Opplat.Modules.Sales.Domain.Services;
@@ -7,13 +10,13 @@ using Opplat.Shared.Services;
 namespace Opplat.Services.Sales.Api.Controllers;
 
 // [Authorize]
-[Area("sales")]
-[Route("[area]/[controller]/")]
-public class ProductsController : ControllerBase
+// [Area("sales")]
+// [Route("[area]/[controller]/")]
+public class ProductsController_Archived : ControllerBase
 {
     private readonly IProductService _prodService;
 
-    public ProductsController(IProductService prodService)
+    public ProductsController_Archived(IProductService prodService)
     {
         _prodService = prodService;
     }

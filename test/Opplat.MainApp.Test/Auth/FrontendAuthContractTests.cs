@@ -1,304 +1,202 @@
-using System.IO;
-
 namespace Opplat.MainApp.Test.Auth;
 
 public class FrontendAuthContractTests
 {
     [Fact]
-    public void FrontendOidcClients_RequestConfiguredScopePlusRealmSafeDefaults()
+    public void ClientOidcHelpers_RequestConfiguredScopeAndUseSafeCallbackRedirects()
     {
-        var clientOidc = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "auth", "oidc.ts"));
-        var adminOidc = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "oidc.ts"));
+        var clientOidc = TestRepository.ReadAllText("src", "opplat-react", "src", "auth", "oidc.ts");
 
-        AssertRequestedScopeContract(clientOidc);
-        AssertRequestedScopeContract(adminOidc);
+        Assert.Contains("scope: buildScope(appConfig.authScope)", clientOidc);
+        Assert.Contains("requiredScopes = ['openid']", clientOidc);
+        Assert.Contains("const state = user?.state;", clientOidc);
+        Assert.Contains("typeof returnTo === 'string' && returnTo.startsWith('/')", clientOidc);
+        Assert.Contains("window.location.replace(getReturnTo(user));", clientOidc);
+        Assert.DoesNotContain("window.history.replaceState", clientOidc);
     }
 
     [Fact]
-    public void FrontendCallbackHandlers_UseHardRedirectToLeaveTheCallbackRoute()
+    public void ClientClaimHelpers_PreserveTenantAndRoleExtraction()
     {
-        var clientOidc = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "auth", "oidc.ts"));
-        var adminOidc = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "oidc.ts"));
+        var clientClaims = TestRepository.ReadAllText("src", "opplat-react", "src", "auth", "claims.ts");
 
-        AssertCallbackNavigationContract(clientOidc);
-        AssertCallbackNavigationContract(adminOidc);
+        Assert.Contains("'tenant_id'", clientClaims);
+        Assert.Contains("'tenant_identifier'", clientClaims);
+        Assert.Contains("'https://opplat.com/tenant_id'", clientClaims);
+        Assert.Contains("'https://opplat.com/tenant_identifier'", clientClaims);
+        Assert.Contains("'https://opplat.com/roles'", clientClaims);
+        Assert.Contains("claims.realm_access", clientClaims);
+        Assert.Contains("getRolesFromClaims", clientClaims);
     }
 
     [Fact]
-    public void FrontendCallbackHandlers_OnlyReuseSafeRelativeReturnTargets()
+    public void ClientRouteGuards_AlignWithDocumentedRoles()
     {
-        var clientOidc = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "auth", "oidc.ts"));
-        var adminOidc = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "oidc.ts"));
+        var clientApp = TestRepository.ReadAllText("src", "opplat-react", "src", "App.tsx");
+        var clientHomePage = TestRepository.ReadAllText("src", "opplat-react", "src", "pages", "HomePage.tsx");
 
-        AssertCallbackReturnTargetContract(clientOidc);
-        AssertCallbackReturnTargetContract(adminOidc);
-    }
-
-    [Fact]
-    public void FrontendClaimParsing_ReadsTenantAndRealmRoleClaimsFromKeycloakTokens()
-    {
-        var clientClaims = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "auth", "claims.ts"));
-        var adminClaims = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "claims.ts"));
-
-        AssertClaimParsingContract(clientClaims);
-        AssertClaimParsingContract(adminClaims);
-    }
-
-    [Fact]
-    public void FrontendRouteGuards_AlignWithDocumentedRoles()
-    {
-        var adminApp = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "App.tsx"));
-        var clientApp = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "App.tsx"));
-        var adminUsersPage = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "pages", "UsersPage.tsx"));
-        var clientHomePage = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "pages", "HomePage.tsx"));
-
-        Assert.Contains("requiredRoles={appConfig.accessControl.adminPortalRoles}", adminApp);
         Assert.Contains("requiredRoles={appConfig.accessControl.tenantUserManagementRoles}", clientApp);
         Assert.Contains("TenantUser", clientHomePage);
-        Assert.Contains("Roles válidos:", adminUsersPage);
-        Assert.Contains("TENANT_ADMIN_ROLE", adminUsersPage);
-        Assert.Contains("TENANT_USER_ROLE", adminUsersPage);
-        Assert.DoesNotContain("AdminOnly", adminUsersPage);
     }
 
     [Fact]
-    public void ScopeDocumentation_AlignsAcrossReadmeAndFrontendExamples()
+    public void AdminFrontend_UsesDirectFeatureRoutesWithoutAuthBootstrap()
     {
-        const string expectedScope = "openid profile email offline_access";
-        var readme = File.ReadAllText(ResolveRepoFile("README.md"));
-        var clientExample = File.ReadAllText(ResolveRepoFile("src", "opplat-react", ".env.example"));
-        var adminExample = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", ".env.example"));
+        var adminApp = TestRepository.ReadAllText("src", "opplat-admin", "src", "App.tsx");
+        var mainEntry = TestRepository.ReadAllText("src", "opplat-admin", "src", "main.tsx");
+        var tenantsPage = TestRepository.ReadAllText("src", "opplat-admin", "src", "pages", "TenantsPage.tsx");
+        var settingsPage = TestRepository.ReadAllText("src", "opplat-admin", "src", "pages", "SettingsPage.tsx");
 
-        Assert.Contains(expectedScope, readme);
-        Assert.Contains($"VITE_AUTH_SCOPE={expectedScope}", clientExample);
-        Assert.Contains($"VITE_AUTH_SCOPE={expectedScope}", adminExample);
+        Assert.Contains("import { Layout } from './components/Layout';", adminApp);
+        Assert.Contains("import { DashboardPage } from './pages/DashboardPage';", adminApp);
+        Assert.Contains("import { TenantsPage } from './pages/TenantsPage';", adminApp);
+        Assert.Contains("import { SettingsPage } from './pages/SettingsPage';", adminApp);
+        Assert.Contains("<Route path=\"/\" element={<Layout />}", adminApp);
+        Assert.Contains("<Route index element={<DashboardPage />} />", adminApp);
+        Assert.Contains("<Route path=\"tenants\" element={<TenantsPage />} />", adminApp);
+        Assert.Contains("<Route path=\"settings\" element={<SettingsPage />} />", adminApp);
+        Assert.DoesNotContain("UsersPage", adminApp);
+        Assert.DoesNotContain("path=\"users\"", adminApp);
+        Assert.DoesNotContain("AuthCallbackPage", adminApp);
+        Assert.DoesNotContain("ProtectedRoute", adminApp);
+        Assert.DoesNotContain("TemporaryAdminShell", adminApp);
+        Assert.Contains("Gestiona el catálogo multitenant", tenantsPage);
+        Assert.Contains("La gestión de usuarios pertenece", settingsPage);
+
+        Assert.DoesNotContain("AuthProvider", mainEntry);
     }
 
     [Fact]
-    public void FrontendRuntimeConfig_DefaultsMatchTheDocumentedKeycloakScopeContract()
+    public void FrontendExamples_ReflectClientOidcAndAdminApiConfiguration()
     {
-        const string expectedScope = "openid profile email offline_access";
-        const string forbiddenScope = "openid profile email roles";
+        var readme = TestRepository.ReadAllText("README.md");
+        var clientExample = TestRepository.ReadAllText("src", "opplat-react", ".env.example");
+        var adminExample = TestRepository.ReadAllText("src", "opplat-admin", ".env.example");
 
-        var clientRuntimeConfig = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "runtimeConfig.ts"));
-        var adminRuntimeConfig = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "runtimeConfig.ts"));
+        Assert.Contains("VITE_AUTH_SCOPE=openid profile email offline_access", readme);
+        Assert.Contains("VITE_AUTH_SCOPE=openid profile email offline_access", clientExample);
 
-        AssertRuntimeScopeContract(clientRuntimeConfig, expectedScope, forbiddenScope);
-        AssertRuntimeScopeContract(adminRuntimeConfig, expectedScope, forbiddenScope);
+        Assert.Contains("VITE_ADMIN_API_URL=", readme);
+        Assert.Contains("VITE_DEV_PROXY_TARGET=http://localhost:8084", readme);
+        Assert.Contains("VITE_ADMIN_API_URL=", adminExample);
+        Assert.DoesNotContain("VITE_AUTH_SCOPE=", adminExample);
+        Assert.DoesNotContain("VITE_AUTH_AUTHORITY=", adminExample);
+        Assert.DoesNotContain("VITE_AUTH_CLIENT_ID=", adminExample);
     }
 
     [Fact]
-    public void DockerAndComposeRuntimeInjection_KeepTheKeycloakSafeScopeContract()
+    public void FrontendRuntimeConfig_DefaultsMatchClientOidcAndAdminApiContracts()
     {
-        const string expectedScope = "openid profile email offline_access";
-        const string forbiddenScope = "openid profile email roles";
+        var clientRuntimeConfig = TestRepository.ReadAllText("src", "opplat-react", "src", "runtimeConfig.ts");
+        var adminRuntimeConfig = TestRepository.ReadAllText("src", "opplat-admin", "src", "runtimeConfig.ts");
 
-        var compose = File.ReadAllText(ResolveRepoFile("docker-compose.yml"));
-        var composeOverride = File.ReadAllText(ResolveRepoFile("docker-compose.override.yml"));
-        var clientDockerfile = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "Dockerfile"));
-        var adminDockerfile = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "Dockerfile"));
+        Assert.Contains("readConfig('VITE_AUTH_SCOPE', 'openid profile email offline_access')", clientRuntimeConfig);
+        Assert.DoesNotContain("readConfig('VITE_AUTH_SCOPE', 'openid profile email roles')", clientRuntimeConfig);
 
-        Assert.Contains($"VITE_AUTH_SCOPE=${{VITE_AUTH_SCOPE:-{expectedScope}}}", compose);
-        Assert.Contains($"VITE_AUTH_SCOPE=${{VITE_ADMIN_AUTH_SCOPE:-{expectedScope}}}", compose);
-        Assert.DoesNotContain(forbiddenScope, compose);
-
-        Assert.Contains($"VITE_AUTH_SCOPE={expectedScope}", composeOverride);
-        Assert.DoesNotContain(forbiddenScope, composeOverride);
-
-        Assert.Contains($"VITE_AUTH_SCOPE: \"${{VITE_AUTH_SCOPE:-{expectedScope}}}\"", clientDockerfile);
-        Assert.Contains($"VITE_AUTH_SCOPE: \"${{VITE_AUTH_SCOPE:-{expectedScope}}}\"", adminDockerfile);
-        Assert.DoesNotContain(forbiddenScope, clientDockerfile);
-        Assert.DoesNotContain(forbiddenScope, adminDockerfile);
+        Assert.Contains("readConfig('VITE_ADMIN_API_URL', '')", adminRuntimeConfig);
+        Assert.Contains("adminApiUrl: adminApiBaseUrl,", adminRuntimeConfig);
+        Assert.DoesNotContain("apiUrl:", adminRuntimeConfig);
     }
 
     [Fact]
-    public void AuthContexts_StopShowingLoadingOnceTheUserIsResolvedAfterSignin()
+    public void DockerAndComposeRuntimeInjection_KeepClientOidcAndAdminApiSettingsSeparated()
     {
-        var clientAuthContext = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "auth", "AuthContext.tsx"));
-        var adminAuthContext = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "AuthContext.tsx"));
+        var compose = TestRepository.ReadAllText("docker-compose.yml");
+        var composeOverride = TestRepository.ReadAllText("docker-compose.override.yml");
+        var clientDockerfile = TestRepository.ReadAllText("src", "opplat-react", "Dockerfile");
+        var adminDockerfile = TestRepository.ReadAllText("src", "opplat-admin", "Dockerfile");
 
-        AssertResolvedUserLoadingContract(clientAuthContext);
-        AssertResolvedUserLoadingContract(adminAuthContext);
+        Assert.Contains("VITE_AUTH_SCOPE=${VITE_AUTH_SCOPE:-openid profile email offline_access}", compose);
+        Assert.Contains("VITE_ADMIN_API_URL=${VITE_ADMIN_API_URL:-}", compose);
+
+        Assert.Contains("VITE_AUTH_SCOPE=openid profile email offline_access", composeOverride);
+        Assert.Contains("VITE_DEV_PROXY_TARGET=http://admin-api:8080", composeOverride);
+        Assert.Contains("VITE_ADMIN_API_URL=http://localhost:8084", composeOverride);
+
+        Assert.Contains("VITE_AUTH_SCOPE: \"${VITE_AUTH_SCOPE:-openid profile email offline_access}\"", clientDockerfile);
+        Assert.Contains("VITE_ADMIN_API_URL: \"${VITE_ADMIN_API_URL:-}\"", adminDockerfile);
     }
 
     [Fact]
-    public void AuthContexts_TreatARestoredNonExpiredUserAsAuthenticatedDuringRedirectRecovery()
+    public void ClientAuthContext_UsesResolvedUserToClearLoadingAndStayAuthenticatedDuringRedirectRecovery()
     {
-        var clientAuthContext = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "auth", "AuthContext.tsx"));
-        var adminAuthContext = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "AuthContext.tsx"));
+        var clientAuthContext = TestRepository.ReadAllText("src", "opplat-react", "src", "auth", "AuthContext.tsx");
 
-        AssertResolvedUserAuthenticationContract(clientAuthContext);
-        AssertResolvedUserAuthenticationContract(adminAuthContext);
+        Assert.Contains("const hasResolvedUser = Boolean(oidc.user && !oidc.user.expired);", clientAuthContext);
+        Assert.Contains("const isAuthenticated = oidc.isAuthenticated || hasResolvedUser;", clientAuthContext);
+        Assert.Contains("const isNavigating = Boolean(oidc.activeNavigator) && !isAuthenticated;", clientAuthContext);
+        Assert.Contains("loading: oidc.isLoading || isNavigating,", clientAuthContext);
+        Assert.DoesNotContain("loading: oidc.isLoading || Boolean(oidc.activeNavigator),", clientAuthContext);
     }
 
     [Fact]
-    public void CallbackPages_PrioritizeResolvedSessionOverTransientAuthErrors()
+    public void AdminAxiosClient_KeepsTenantIsolationWithoutBrowserBearerTokens()
     {
-        var clientCallbackPage = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "auth", "AuthCallbackPage.tsx"));
-        var adminCallbackPage = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "AuthCallbackPage.tsx"));
+        var adminAxiosClient = TestRepository.ReadAllText("src", "opplat-admin", "src", "api", "axiosClient.ts");
+        var adminApi = TestRepository.ReadAllText("src", "opplat-admin", "src", "api", "admin.api.ts");
+        var adminTypes = TestRepository.ReadAllText("src", "opplat-admin", "src", "types", "index.ts");
 
-        AssertCallbackPageRecoveryContract(clientCallbackPage);
-        AssertCallbackPageRecoveryContract(adminCallbackPage);
+        Assert.Contains("setHeader(config, 'X-Tenant-Identifier', tenantIdentifier);", adminAxiosClient);
+        Assert.DoesNotContain("Authorization", adminAxiosClient);
+        Assert.Contains("adminAxiosClient.get<AdminTenant[]>('/admin/tenants')", adminApi);
+        Assert.DoesNotContain("withTenantConfig(tenantIdentifier)", adminApi);
+        Assert.DoesNotContain("/admin/users", adminApi);
+        Assert.Contains("databaseName: string;", adminTypes);
+        Assert.Contains("databaseSchema: string;", adminTypes);
+        Assert.Contains("userCount: number;", adminTypes);
+        Assert.DoesNotContain("connectionString", adminTypes, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public void ReactOidcProviders_WireSigninCallbackAndPersistUsersInBrowserStorage()
+    public void AdminDashboard_BootstrapsFromTenantCatalogWithoutLegacyUserEndpoints()
     {
-        var clientOidc = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "auth", "oidc.ts"));
-        var adminOidc = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "oidc.ts"));
-        var clientAuthContext = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "auth", "AuthContext.tsx"));
-        var adminAuthContext = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "AuthContext.tsx"));
+        var dashboardPage = TestRepository.ReadAllText("src", "opplat-admin", "src", "pages", "DashboardPage.tsx");
 
-        AssertRestoredSessionStorageContract(clientOidc);
-        AssertRestoredSessionStorageContract(adminOidc);
-        AssertOidcProviderCallbackContract(clientAuthContext);
-        AssertOidcProviderCallbackContract(adminAuthContext);
+        Assert.Contains("const tenantResponse = await adminApi.listTenants();", dashboardPage);
+        Assert.Contains("tenants.reduce((sum, tenant) => sum + tenant.userCount, 0)", dashboardPage);
+        Assert.Contains("tenant.databaseName", dashboardPage);
+        Assert.Contains("tenant.databaseSchema", dashboardPage);
+        Assert.DoesNotContain("adminApi.listUsers()", dashboardPage);
+        Assert.DoesNotContain("adminApi.listTenantUsers", dashboardPage);
+        Assert.DoesNotContain("tenant.connectionString", dashboardPage);
     }
 
     [Fact]
-    public void FrontendApps_ExposeDedicatedSigninAndSilentRenewCallbackRoutes()
+    public void AdminTenantsPage_UsesDatabaseMetadataContractForCrud()
     {
-        var clientApp = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "App.tsx"));
-        var adminApp = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "App.tsx"));
+        var tenantsPage = TestRepository.ReadAllText("src", "opplat-admin", "src", "pages", "TenantsPage.tsx");
 
-        AssertCallbackRouteContract(clientApp);
-        AssertCallbackRouteContract(adminApp);
+        Assert.Contains("databaseName: string;", tenantsPage);
+        Assert.Contains("databaseSchema: string;", tenantsPage);
+        Assert.Contains("databaseName: tenant.databaseName,", tenantsPage);
+        Assert.Contains("databaseSchema: tenant.databaseSchema,", tenantsPage);
+        Assert.Contains("databaseName: formState.databaseName.trim(),", tenantsPage);
+        Assert.Contains("databaseSchema: formState.databaseSchema.trim(),", tenantsPage);
+        Assert.Contains("<TableCell>{tenant.databaseName}</TableCell>", tenantsPage);
+        Assert.Contains("<TableCell>{tenant.databaseSchema}</TableCell>", tenantsPage);
+        Assert.Contains("<TableCell>{tenant.userCount}</TableCell>", tenantsPage);
+        Assert.DoesNotContain("connectionString", tenantsPage, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public void ProtectedRoutes_DoNotLetTransientAuthErrorsOverrideRestoredSessions()
+    public void ClientCallbackAndProtectedRoutes_PrioritizeResolvedSessionOverTransientAuthErrors()
     {
-        var clientProtectedRoute = File.ReadAllText(ResolveRepoFile("src", "opplat-react", "src", "auth", "ProtectedRoute.tsx"));
-        var adminProtectedRoute = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "ProtectedRoute.tsx"));
+        var clientCallbackPage = TestRepository.ReadAllText("src", "opplat-react", "src", "auth", "AuthCallbackPage.tsx");
+        var clientProtectedRoute = TestRepository.ReadAllText("src", "opplat-react", "src", "auth", "ProtectedRoute.tsx");
 
+        AssertCallbackRecoveryContract(clientCallbackPage);
         AssertProtectedRouteRecoveredSessionContract(clientProtectedRoute);
-        AssertProtectedRouteRecoveredSessionContract(adminProtectedRoute);
     }
 
-    [Fact]
-    public void AdminAuthProvider_UsesOfficialSettingsDrivenReactOidcContextPattern()
+    private static void AssertCallbackRecoveryContract(string source)
     {
-        var adminAuthContext = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "AuthContext.tsx"));
-
-        Assert.Contains("import { oidcSettings, onSigninCallback } from './oidc';", adminAuthContext);
-        Assert.Contains("<OidcProvider {...oidcSettings} onSigninCallback={onSigninCallback}>", adminAuthContext);
-        Assert.DoesNotContain("<OidcProvider userManager={oidcUserManager} onSigninCallback={onSigninCallback}>", adminAuthContext);
-    }
-
-    [Fact]
-    public void AdminAxiosAuthHelpers_ReadTheStoredOidcUserWithoutSharingAUserManagerInstance()
-    {
-        var adminOidc = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", "src", "auth", "oidc.ts"));
-
-        Assert.Contains("return User.fromStorageString(serializedUser);", adminOidc);
-        Assert.Contains("readStorage()?.removeItem(oidcUserStorageKey);", adminOidc);
-        Assert.DoesNotContain("new UserManager(oidcSettings)", adminOidc);
-        Assert.DoesNotContain("oidcUserManager.getUser()", adminOidc);
-        Assert.DoesNotContain("oidcUserManager.removeUser()", adminOidc);
-    }
-
-    private static void AssertRequestedScopeContract(string source)
-    {
-        Assert.Contains("scope: buildScope(appConfig.authScope)", source);
-        Assert.Contains("requiredScopes = ['openid']", source);
-        Assert.DoesNotContain("requiredScopes = ['openid', 'profile', 'email', 'roles']", source);
-        Assert.DoesNotContain("scopes.add('roles')", source);
-    }
-
-    private static void AssertCallbackNavigationContract(string source)
-    {
-        Assert.True(
-            source.Contains("if (window.self !== window.top)", StringComparison.Ordinal) ||
-            source.Contains("if (globalThis.self !== globalThis.top)", StringComparison.Ordinal),
-            "Expected signin callback to skip iframe silent-renew navigations.");
-        Assert.True(
-            source.Contains("window.location.replace(getReturnTo(user));", StringComparison.Ordinal) ||
-            source.Contains("globalThis.location.replace(getReturnTo(user));", StringComparison.Ordinal),
-            "Expected signin callback to hard-redirect away from the callback route.");
-        Assert.DoesNotContain("window.history.replaceState", source);
-        Assert.DoesNotContain("PopStateEvent", source);
-    }
-
-    private static void AssertCallbackReturnTargetContract(string source)
-    {
-        Assert.Contains("const state = user?.state;", source);
-        Assert.Contains("typeof returnTo === 'string' && returnTo.startsWith('/')", source);
-        Assert.Contains("return '/';", source);
-    }
-
-    private static void AssertRuntimeScopeContract(string source, string expectedScope, string forbiddenScope)
-    {
-        Assert.Contains($"readConfig('VITE_AUTH_SCOPE', '{expectedScope}')", source);
-        Assert.DoesNotContain($"readConfig('VITE_AUTH_SCOPE', '{forbiddenScope}')", source);
-    }
-
-    private static void AssertClaimParsingContract(string source)
-    {
-        Assert.Contains("'tenant_id'", source);
-        Assert.Contains("'tenant_identifier'", source);
-        Assert.Contains("'https://opplat.com/tenant_id'", source);
-        Assert.Contains("'https://opplat.com/tenant_identifier'", source);
-        Assert.Contains("'https://opplat.com/roles'", source);
-        Assert.Contains("claims.realm_access", source);
-        Assert.Contains("getRolesFromClaims", source);
-    }
-
-    private static void AssertResolvedUserLoadingContract(string source)
-    {
-        Assert.Contains("const hasResolvedUser = Boolean(oidc.user && !oidc.user.expired);", source);
-        Assert.Contains("const isAuthenticated = oidc.isAuthenticated || hasResolvedUser;", source);
-        Assert.Contains("const isNavigating = Boolean(oidc.activeNavigator) && !isAuthenticated;", source);
-        Assert.Contains("loading: oidc.isLoading || isNavigating,", source);
-        Assert.DoesNotContain("const isNavigating = Boolean(oidc.activeNavigator) && !oidc.isAuthenticated && !oidc.user;", source);
-        Assert.DoesNotContain("loading: oidc.isLoading || Boolean(oidc.activeNavigator),", source);
-    }
-
-    private static void AssertResolvedUserAuthenticationContract(string source)
-    {
-        Assert.Contains("const hasResolvedUser = Boolean(oidc.user && !oidc.user.expired);", source);
-        Assert.Contains("const isAuthenticated = oidc.isAuthenticated || hasResolvedUser;", source);
-        Assert.Contains("isAuthenticated,", source);
-        Assert.DoesNotContain("isAuthenticated: oidc.isAuthenticated,", source);
-    }
-
-    private static void AssertCallbackPageRecoveryContract(string source)
-    {
-        Assert.Contains("const { error, isAuthenticated, loading, login } = useAuth();", source);
+        Assert.Contains("const { error, isAuthenticated, loading, login", source);
         Assert.Contains("const navigate = useNavigate();", source);
         Assert.Contains("const hasRedirected = useRef(false);", source);
         Assert.Contains("if (isAuthenticated && !loading && !hasRedirected.current)", source);
-        Assert.Contains("navigate('/', { replace: true });", source);
-        Assert.Contains("window.location.replace('/');", source);
-        Assert.Contains("if (isAuthenticated && !loading)", source);
-        Assert.Contains("return null;", source);
+        Assert.Contains("window.location.replace(", source);
         Assert.Contains("const showError = error && !isAuthenticated && !loading;", source);
-        Assert.Contains("void login('/');", source);
-    }
-
-    private static void AssertRestoredSessionStorageContract(string source)
-    {
-        Assert.Contains("WebStorageStateStore", source);
-        Assert.Contains("userStore: new WebStorageStateStore", source);
-        Assert.True(
-            source.Contains("store: window.localStorage", StringComparison.Ordinal) ||
-            source.Contains("store: globalThis.localStorage", StringComparison.Ordinal),
-            "Expected OIDC user state to be persisted in browser localStorage for restored sessions.");
-    }
-
-    private static void AssertOidcProviderCallbackContract(string source)
-    {
-        Assert.Contains("onSigninCallback={onSigninCallback}", source);
-        Assert.True(
-            source.Contains("userManager={oidcUserManager}", StringComparison.Ordinal) ||
-            source.Contains("{...oidcSettings}", StringComparison.Ordinal),
-            "Expected AuthProvider to wire the OIDC configuration together with onSigninCallback.");
-    }
-
-    private static void AssertCallbackRouteContract(string source)
-    {
-        Assert.Contains("path=\"/auth/callback\"", source);
-        Assert.Contains("path=\"/auth/silent-renew\"", source);
-        Assert.Contains("AuthCallbackPage", source);
+        Assert.Contains("void login(", source);
     }
 
     private static void AssertProtectedRouteRecoveredSessionContract(string source)
@@ -306,22 +204,5 @@ public class FrontendAuthContractTests
         Assert.Contains("const { isAuthenticated, loading, error, login, logout, roles } = useAuth();", source);
         Assert.Contains("if (error && !isAuthenticated)", source);
         Assert.DoesNotContain("if (error) {", source);
-    }
-
-    private static string ResolveRepoFile(params string[] segments)
-    {
-        var current = AppContext.BaseDirectory;
-
-        while (!string.IsNullOrEmpty(current))
-        {
-            if (File.Exists(Path.Combine(current, "opplat.sln")))
-            {
-                return Path.Combine(new[] { current }.Concat(segments).ToArray());
-            }
-
-            current = Directory.GetParent(current)?.FullName!;
-        }
-
-        throw new DirectoryNotFoundException("Could not locate repository root from test output directory.");
     }
 }

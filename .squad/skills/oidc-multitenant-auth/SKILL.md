@@ -89,6 +89,9 @@ If the admin BFF accepts multiple local origins, add an explicit `Auth:AdminBff:
 ### Splitting Admin BFF Out of a Shared Host
 When a dedicated admin API takes ownership of `/admin/session*` and `/auth/bff/admin/*`, strip the old shared host back to JwtBearer-only auth. Remove the old `MapAdminEndpoints()` call, cookie/OIDC registration, antiforgery middleware, and any admin-only compose/env wiring from the shared host so only one backend owns the admin contract.
 
+### Entra downstream clients belong with the interactive auth host
+If only one backend already owns `AddOpenIdConnect`, cookie session state, antiforgery, and `/auth/bff/*` login/session/logout endpoints, place Entra-specific confidential-client concerns there too: Graph client registration, OIDC callback/token handoff, and stable `oid` extraction. Keep the other APIs on provider-neutral `AddJwtBearer` validation plus shared claim normalization so Entra-only dependencies do not leak into tenant resource hosts.
+
 ### Dual IdP (Dev/Prod)
 Configure the same `Auth:Authority` env var to point at Keycloak locally and Auth0 in production. The backend doesn't need provider-specific code — OIDC discovery handles it.
 
@@ -393,3 +396,8 @@ This catches the real admin SPA bootstrap seam and prevents fake-auth test hosts
 - Microsoft.AspNetCore.Authentication.JwtBearer OIDC discovery
 - react-oidc-context / oidc-client-ts
 - Keycloak 26.0 realm export/import format
+
+### Entra admin-host provider switch + session token handoff
+When one ASP.NET Core host already owns admin OIDC/BFF flows, make Entra explicit with a small config seam (`Auth:Provider`, `Auth:Entra:*`, derived `ValidIssuers`) instead of replacing the host with provider-specific middleware. Keep `appsettings.json` pointed at Entra placeholders and use `appsettings.Development.json` to override back to local Keycloak.
+
+Expose downstream token handoff through the existing admin session endpoint rather than a new auth controller: normalize a stable `oid` claim, read the saved cookie access token (or bearer header fallback), and return both in the shared session DTO. That keeps browser clients and bearer callers on one contract while the rest of the backend stays bearer-resource only.

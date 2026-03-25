@@ -1,0 +1,21 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Opplat.MainApp\Opplat.MainApp.csproj" />
+    <ProjectReference Include="..\Opplat.AdminApi\Opplat.AdminApi.csproj" />
+    <ProjectReference Include="..\Services\Sales\Opplat.Services.Sales.Api\Opplat.Services.Sales.Api.csproj" />
+    <ProjectReference Include="..\Services\Inventory\Opplat.Services.Inventory.Api\Opplat.Services.Inventory.Api.csproj" />
+  </ItemGroup>
+
+</Project>

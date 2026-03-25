@@ -2,9 +2,9 @@ namespace Opplat.MainApp.Auth;
 
 public static class AuthRoles
 {
-    public const string SuperAdmin = "SuperAdmin";
-    public const string TenantAdmin = "TenantAdmin";
-    public const string TenantUser = "TenantUser";
+    public const string SuperAdmin = Opplat.Application.Abstractions.Auth.AuthRoles.SuperAdmin;
+    public const string TenantAdmin = Opplat.Application.Abstractions.Auth.AuthRoles.TenantAdmin;
+    public const string TenantUser = Opplat.Application.Abstractions.Auth.AuthRoles.TenantUser;
 
-    public static readonly string[] TenantAssignable = [TenantAdmin, TenantUser];
+    public static readonly string[] TenantAssignable = Opplat.Application.Abstractions.Auth.AuthRoles.TenantAssignable;
 }

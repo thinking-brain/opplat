@@ -34,7 +34,7 @@ public class SalesService : BaseService<Sale, string> ,ISalesService
         throw new NotImplementedException();
     }
 
-    public async Task<ServiceResponse<Sale>> Get(string id)
+    public override async Task<ServiceResponse<Sale>> Get(string id)
     {
         var entity = await _repo.Find(new Guid(id));
         var result = new ServiceResponse<Sale>

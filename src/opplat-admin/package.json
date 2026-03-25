@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node ./node_modules/vite/bin/vite.js",
+    "dev:aspire": "node ./node_modules/vite/bin/vite.js --host 127.0.0.1 --strictPort",
     "build": "node ./node_modules/typescript/bin/tsc && node ./node_modules/vite/bin/vite.js build",
     "preview": "node ./node_modules/vite/bin/vite.js preview",
     "lint": "node ./node_modules/typescript/bin/tsc --noEmit"
@@ -15,10 +16,8 @@
     "@mui/icons-material": "^5.16.0",
     "@mui/material": "^5.16.0",
     "axios": "^1.7.0",
-    "oidc-client-ts": "^3.1.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "react-oidc-context": "^3.2.0",
     "react-router-dom": "^6.28.0"
   },
   "devDependencies": {

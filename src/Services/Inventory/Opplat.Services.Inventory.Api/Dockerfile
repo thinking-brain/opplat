@@ -4,6 +4,8 @@ WORKDIR /src
 
 COPY src/Services/Inventory/Opplat.Services.Inventory.Api/Opplat.Services.Inventory.Api.csproj src/Services/Inventory/Opplat.Services.Inventory.Api/
 COPY src/Opplat.Microservices.Shared/Opplat.Microservices.Shared.csproj src/Opplat.Microservices.Shared/
+COPY src/Opplat.Application.Abstractions/Opplat.Application.Abstractions.csproj src/Opplat.Application.Abstractions/
+COPY src/Opplat.Application/Opplat.Application.csproj src/Opplat.Application/
 COPY src/Modules/Inventory/Domain/Opplat.Modules.Inventory.Domain.csproj src/Modules/Inventory/Domain/
 COPY src/Modules/Inventory/Infrastructure/Opplat.Modules.Inventory.Infrastructure.csproj src/Modules/Inventory/Infrastructure/
 COPY src/Opplat.Infrastructure/Opplat.Infrastructure.csproj src/Opplat.Infrastructure/

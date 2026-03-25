@@ -12,8 +12,8 @@ namespace Opplat.MainApp.Dtos
         public Guid ProductId { get; set; }
         public Guid StorageId { get; set; }
         public decimal Quantity { get; set; }
-        public string Unit { get; set; }
+        public string Unit { get; set; } = string.Empty;
         public MovementType Type { get; set; }
-        public string Observations { get; set; }
+        public string Observations { get; set; } = string.Empty;
     }
 }

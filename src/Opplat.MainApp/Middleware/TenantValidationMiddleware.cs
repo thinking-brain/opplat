@@ -16,6 +16,12 @@ public class TenantValidationMiddleware
     public async Task InvokeAsync(HttpContext context, 
         IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
     {
+        if (IsTenantOptionalPath(context.Request.Path))
+        {
+            await _next(context);
+            return;
+        }
+
         var tenantInfo = tenantAccessor.MultiTenantContext?.TenantInfo;
         var claimTenantId = context.User?.FindFirst(AuthClaimTypes.TenantId)?.Value;
         var claimTenantIdentifier = context.User?.FindFirst(AuthClaimTypes.TenantIdentifier)?.Value;
@@ -40,4 +46,10 @@ public class TenantValidationMiddleware
         
         await _next(context);
     }
+
+    private static bool IsTenantOptionalPath(PathString path) =>
+        path.StartsWithSegments("/auth/bff/admin", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/admin/session", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/signin-oidc-admin", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/signout-callback-oidc-admin", StringComparison.OrdinalIgnoreCase);
 }

@@ -14,14 +14,13 @@ import {
 import { PageHeader } from '../components/PageHeader';
 import { StatCard } from '../components/StatCard';
 import { adminApi } from '../api/admin.api';
-import type { AdminTenant, User } from '../types';
+import type { AdminTenant } from '../types';
 
 const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : 'No se pudo cargar el panel de administración.';
 
 export const DashboardPage: React.FC = () => {
   const [tenants, setTenants] = useState<AdminTenant[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,17 +32,13 @@ export const DashboardPage: React.FC = () => {
       setError(null);
 
       try {
-        const [tenantResponse, userResponse] = await Promise.all([
-          adminApi.listTenants(),
-          adminApi.listUsers(),
-        ]);
+        const tenantResponse = await adminApi.listTenants();
 
         if (!mounted) {
           return;
         }
 
         setTenants(tenantResponse);
-        setUsers(userResponse);
       } catch (loadError) {
         if (mounted) {
           setError(getErrorMessage(loadError));
@@ -63,22 +58,13 @@ export const DashboardPage: React.FC = () => {
   }, []);
 
   const activeTenants = useMemo(() => tenants.filter((tenant) => tenant.isActive).length, [tenants]);
-  const activeUsers = useMemo(() => users.filter((user) => user.active).length, [users]);
-  const topTenants = useMemo(() => {
-    const counts = users.reduce<Record<string, number>>((accumulator, user) => {
-      const key = user.tenantIdentifier ?? 'sin-tenant';
-      accumulator[key] = (accumulator[key] ?? 0) + 1;
-      return accumulator;
-    }, {});
-
-    return Object.entries(counts).sort(([, left], [, right]) => right - left).slice(0, 5);
-  }, [users]);
+  const totalUsers = useMemo(() => tenants.reduce((sum, tenant) => sum + tenant.userCount, 0), [tenants]);
 
   return (
     <Stack spacing={3}>
       <PageHeader
         title="Dashboard"
-        subtitle="Resumen de tenants, usuarios y estado operativo del portal administrativo."
+        subtitle="Resumen de tenants, conteo de usuarios y estado operativo del portal administrativo."
       />
       {error ? <Alert severity="error">{error}</Alert> : null}
       <Grid container spacing={2}>
@@ -89,60 +75,35 @@ export const DashboardPage: React.FC = () => {
           <StatCard label="Tenants totales" value={tenants.length} helper="Catalogados en la plataforma" />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard label="Usuarios activos" value={activeUsers} helper="Con acceso habilitado" />
+          <StatCard label="Usuarios totales" value={totalUsers} helper="Por suscripción en todos los tenants" />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard label="Usuarios totales" value={users.length} helper="Visibles desde /admin/users" />
+          <StatCard label="Base de datos" value={tenants.length} helper="Instancias aprovisionadas" />
         </Grid>
       </Grid>
 
       <Grid container spacing={2}>
-        <Grid item xs={12} lg={7}>
+        <Grid item xs={12}>
           <Card variant="outlined" sx={{ height: '100%' }}>
             <CardContent>
               <Stack spacing={2}>
-                <Typography variant="h6">Tenants destacados</Typography>
+                <Typography variant="h6">Catálogo de tenants</Typography>
                 {loading ? (
                   <Typography color="text.secondary">Cargando tenants...</Typography>
                 ) : tenants.length === 0 ? (
                   <Typography color="text.secondary">No hay tenants registrados.</Typography>
                 ) : (
                   <List disablePadding>
-                    {tenants.slice(0, 5).map((tenant) => (
+                    {tenants.slice(0, 10).map((tenant) => (
                       <ListItem key={tenant.identifier} divider>
                         <ListItemText
                           primary={tenant.name}
-                          secondary={`${tenant.identifier} · ${tenant.connectionString}`}
+                          secondary={`${tenant.identifier} · ${tenant.databaseName} (schema: ${tenant.databaseSchema}) · ${tenant.userCount} usuario${tenant.userCount === 1 ? '' : 's'}`}
                         />
                         <Chip
                           label={tenant.isActive ? 'Activo' : 'Inactivo'}
                           color={tenant.isActive ? 'success' : 'default'}
                           variant={tenant.isActive ? 'filled' : 'outlined'}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                )}
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} lg={5}>
-          <Card variant="outlined" sx={{ height: '100%' }}>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="h6">Distribución de usuarios</Typography>
-                {loading ? (
-                  <Typography color="text.secondary">Cargando usuarios...</Typography>
-                ) : topTenants.length === 0 ? (
-                  <Typography color="text.secondary">No hay usuarios disponibles.</Typography>
-                ) : (
-                  <List disablePadding>
-                    {topTenants.map(([tenantIdentifier, count]) => (
-                      <ListItem key={tenantIdentifier} divider>
-                        <ListItemText
-                          primary={tenantIdentifier}
-                          secondary={`${count} usuario${count === 1 ? '' : 's'}`}
                         />
                       </ListItem>
                     ))}

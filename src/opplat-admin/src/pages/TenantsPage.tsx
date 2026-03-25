@@ -34,7 +34,8 @@ interface TenantFormState {
   id: string;
   identifier: string;
   name: string;
-  connectionString: string;
+  databaseName: string;
+  databaseSchema: string;
   isActive: boolean;
 }
 
@@ -42,7 +43,8 @@ const emptyForm: TenantFormState = {
   id: '',
   identifier: '',
   name: '',
-  connectionString: '',
+  databaseName: '',
+  databaseSchema: '',
   isActive: true,
 };
 
@@ -64,8 +66,9 @@ export const TenantsPage: React.FC = () => {
     () =>
       formState.identifier.trim().length > 0 &&
       formState.name.trim().length > 0 &&
-      formState.connectionString.trim().length > 0,
-    [formState.connectionString, formState.identifier, formState.name],
+      formState.databaseName.trim().length > 0 &&
+      formState.databaseSchema.trim().length > 0,
+    [formState.databaseName, formState.databaseSchema, formState.identifier, formState.name],
   );
 
   const loadTenants = async (): Promise<void> => {
@@ -98,7 +101,8 @@ export const TenantsPage: React.FC = () => {
       id: tenant.id,
       identifier: tenant.identifier,
       name: tenant.name,
-      connectionString: tenant.connectionString,
+      databaseName: tenant.databaseName,
+      databaseSchema: tenant.databaseSchema,
       isActive: tenant.isActive,
     });
     setFormError(null);
@@ -126,7 +130,8 @@ export const TenantsPage: React.FC = () => {
         id: formState.id.trim() || undefined,
         identifier: formState.identifier.trim(),
         name: formState.name.trim(),
-        connectionString: formState.connectionString.trim(),
+        databaseName: formState.databaseName.trim(),
+        databaseSchema: formState.databaseSchema.trim(),
         isActive: formState.isActive,
       };
 
@@ -191,7 +196,9 @@ export const TenantsPage: React.FC = () => {
           <TableRow>
             <TableCell>Nombre</TableCell>
             <TableCell>Identifier</TableCell>
-            <TableCell>Connection string</TableCell>
+            <TableCell>Database</TableCell>
+            <TableCell>Schema</TableCell>
+            <TableCell>Usuarios</TableCell>
             <TableCell>Estado</TableCell>
             <TableCell align="right">Acciones</TableCell>
           </TableRow>
@@ -208,11 +215,9 @@ export const TenantsPage: React.FC = () => {
                 </Stack>
               </TableCell>
               <TableCell>{tenant.identifier}</TableCell>
-              <TableCell sx={{ maxWidth: 420 }}>
-                <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
-                  {tenant.connectionString}
-                </Typography>
-              </TableCell>
+              <TableCell>{tenant.databaseName}</TableCell>
+              <TableCell>{tenant.databaseSchema}</TableCell>
+              <TableCell>{tenant.userCount}</TableCell>
               <TableCell>
                 <Chip
                   label={tenant.isActive ? 'Activo' : 'Inactivo'}
@@ -245,7 +250,7 @@ export const TenantsPage: React.FC = () => {
           ))}
           {tenants.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5}>
+              <TableCell colSpan={7}>
                 <Box py={3} textAlign="center">
                   <Typography variant="body2" color="text.secondary">
                     No hay tenants registrados.
@@ -284,12 +289,17 @@ export const TenantsPage: React.FC = () => {
               required
             />
             <TextField
-              label="Connection string"
-              value={formState.connectionString}
-              onChange={handleFormChange('connectionString')}
+              label="Nombre de base de datos"
+              value={formState.databaseName}
+              onChange={handleFormChange('databaseName')}
               fullWidth
-              multiline
-              minRows={2}
+              required
+            />
+            <TextField
+              label="Schema"
+              value={formState.databaseSchema}
+              onChange={handleFormChange('databaseSchema')}
+              fullWidth
               required
             />
             <Stack direction="row" spacing={1} alignItems="center">

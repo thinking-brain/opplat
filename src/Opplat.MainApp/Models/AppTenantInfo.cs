@@ -27,6 +27,16 @@ public class AppTenantInfo : ITenantInfo
     /// Per-tenant connection string (full database isolation)
     /// </summary>
     public string? ConnectionString { get; set; }
+
+    /// <summary>
+    /// PostgreSQL database name when the catalog stores database metadata instead of a full connection string.
+    /// </summary>
+    public string? DatabaseName { get; set; }
+
+    /// <summary>
+    /// Optional PostgreSQL schema used for tenant-scoped objects.
+    /// </summary>
+    public string? DatabaseSchema { get; set; }
     
     /// <summary>
     /// JWT signing key (optional per-tenant override)

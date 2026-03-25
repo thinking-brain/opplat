@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Opplat.Application.Abstractions.Admin;
 using Opplat.MainApp.Dtos;
 
 namespace Opplat.MainApp.Features.Admin;
@@ -80,3 +81,4 @@ public sealed class AdminSetUserActiveRequest
 {
     public bool Active { get; set; }
 }
+

@@ -1,4 +1,3 @@
-using System.IO;
 using System.Text.Json;
 
 namespace Opplat.MainApp.Test.Auth;
@@ -145,7 +144,7 @@ public class KeycloakRealmContractTests
     [Fact]
     public void Readme_DocumentsSeededRolesAndDefaultAdminUser()
     {
-        var readme = File.ReadAllText(ResolveRepoFile("README.md"));
+        var readme = TestRepository.ReadAllText("README.md");
 
         Assert.Contains("SuperAdmin", readme);
         Assert.Contains("TenantAdmin", readme);
@@ -156,13 +155,16 @@ public class KeycloakRealmContractTests
     }
 
     [Fact]
-    public void FrontendExamples_DeclareOidcScopeVariable()
+    public void FrontendExamples_DeclareClientOidcAndAdminApiVariables()
     {
-        var clientExample = File.ReadAllText(ResolveRepoFile("src", "opplat-react", ".env.example"));
-        var adminExample = File.ReadAllText(ResolveRepoFile("src", "opplat-admin", ".env.example"));
+        var clientExample = TestRepository.ReadAllText("src", "opplat-react", ".env.example");
+        var adminExample = TestRepository.ReadAllText("src", "opplat-admin", ".env.example");
 
         Assert.Contains("VITE_AUTH_SCOPE=", clientExample);
-        Assert.Contains("VITE_AUTH_SCOPE=", adminExample);
+        Assert.Contains("VITE_ADMIN_API_URL=", adminExample);
+        Assert.DoesNotContain("VITE_AUTH_SCOPE=", adminExample);
+        Assert.DoesNotContain("VITE_AUTH_AUTHORITY=", adminExample);
+        Assert.DoesNotContain("VITE_AUTH_CLIENT_ID=", adminExample);
     }
 
     private static void AssertSeededUser(
@@ -221,23 +223,6 @@ public class KeycloakRealmContractTests
 
     private static JsonDocument LoadRealmDocument()
     {
-        return JsonDocument.Parse(File.ReadAllText(ResolveRepoFile("docker", "keycloak", "opplat-realm.json")));
-    }
-
-    private static string ResolveRepoFile(params string[] segments)
-    {
-        var current = AppContext.BaseDirectory;
-
-        while (!string.IsNullOrEmpty(current))
-        {
-            if (File.Exists(Path.Combine(current, "opplat.sln")))
-            {
-                return Path.Combine(new[] { current }.Concat(segments).ToArray());
-            }
-
-            current = Directory.GetParent(current)?.FullName!;
-        }
-
-        throw new DirectoryNotFoundException("Could not locate repository root from test output directory.");
+        return JsonDocument.Parse(TestRepository.ReadAllText("docker", "keycloak", "opplat-realm.json"));
     }
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- Common build properties for all Opplat projects -->
+
+  <PropertyGroup>
+    <!-- Common target framework -->
+    <TargetFramework>net10.0</TargetFramework>
+
+    <!-- Code analysis & documentation -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <!-- Implicit usings enabled by default -->
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Nullable annotations -->
+    <Nullable>enable</Nullable>
+
+    <!-- Package Info -->
+    <Authors>Opplat Team</Authors>
+    <Company>Opplat</Company>
+    <Product>Opplat</Product>
+  </PropertyGroup>
+
+</Project>

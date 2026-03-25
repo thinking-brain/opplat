@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using Opplat.Microservices.Shared.Models;
 
 namespace Opplat.Microservices.Shared.Extensions;
@@ -26,12 +27,14 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<TDbContext>((serviceProvider, options) =>
         {
             var tenantAccessor = serviceProvider.GetService<IMultiTenantContextAccessor<AppTenantInfo>>();
-            var connectionString = tenantAccessor?.MultiTenantContext?.TenantInfo?.ConnectionString
-                ?? configuration.GetConnectionString("DefaultConnection")
+            var defaultConnectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? configuration.GetConnectionString("MainConnection")
                 ?? throw new InvalidOperationException("A default or tenant connection string must be configured.");
+            var connectionString = ResolveConnectionString(
+                tenantAccessor?.MultiTenantContext?.TenantInfo,
+                defaultConnectionString);
 
-            options.UseSqlServer(connectionString);
+            options.UseNpgsql(connectionString);
         });
 
         services.AddScoped<DbContext>(serviceProvider => serviceProvider.GetRequiredService<TDbContext>());
@@ -115,13 +118,46 @@ public static class ServiceCollectionExtensions
             });
         });
 
-        services.AddControllers();
-
         return services;
     }
 
     private static Uri? BuildUri(string? value)
     {
         return Uri.TryCreate(value, UriKind.Absolute, out var uri) ? uri : null;
+    }
+
+    private static string ResolveConnectionString(AppTenantInfo? tenantInfo, string defaultConnectionString)
+    {
+        if (!string.IsNullOrWhiteSpace(tenantInfo?.ConnectionString))
+            return NormalizeConnectionString(tenantInfo.ConnectionString!, tenantInfo.DatabaseSchema);
+
+        if (string.IsNullOrWhiteSpace(tenantInfo?.DatabaseName))
+            return NormalizeConnectionString(defaultConnectionString, tenantInfo?.DatabaseSchema);
+
+        var connectionStringBuilder = new NpgsqlConnectionStringBuilder(defaultConnectionString)
+        {
+            Database = tenantInfo.DatabaseName.Trim()
+        };
+
+        if (!string.IsNullOrWhiteSpace(tenantInfo.DatabaseSchema))
+            connectionStringBuilder.SearchPath = tenantInfo.DatabaseSchema.Trim();
+
+        return connectionStringBuilder.ConnectionString;
+    }
+
+    private static string NormalizeConnectionString(string connectionString, string? databaseSchema)
+    {
+        var connectionStringBuilder = new NpgsqlConnectionStringBuilder(connectionString);
+
+        if (connectionStringBuilder.SslMode == SslMode.Prefer)
+            connectionStringBuilder.SslMode = SslMode.Disable;
+
+        if (!string.IsNullOrWhiteSpace(databaseSchema) &&
+            string.IsNullOrWhiteSpace(connectionStringBuilder.SearchPath))
+        {
+            connectionStringBuilder.SearchPath = databaseSchema.Trim();
+        }
+
+        return connectionStringBuilder.ConnectionString;
     }
 }

@@ -4,7 +4,7 @@ Multi-platform business management system for café and restaurant operations. O
 
 ## Tech Stack
 
-- **Backend**: ASP.NET Core net10.0, Entity Framework Core, SQL Server, SignalR, OIDC Bearer Authentication (Auth0/Keycloak), Finbuckle.MultiTenant
+- **Backend**: ASP.NET Core net10.0, Entity Framework Core, PostgreSQL, SignalR, OIDC Bearer auth, dedicated admin BFF/API, Finbuckle.MultiTenant
 - **Frontend**: React 18, Vite, TypeScript, Material-UI (MUI), Axios, React Router 6
 - **Infrastructure**: Docker, Docker Compose, nginx
 
@@ -13,7 +13,7 @@ Multi-platform business management system for café and restaurant operations. O
 - **Docker Desktop** (for Docker Compose quick start)
 - **.NET 10 SDK** (for local backend development)
 - **Node.js 18+** (for local frontend development)
-- **SQL Server** (for local development without Docker)
+- **PostgreSQL** (for local development without Docker)
 
 ## Quick Start with Docker Compose
 
@@ -40,6 +40,42 @@ docker compose up -d
 docker compose ps
 ```
 
+## Quick Start with .NET Aspire
+
+Aspire is the recommended inner-loop setup for local development. It keeps the four .NET backends as normal projects, provisions PostgreSQL and Keycloak as local containers, and now also orchestrates the two Vite apps with their usual dev scripts.
+
+```bash
+# From the repo root
+dotnet run --project .\src\Opplat.AppHost\Opplat.AppHost.csproj
+```
+
+Expected local resources:
+
+- Client app: `http://localhost:3200`
+- Admin app: `http://localhost:3201`
+- Main API: `http://localhost:8080`
+- Sales API: `http://localhost:8083`
+- Inventory API: `http://localhost:8082`
+- Admin API: `http://localhost:8084`
+- Keycloak realm: `http://localhost:8180/realms/opplat`
+- PostgreSQL: `localhost:5432`
+
+If you need to run the SPAs outside Aspire, the same `npm run dev` scripts still work:
+
+```bash
+cd .\src\opplat-react
+npm run dev
+
+cd ..\opplat-admin
+npm run dev
+```
+
+Current local-development limitations:
+
+- Aspire still relies on Docker Desktop for PostgreSQL and Keycloak containers.
+- The AppHost is for local orchestration only; Docker Compose remains the documented production-style topology.
+- The AppHost keeps the Vite apps in development mode; production-style frontend topology still comes from Docker Compose/nginx.
+
 ### Expected Local URLs
 
 When you run `docker compose up` normally, Docker Compose loads both `docker compose.yml` and `docker compose.override.yml`.
@@ -53,7 +89,7 @@ When you run `docker compose up` normally, Docker Compose loads both `docker com
 - Inventory API: `http://localhost:8082`
 - Keycloak realm: `http://localhost:8180/realms/opplat`
 - Keycloak admin console: `http://localhost:8180/admin/`
-- SQL Server: `localhost:1433`
+- PostgreSQL: `localhost:5432`
 
 ### Development Mode with Hot Reload
 
@@ -77,10 +113,11 @@ The override file adds Vite dev servers on `http://localhost:3200` (client) and 
 If your priority is the lowest possible client-facing infrastructure cost, use the current Docker Compose topology on a single host:
 
 - one small VM or container host
-- one shared SQL Server instance
+- one shared PostgreSQL instance
 - no Kubernetes
 - no paid API gateway
-- `Opplat.MainApp` only for auth/admin/license endpoints
+- `Opplat.MainApp` only for shared bearer-auth, license, and menu endpoints
+- dedicated `admin-api` for admin auth/session/BFF endpoints
 - `Sales` and `Inventory` traffic sent directly to their own services
 
 This keeps the microservice split while avoiding extra runtime components that add hosting cost.
@@ -98,9 +135,10 @@ docker compose -f docker compose.yml up -d
 
 ### Backend
 
-The repository now includes three independently runnable ASP.NET Core backends:
+The repository now includes four independently runnable ASP.NET Core backends:
 
 - `src/Opplat.MainApp` - existing monolith / composition root
+- `src/Opplat.AdminApi` - dedicated admin auth/session API host
 - `src/Services/Sales/Opplat.Services.Sales.Api` - Sales microservice host
 - `src/Services/Inventory/Opplat.Services.Inventory.Api` - Inventory microservice host
 
@@ -116,6 +154,9 @@ dotnet run
 For the new service hosts:
 
 ```bash
+cd src/Opplat.AdminApi
+dotnet run
+
 cd src/Services/Sales/Opplat.Services.Sales.Api
 dotnet run
 
@@ -123,7 +164,7 @@ cd src/Services/Inventory/Opplat.Services.Inventory.Api
 dotnet run
 ```
 
-**Note**: Update `appsettings.Development.json` with your local SQL Server connection string. For host-machine development, keep `Auth:Authority` on `http://localhost:8180/realms/opplat`. In Docker Compose, the APIs also validate against that public issuer, but fetch OIDC discovery from the internal Keycloak URL through `Auth__MetadataAddress` so browser redirects and backend token validation stay aligned.
+**Note**: Update `appsettings.Development.json` with your local PostgreSQL connection string. For host-machine development, keep `Auth:Authority` on `http://localhost:8180/realms/opplat`. In Docker Compose, the APIs also validate against that public issuer, but fetch OIDC discovery from the internal Keycloak URL through `Auth__MetadataAddress` so browser redirects and backend token validation stay aligned.
 
 Recommended local auth section:
 
@@ -145,13 +186,13 @@ Recommended local auth section:
 cd src/opplat-react
 npm install
 npm run dev
-# Frontend runs at http://localhost:5173
+# Frontend runs at http://localhost:3200
 ```
 
 Create `src/opplat-react/.env.local` with:
 ```
-VITE_API_URL=http://localhost:5000
-VITE_AUTH_API_URL=http://localhost:5000
+VITE_API_URL=http://localhost:8080
+VITE_AUTH_API_URL=http://localhost:8080
 VITE_SALES_API_URL=http://localhost:8083
 VITE_INVENTORY_API_URL=http://localhost:8082
 VITE_AUTH_AUTHORITY=http://localhost:8180/realms/opplat
@@ -163,16 +204,18 @@ VITE_AUTH_SCOPE=openid profile email offline_access
 
 `VITE_API_URL` remains the shared fallback, but the cheapest microservice setup should point `VITE_AUTH_API_URL`, `VITE_SALES_API_URL`, and `VITE_INVENTORY_API_URL` at the dedicated services.
 
+When you run through Aspire, the AppHost injects these values for both SPAs, so `.env.local` is
+only needed for standalone frontend runs.
+
 Create `src/opplat-admin/.env.local` with:
 ```
-VITE_API_URL=http://localhost:5000
-VITE_ADMIN_API_URL=http://localhost:5000
-VITE_AUTH_AUTHORITY=http://localhost:8180/realms/opplat
-VITE_AUTH_CLIENT_ID=opplat-admin
-VITE_AUTH_AUDIENCE=opplat-api
-VITE_AUTH_USE_AUDIENCE_QUERY_PARAM=false
-VITE_AUTH_SCOPE=openid profile email offline_access
+VITE_ADMIN_API_URL=
+VITE_BFF_BASE_URL=
+VITE_DEV_PROXY_TARGET=http://localhost:8084
 ```
+
+Leave the admin API and BFF base URLs empty when you want the admin SPA to stay same-origin and
+reach the dedicated `admin-api` through Vite/Nginx proxying.
 
 For Azure Entra ID production, keep the same React auth stack and swap configuration only:
 
@@ -202,6 +245,8 @@ opplat/
 │   ├── Opplat.Infrastructure/   # Data access, repositories, services
 │   ├── Opplat.Microservices.Shared/ # Shared hosting primitives for service hosts
 │   ├── Services/
+│   │   ├── Admin/
+│   │   │   └── Opplat.Services.Admin.Api/      # Dedicated admin auth/session API host
 │   │   ├── Sales/
 │   │   │   └── Opplat.Services.Sales.Api/      # Sales microservice host
 │   │   └── Inventory/
@@ -223,8 +268,10 @@ opplat/
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `SA_PASSWORD` | SQL Server SA password | `Admin123*` | Yes |
-| `SQLSERVER_PORT` | Published SQL Server host port | `1433` | No |
+| `POSTGRES_DB` | PostgreSQL bootstrap database name | `opplat_admin` | No |
+| `POSTGRES_USER` | PostgreSQL bootstrap username | `postgres` | No |
+| `POSTGRES_PASSWORD` | PostgreSQL password reused by local services | `Admin123*` | Yes |
+| `POSTGRES_PORT` | Published PostgreSQL host port | `5432` | No |
 | `KEYCLOAK_PORT` | Published Keycloak host port | `8180` | No |
 | `KEYCLOAK_REALM` | Imported realm name used by discovery URLs | `opplat` | No |
 | `KEYCLOAK_ADMIN_USERNAME` | Keycloak bootstrap admin username | `admin` | No |
@@ -245,6 +292,10 @@ opplat/
 | `Auth__AdminRole` | Platform admin realm role required by `/admin` endpoints | `SuperAdmin` | No |
 | `Auth__TenantAdminRole` | Tenant admin realm role required by tenant user-management endpoints | `TenantAdmin` | No |
 | `Auth__TenantUserRole` | Tenant user realm role used by tenant-facing authorization flows | `TenantUser` | No |
+| `Auth__AdminBff__ClientId` | OIDC client used by the admin BFF login flow | `opplat-admin-bff` | For admin BFF |
+| `Auth__AdminBff__ClientSecret` | Optional confidential-client secret for the admin BFF | empty | No |
+| `Auth__AdminBff__AllowedOrigins__*` | Explicit admin SPA origins allowed to send credentialed cookie requests | `http://localhost:3001`, `3101`, `3201`, `5174` | For admin BFF |
+| `Auth__AdminBff__UseAudienceQueryParam` | Adds a non-standard `audience` authorize query parameter for providers that require it | `false` | No |
 | `VITE_AUTH_SCOPE` | SPA scope request sent to Keycloak | `openid` | No |
 
 ## Multi-Tenancy
@@ -258,13 +309,44 @@ Opplat uses **Finbuckle.MultiTenant** for complete tenant isolation with per-ten
 
 ## Authentication
 
-`Opplat.MainApp` now validates bearer tokens through OIDC discovery:
+`Opplat.MainApp` now validates bearer tokens through OIDC discovery, while the dedicated admin API owns the admin cookie/BFF contract:
 
 - **Production / shared environments**: point `Auth__Authority` at Auth0
 - **Local Docker development**: point `Auth__Authority` at Keycloak (included in docker compose.yml)
 - **No local JWT issuance**: Clients must authenticate with the configured identity provider (Auth0 or Keycloak)
 - **Tenant validation**: the API cross-checks `tenant_id` / `tenant_identifier` token claims against Finbuckle route or `X-Tenant-Identifier` resolution
 - **Role validation**: admin and tenant policies are backed by Keycloak realm roles (`SuperAdmin`, `TenantAdmin`, `TenantUser`)
+
+The dedicated `admin-api` exposes the **admin-first BFF session layer** for `opplat-admin`:
+
+- `GET /auth/bff/admin/login?returnUrl=<admin-url>` starts the server-managed OIDC login flow
+- `POST /auth/bff/admin/logout` clears the backend admin session cookie
+- `GET /admin/session/current-user` returns the current authenticated SuperAdmin session payload
+- `GET /admin/session/csrf` issues the antiforgery token required for mutating cookie-authenticated admin requests
+- Admin cookie/session ownership no longer lives in `Opplat.MainApp`
+
+### Admin BFF configuration contract
+
+`Auth:AdminBff` is provider-neutral on purpose and is consumed by the dedicated admin API. Keep Keycloak local and Azure Entra production mostly as config swaps:
+
+```json
+"Auth": {
+  "Authority": "http://localhost:8180/realms/opplat",
+  "Audience": "opplat-api",
+  "AdminBff": {
+    "ClientId": "opplat-admin-bff",
+    "ClientSecret": "",
+    "Scopes": [ "openid", "profile", "email" ],
+    "UsePkce": true,
+    "UseAudienceQueryParam": false,
+    "AllowedOrigins": [ "http://localhost:3201" ]
+  }
+}
+```
+
+- Use `ClientSecret` when the provider expects a confidential web app.
+- Keep `UseAudienceQueryParam=false` for Keycloak and Entra; enable it only for providers such as Auth0 that expect `audience` on the authorize request.
+- `AllowedOrigins` must be an explicit allow-list because credentialed cookie requests cannot use wildcard CORS.
 
 ### Keycloak Role and Claim Mapping
 
@@ -343,21 +425,18 @@ Opplat uses three role levels:
     - Standard end-user functionality
     - Cannot modify permissions or tenant settings
 
-### Frontend OIDC scopes and role gates
+### Frontend auth flows and role gates
 
-Both SPAs use OIDC authorization code flow with PKCE and normalize claims from the returned tokens before routing users into the app.
-
-- **Requested scopes**: the frontends request `openid` by default. Do **not** include `roles` — Keycloak injects realm roles and tenant claims via default client scopes automatically.
+- **Admin SPA (`/opplat-admin`)** now uses a BFF session flow. The browser starts login at `/bff/auth/login`, restores identity from `/bff/auth/session`, and logs out through `/bff/auth/logout`. It no longer stores OIDC tokens or decodes JWT claims in the browser.
+- **Client SPA (`/opplat-react`)** still uses OIDC authorization code flow with PKCE and normalizes claims from the returned tokens before routing users into the app.
 - **Keycloak default client scopes**: the local realm already attaches `roles`, `opplat-tenancy`, and `opplat-api-audience`, so tenant claims and the API audience arrive from Keycloak configuration instead of custom frontend query parameters.
-- **Audience parameter**: the SPA only sends an explicit `audience` query parameter for providers that need it (for example Auth0). Local Keycloak relies on its configured audience mapper instead.
-- **Role parsing**: frontend claim parsing reads both the ID token and access token, including `realm_access.roles`, `resource_access.*.roles`, flat `role`/`roles` claims, and Opplat namespaced claims.
 
 #### Role-based frontend access
 
 1. **Admin SPA (`/opplat-admin`)**
-   - Requires the `SuperAdmin` realm role for the root route and all nested pages.
-   - Non-SuperAdmin accounts are authenticated but stopped at the frontend gate with an explicit access denied screen.
-   - Tenant user/permission management stays out of the admin SPA and belongs in the client app.
+    - Requires the `SuperAdmin` realm role for the root route and all nested pages.
+    - Non-SuperAdmin accounts are authenticated but stopped at the frontend gate with an explicit access denied screen.
+    - Tenant user/permission management stays out of the admin SPA and belongs in the client app.
 
 2. **Client SPA (`/opplat-react`)**
    - Standard tenant workflows remain available to authenticated tenant users.
@@ -420,7 +499,7 @@ The new microservice hosts reuse the same tenant configuration model. They are e
 - `http://localhost:8083` - Sales service
 - `http://localhost:8082` - Inventory service
 
-This first microservice slice keeps the current SQL Server model so the services can be run independently before a later database split.
+This microservice slice now shares the PostgreSQL development topology used by Docker Compose and Aspire so the services can be run independently without a separate legacy database provider.
 
 ### Tenant Databases
 
@@ -493,12 +572,12 @@ Authorization: Bearer <your-token>
 
 ## Troubleshooting
 
-### SQL Server Connection Issues
+### PostgreSQL Connection Issues
 
-If API cannot connect to SQL Server:
+If an API cannot connect to PostgreSQL:
 
-1. Verify SQL Server container is healthy: `docker compose ps`
-2. Check SA password in `.env` matches SQL Server requirements
+1. Verify the PostgreSQL container is healthy: `docker compose ps`
+2. Check `POSTGRES_PASSWORD` in `.env` matches the container configuration
 3. View API logs: `docker compose logs api`
 
 ### Frontend Cannot Reach API
@@ -510,10 +589,11 @@ If API cannot connect to SQL Server:
 
 ### Port Conflicts
 
-If ports 8180, 8080, 8083, 8082, 3100/3200, 3101/3201, or 1433 are already in use, change the corresponding values in `.env` and re-run `docker compose config`:
+If ports 8180, 8080, 8083, 8082, 3100/3200, 3101/3201, or 5432 are already in use, change the corresponding values in `.env` and re-run `docker compose config`:
 
 ```env
 KEYCLOAK_PORT=8181
+POSTGRES_PORT=5433
 API_PORT=8085
 SALES_API_PORT=8086
 INVENTORY_API_PORT=8087

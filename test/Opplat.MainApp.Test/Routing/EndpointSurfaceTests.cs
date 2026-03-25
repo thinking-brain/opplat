@@ -6,8 +6,10 @@ using Moq;
 using MediatR;
 using Opplat.MainApp.Features.Admin;
 using Opplat.MainApp.Features.Account;
+using Opplat.MainApp.Features.Inventory;
 using Opplat.MainApp.Features.License;
 using Opplat.MainApp.Features.Menus;
+using Opplat.MainApp.Features.Sales;
 using Finbuckle.MultiTenant.Abstractions;
 using Opplat.MainApp.Models;
 
@@ -89,6 +91,104 @@ public class EndpointSurfaceTests
             Assert.NotEmpty(authorizeData);
             Assert.Contains(authorizeData, data => string.Equals(data.Policy, "AdminOnly", StringComparison.Ordinal));
         });
+    }
+
+    [Fact]
+    public void MapInventoryEndpoints_ExposeRootAndTenantAwareRouteSurface()
+    {
+        using var app = CreateApp();
+
+        app.MapInventoryEndpoints();
+
+        var patterns = GetRoutePatterns(app);
+
+        Assert.Contains("/inventory/products", patterns);
+        Assert.Contains("/inventory/products/{id}", patterns);
+        Assert.Contains("/inventory/storages", patterns);
+        Assert.Contains("/inventory/inventories/{id}", patterns);
+        Assert.Contains("/inventory/productmovements", patterns);
+        Assert.Contains("/inventory/movementtypes", patterns);
+        Assert.Contains("/{__tenant__}/inventory/products", patterns);
+        Assert.Contains("/{__tenant__}/inventory/products/{id}", patterns);
+        Assert.Contains("/{__tenant__}/inventory/storages", patterns);
+        Assert.Contains("/{__tenant__}/inventory/inventories/{id}", patterns);
+        Assert.Contains("/{__tenant__}/inventory/productmovements", patterns);
+        Assert.Contains("/{__tenant__}/inventory/movementtypes", patterns);
+    }
+
+    [Fact]
+    public void MapInventoryEndpoints_KeepMovementTypesProtectedWhileOtherInventoryReadsStayUnannotated()
+    {
+        using var app = CreateApp();
+
+        app.MapInventoryEndpoints();
+
+        var endpoints = GetRouteEndpoints(app).ToList();
+        var movementTypeEndpoints = endpoints
+            .Where(endpoint => endpoint.RoutePattern.RawText is not null &&
+                Normalize(endpoint.RoutePattern.RawText).EndsWith("/inventory/movementtypes", StringComparison.Ordinal))
+            .ToList();
+        var productsEndpoints = endpoints
+            .Where(endpoint => endpoint.RoutePattern.RawText is not null &&
+                Normalize(endpoint.RoutePattern.RawText).EndsWith("/inventory/products", StringComparison.Ordinal))
+            .ToList();
+
+        Assert.NotEmpty(movementTypeEndpoints);
+        Assert.NotEmpty(productsEndpoints);
+        Assert.All(movementTypeEndpoints, endpoint => Assert.Contains(endpoint.Metadata, metadata => metadata is IAuthorizeData));
+        Assert.All(productsEndpoints, endpoint => Assert.DoesNotContain(endpoint.Metadata, metadata => metadata is IAuthorizeData));
+    }
+
+    [Fact]
+    public void MapSalesEndpoints_ExposeRootAndTenantAwareRouteSurface()
+    {
+        using var app = CreateApp();
+
+        app.MapSalesEndpoints();
+
+        var patterns = GetRoutePatterns(app);
+
+        Assert.Contains("/sales", patterns);
+        Assert.Contains("/sales/products", patterns);
+        Assert.Contains("/sales/products/{id}", patterns);
+        Assert.Contains("/sales/toppings", patterns);
+        Assert.Contains("/sales/toppings/{id}", patterns);
+        Assert.Contains("/sales/producttags", patterns);
+        Assert.Contains("/sales/producttags/{id}", patterns);
+        Assert.Contains("/sales/costtabs", patterns);
+        Assert.Contains("/sales/costtabs/{id}", patterns);
+        Assert.Contains("/{__tenant__}/sales", patterns);
+        Assert.Contains("/{__tenant__}/sales/products", patterns);
+        Assert.Contains("/{__tenant__}/sales/products/{id}", patterns);
+        Assert.Contains("/{__tenant__}/sales/toppings", patterns);
+        Assert.Contains("/{__tenant__}/sales/toppings/{id}", patterns);
+        Assert.Contains("/{__tenant__}/sales/producttags", patterns);
+        Assert.Contains("/{__tenant__}/sales/producttags/{id}", patterns);
+        Assert.Contains("/{__tenant__}/sales/costtabs", patterns);
+        Assert.Contains("/{__tenant__}/sales/costtabs/{id}", patterns);
+    }
+
+    [Fact]
+    public void MapSalesEndpoints_KeepSalesListProtectedWhileOtherSalesReadsStayUnannotated()
+    {
+        using var app = CreateApp();
+
+        app.MapSalesEndpoints();
+
+        var endpoints = GetRouteEndpoints(app).ToList();
+        var salesListEndpoints = endpoints
+            .Where(endpoint => endpoint.RoutePattern.RawText is not null &&
+                Normalize(endpoint.RoutePattern.RawText).EndsWith("/sales", StringComparison.Ordinal))
+            .ToList();
+        var productsEndpoints = endpoints
+            .Where(endpoint => endpoint.RoutePattern.RawText is not null &&
+                Normalize(endpoint.RoutePattern.RawText).EndsWith("/sales/products", StringComparison.Ordinal))
+            .ToList();
+
+        Assert.NotEmpty(salesListEndpoints);
+        Assert.NotEmpty(productsEndpoints);
+        Assert.All(salesListEndpoints, endpoint => Assert.Contains(endpoint.Metadata, metadata => metadata is IAuthorizeData));
+        Assert.All(productsEndpoints, endpoint => Assert.DoesNotContain(endpoint.Metadata, metadata => metadata is IAuthorizeData));
     }
 
     private static WebApplication CreateApp()
