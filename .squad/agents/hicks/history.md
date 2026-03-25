@@ -4,6 +4,37 @@
 
 ### Active Sessions Summary (2026-03-23)
 
+**Session 29: Keycloak User Registration — Full Backend Stack — ✅ COMPLETE (2026-03-25)**
+- Created `IKeycloakUserService` interface in `Opplat.Application.Abstractions/Identity/` mirroring `IGraphUserService` pattern
+- Created `KeycloakAdminOptions` options class in `Opplat.Infrastructure/Identity/` with `SectionName = "Keycloak"`
+- Created `KeycloakUserService` in `Opplat.Infrastructure/Identity/` — uses typed `HttpClient`, acquires admin token from master realm on each call, handles Created/Conflict/error responses, extracts user ID from `Location` header
+- Created `NoOpKeycloakUserService` stub for environments where Keycloak is disabled
+- Added `AddKeycloakUserService` extension to `ServiceCollectionExtensions` — gates real service on `Keycloak:Enabled + BaseUrl + Realm` being set; uses `AddHttpClient<KeycloakUserService>()` for typed client injection
+- Created `RegisterUserCommand` + `RegisterUserCommandHandler` + `RegisterUserResult` in `Opplat.Application/Auth/Commands/RegisterUserRequests.cs` — follows `ICommand<TResponse>` + `ICommandHandler` pattern
+- Created `AuthEndpoints.cs` in `Opplat.AdminApi/Endpoints/` — `POST /auth/register`, anonymous, inline validation, returns `RegisterResponse` on success or `BadRequest` on failure
+- Updated `AdminApi/Program.cs`: MediatR now scans both `Assembly.GetExecutingAssembly()` AND `typeof(Opplat.Application.AssemblyMarker).Assembly`; added `AddKeycloakUserService`; added `app.MapAuthEndpoints()`
+- Updated `AdminApi/appsettings.Development.json`: `Keycloak` section with `Enabled=true`, `BaseUrl=http://localhost:8180`, `Realm=opplat`, `AdminUsername=admin`, `AdminPassword=admin`
+- Build validated: ✅ 0 errors (pre-existing warnings only from Opplat.Shared)
+
+## Learnings
+
+### Key File Paths
+- `src/Opplat.Application.Abstractions/Identity/IKeycloakUserService.cs` — interface + request/result records
+- `src/Opplat.Infrastructure/Identity/KeycloakAdminOptions.cs` — options (SectionName = "Keycloak")
+- `src/Opplat.Infrastructure/Identity/KeycloakUserService.cs` — typed HttpClient implementation
+- `src/Opplat.Infrastructure/Identity/NoOpKeycloakUserService.cs` — no-op stub
+- `src/Opplat.Infrastructure/DependencyInjection/ServiceCollectionExtensions.cs` — `AddKeycloakUserService` extension
+- `src/Opplat.Application/Auth/Commands/RegisterUserRequests.cs` — command + handler + result
+- `src/Opplat.AdminApi/Endpoints/AuthEndpoints.cs` — `POST /auth/register`
+
+### Patterns
+- Keycloak Admin token: `POST {BaseUrl}/realms/master/protocol/openid-connect/token` with `grant_type=password`, `client_id=admin-cli`
+- User creation: `POST {BaseUrl}/admin/realms/{Realm}/users` — 201 returns `Location` header with user ID
+- Conflict (duplicate user/email) returns HTTP 409
+- MediatR multi-assembly scan: both executing assembly + `typeof(AssemblyMarker).Assembly` needed when handlers live in a referenced project
+
+
+
 **Session 28: PostgreSQL Migration — Runtime Provider & Seam Changes — ✅ COMPLETE (2026-03-23T18:45:44Z)**
 - **Phase 2 (Runtime Wiring):**
   - Updated all DbContext registrations: `UseSqlServer()` → `UseNpgsql()` across all projects

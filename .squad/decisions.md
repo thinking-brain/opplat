@@ -1,5 +1,263 @@
 # Opplat Squad — Decisions
 
+## Session 31 Decisions (2026-03-25 — Module 4 User Registration: Backend + UI)
+
+### 1. User Directive: Keycloak for Local Dev, Entra-Ready Architecture (elvis.crego)
+
+**Status:** ✅ CAPTURED  
+**Date:** 2026-03-25T12:12:47Z  
+**By:** elvis.crego (via Copilot)  
+
+**Directive:** Use Keycloak for local development for now, but keep the implementation easy to migrate to Entra later.
+
+---
+
+### 2. Keycloak User Registration — Admin REST API Approach (Hicks)
+
+**Status:** ✅ IMPLEMENTED  
+**Date:** 2026-03-25  
+**Owner:** Hicks (Backend Dev)  
+**Impact:** AdminApi, Application, Infrastructure — user registration lifecycle
+
+#### Key Decisions
+
+- **Admin token approach** — per-request admin token from `master` realm `admin-cli` client (password grant). Consistent with docker-compose `admin/admin` credentials; avoids a dedicated service-account client credential at this stage.
+- **`IKeycloakUserService` mirrors `IGraphUserService` pattern** — keeps abstraction layer consistent; a future cloud deployment can swap the Keycloak implementation for an Entra one without changing Application layer code.
+- **`NoOpKeycloakUserService`** — follows established team pattern (mirrors `NoOpGraphUserService`) for environments where Keycloak is not configured.
+- **`AddHttpClient<KeycloakUserService>()`** (typed client) — single service, no named-client management overhead.
+- **MediatR multi-assembly scan** — `Assembly.GetExecutingAssembly()` + `typeof(AssemblyMarker).Assembly` required because `RegisterUserCommandHandler` lives in `Opplat.Application`, not in `Opplat.AdminApi`.
+- **`POST /auth/register`** — anonymous endpoint on AdminApi; delegates to `RegisterUserCommand` via MediatR.
+
+#### Config Keys Added (`appsettings.Development.json`)
+- `Keycloak:AdminUrl` — base URL of the Keycloak server
+- `Keycloak:Realm` — target realm
+- `Keycloak:AdminClientId` — `admin-cli`
+- `Keycloak:AdminUsername` / `Keycloak:AdminPassword` — dev credentials
+
+---
+
+### 3. Frontend Registration UI (Vasquez)
+
+**Status:** ✅ IMPLEMENTED  
+**Date:** 2026-03-25  
+**Owner:** Vasquez (Frontend Dev)  
+**Impact:** opplat-react — new /register route, AdminApi public client
+
+#### Key Decisions
+
+- **`adminPublicAxiosClient`** — unauthenticated Axios instance targeting AdminApi via `adminApiUrl`. Keeps the existing `axiosClient` (bearer-injected) untouched.
+- **`VITE_ADMIN_API_URL`** — new runtime config key. AdminApi URL is now independently configurable in the client app; avoids coupling to the main API URL.
+- **`/register` is a public route** — no authentication guard; accessible before login.
+- **Registration link in `LoginPage.tsx`** — minimal "Create account" link; deferred full onboarding UX until Module 4 backend contracts (plan selection, payment) are stable.
+- **`registerUser()` in `auth.api.ts`** — isolated in the auth API module to keep registration concerns separate from tenant-scoped API calls.
+
+#### Validation
+✅ TypeScript: OK (tsc --noEmit)
+
+---
+
+## Session 30 Decisions (2026-03-25 — Module 3 Tenant Provisioning Engine)
+
+### 1. Module 3 Provisioning Engine — Orchestration and Design (Hicks)
+
+**Status:** ✅ DECISIONS CAPTURED  
+**Date:** 2026-03-25  
+**Owner:** Hicks (Backend Dev)
+
+- **AdminApi owns Module 3 orchestration** — the admin catalog remains the source of truth for tenant-to-database assignment, schema provisioning, and bulk/per-tenant migration triggers.
+- **Keep tenant runtime startup provider-neutral** — AdminApi continues to use the existing OIDC provider seam; local development stays on Keycloak; the new provisioning/migration endpoints do not bake in Entra-specific assumptions.
+- **MainApp lazy self-provisioning** — `Opplat.MainApp` lazily self-provisions tenant runtime artifacts on first active request so newly cataloged tenants become usable without requiring a host restart while the dedicated migration foundation matures.
+
+---
+
+### 2. Module 3 Provisioning Engine — Infrastructure Implementation (Hudson)
+
+**Status:** ✅ IMPLEMENTED  
+**Date:** 2026-03-26  
+**Owner:** Hudson (DevOps/Infra)
+
+#### Services Implemented
+
+**`TenantSchemaProvisioningService`** (`src/Opplat.AdminApi/Services/`)
+- `ProvisionTenantSchemaAsync` / `DropTenantSchemaAsync` — idempotent; checks `information_schema.schemata` before acting
+- Normalized PostgreSQL connection strings (SSL mode handling); comprehensive audit logging
+
+**`DatabaseInstanceAutoScalingService`** (`src/Opplat.AdminApi/Services/`)
+- `EnsureAvailableInstanceAsync` — checks capacity against `DatabaseInstanceOptions.MaxTenantsPerInstance`; auto-provisions a new `DatabaseInstance` record when threshold exceeded
+- `IncrementTenantCountAsync` / `DecrementTenantCountAsync` — schema count maintenance
+- Auto-generates identifiers (`db-primary-NNN`); constructs new connection string for overflow
+
+**`TenantSchemaMigrationRunner`** (`src/Opplat.AdminApi/Services/`)
+- Per-tenant and bulk/rolling migration execution
+- Batch size + configurable delay between batches (default: 10/batch, 5s delay)
+- Logs success/failure per tenant; preserves rollback audit trail
+
+#### Production Note
+Current `ProvisionNewDatabaseInstanceAsync` assumes same PostgreSQL infrastructure. Production deployment requires replacement with actual RDS/CloudSQL provisioning.
+
+---
+
+## Session 29 Decisions (2026-03-25 — Module 2 Core Database Schema)
+
+### 1. Module 2 — Central Database Schema Implementation (Hudson)
+
+**Status:** ✅ IMPLEMENTED  
+**Date:** 2026-03-25  
+**Owner:** Hudson (DevOps/Infra)
+
+#### New Domain Models (`Opplat.AdminApi.Models`)
+- **`SubscriptionPlan`** — pricing tiers, seat limits, resource limits (JSON)
+- **`Tenant`** — status tracking (Active/Inactive), database instance assignment
+- **`TenantUser`** — maps users (via Entra OID) to tenants with roles (PrimaryAdmin/Admin/User)
+- **`DatabaseInstance`** — available database instances for tenant schema sharding with capacity metrics
+- **`AuditLog`** — immutable audit trail for administrative actions
+
+#### Database Context Enhancement
+- `AdminTenantCatalogDbContext` updated with Module 2 DbSets; existing `Tenants` DbSet renamed to `LegacyTenants` for backward compatibility
+- EF Core mapping: table names, indexes, cascading behaviors, JSONB for resource limits and audit state
+
+#### Seed Data (`Module2DataSeeder`)
+- Three subscription tiers: Starter (5 seats), Professional (25), Enterprise (500)
+- Initial database instance for tenant schemas
+
+#### Config Added
+```json
+"DatabaseInstance": {
+  "MaxTenantsPerInstance": 100,
+  "InitialDatabaseInstanceId": 1
+}
+```
+
+---
+
+### 2. Module 2 — Central Tenant Catalog Sync Strategy (Hicks)
+
+**Status:** ✅ DECISIONS CAPTURED  
+**Date:** 2026-03-25  
+**Owner:** Hicks (Backend Dev)
+
+- **`Opplat.AdminApi` as source of truth** for Module 2 tables; preserve existing `/admin/tenants` contract by syncing legacy `AdminTenants` rows into new `tenants`, `tenant_users`, and `database_instances` tables.
+- **`TenantCatalogStore` evolution** — database-first catalog reader with in-memory cache and JSON fallback; MainApp resolves tenants from the central catalog without coupling to AdminApi assemblies.
+- **Store normalized external OID in `tenant_users.EntraOid`** for local Keycloak dev; production Entra can switch in without changing the runtime tenant-resolution seam.
+
+---
+
+### 3. Module 2 — Regression Strategy (Bishop)
+
+**Status:** ✅ CAPTURED  
+**Date:** 2026-03-25  
+**Owner:** Bishop (QA)
+
+- Locked Module 2 regression coverage at two layers:
+  1. Executable in-memory coverage for central admin catalog seed path and tenant catalog CRUD/query behavior
+  2. Source-contract coverage for the full central schema model plus current admin SPA tenant metadata contract
+- **`/admin/tenants` is the only shipped Module 2 HTTP surface** — tests do NOT assume `/admin/users`, plan CRUD, database-instance CRUD, or audit-log query endpoints until those routes exist
+- Corrected `AuditLog` foreign-key annotations so Module 2 EF Core model can build under test
+
+---
+
+## Session 28 Decisions (2026-03-25 — Full Module Rollout Planning)
+
+### 1. Full Module Rollout Plan — Provider Strategy & Phase Design (Ripley)
+
+**Status:** ✅ PROPOSED  
+**Date:** 2026-03-25  
+**Owner:** Ripley (Lead/Architect)  
+**Context:** Module 1 complete. Planning Modules 2–10 across Keycloak-local / Entra-future strategy.
+
+#### Provider-Neutral User Lifecycle Abstraction
+
+1. **Rename `IGraphUserService` → `IIdentityUserService`** (preparatory refactor at start of Phase 2)
+2. **New `KeycloakUserService`** — implements `IIdentityUserService` via Keycloak Admin REST API
+3. **Conditional DI**: `EntraId` → `GraphUserService`; `Keycloak` → `KeycloakUserService`; `GenericOidc` → `NoOpIdentityUserService`
+4. **Auth claim normalization unchanged** — `OidcClaimsNormalizer` already handles provider differences
+5. **Frontend auth unchanged** — config change only to switch providers
+
+#### Migration Path to Entra (Future)
+- Change `Auth:Provider` from `Keycloak` to `EntraId`; set `Auth:Authority` to Entra v2.0 endpoint; set `GraphApi:Enabled` to `true`
+- No code changes required in application or frontend layers
+
+#### Phase Plan Summary
+| Phase | Modules | Focus |
+|-------|---------|-------|
+| Phase 2 | Module 2 | Core DB schema, `IIdentityUserService` rename, `CentralDbContext` |
+| Phase 3 | Modules 3, 7 | Provisioning engine + notification foundation |
+| Phase 4 | Module 4 | Registration, plan selection, tenant activation |
+| Phase 5 | Module 5 | Subscription & billing |
+| Phase 6 | Modules 6, 8 | Tenant IAM + admin support actions |
+| Phase 7 | Modules 9, 10 | Analytics, compliance |
+
+---
+
+### 2. Backend Rollout Map (Hicks)
+
+**Status:** ✅ CAPTURED  
+**Date:** 2026-03-25  
+**Owner:** Hicks (Backend Dev)
+
+**Key decisions:**
+1. Keep provider seam: local dev on Keycloak via `appsettings.Development.json`; production Entra behind `Auth:Provider` + `AuthRuntimeConfigurationResolver`
+2. **AdminApi owns central tenant catalog; MainApp owns tenant-scoped execution** — `AdminTenantCatalogDbContext` for central/catalog data; `OpplatDbContext` for tenant-scoped business data
+3. **Replace JSON tenant catalog before building billing/support modules** — `TenantCatalogStore.cs` must become database-backed before Modules 4, 5, 8, 9, 10
+4. **Module 8 requires controlled expansion of admin boundary** — AdminApi adds super-admin support actions only; do NOT reintroduce tenant-facing user-management ownership into AdminApi
+
+---
+
+### 3. Frontend Rollout Map (Vasquez)
+
+**Status:** ✅ CAPTURED  
+**Date:** 2026-03-25  
+**Owner:** Vasquez (Frontend Dev)
+
+**Key decisions:**
+1. Local dev stays on Keycloak; frontend contracts stay provider-neutral — depend on normalized identity fields, not provider-specific raw claim names
+2. AdminApi remains the identity boundary for the admin experience — durable seam is `GET /admin/session` + `/auth/bff/admin/*`
+3. Client app can keep browser OIDC short-term, but all new work must isolate provider-specific parsing in `auth/claims.ts` and `auth/oidc.ts`
+4. **Safest next frontend tranche is contract-first expansion** — finish missing tenant/admin support surfaces on existing auth seams; defer full self-service registration/payment UI until Modules 2–4 backend contracts are stable
+
+**Known gap:** `src/opplat-react/src/api/users.api.ts` calls `DELETE /auth/Account/delete-user` but no matching minimal API endpoint exists in `Opplat.MainApp`. Treat as unresolved contract gap before building more IAM UX.
+
+---
+
+### 4. Module 4 Frontend Ownership Map (Vasquez)
+
+**Status:** ✅ PROPOSED  
+**Date:** 2026-03-25  
+**Owner:** Vasquez (Frontend Dev)
+
+- **`src/opplat-react` is the only user-facing Module 4 entry point** — keep `src/opplat-admin` limited to operational visibility/support
+- Minimum API contract for first UI pass:
+  1. Anonymous plan catalog endpoint
+  2. Registration start endpoint (registrant + plan → payment/tracking data)
+  3. Registration status endpoint (polling/resume)
+  4. Authenticated tenant-context/session endpoint (status, role, primary-admin flag, activation state)
+  5. Structured inactive/unresolved tenant error contract
+- **Smallest safe slice:** `/register`, `/register/status/:registrationId`, `/activation` in `opplat-react`; ship plan selection + registrant capture first; stub payment handoff; defer admin write actions
+
+---
+
+### 5. Rollout Regression & Tranche Gate Strategy (Bishop)
+
+**Status:** ✅ CAPTURED  
+**Date:** 2026-03-25  
+**Owner:** Bishop (QA)
+
+**Validation baseline locked:**
+- `dotnet build .\opplat.slnx -m:1 -v minimal` ✅
+- `dotnet test .\test\Opplat.MainApp.Test\...` — 133/133 passing ✅
+- `opplat-react` lint+build ✅; `opplat-admin` lint+build ✅
+- Note: `opplat-react` Vite chunk-size warning is non-blocking; track for later performance hardening
+
+**Gate philosophy:** Focused contract/integration gates per tranche, not broad end-to-end suites.
+
+| Tranche | Modules | Highest-Value Gates |
+|---------|---------|---------------------|
+| A | 1, 4 | `IGraphUserService` seam, `OidcClaimsTransformation`, admin session contract, frontend auth contract |
+| B | 2, 3, 4.2 | `TenantProvisioningService` idempotency, `TenantValidationMiddleware` inactive-tenant rejection, admin catalog CRUD invariants |
+| C | 4.3, 6, 8.2 | `CreateTenantUserCommand` seat-limit/invite rules, primary admin immutability, tenant-admin vs super-admin auth coverage |
+
+---
+
 ## Session 26 Decisions (2026-03-23 — Aspire Local Development Architecture)
 
 ### 1. Aspire Local Development Architecture Design (Ripley)
@@ -1926,7 +2184,8 @@ Domain → Shared
 
 **Decision:**
 - Treat openid profile email offline_access as the single local SPA request scope contract
-- Keep oles as a Keycloak-attached client scope, not an explicitly requested SPA scope
+- Keep 
+oles as a Keycloak-attached client scope, not an explicitly requested SPA scope
 - Pin VITE_AUTH_SCOPE for both frontend services in docker-compose.yml and docker-compose.override.yml
 
 **Consequences:**
@@ -1969,7 +2228,8 @@ The invalid login request was not coming from one file; it was the combined resu
 The intended SPA-requested scope contract is: openid profile email offline_access
 
 **Testing Seams Added:**
-- 	est\Opplat.MainApp.Test\Auth\FrontendAuthContractTests.cs — Guards the intended SPA-requested scope contract and verifies both untimeConfig.ts and uth\oidc.ts stay aligned
+- 	est\Opplat.MainApp.Test\Auth\FrontendAuthContractTests.cs — Guards the intended SPA-requested scope contract and verifies both 
+untimeConfig.ts and uth\oidc.ts stay aligned
 - 	est\Opplat.MainApp.Test\Auth\KeycloakRealmContractTests.cs — Guards that Opplat does not redefine Keycloak built-in OIDC scopes as custom realm scopes
 
 ### Ripley — OIDC Scope Contract Adjudication (FINAL AUTHORITY)
@@ -1979,8 +2239,11 @@ The intended SPA-requested scope contract is: openid profile email offline_acces
 
 **Analysis Completed:**
 - Inspected all four configuration layers: Keycloak realm, Docker Compose, frontend code, and documentation
-- Root cause: oles scope error originates from stale local .env.local or cached browser OIDC state, NOT from current code or realm config
-- Why oles fails: Keycloak attaches oles as a default client scope (automatic via mapper), not as a requestable consent scope
+- Root cause: 
+oles scope error originates from stale local .env.local or cached browser OIDC state, NOT from current code or realm config
+- Why 
+oles fails: Keycloak attaches 
+oles as a default client scope (automatic via mapper), not as a requestable consent scope
 
 **Authoritative Ruling:**
 **Correct SPA scope request for Opplat + Keycloak:**
@@ -1992,7 +2255,8 @@ openid profile email offline_access
 - profile — name/nickname claims (Keycloak default, requesting is harmless)
 - mail — email claims (Keycloak default, requesting is harmless)
 - offline_access — refresh tokens for silent renew (MUST be requested; optional in Keycloak)
-- **NO oles** — Keycloak injects realm roles via defaultClientScopes automatically
+- **NO 
+oles** — Keycloak injects realm roles via defaultClientScopes automatically
 
 **Changes Applied:**
 1. src/opplat-react/src/runtimeConfig.ts — fallback default updated
@@ -2005,7 +2269,8 @@ openid profile email offline_access
 - Hicks was correct about the intended scope contract
 - Vasquez's openid-only fix was too minimal (it works but loses claims and refresh tokens)
 - Bishop correctly identified the drift; this decision aligns all documentation with the Docker Compose contract
-- Any future scope changes must coordinate across: untimeConfig.ts, .env.example, docker-compose*.yml, and README
+- Any future scope changes must coordinate across: 
+untimeConfig.ts, .env.example, docker-compose*.yml, and README
 
 ### Hudson — Runtime Scope Injection Fix (Docker/Compose Infrastructure)
 **Date:** 2026-03-21
