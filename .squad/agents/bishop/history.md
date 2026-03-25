@@ -189,3 +189,21 @@ uget.org avoids CPM restore noise from user-specific feeds (for example NU1507 f
 
 - Module 1 executable Graph tests are viable here because GraphUserService uses a raw HttpClient seam with an IGraphAccessTokenProvider; a custom HttpMessageHandler can lock request JSON, bearer headers, and 429/503 retry behavior without live Entra dependencies.
 - Admin session contract tests should register a bearer test handler under the real Bearer scheme, because BuildSessionAsync explicitly calls AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme) before shaping xpiresAtUtc and ccessToken.
+---
+
+### Session 29 Summary (2026-03-25)
+
+**Module 1 Test Gating — ✅ COMPLETE**
+- Identified three core regression gates: oid normalization, session-user extraction, Graph retry behavior
+- Created executable integration tests for bearer + cookie auth
+- Created unit tests for oid normalization and sub fallback
+- Created focused executable retry tests for Graph 429/503 transient failures
+- Validated test infrastructure for future Graph abstraction
+
+**Core Gates Enforced:**
+1. oid normalization with sub fallback
+2. AdminSession bearer/cookie token contract
+3. Graph transient retry with Retry-After honor
+
+**Test Status:** All regression gates passing (86/86 tests)
+**Deferred:** Full Graph contract/integration suites pending abstraction formalization

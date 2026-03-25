@@ -175,3 +175,22 @@ See `.squad/orchestration-log/` for detailed session outcomes and `.squad/decisi
 - For Module 1 Entra rollout, keep `src\Opplat.AdminApi` provider-neutral at the ASP.NET Core layer but add an explicit `Auth:Provider` + `Auth:Entra:*` config seam so production can target Entra while `appsettings.Development.json` still overrides back to local Keycloak without forking the host.
 - Reuse the existing admin session endpoints for token handoff: extend `AdminSessionDto`/`AdminSessionUserDto` to surface the normalized `oid` and current access token rather than adding a separate auth controller.
 - A testable Graph seam in this repo fits best as `IGraphUserService` in `Opplat.Application.Abstractions` with an `HttpClient` + token-provider implementation in `Opplat.Infrastructure`; explicit per-call retry handling for 429/503 keeps Graph lifecycle operations independent of the web host.
+---
+
+### Session 29 Summary (2026-03-25)
+
+**Module 1 Backend Implementation — ✅ COMPLETE**
+- Defaulted AdminApi appsettings.json to Azure Entra ID placeholders
+- Kept appsettings.Development.json with local Keycloak overrides
+- Implemented oid claim normalization in OidcClaimsTransformation
+- Created GraphUserService with 429/503 retry handling
+- Added Retry-After header support and exponential backoff
+- Surfaced oid + session token in admin endpoints
+
+**Architecture Decisions:**
+- Auth:Provider + Auth:Entra:* explicit config seam
+- GraphUserService owns user lifecycle operations
+- Bearer token handoff for both OIDC and cookie auth
+- MainApp stays bearer-only (no interactive auth)
+
+**Validation:** ✅ Build + tests passing; retry behavior verified

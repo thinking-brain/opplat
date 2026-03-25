@@ -189,3 +189,22 @@ See `.squad/orchestration-log/` for detailed session outcomes and `.squad/decisi
 
 **Lesson:** When a requirements module mixes code deliverables with manual Azure config tasks, decompose first and document the manual steps in the decision record. Don't try to automate Azure portal configuration from application code.
 
+---
+
+### Session 29 Summary (2026-03-25)
+
+**Module 1 Identity Foundation — Architecture Review — ✅ APPROVED**
+- Reviewed scope decomposition: 5 sub-requirements (3 manual Azure, 2 code deliverables)
+- Approved GraphUserService with 429/503 retry handling
+- Approved oid claim normalization for Entra tokens
+- Validated AdminApi as OIDC entry point
+- Validated client app integration with Aspire
+- **Status:** Ready for production Entra ID configuration
+
+**Key Approvals:**
+- Entra-aware auth config/runtime resolution
+- AdminApi as sole Module 1 interactive auth host
+- GraphUserService for user lifecycle operations
+- Client apps as Aspire resources with preserved HMR
+
+**Session Complete:** All manual Azure tasks documented; code foundation verified.

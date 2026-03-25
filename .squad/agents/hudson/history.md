@@ -310,3 +310,25 @@
 
 ---
 
+---
+
+### Session 29 Summary (2026-03-25)
+
+**Module 1 DevOps & Configuration Audit — ✅ COMPLETE**
+- Audited Module 1 prerequisites: .NET 10, packages centralized, Entra config foundation
+- Fixed AppHost PostgreSQL hostname resolution via Aspire resource expressions
+- Documented manual Azure tasks (app registration, MFA, SSPR, Graph permissions)
+- Verified Aspire-safe host behavior (health endpoints, forwarded headers)
+- Added source-contract regression tests for connection string seam
+
+**Aspire PostgreSQL Fix:**
+- Migrated from hardcoded 127.0.0.1 to Aspire resource expressions
+- Added DatabaseName + Schema extraction for host-launched projects
+- Validated AppHost database connectivity for all services
+
+**Manual Entra Prerequisites (Documented, Not Code):**
+- App registration with Graph permissions
+- Conditional Access for MFA enforcement
+- Self-Service Password Reset configuration
+
+**Status:** Infrastructure ready; pending manual Azure setup
