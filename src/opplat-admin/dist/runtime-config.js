@@ -1,1 +1,0 @@
-window.__OPPLAT_RUNTIME_CONFIG__ = window.__OPPLAT_RUNTIME_CONFIG__ || {};
