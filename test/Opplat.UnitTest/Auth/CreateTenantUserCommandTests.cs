@@ -21,7 +21,7 @@ public class CreateTenantUserCommandTests
             CancellationToken.None);
 
         Assert.Null(result);
-        userManager.Verify(manager => manager.CreateAsync(It.IsAny<Usuario>()), Times.Never);
+        userManager.Verify(manager => manager.CreateAsync(It.IsAny<User>()), Times.Never);
     }
 
     [Fact]
@@ -40,10 +40,10 @@ public class CreateTenantUserCommandTests
             CancellationToken.None);
 
         Assert.Null(result);
-        userManager.Verify(manager => manager.CreateAsync(It.IsAny<Usuario>()), Times.Never);
+        userManager.Verify(manager => manager.CreateAsync(It.IsAny<User>()), Times.Never);
     }
 
-    private static CreateTenantUserCommandHandler CreateHandler(UserManager<Usuario> userManager, RoleManager<IdentityRole> roleManager)
+    private static CreateTenantUserCommandHandler CreateHandler(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
     {
         return new CreateTenantUserCommandHandler(
             // userManager,
@@ -52,10 +52,10 @@ public class CreateTenantUserCommandTests
             Mock.Of<ILogger<CreateTenantUserCommandHandler>>());
     }
 
-    private static Mock<UserManager<Usuario>> CreateUserManager()
+    private static Mock<UserManager<User>> CreateUserManager()
     {
-        var store = new Mock<IUserStore<Usuario>>();
-        return new Mock<UserManager<Usuario>>(
+        var store = new Mock<IUserStore<User>>();
+        return new Mock<UserManager<User>>(
             store.Object,
             null!,
             null!,

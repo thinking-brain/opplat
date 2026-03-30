@@ -52,7 +52,7 @@ builder.Services.AddDbContext<OpplatDbContext>((serviceProvider, options) =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddMemoryCache();
 
-builder.Services.AddIdentity<Usuario, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
+builder.Services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<OpplatDbContext>()
     .AddDefaultTokenProviders();
 
@@ -63,7 +63,7 @@ builder.Services.AddTransient<Microsoft.AspNetCore.Authentication.IClaimsTransfo
 // ============================================
 // APP UTILITIES
 // ============================================
-builder.Services.AddScoped<LicenciaService>();
+builder.Services.AddScoped<LicenseService>();
 builder.Services.AddScoped<MenuLoader>();
 builder.Services.AddScoped<TenantProvisioningService>();
 

@@ -4,20 +4,20 @@ namespace Opplat.Application.Dtos;
 public class ChangePassword
     {
         [Required]
-        public string UsuarioId { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y como maximo {1} caracteres.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at most {1} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        public string ContraseñaActual { get; set; } = string.Empty;
+        public string CurrentPassword { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y como maximo {1} caracteres.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at most {1} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        public string Contraseña { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirmar contraseña")]
-        [Compare("Contraseña", ErrorMessage = "La contraseña y la confirmacion no coinciden.")]
-        public string ConfirmarContraseña { get; set; } = string.Empty;
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation do not match.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
     }

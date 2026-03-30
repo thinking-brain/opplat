@@ -60,13 +60,13 @@ public sealed class CreateTenantUserCommandHandler : IRequestHandler<CreateTenan
             return null;
         }
 
-        var user = new Usuario
+        var user = new User
         {
-            Nombres = request.Name,
-            Apellidos = request.LastName,
+            Name = request.Name,
+            LastName = request.LastName,
             UserName = request.Username,
             Email = request.Email,
-            Activo = true
+            IsActive = true
         };
 
         // var createResult = await _userManager.CreateAsync(user);
@@ -106,11 +106,11 @@ public sealed class CreateTenantUserCommandHandler : IRequestHandler<CreateTenan
             TenantIdentifier = tenant?.Identifier ?? string.Empty,
             TenantName = tenant?.Name ?? string.Empty,
             UserId = user.Id,
-            Name = user.Nombres,
-            LastName = user.Apellidos,
+            Name = user.Name,
+            LastName = user.LastName,
             Username = user.UserName ?? string.Empty,
             Email = user.Email ?? string.Empty,
-            Active = user.Activo,
+            Active = user.IsActive,
             Roles = roles
         };
     }

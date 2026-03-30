@@ -43,16 +43,16 @@ public sealed class GetAdminUsersQueryHandler(
                         .UseNpgsql(PostgresTenantConnectionStringResolver.Resolve(tenant, defaultConnectionString))
                         .Options);
 
-                var tenantUsers = await db.Usuarios
+                var tenantUsers = await db.Users
                     .AsNoTracking()
                     .Select(user => new
                     {
                         user.Id,
-                        user.Nombres,
-                        user.Apellidos,
+                        user.Name,
+                        user.LastName,
                         user.UserName,
                         user.Email,
-                        user.Activo
+                        user.IsActive
                     })
                     .ToListAsync(cancellationToken);
 
@@ -75,11 +75,11 @@ public sealed class GetAdminUsersQueryHandler(
                     TenantIdentifier = tenant.Identifier ?? string.Empty,
                     TenantName = tenant.Name ?? string.Empty,
                     UserId = user.Id,
-                    Name = user.Nombres,
-                    LastName = user.Apellidos,
+                    Name = user.Name,
+                    LastName = user.LastName,
                     Username = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
-                    Active = user.Activo,
+                    Active = user.IsActive,
                     Roles = [] // groupedRoles.TryGetValue(user.Id, out var roles) ? roles : new List<string>()
                 }));
             }

@@ -21,15 +21,15 @@ public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, List<AccountD
 
     public async Task<List<AccountDto>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
     {
-        var result = await _db.Set<Usuario>()
+        var result = await _db.Set<User>()
             .Select(u => new AccountDto
             {
                 UserId   = u.Id,
-                Name     = u.Nombres,
-                LastName = u.Apellidos,
+                Name     = u.Name,
+                LastName = u.LastName,
                 Username = u.UserName!,
                 Email    = u.Email!,
-                Active   = u.Activo,
+                Active   = u.IsActive,
                 Roles    = new List<string>() // _userManager.GetRolesAsync(u).Result.ToList()
             })
             .ToListAsync(cancellationToken);

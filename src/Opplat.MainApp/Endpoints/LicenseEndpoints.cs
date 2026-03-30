@@ -15,7 +15,7 @@ public static class LicenseEndpoints
             {
                 var result = await mediator.Send(new GetLicenseQuery());
                 return result.Success
-                    ? Results.Ok(result.Licencia)
+                    ? Results.Ok(result.License)
                     : Results.BadRequest(result.ErrorMessage);
             })
             .WithSummary("Obtener licencia activa");

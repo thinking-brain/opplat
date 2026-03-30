@@ -20,15 +20,15 @@ public class EditUserCommandHandler : IRequestHandler<EditUserCommand, bool>
 
     public async Task<bool> Handle(EditUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _db.Set<Usuario>().FindAsync([request.Id], cancellationToken);
+        var user = await _db.Set<User>().FindAsync([request.Id], cancellationToken);
         if (user == null) return false;
 
-        user.Nombres   = request.Name;
-        user.Apellidos = request.LastName;
+        user.Name     = request.Name;
+        user.LastName = request.LastName;
 
         var saved = await _db.SaveChangesAsync(cancellationToken);
         if (saved == 1)
-            _logger.LogInformation("Usuario {Id} modificado correctamente.", request.Id);
+            _logger.LogInformation("User {Id} updated successfully.", request.Id);
 
         return saved == 1;
     }

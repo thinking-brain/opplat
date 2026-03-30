@@ -149,18 +149,18 @@ public static class AccountEndpoints
             .WithSummary("Password change delegated to IdP");
 
         group.MapGet("/cambiar-estado",
-            async (string idUsuario, IMediator mediator) =>
+            async (string userId, IMediator mediator) =>
             {
-                var found = await mediator.Send(new ToggleUserActiveCommand(idUsuario));
+                var found = await mediator.Send(new ToggleUserActiveCommand(userId));
                 return found ? Results.Ok() : Results.NotFound();
             })
             .RequireAuthorization("TenantAdminOnly")
             .WithSummary("Activar/desactivar usuario");
 
         group.MapPost("/cambiar-roles",
-            async (CambiarRolesDto dto, IMediator mediator) =>
+            async (ChangeRolesDto dto, IMediator mediator) =>
             {
-                var result = await mediator.Send(new ChangeRolesCommand(dto.idUsuario, dto.Roles));
+                var result = await mediator.Send(new ChangeRolesCommand(dto.UserId, dto.Roles));
                 return result.Success
                     ? Results.Ok(new { Resultado = true, Mensaje = "Roles modificados correctamente." })
                     : Results.BadRequest(new { Resultado = false, Mensaje = result.ErrorMessage });

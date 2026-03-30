@@ -33,13 +33,13 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
     public async Task<RegisterUserResult> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        var user = new Usuario
+        var user = new User
         {
             Email = request.Email,
             UserName = request.Username,
-            Nombres = request.Name,
-            Apellidos = request.LastName,
-            Activo = true
+            Name = request.Name,
+            LastName = request.LastName,
+            IsActive = true
         };
 
         // var result = await _userManager.CreateAsync(user);

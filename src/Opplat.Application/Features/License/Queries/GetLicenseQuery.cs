@@ -6,23 +6,23 @@ namespace Opplat.Application.Features.License.Queries;
 
 public record GetLicenseQuery : IRequest<GetLicenseResult>;
 
-public record GetLicenseResult(bool Success, LicenciaVm? Licencia, string? ErrorMessage);
+public record GetLicenseResult(bool Success, LicenseVm? License, string? ErrorMessage);
 
-public class GetLicenseQueryHandler(LicenciaService licenciaService) : IRequestHandler<GetLicenseQuery, GetLicenseResult>
+public class GetLicenseQueryHandler(LicenseService licenseService) : IRequestHandler<GetLicenseQuery, GetLicenseResult>
 {
-    private readonly LicenciaService _licenciaService = licenciaService;
+    private readonly LicenseService _licenseService = licenseService;
 
     public async Task<GetLicenseResult> Handle(GetLicenseQuery request, CancellationToken cancellationToken)
     {
-        var response = await _licenciaService.GetLicencia();
+        var response = await _licenseService.GetLicense();
 
         if (!response.Status)
-            return new GetLicenseResult(false, null, response.Mensaje);
+            return new GetLicenseResult(false, null, response.Message);
 
-        var vm = new LicenciaVm
+        var vm = new LicenseVm
         {
-            Subscriptor       = response.Licencia!.Subscriptor,
-            FechaVencimiento  = string.Format("{0:dd/MM/yyy}", response.Licencia!.Vencimiento)
+            Subscriber      = response.License!.Subscriber,
+            ExpirationDate  = string.Format("{0:dd/MM/yyy}", response.License!.ExpirationDate)
         };
 
         return new GetLicenseResult(true, vm, null);

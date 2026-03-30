@@ -28,7 +28,7 @@ public sealed class GetTenantUsersQueryHandler : IRequestHandler<GetTenantUsersQ
     public async Task<List<AdminUserDto>> Handle(GetTenantUsersQuery request, CancellationToken cancellationToken)
     {
         var tenant = _tenantAccessor.MultiTenantContext?.TenantInfo;
-        var users = await _db.Usuarios.AsNoTracking().ToListAsync(cancellationToken);
+        var users = await _db.Users.AsNoTracking().ToListAsync(cancellationToken);
         var response = new List<AdminUserDto>(users.Count);
 
         foreach (var user in users)
@@ -40,11 +40,11 @@ public sealed class GetTenantUsersQueryHandler : IRequestHandler<GetTenantUsersQ
                 TenantIdentifier = tenant?.Identifier ?? string.Empty,
                 TenantName = tenant?.Name ?? string.Empty,
                 UserId = user.Id,
-                Name = user.Nombres,
-                LastName = user.Apellidos,
+                Name = user.Name,
+                LastName = user.LastName,
                 Username = user.UserName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
-                Active = user.Activo,
+                Active = user.IsActive,
                 Roles = [] //roles.ToList()
             });
         }

@@ -30,7 +30,7 @@ public class NotificationsHub : Hub
     public async Task GetUserNotifications(string userId)
     {
         var notifications = await _context.Set<UserNotification>().Include(u => u.Notification)
-        .Where(u => u.UsuarioId == userId && u.IsRead == false).Select(n => new { date = n.Notification.CreateDate, text = n.Notification.Texto, created = n.Notification.Created, link = n.Notification.Link, info = n.Notification.Id }).OrderByDescending(n => n.date).ToListAsync();
+        .Where(u => u.UserId == userId && u.IsRead == false).Select(n => new { date = n.Notification.CreateDate, text = n.Notification.Text, created = n.Notification.Created, link = n.Notification.Link, info = n.Notification.Id }).OrderByDescending(n => n.date).ToListAsync();
         string name = Context.User!.Identity!.Name!;
         await Clients.Group(name).SendAsync("GetNotifications", notifications);
     }
@@ -38,14 +38,14 @@ public class NotificationsHub : Hub
     public async Task Show(string userId, Notification notificaion)
     {
         string name = Context.User!.Identity!.Name!;
-        var notification = new Notification { Texto = "Hola", Link = "#" };
+        var notification = new Notification { Text = "Hola", Link = "#" };
 
         await Clients.Group(name).SendAsync("ShowNotification", notification);
     }
 
     public async Task UserNotificationViewed(string userId, int id)
     {
-        var usernotification = await _context.Set<UserNotification>().FirstOrDefaultAsync(n => n.NotificationId == id && n.UsuarioId == userId);
+        var usernotification = await _context.Set<UserNotification>().FirstOrDefaultAsync(n => n.NotificationId == id && n.UserId == userId);
         if (usernotification != null)
         {
             usernotification.IsRead = true;
@@ -53,11 +53,11 @@ public class NotificationsHub : Hub
             await _context.SaveChangesAsync();
         }
         var notifications = await _context.Set<UserNotification>().Include(u => u.Notification)
-            .Where(u => u.UsuarioId == userId && u.IsRead == false)
+            .Where(u => u.UserId == userId && u.IsRead == false)
             .Select(n => new
             {
                 date = n.Notification.CreateDate,
-                text = n.Notification.Texto,
+                text = n.Notification.Text,
                 created = n.Notification.Created,
                 link = n.Notification.Link,
                 info = n.NotificationId

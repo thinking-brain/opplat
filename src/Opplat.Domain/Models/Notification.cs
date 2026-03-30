@@ -5,7 +5,7 @@ namespace Opplat.Domain.Models;
 public class Notification
 {
     public int Id { get; set; }
-    public string Texto { get; set; } = string.Empty;
+    public string Text { get; set; } = string.Empty;
     public string Link { get; set; } = string.Empty;
     public DateTime CreateDate { get; set; } = DateTime.Now;
     public virtual ICollection<UserNotification> UserNotification { get; set; } = [];
@@ -41,5 +41,5 @@ public class Notification
         }
     }
 
-    public string Modulo { get; set; } = string.Empty;
+    public string Module { get; set; } = string.Empty;
 }

@@ -25,7 +25,7 @@ public class OpplatDbContext(
         
         builder.ConfigureMultiTenant();
         
-        builder.Entity<UserNotification>().HasKey(s => new { s.NotificationId, s.UsuarioId });
+        builder.Entity<UserNotification>().HasKey(s => new { s.NotificationId, s.UserId });
         builder.Entity<SalesEntities.AddedTopping>().HasKey(s => new { s.ToppingId, s.SaleDetailId });
         builder.Entity<InventoryEntities.ProductInventory>().HasKey(s => new { s.ProductId, s.StorageId });
         builder.Entity<SalesEntities.CostTabDetail>().HasKey(s => new { s.ProductForSaleId, s.ProductId });
@@ -43,8 +43,8 @@ public class OpplatDbContext(
         return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
-    public DbSet<Licencia> Licencias { get; set; }
-    public DbSet<Usuario> Usuarios { get; set; }
+    public DbSet<License> Licenses { get; set; }
+    public DbSet<User> Users { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<UserNotification> UserNotifications { get; set; }
 

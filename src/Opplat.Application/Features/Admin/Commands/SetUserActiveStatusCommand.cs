@@ -12,11 +12,11 @@ public sealed class SetUserActiveStatusCommandHandler(OpplatDbContext db) : IReq
 
     public async Task<bool> Handle(SetUserActiveStatusCommand request, CancellationToken cancellationToken)
     {
-        var user = await _db.Usuarios.FirstOrDefaultAsync(existing => existing.Id == request.UserId, cancellationToken);
+        var user = await _db.Users.FirstOrDefaultAsync(existing => existing.Id == request.UserId, cancellationToken);
         if (user is null)
             return false;
 
-        user.Activo = request.Active;
+        user.IsActive = request.Active;
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }

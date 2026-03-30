@@ -16,9 +16,9 @@ public class LdapFormViewModel
     [DataType(DataType.Password)]
     public string Password { get; set; } = String.Empty;
 
-    [DisplayName("Unidad Organizativa")]
-    public string UnidadOrganizativa { get; set; } = String.Empty;
+    [DisplayName("Organizational Unit")]
+    public string OrganizationalUnit { get; set; } = String.Empty;
 
     [DataType(DataType.Text)]
-    public int Puerto { get; set; }
+    public int Port { get; set; }
 }

@@ -20,14 +20,14 @@ public class ToggleUserActiveCommandHandler : IRequestHandler<ToggleUserActiveCo
 
     public async Task<bool> Handle(ToggleUserActiveCommand request, CancellationToken cancellationToken)
     {
-        var usuario = await _db.Set<Usuario>().FindAsync([request.UserId], cancellationToken);
-        if (usuario == null) return false;
+        var user = await _db.Set<User>().FindAsync([request.UserId], cancellationToken);
+        if (user == null) return false;
 
-        usuario.Activo = !usuario.Activo;
+        user.IsActive = !user.IsActive;
         await _db.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Se cambio el estado del usuario {UserName} a {State}.",
-            usuario.UserName, usuario.Activo);
+        _logger.LogInformation("Changed the status of user {UserName} to {State}.",
+            user.UserName, user.IsActive);
         return true;
     }
 }
