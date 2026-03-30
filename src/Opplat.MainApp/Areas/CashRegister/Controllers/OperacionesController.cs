@@ -6,7 +6,7 @@
 // using Microsoft.AspNetCore.Mvc;
 // using Microsoft.EntityFrameworkCore;
 // using Microsoft.AspNetCore.Mvc.Rendering;
-// using Opplat.Contabilidad.Domain.Entities;
+// using Opplat.Domain.Entities.Accounting;
 // using Opplat.Contabilidad.Domain.Services;
 // using Opplat.MainApp.Areas.Caja.ViewModels;
 

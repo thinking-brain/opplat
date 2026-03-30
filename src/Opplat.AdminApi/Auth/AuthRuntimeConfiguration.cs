@@ -1,4 +1,5 @@
 using Opplat.Application.Abstractions.Auth;
+using Opplat.Application.Abstractions.Options;
 
 namespace Opplat.AdminApi.Auth;
 

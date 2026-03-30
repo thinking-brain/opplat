@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Opplat.Shared\Opplat.Shared.csproj" />
     <ProjectReference Include="..\Opplat.Domain\Opplat.Domain.csproj" />
     <ProjectReference Include="..\Opplat.Application.Abstractions\Opplat.Application.Abstractions.csproj" />
   </ItemGroup>

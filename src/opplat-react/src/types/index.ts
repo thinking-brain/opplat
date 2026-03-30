@@ -56,6 +56,16 @@ export interface Tenant {
   name: string;
 }
 
+export interface TenantAccessContext {
+  isResolved: boolean;
+  isActive: boolean;
+  status: 'active' | 'inactive' | 'unresolved';
+  tenantId?: string | null;
+  tenantIdentifier?: string | null;
+  tenantName?: string | null;
+  message: string;
+}
+
 export interface LicenseInfo {
   subscriptor: string;
   fechaVencimiento: string;

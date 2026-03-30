@@ -25,7 +25,5 @@
     <ProjectReference Include="..\Opplat.Domain\Opplat.Domain.csproj" />
     <ProjectReference Include="..\Opplat.Infrastructure\Opplat.Infrastructure.csproj" />
     <ProjectReference Include="..\Opplat.Application\Opplat.Application.csproj" />
-    <ProjectReference Include="..\Modules\Sales\Domain\Opplat.Modules.Sales.Domain.csproj" />
-    <ProjectReference Include="..\Modules\Inventory\Domain\Opplat.Modules.Inventory.Domain.csproj" />
   </ItemGroup>
 </Project>

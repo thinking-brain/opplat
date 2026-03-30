@@ -7,32 +7,8 @@
     <Project Path="src/Opplat.Domain/Opplat.Domain.csproj" />
     <Project Path="src/Opplat.Infrastructure/Opplat.Infrastructure.csproj" />
     <Project Path="src/Opplat.MainApp/Opplat.MainApp.csproj" />
-    <Project Path="src/Opplat.Microservices.Shared/Opplat.Microservices.Shared.csproj" />
-    <Project Path="src/Opplat.Shared/Opplat.Shared.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/" />
-  <Folder Name="/src/Modules/Inventory/" />
-  <Folder Name="/src/Modules/Inventory/Domain/">
-    <Project Path="src/Modules/Inventory/Domain/Opplat.Modules.Inventory.Domain.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Inventory/Infrastructure/">
-    <Project Path="src/Modules/Inventory/Infrastructure/Opplat.Modules.Inventory.Infrastructure.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Sales/" />
-  <Folder Name="/src/Modules/Sales/Domain/">
-    <Project Path="src/Modules/Sales/Domain/Opplat.Modules.Sales.Domain.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Sales/Infrastructure/">
-    <Project Path="src/Modules/Sales/Infrastructure/Opplat.Modules.Sales.Infrastructure.csproj" />
-  </Folder>
-  <Folder Name="/src/Services/" />
-  <Folder Name="/src/Services/Inventory/">
-    <Project Path="src/Services/Inventory/Opplat.Services.Inventory.Api/Opplat.Services.Inventory.Api.csproj" />
-  </Folder>
-  <Folder Name="/src/Services/Sales/">
-    <Project Path="src/Services/Sales/Opplat.Services.Sales.Api/Opplat.Services.Sales.Api.csproj" />
-  </Folder>
+  </Folder>  
   <Folder Name="/test/">
-    <Project Path="test/Opplat.MainApp.Test/Opplat.MainApp.Test.csproj" />
+    <Project Path="test/Opplat.UnitTest/Opplat.UnitTest.csproj" />
   </Folder>
 </Solution>

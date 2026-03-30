@@ -14,4 +14,8 @@
     <PackageReference Include="MediatR" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Opplat.Domain\Opplat.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

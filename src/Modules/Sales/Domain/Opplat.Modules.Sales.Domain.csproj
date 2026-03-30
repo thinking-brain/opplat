@@ -1,6 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <ProjectReference Include="..\..\Inventory\Domain\Opplat.Modules.Inventory.Domain.csproj" />
-    <ProjectReference Include="..\..\..\Opplat.Shared\Opplat.Shared.csproj" />
-  </ItemGroup>
-</Project>

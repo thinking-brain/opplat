@@ -2,10 +2,12 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AuthCallbackPage } from './auth/AuthCallbackPage';
 import { Layout } from './components/Layout';
 import { ProtectedRoute } from './auth/ProtectedRoute';
+import { TenantAccessGate } from './auth/TenantAccessGate';
 import { HomePage } from './pages/HomePage';
 import { InventoryPage } from './pages/InventoryPage';
 import { LicensePage } from './pages/LicensePage';
 import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
 import { ProductsPage } from './pages/ProductsPage';
 import { SellPage } from './pages/SellPage';
 import { UsersPage } from './pages/UsersPage';
@@ -15,13 +17,16 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage title="Completando inicio de sesión" />} />
       <Route path="/auth/silent-renew" element={<AuthCallbackPage title="Renovando sesión" />} />
       <Route
         path="/"
         element={
           <ProtectedRoute>
-            <Layout />
+            <TenantAccessGate>
+              <Layout />
+            </TenantAccessGate>
           </ProtectedRoute>
         }
       >

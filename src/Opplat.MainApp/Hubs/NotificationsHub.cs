@@ -1,11 +1,8 @@
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Cors;
-using Opplat.MainApp.Data;
-using Opplat.MainApp.Models;
+using Opplat.Infrastructure.Persistance.Data;
+using Opplat.Domain.Models;
 
 namespace Opplat.MainApp.Hubs;
 

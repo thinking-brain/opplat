@@ -7,14 +7,9 @@ namespace Opplat.Infrastructure.Identity;
 /// No-op Graph API stub for local development (Keycloak).
 /// Logs a warning and returns success so upstream flows don't fail.
 /// </summary>
-public sealed class NoOpGraphUserService : IGraphUserService
+public sealed class NoOpGraphUserService(ILogger<NoOpGraphUserService> logger) : IGraphUserService
 {
-    private readonly ILogger<NoOpGraphUserService> _logger;
-
-    public NoOpGraphUserService(ILogger<NoOpGraphUserService> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<NoOpGraphUserService> _logger = logger;
 
     public Task<GraphUserResult> CreateUserAsync(CreateGraphUserRequest request, CancellationToken ct = default)
     {

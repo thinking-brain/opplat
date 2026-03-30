@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
+using Opplat.Application.Abstractions.Options;
 
 namespace Opplat.AdminApi.Auth;
 

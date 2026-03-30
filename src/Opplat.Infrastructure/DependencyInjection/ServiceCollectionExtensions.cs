@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
                     : throw new InvalidOperationException(
                         "GraphApi:ClientSecret is required. Certificate-based auth is planned but not yet implemented.");
 
-                return new GraphServiceClient(credential, new[] { "https://graph.microsoft.com/.default" });
+                return new GraphServiceClient(credential, ["https://graph.microsoft.com/.default"]);
             });
 
             services.AddScoped<IGraphUserService, GraphUserService>();
@@ -47,6 +47,30 @@ public static class ServiceCollectionExtensions
         else
         {
             services.AddScoped<IGraphUserService, NoOpGraphUserService>();
+        }
+
+        return services;
+    }
+
+    public static IServiceCollection AddKeycloakUserService(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var section = configuration.GetSection(KeycloakAdminOptions.SectionName);
+        services.Configure<KeycloakAdminOptions>(section);
+
+        var options = section.Get<KeycloakAdminOptions>() ?? new KeycloakAdminOptions();
+
+        if (options.Enabled
+            && !string.IsNullOrWhiteSpace(options.BaseUrl)
+            && !string.IsNullOrWhiteSpace(options.Realm))
+        {
+            services.AddHttpClient<KeycloakUserService>();
+            services.AddScoped<IKeycloakUserService, KeycloakUserService>();
+        }
+        else
+        {
+            services.AddScoped<IKeycloakUserService, NoOpKeycloakUserService>();
         }
 
         return services;

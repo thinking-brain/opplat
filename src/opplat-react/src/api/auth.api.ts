@@ -1,9 +1,28 @@
-import { authAxiosClient } from './axiosClient';
-import type { User } from '../types';
+import { adminPublicAxiosClient, authAxiosClient } from './axiosClient';
+import type { RegisterUser, TenantAccessContext, User } from '../types';
+
+export const registerUser = async (data: RegisterUser): Promise<{ userId: string; message: string }> => {
+  const response = await adminPublicAxiosClient.post<{ userId: string; message: string }>(
+    '/auth/register',
+    {
+      username: data.username,
+      email: data.email,
+      firstName: data.name,
+      lastName: data.lastName,
+      password: data.password,
+    }
+  );
+  return response.data;
+};
 
 export const authApi = {
   getCurrentUser: async (username: string): Promise<User> => {
     const response = await authAxiosClient.get<User>(`/auth/Account/profile/${username}`);
+    return response.data;
+  },
+
+  getTenantContext: async (): Promise<TenantAccessContext> => {
+    const response = await authAxiosClient.get<TenantAccessContext>('/auth/account/tenant-context');
     return response.data;
   },
 };

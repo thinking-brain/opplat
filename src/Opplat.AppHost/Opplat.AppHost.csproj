@@ -14,8 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Opplat.MainApp\Opplat.MainApp.csproj" />
     <ProjectReference Include="..\Opplat.AdminApi\Opplat.AdminApi.csproj" />
-    <ProjectReference Include="..\Services\Sales\Opplat.Services.Sales.Api\Opplat.Services.Sales.Api.csproj" />
-    <ProjectReference Include="..\Services\Inventory\Opplat.Services.Inventory.Api\Opplat.Services.Inventory.Api.csproj" />
   </ItemGroup>
 
 </Project>

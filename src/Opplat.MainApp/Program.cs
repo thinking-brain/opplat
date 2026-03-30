@@ -1,28 +1,27 @@
 using System.Reflection;
-using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Opplat.MainApp.Auth;
-using Opplat.MainApp.Data;
-using Opplat.MainApp.Features.Admin;
-using Opplat.MainApp.Features.Account;
 using Opplat.MainApp.Hosting;
-using Opplat.MainApp.Features.Inventory;
-using Opplat.MainApp.Features.License;
-using Opplat.MainApp.Features.Menus;
-using Opplat.MainApp.Features.Sales;
-using Opplat.MainApp.Models;
 using Opplat.MainApp.Middleware;
-using Opplat.MainApp.Services;
-using Opplat.MainApp.Utils;
 using Opplat.Application.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using Finbuckle.MultiTenant.Extensions;
+using Opplat.Domain.Models;
+using Finbuckle.MultiTenant.AspNetCore.Extensions;
+using Opplat.Application.Services;
+using Opplat.Infrastructure.Persistance.Data;
+using Opplat.MainApp;
+using Opplat.Infrastructure.Services;
+using Opplat.Application.Utils;
+using Opplat.MainApp.Endpoints;
+using Opplat.MainApp.Endpoints.Inventory;
+using Opplat.MainApp.Endpoints.Sales;
+using Opplat.Application.Abstractions.Options;
+using Opplat.Application.Abstractions.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 var authSection = builder.Configuration.GetSection(AuthOptions.SectionName);
@@ -33,7 +32,7 @@ var requireHttpsMetadata = !builder.Environment.IsDevelopment();
 // MULTI-TENANT CONFIGURATION
 // ============================================
 builder.Services.AddMultiTenant<AppTenantInfo>()
-    .WithRouteStrategy("__tenant__")
+    .WithRouteStrategy("__tenant__", true)
     .WithHeaderStrategy("X-Tenant-Identifier")
     .WithStore<TenantCatalogStore>(ServiceLifetime.Singleton);
 
@@ -51,6 +50,7 @@ builder.Services.AddDbContext<OpplatDbContext>((serviceProvider, options) =>
     options.UseNpgsql(connectionString);
 });
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddIdentity<Usuario, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<OpplatDbContext>()
@@ -70,7 +70,7 @@ builder.Services.AddScoped<TenantProvisioningService>();
 // ============================================
 // MEDIATR
 // ============================================
-builder.Services.AddOpplatApplication(Assembly.GetExecutingAssembly());
+builder.Services.AddOpplatApplication();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

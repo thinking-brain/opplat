@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Link as RouterLink, Navigate, useLocation } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -8,6 +8,7 @@ import {
   CardContent,
   CircularProgress,
   Container,
+  Link,
   Stack,
   Typography,
 } from '@mui/material';
@@ -67,6 +68,12 @@ export const LoginPage: React.FC = () => {
               >
                 {loading ? 'Redirigiendo...' : 'Entrar con OIDC'}
               </Button>
+              <Typography variant="body2" color="text.secondary">
+                Don't have an account?{' '}
+                <Link component={RouterLink} to="/register">
+                  Register
+                </Link>
+              </Typography>
             </Stack>
           </CardContent>
         </Card>

@@ -1,23 +1,14 @@
-using System.Reflection;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Opplat.Application.Inventory.DependencyInjection;
-using Opplat.Application.Sales.DependencyInjection;
+using Opplat.Application.Features.Account.Commands;
 
 namespace Opplat.Application.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddOpplatApplication(
-        this IServiceCollection services,
-        params Assembly[] additionalAssemblies)
+        this IServiceCollection services)
     {
-        var assemblies = new[] { typeof(AssemblyMarker).Assembly }
-            .Concat(additionalAssemblies)
-            .Distinct()
-            .ToArray();
-
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(assemblies));
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(ChangePasswordCommand).Assembly));
         services.AddSalesApplication();
         services.AddInventoryApplication();
 

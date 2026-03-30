@@ -73,78 +73,6 @@ var mainApp = builder.AddProject(
     .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__DatabaseName", TestDatabaseName)
     .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__DatabaseSchema", TestSchema);
 
-var salesApi = builder.AddProject(
-        "sales-api",
-        RepoPath("src", "Services", "Sales", "Opplat.Services.Sales.Api", "Opplat.Services.Sales.Api.csproj"),
-        ConfigureProjectDefaults)
-    .WithReference(postgres)
-    .WaitFor(postgresBootstrap)
-    .WaitFor(mainApp)
-    .WithHttpEndpoint(port: 8083, name: "sales-api-http")
-    .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
-    .WithEnvironment(context => ConfigureTenantAwareApiEnvironmentAsync(
-        context,
-        postgres.Resource,
-        MainDatabaseName,
-        (MojocafeDatabaseName, MojocafeSchema),
-        (DemoDatabaseName, DemoSchema),
-        (TestDatabaseName, TestSchema)))
-    .WithEnvironment("Auth__Authority", KeycloakAuthority)
-    .WithEnvironment("Auth__MetadataAddress", KeycloakMetadataAddress)
-    .WithEnvironment("Auth__Audience", "opplat-api")
-    .WithEnvironment("Auth__ClientIdClient", "opplat-client")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Id", "mojocafe")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Identifier", "mojocafe")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Name", "MojoCafe")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__DatabaseName", MojocafeDatabaseName)
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__DatabaseSchema", MojocafeSchema)
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Id", "demo")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Identifier", "demo")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Name", "Demo")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__DatabaseName", DemoDatabaseName)
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__DatabaseSchema", DemoSchema)
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Id", "test")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Identifier", "test")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Name", "Test")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__DatabaseName", TestDatabaseName)
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__DatabaseSchema", TestSchema);
-
-var inventoryApi = builder.AddProject(
-        "inventory-api",
-        RepoPath("src", "Services", "Inventory", "Opplat.Services.Inventory.Api", "Opplat.Services.Inventory.Api.csproj"),
-        ConfigureProjectDefaults)
-    .WithReference(postgres)
-    .WaitFor(postgresBootstrap)
-    .WaitFor(mainApp)
-    .WithHttpEndpoint(port: 8082, name: "inventory-api-http")
-    .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
-    .WithEnvironment(context => ConfigureTenantAwareApiEnvironmentAsync(
-        context,
-        postgres.Resource,
-        MainDatabaseName,
-        (MojocafeDatabaseName, MojocafeSchema),
-        (DemoDatabaseName, DemoSchema),
-        (TestDatabaseName, TestSchema)))
-    .WithEnvironment("Auth__Authority", KeycloakAuthority)
-    .WithEnvironment("Auth__MetadataAddress", KeycloakMetadataAddress)
-    .WithEnvironment("Auth__Audience", "opplat-api")
-    .WithEnvironment("Auth__ClientIdClient", "opplat-client")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Id", "mojocafe")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Identifier", "mojocafe")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__Name", "MojoCafe")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__DatabaseName", MojocafeDatabaseName)
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__0__DatabaseSchema", MojocafeSchema)
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Id", "demo")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Identifier", "demo")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__Name", "Demo")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__DatabaseName", DemoDatabaseName)
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__1__DatabaseSchema", DemoSchema)
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Id", "test")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Identifier", "test")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__Name", "Test")
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__DatabaseName", TestDatabaseName)
-    .WithEnvironment("Finbuckle__MultiTenant__Stores__ConfigurationStore__Tenants__2__DatabaseSchema", TestSchema);
-
 var adminApi = builder.AddProject(
         "admin-api",
         RepoPath("src", "Opplat.AdminApi", "Opplat.AdminApi.csproj"),
@@ -175,8 +103,6 @@ builder.AddViteApp(
     })
     .WithEnvironment("PORT", "3200")
     .WaitFor(mainApp)
-    .WaitFor(salesApi)
-    .WaitFor(inventoryApi)
     .WaitFor(keycloak)
     .WithEnvironment("BROWSER", "none")
     .WithEnvironment("OPPLAT_RUNNING_IN_ASPIRE", "true")

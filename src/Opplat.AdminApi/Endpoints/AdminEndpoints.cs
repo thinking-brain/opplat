@@ -7,8 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Opplat.Application.Abstractions.Admin;
 using Opplat.AdminApi.Auth;
-using Opplat.AdminApi.Features.Admin.Commands;
-using Opplat.AdminApi.Features.Admin.Queries;
+using Opplat.Application.Dtos;
+using Opplat.Application.Features.Admin.Commands;
+using Opplat.Application.Abstractions.Options;
+using Opplat.Application.Features.Admin.Queries;
+using Opplat.Application.Abstractions.Auth;
 
 namespace Opplat.AdminApi.Endpoints;
 
@@ -26,6 +29,21 @@ public static class AdminEndpoints
             async ([FromServices] IMediator mediator, CancellationToken cancellationToken) =>
                 Results.Ok(await mediator.Send(new GetTenantsQuery(), cancellationToken)))
             .WithSummary("List tenants");
+
+        adminData.MapGet("/core/tenants",
+            async ([FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+                Results.Ok(await mediator.Send(new GetCoreTenantsQuery(), cancellationToken)))
+            .WithSummary("List tenants from the core application catalog");
+
+        adminData.MapGet("/subscription-plans",
+            async ([FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+                Results.Ok(await mediator.Send(new GetSubscriptionPlansQuery(), cancellationToken)))
+            .WithSummary("List subscription plans");
+
+        adminData.MapGet("/database-instances",
+            async ([FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+                Results.Ok(await mediator.Send(new GetDatabaseInstancesQuery(), cancellationToken)))
+            .WithSummary("List database instances");
 
         adminData.MapPost("/tenants",
             async (UpsertTenantRequest request, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
@@ -82,6 +100,24 @@ public static class AdminEndpoints
                 });
             })
             .WithSummary("Issue a CSRF token for cookie-authenticated admin requests");
+
+        admin.MapPost("/core/tenants/{identifier}/provision",
+            async (string identifier, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+                await ExecuteAdminWriteAsync(async () =>
+                    Results.Ok(await mediator.Send(new ProvisionTenantSchemaCommand(identifier), cancellationToken))))
+            .WithSummary("Provision or verify a tenant schema from the central catalog");
+
+        admin.MapPost("/core/migrations/tenants/{identifier}",
+            async (string identifier, TenantSchemaMigrationRequest request, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+                await ExecuteAdminWriteAsync(async () =>
+                    Results.Ok(await mediator.Send(new RunTenantSchemaMigrationCommand(identifier, request), cancellationToken))))
+            .WithSummary("Run a tenant schema migration for one tenant");
+
+        admin.MapPost("/core/migrations/bulk",
+            async (TenantSchemaMigrationRequest request, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+                await ExecuteAdminWriteAsync(async () =>
+                    Results.Ok(await mediator.Send(new RunBulkTenantSchemaMigrationCommand(request), cancellationToken))))
+            .WithSummary("Run a tenant schema migration across all active tenants");
 
         var bff = app.MapGroup("/auth/bff/admin").WithTags("Admin BFF");
 

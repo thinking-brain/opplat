@@ -1,0 +1,51 @@
+using Finbuckle.MultiTenant.Abstractions;
+
+namespace Opplat.Domain.Models;
+
+/// <summary>
+/// Tenant information for Opplat multi-tenant system.
+/// </summary>
+public class AppTenantInfo : ITenantInfo
+{
+    /// <summary>
+    /// Unique identifier (GUID) - used internally
+    /// </summary>
+    public required string Id { get; set; }
+
+    /// <summary>
+    /// URL-safe identifier (e.g., "mojocafe", "restaurant-a")
+    /// Used in route: /{__tenant__}/api/...
+    /// </summary>
+    public required string Identifier { get; set; }
+
+    /// <summary>
+    /// Display name (e.g., "Mojo Café")
+    /// </summary>
+    public string? Name { get; set; }
+
+    /// <summary>
+    /// Per-tenant connection string (full database isolation)
+    /// </summary>
+    public string? ConnectionString { get; set; }
+
+    /// <summary>
+    /// PostgreSQL database name when the catalog stores database metadata instead of a full connection string.
+    /// </summary>
+    public string? DatabaseName { get; set; }
+
+    /// <summary>
+    /// Optional PostgreSQL schema used for tenant-scoped objects.
+    /// </summary>
+    public string? DatabaseSchema { get; set; }
+
+    /// <summary>
+    /// JWT signing key (optional per-tenant override)
+    /// Falls back to global config if null.
+    /// </summary>
+    public string? JwtSigningKey { get; set; }
+
+    /// <summary>
+    /// Whether the tenant is active (for soft-disable)
+    /// </summary>
+    public bool IsActive { get; set; } = true;
+}

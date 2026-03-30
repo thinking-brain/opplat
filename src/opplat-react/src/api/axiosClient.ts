@@ -72,4 +72,10 @@ export const salesAxiosClient = createAxiosClient(appConfig.salesApiUrl, true);
 
 export const inventoryAxiosClient = createAxiosClient(appConfig.inventoryApiUrl, true);
 
+// Plain client for public endpoints (no auth token, no tenant scoping)
+export const adminPublicAxiosClient = axios.create({
+  baseURL: appConfig.adminApiUrl,
+  headers: { 'Content-Type': 'application/json' },
+});
+
 export default authAxiosClient;
