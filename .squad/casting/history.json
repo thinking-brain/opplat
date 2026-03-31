@@ -1,0 +1,28 @@
+{
+  "universe_usage_history": [
+    {
+      "universe": "Sneakers",
+      "used_at": "2026-03-31T13:39:59Z",
+      "project": "opplat",
+      "assignment_id": "opplat-2026-03-31"
+    }
+  ],
+  "assignment_cast_snapshots": {
+    "opplat-2026-03-31": {
+      "universe": "Sneakers",
+      "project": "opplat",
+      "created_at": "2026-03-31T13:39:59Z",
+      "requested_by": "Elvis Crego",
+      "agents": [
+        { "name": "Bishop", "role": "Lead Engineer (Multitenant & Cloud)" },
+        { "name": "Mother", "role": ".NET Senior Dev" },
+        { "name": "Cosmo", "role": ".NET Senior Dev" },
+        { "name": "Liz", "role": "Frontend Dev (React)" },
+        { "name": "Carl", "role": "QA Specialist" },
+        { "name": "Whistler", "role": "Security Specialist" },
+        { "name": "Scribe", "role": "Session Logger" },
+        { "name": "Ralph", "role": "Work Monitor" }
+      ]
+    }
+  }
+}

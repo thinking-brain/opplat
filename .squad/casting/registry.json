@@ -1,0 +1,68 @@
+{
+  "agents": {
+    "bishop": {
+      "persistent_name": "Bishop",
+      "universe": "Sneakers",
+      "role": "Lead Engineer (Multitenant & Cloud)",
+      "created_at": "2026-03-31T13:39:59Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "mother": {
+      "persistent_name": "Mother",
+      "universe": "Sneakers",
+      "role": ".NET Senior Dev",
+      "created_at": "2026-03-31T13:39:59Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "cosmo": {
+      "persistent_name": "Cosmo",
+      "universe": "Sneakers",
+      "role": ".NET Senior Dev",
+      "created_at": "2026-03-31T13:39:59Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "liz": {
+      "persistent_name": "Liz",
+      "universe": "Sneakers",
+      "role": "Frontend Dev (React)",
+      "created_at": "2026-03-31T13:39:59Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "carl": {
+      "persistent_name": "Carl",
+      "universe": "Sneakers",
+      "role": "QA Specialist",
+      "created_at": "2026-03-31T13:39:59Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "whistler": {
+      "persistent_name": "Whistler",
+      "universe": "Sneakers",
+      "role": "Security Specialist",
+      "created_at": "2026-03-31T13:39:59Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "scribe": {
+      "persistent_name": "Scribe",
+      "universe": "exempt",
+      "role": "Session Logger",
+      "created_at": "2026-03-31T13:39:59Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "ralph": {
+      "persistent_name": "Ralph",
+      "universe": "exempt",
+      "role": "Work Monitor",
+      "created_at": "2026-03-31T13:39:59Z",
+      "legacy_named": false,
+      "status": "active"
+    }
+  }
+}
