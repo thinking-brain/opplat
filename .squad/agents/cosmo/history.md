@@ -19,3 +19,14 @@
 ## Learnings
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
+
+### 2026-01-01 — Phase 1: Tenant User Commands & Audit Log
+
+- **TenantUser catalog is the truth store.** All user lifecycle goes through `AdminTenantCatalogDbContext.TenantUsers`. UserManager/per-tenant Identity tables are legacy dead code.
+- **IGraphUserService is the Entra adapter.** `CreateUserAsync`, `EnableUserAsync`, `DisableUserAsync` are the three lifecycle methods used by tenant user commands. `IKeycloakUserService` only has `CreateUserAsync` + `DeleteUserAsync` — no enable/disable — so update operations use Graph only.
+- **TenantUser.Id is Guid, UserId in commands is string.** Always `Guid.TryParse` the incoming string UserId. Return false/null on parse failure rather than throwing.
+- **AuditLogService swallows its own exceptions.** This is intentional — audit failures must not surface as 500s.
+- **AdminTenantCatalogDbContext can use InMemory for unit tests.** It takes `DbContextOptions<AdminTenantCatalogDbContext>` as primary constructor param, so `DbContextOptionsBuilder.UseInMemoryDatabase` works cleanly in tests.
+- **AppTenantInfo.Id is a string GUID.** Parse with `Guid.TryParse` when you need the typed Guid for EF queries.
+- **SubscriptionPlan.MaxActiveUsers** is the seat limit field — check `tenant.TenantUsers.Count(u => u.IsActive) >= plan.MaxActiveUsers` for the cap.
+- **Temporary password pattern:** `$"Tmp!{Guid.NewGuid():N}1A"` meets Entra complexity (upper, lower, digit, special).

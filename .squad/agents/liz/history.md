@@ -18,3 +18,7 @@
 ## Learnings
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
+- Implemented multi-step registration wizard (RegisterPage) with MUI Stepper. Steps: plan selection, business info, account details. Auto-slugify tenantIdentifier from businessName.
+- MUI Stepper components: `Stepper`, `Step`, `StepLabel`, `StepContent` for visual progress tracking. Validation happens per-step; form state managed in component.
+- Subscription plan fetching from GET /admin/subscription-plans (anonymously accessible). TenantRegistrationRequest POST payload includes selectedPlanId, businessName, tenantIdentifier, email, password.
+- LoginPage updated with prominent "Create Account" button linking to RegisterPage. Provider-neutral auth fields preserved (email, not Keycloak/Entra-specific claims).
