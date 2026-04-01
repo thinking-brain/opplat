@@ -112,3 +112,81 @@ Adopt TPC (Table-Per-Concrete-Class) as the EF Core inheritance mapping strategy
 
 - EF Core 10 TPC: https://learn.microsoft.com/en-us/ef/core/modeling/inheritance
 - PostgreSQL UUID Functions: https://www.postgresql.org/docs/current/uuid-ossp.html
+
+---
+
+## AdminApi Startup Refactoring
+
+**Date:** 2026-04-01  
+**Author:** Mother  
+**Status:** Implemented
+
+### Context
+
+The `WebBuilderExtension.cs` file in AdminApi had grown to 335 lines, handling database configuration, provisioning services, MediatR setup, authentication, CORS, and infrastructure services all in a single method. This made it difficult to understand, test, and maintain.
+
+### Decision
+
+#### 1. Split by Concern into Focused Extension Files
+
+Created four new extension files in `src/Opplat.AdminApi/Extensions/`:
+
+- **AdminDatabaseExtensions.cs**: Registers `AdminTenantCatalogDbContext` with connection string normalization, plus all Module 3 provisioning services (`TenantSchemaProvisioningService`, `DatabaseInstanceAutoScalingService`, `ITenantSchemaMigrationRunner`, `ITenantProvisioningCoordinator`, reporters)
+  
+- **AdminAuthExtensions.cs**: Configures authentication (policy scheme, JWT bearer, cookie, OIDC), authorization policies ("AdminOnly"), antiforgery, session store, claims transformation
+  
+- **AdminMediatRExtensions.cs**: Registers MediatR for executing assembly + selective handler registration from `Opplat.Application` with namespace filter for Admin and Account features only
+  
+- **AdminCorsExtensions.cs**: CORS policy setup with configurable allowed origins
+
+#### 2. Infrastructure Reuse
+
+Created `AdminInfrastructureExtensions.cs` in `src/Opplat.Infrastructure/DependencyInjection/`:
+- Registers Graph/Keycloak user services, audit logging
+- **Note:** Aspire dev support (`AddOpplatAspireDevelopmentSupport`) remains in AdminApi because it requires ASP.NET Core-specific dependencies (health checks, forwarded headers middleware) that are not available in the Infrastructure project
+
+#### 3. Thin Orchestrator Pattern
+
+Refactored `WebBuilderExtension.AddAdminApi()` to ~80 lines:
+- Resolves auth configuration once (shared by multiple extensions)
+- Configures `AuthOptions` in DI
+- Delegates to focused extension methods
+- Clear, readable flow of startup logic
+
+#### 4. Startup Migrations & Dev Seeding
+
+Updated `Program.cs` to:
+- Apply pending EF migrations on startup with `db.Database.MigrateAsync()`
+- Seed development data only when `app.Environment.IsDevelopment()` is true
+
+Created `DevDataSeeder.cs` in `src/Opplat.AdminApi/Data/`:
+- Seeds 3 subscription plans (Starter, Professional, Enterprise) with correct entity properties: `PricingMonthly`, `MaxActiveUsers`, `MaxApiCallsPerMonth`, `MaxStorageGb`, `ResourceLimits` JSON string
+- Seeds 1 database instance with `Identifier` and `ConnectionStringReference`
+- Idempotent: checks for existing data before inserting
+
+### Rationale
+
+- **Separation of Concerns**: Each extension file has a single responsibility, making code easier to locate, understand, and modify
+- **Reusability**: Infrastructure services in their own extension can be reused by other APIs
+- **Testability**: Focused extensions are easier to unit test in isolation
+- **Startup Hygiene**: Applying migrations and seeding data in `Program.cs` ensures database is ready before app starts serving requests
+- **Environment Safety**: Dev seeding only runs in Development, preventing accidental data insertion in production
+
+### Alternatives Considered
+
+1. **Move all Aspire support to Infrastructure**: Rejected because it would introduce ASP.NET Core dependencies to Infrastructure project, breaking layer separation
+2. **Keep everything in one file**: Rejected for maintainability — 335-line method with multiple concerns is hard to navigate
+3. **Seed data in migration Up()**: Rejected — migrations should only handle schema, not reference data. Seeding belongs in application startup
+
+### Impact
+
+- **Files Created**: 5 new extension files (4 in AdminApi, 1 in Infrastructure), 1 seeder
+- **Files Modified**: `WebBuilderExtension.cs` (335→80 lines), `Program.cs` (added migration + seed calls)
+- **Build**: 0 errors, no breaking changes
+- **Migration**: Automatic EF migrations on startup ensure database schema is always current
+- **Dev Experience**: Clean seed data for local development without manual DB setup
+
+### References
+
+- Task request: Elvis Crego, 2026-04-01
+- Files: `src/Opplat.AdminApi/Extensions/*.cs`, `src/Opplat.Infrastructure/DependencyInjection/AdminInfrastructureExtensions.cs`, `src/Opplat.AdminApi/Program.cs`, `src/Opplat.AdminApi/Data/DevDataSeeder.cs`
