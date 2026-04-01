@@ -41,6 +41,7 @@ public class TenantProvisioningService(IServiceProvider serviceProvider)
             var optionsBuilder = new DbContextOptionsBuilder<OpplatDbContext>();
             optionsBuilder.UseNpgsql(tenantConnectionString);
 
+            await EnsureDatabaseExistsAsync(tenantConnectionString);
             await EnsureSchemaExistsAsync(tenantConnectionString, tenantInfo.DatabaseSchema);
 
             await using var context = new OpplatDbContext(optionsBuilder.Options, null);
@@ -108,6 +109,33 @@ public class TenantProvisioningService(IServiceProvider serviceProvider)
         finally
         {
             tenantLock.Release();
+        }
+    }
+
+    private static async Task EnsureDatabaseExistsAsync(string connectionString)
+    {
+        var builder = new NpgsqlConnectionStringBuilder(connectionString);
+        var databaseName = builder.Database;
+        if (string.IsNullOrWhiteSpace(databaseName))
+            return;
+
+        builder.Database = "postgres";
+        builder.SearchPath = null;
+
+        await using var connection = new NpgsqlConnection(builder.ConnectionString);
+        await connection.OpenAsync();
+
+        await using var checkCmd = connection.CreateCommand();
+        checkCmd.CommandText = "SELECT 1 FROM pg_database WHERE datname = @dbName";
+        checkCmd.Parameters.AddWithValue("dbName", databaseName);
+        var exists = await checkCmd.ExecuteScalarAsync();
+
+        if (exists is null)
+        {
+            var escapedDb = databaseName.Trim().Replace("\"", "\"\"");
+            await using var createCmd = connection.CreateCommand();
+            createCmd.CommandText = $"CREATE DATABASE \"{escapedDb}\"";
+            await createCmd.ExecuteNonQueryAsync();
         }
     }
 

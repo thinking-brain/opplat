@@ -1,5 +1,6 @@
 using Finbuckle.MultiTenant.Abstractions;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Dtos;
 using Opplat.Application.Features.Account.Commands;
@@ -58,7 +59,7 @@ public static class AccountEndpoints
         group.MapGet("/tenant-context",
             async (HttpContext httpContext,
                 IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
-                TenantCatalogStore tenantStore) =>
+                [FromServices] TenantCatalogStore tenantStore) =>
             {
                 var tenantInfo = tenantAccessor.MultiTenantContext?.TenantInfo;
                 var claimTenantIdentifier = httpContext.User.FindFirst(AuthClaimTypes.TenantIdentifier)?.Value;
