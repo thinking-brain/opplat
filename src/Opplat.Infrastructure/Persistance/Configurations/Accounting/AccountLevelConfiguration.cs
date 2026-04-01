@@ -8,7 +8,6 @@ public sealed class AccountLevelConfiguration : IEntityTypeConfiguration<Account
 {
     public void Configure(EntityTypeBuilder<AccountLevel> builder)
     {
-        builder.HasKey(a => a.Id);
         builder.Property(a => a.Number).IsRequired();
         builder.Property(a => a.Name).IsRequired();
         builder.HasOne(a => a.ParentLevel)

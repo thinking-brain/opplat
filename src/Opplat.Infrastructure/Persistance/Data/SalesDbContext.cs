@@ -31,7 +31,9 @@ public class SalesDbContext : DbContext, IMultiTenantDbContext
         builder.ConfigureMultiTenant();
         builder.ApplyConfigurationsFromAssembly(
             typeof(SalesDbContext).Assembly,
-            t => t.Namespace?.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Sales") == true);
+            t => t.Namespace != null && (
+                t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Common") ||
+                t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Sales")));
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)

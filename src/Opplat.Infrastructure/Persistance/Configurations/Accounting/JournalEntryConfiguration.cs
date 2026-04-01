@@ -8,8 +8,6 @@ public sealed class JournalEntryConfiguration : IEntityTypeConfiguration<Journal
 {
     public void Configure(EntityTypeBuilder<JournalEntry> builder)
     {
-        builder.HasKey(j => j.Id);
-        builder.Property(j => j.CreatedBy).IsRequired();
         builder.Property(j => j.Detail).IsRequired();
         builder.HasOne(j => j.AccountingDay)
             .WithMany(a => a.JournalEntries)

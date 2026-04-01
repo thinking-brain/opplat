@@ -15,17 +15,17 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                 name: "AdminTenantInfo",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 50, DateTimeKind.Utc).AddTicks(974)),
+                    CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Identifier = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     DatabaseName = table.Column<string>(type: "text", nullable: false),
                     DatabaseSchema = table.Column<string>(type: "text", nullable: false),
                     UserCount = table.Column<int>(type: "integer", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -36,16 +36,16 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                 name: "database_instances",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 50, DateTimeKind.Utc).AddTicks(974)),
+                    CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Identifier = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     ConnectionStringReference = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
                     CurrentTenantSchemaCount = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
-                    ArchivedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 17, 8, 56, 467, DateTimeKind.Utc).AddTicks(2676)),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    ArchivedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -56,7 +56,11 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                 name: "subscription_plans",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 50, DateTimeKind.Utc).AddTicks(974)),
+                    CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Description = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     MaxActiveUsers = table.Column<int>(type: "integer", nullable: false),
@@ -64,11 +68,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     MaxStorageGb = table.Column<decimal>(type: "numeric", nullable: false),
                     PricingMonthly = table.Column<decimal>(type: "numeric", nullable: false),
                     ResourceLimits = table.Column<string>(type: "jsonb", nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 17, 8, 56, 525, DateTimeKind.Utc).AddTicks(9191)),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,7 +79,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                 name: "tenants",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", maxLength: 128, nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Identifier = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
@@ -88,7 +88,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     DatabaseInstanceId = table.Column<Guid>(type: "uuid", nullable: false),
                     DatabaseName = table.Column<string>(type: "text", nullable: false),
                     DatabaseSchema = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 17, 8, 56, 540, DateTimeKind.Utc).AddTicks(7653)),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ModifiedBy = table.Column<string>(type: "text", nullable: true)
@@ -123,7 +123,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     IsPrimaryAdmin = table.Column<bool>(type: "boolean", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     DeactivatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 17, 8, 56, 549, DateTimeKind.Utc).AddTicks(3217)),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 60, DateTimeKind.Utc).AddTicks(6726)),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ModifiedBy = table.Column<string>(type: "text", nullable: true)
@@ -144,7 +144,11 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                 name: "audit_logs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 50, DateTimeKind.Utc).AddTicks(974)),
+                    CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     ActorOid = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     TargetTenantId = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     TargetTenantIdFk = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
@@ -152,11 +156,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     ActionType = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     BeforeState = table.Column<string>(type: "jsonb", nullable: true),
                     AfterState = table.Column<string>(type: "jsonb", nullable: true),
-                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 17, 8, 56, 319, DateTimeKind.Utc).AddTicks(3127)),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 23, DateTimeKind.Utc).AddTicks(4911))
                 },
                 constraints: table =>
                 {

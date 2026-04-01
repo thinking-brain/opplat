@@ -48,3 +48,67 @@ Refactor the entire persistence layer to use Fluent API configuration exclusivel
 ### Related
 - EF Core Best Practices: https://learn.microsoft.com/en-us/ef/core/modeling/
 - DDD Persistence Patterns
+
+---
+
+## TPC Inheritance Strategy for BaseEntity
+
+**Date:** 2026-04-01  
+**Author:** Mother  
+**Status:** Implemented
+
+### Context
+
+After moving entity configuration to Fluent API, the next step was to standardize the inheritance mapping strategy for all BaseEntity-derived entities. Previous code did not explicitly define a mapping strategy, leaving potential for inconsistent behavior.
+
+### Decision
+
+Adopt TPC (Table-Per-Concrete-Class) as the EF Core inheritance mapping strategy for all `BaseEntity`-derived entities.
+
+### Rationale
+
+- **Performance:** Each concrete entity maps to its own table; no `UNION ALL` queries over discriminator columns, no nullable columns from TPH (Table-Per-Hierarchy)
+- **Simplicity:** `BaseEntity` properties (`Id`, `CreatedAt`, `CreatedBy`, `ModifiedAt`, `ModifiedBy`) are defined once in `BaseEntityConfiguration` and applied to all concrete tables
+- **Database-Generated IDs:** `gen_random_uuid()` default on `Id` removes the need for app-side UUID generation
+
+### Implementation Details
+
+- **EF Core 10 API:** Use `UseTpcMappingStrategy()` (NOT `UseTpc()` — the shorthand does not exist in EF Core 10)
+- **Package Dependency:** `Microsoft.EntityFrameworkCore.Relational` must be an explicit `<PackageReference>` in `Opplat.Infrastructure.csproj` — it is NOT sufficient as a transitive dependency from Npgsql for extension method resolution at compile time
+- **Configuration File:** `Configurations/Common/BaseEntityConfiguration.cs` defines the strategy and base property constraints
+- **DbContext Updates:** All 4 DbContexts updated to include `Common` namespace in `ApplyConfigurationsFromAssembly` filter
+
+### Changes Made
+
+1. `BaseEntity` → made abstract
+2. `User` entity now inherits `BaseEntity`; duplicate `Guid Id` removed
+3. `JournalEntry.CreatedBy` (duplicate property hiding base) removed from entity
+4. `Configurations/Common/BaseEntityConfiguration` created with `UseTpcMappingStrategy()`
+5. All 4 DbContext namespace filters updated to include `Common`
+6. `HasKey(e => e.Id)` removed from ~27 BaseEntity-inheriting configurations (redundant under TPC)
+7. `TenantConfiguration` cleanups:
+   - Removed `Id.HasMaxLength(128)` (unnecessary for UUID columns)
+   - Removed `CreatedAt.HasDefaultValue(DateTime.UtcNow)` (static value, incorrect semantics)
+8. All 4 migrations deleted and regenerated
+
+### Consequences
+
+#### Positive
+- **Clean inheritance model:** Single source of truth for base entity properties and constraints
+- **Performance:** No discriminator overhead or nullable columns
+- **Schema clarity:** Each table clearly represents a concrete entity type
+- **Type safety:** No need for runtime type checks or casting
+
+#### Negative
+- Slightly larger storage footprint per concrete table (Id and audit fields repeated)
+- Requires developers to understand TPC semantics (acceptable for team familiarity)
+
+### Build Validation
+
+- **Errors:** 0
+- **Warnings:** 36 (pre-existing, not related to this change)
+
+### Related Links
+
+- EF Core 10 TPC: https://learn.microsoft.com/en-us/ef/core/modeling/inheritance
+- PostgreSQL UUID Functions: https://www.postgresql.org/docs/current/uuid-ossp.html

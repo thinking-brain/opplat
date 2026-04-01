@@ -10,8 +10,6 @@ public class JournalEntry : BaseEntity
 
     public virtual ICollection<Movement> Movements { get; set; } = [];
 
-    public required string CreatedBy { get; set; }
-
     public required string Detail { get; set; }
 
     public bool IsValid

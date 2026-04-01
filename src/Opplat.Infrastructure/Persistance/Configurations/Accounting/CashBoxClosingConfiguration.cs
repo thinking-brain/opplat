@@ -8,7 +8,6 @@ public sealed class CashBoxClosingConfiguration : IEntityTypeConfiguration<CashB
 {
     public void Configure(EntityTypeBuilder<CashBoxClosing> builder)
     {
-        builder.HasKey(c => c.Id);
         builder.HasOne(c => c.AccountingDay)
             .WithMany()
             .HasForeignKey(c => c.AccountingDayId);

@@ -8,7 +8,6 @@ public sealed class AnnotationConfiguration : IEntityTypeConfiguration<Annotatio
 {
     public void Configure(EntityTypeBuilder<Annotation> builder)
     {
-        builder.HasKey(a => a.Id);
         builder.Property(a => a.Acronym).IsRequired();
         builder.Property(a => a.Description).IsRequired();
     }

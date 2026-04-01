@@ -8,6 +8,5 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
 {
     public void Configure(EntityTypeBuilder<Sale> builder)
     {
-        builder.HasKey(s => s.Id);
     }
 }

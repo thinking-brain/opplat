@@ -31,7 +31,9 @@ public class InventoryDbContext : DbContext, IMultiTenantDbContext
         builder.ConfigureMultiTenant();
         builder.ApplyConfigurationsFromAssembly(
             typeof(InventoryDbContext).Assembly,
-            t => t.Namespace?.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Inventory") == true);
+            t => t.Namespace != null && (
+                t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Common") ||
+                t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Inventory")));
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)

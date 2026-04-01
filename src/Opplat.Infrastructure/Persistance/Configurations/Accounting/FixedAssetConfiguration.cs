@@ -8,7 +8,6 @@ public sealed class FixedAssetConfiguration : IEntityTypeConfiguration<FixedAsse
 {
     public void Configure(EntityTypeBuilder<FixedAsset> builder)
     {
-        builder.HasKey(f => f.Id);
         builder.Property(f => f.Description).IsRequired();
     }
 }

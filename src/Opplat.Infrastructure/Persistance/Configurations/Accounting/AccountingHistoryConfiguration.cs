@@ -8,7 +8,6 @@ public sealed class AccountingHistoryConfiguration : IEntityTypeConfiguration<Ac
 {
     public void Configure(EntityTypeBuilder<AccountingHistory> builder)
     {
-        builder.HasKey(a => a.Id);
         builder.Property(a => a.Description).IsRequired();
     }
 }

@@ -8,7 +8,6 @@ public sealed class AccountingDayConfiguration : IEntityTypeConfiguration<Accoun
 {
     public void Configure(EntityTypeBuilder<AccountingDay> builder)
     {
-        builder.HasKey(a => a.Id);
         builder.ToTable("contb_dia_contable");
     }
 }

@@ -8,7 +8,6 @@ public sealed class ProductTagConfiguration : IEntityTypeConfiguration<ProductTa
 {
     public void Configure(EntityTypeBuilder<ProductTag> builder)
     {
-        builder.HasKey(t => t.Id);
         builder.Property(t => t.Name).IsRequired();
     }
 }

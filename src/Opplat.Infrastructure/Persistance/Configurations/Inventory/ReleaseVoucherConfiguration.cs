@@ -8,7 +8,6 @@ public sealed class ReleaseVoucherConfiguration : IEntityTypeConfiguration<Relea
 {
     public void Configure(EntityTypeBuilder<ReleaseVoucher> builder)
     {
-        builder.HasKey(r => r.Id);
         builder.HasOne(r => r.Origin)
             .WithMany()
             .HasForeignKey(r => r.OriginId)

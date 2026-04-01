@@ -8,7 +8,6 @@ public sealed class PaymentMethodConfiguration : IEntityTypeConfiguration<Paymen
 {
     public void Configure(EntityTypeBuilder<PaymentMethod> builder)
     {
-        builder.HasKey(p => p.Id);
         builder.ToTable("contb_formas_de_pago");
         builder.Property(p => p.Name).IsRequired();
     }

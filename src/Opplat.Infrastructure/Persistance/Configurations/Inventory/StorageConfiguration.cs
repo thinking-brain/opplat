@@ -8,6 +8,5 @@ public sealed class StorageConfiguration : IEntityTypeConfiguration<Storage>
 {
     public void Configure(EntityTypeBuilder<Storage> builder)
     {
-        builder.HasKey(s => s.Id);
     }
 }

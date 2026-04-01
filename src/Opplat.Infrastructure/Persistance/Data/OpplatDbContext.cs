@@ -28,6 +28,7 @@ public class OpplatDbContext(
         builder.ApplyConfigurationsFromAssembly(
             typeof(OpplatDbContext).Assembly,
             t => t.Namespace != null && (
+                t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Common") ||
                 t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Sales") ||
                 t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Inventory") ||
                 t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Core")));

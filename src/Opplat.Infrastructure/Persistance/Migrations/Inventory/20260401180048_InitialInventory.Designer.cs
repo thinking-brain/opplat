@@ -12,7 +12,7 @@ using Opplat.Infrastructure.Persistance.Data;
 namespace Opplat.Infrastructure.Persistance.Migrations.Inventory
 {
     [DbContext(typeof(InventoryDbContext))]
-    [Migration("20260401171020_InitialInventory")]
+    [Migration("20260401180048_InitialInventory")]
     partial class InitialInventory
     {
         /// <inheritdoc />
@@ -25,62 +25,32 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Inventory
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Opplat.Domain.Entities.Inventory.Product", b =>
+            modelBuilder.Entity("Opplat.Domain.Entities.BaseEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("boolean");
-
-                    b.Property<decimal>("ContainerQuantity")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("numeric");
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("FixedValue")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("GroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("ItsInventoriable")
-                        .HasColumnType("boolean");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ModifiedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("ShrinkRatio")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId");
+                    b.ToTable((string)null);
 
-                    b.ToTable("Products");
+                    b.UseTpcMappingStrategy();
                 });
 
             modelBuilder.Entity("Opplat.Domain.Entities.Inventory.ProductClassification", b =>
@@ -165,29 +135,75 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Inventory
                     b.ToTable("Inventories");
                 });
 
-            modelBuilder.Entity("Opplat.Domain.Entities.Inventory.ProductMovement", b =>
+            modelBuilder.Entity("Opplat.Domain.Entities.Inventory.VoucherDetail", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
+
+                    b.Property<Guid>("VoucherId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("ProductId", "VoucherId");
+
+                    b.HasIndex("VoucherId");
+
+                    b.ToTable("VoucherDetail");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Inventory.Product", b =>
+                {
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("ContainerQuantity")
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("Cost")
                         .HasColumnType("numeric");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
+                    b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<decimal>("FixedValue")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("ItsInventoriable")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("ShrinkRatio")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Inventory.ProductMovement", b =>
+                {
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("text");
 
                     b.Property<string>("Observations")
                         .IsRequired()
@@ -210,8 +226,6 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Inventory
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
-
                     b.HasIndex("ProductId");
 
                     b.HasIndex("StorageId");
@@ -221,18 +235,10 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Inventory
 
             modelBuilder.Entity("Opplat.Domain.Entities.Inventory.ReleaseVoucher", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
 
                     b.Property<string>("AuthorizedBy")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Date")
@@ -245,16 +251,8 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Inventory
                     b.Property<Guid?>("DestinationId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("text");
-
                     b.Property<Guid>("OriginId")
                         .HasColumnType("uuid");
-
-                    b.HasKey("Id");
 
                     b.HasIndex("DestinationId");
 
@@ -265,18 +263,10 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Inventory
 
             modelBuilder.Entity("Opplat.Domain.Entities.Inventory.Storage", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
                     b.Property<string>("Description")
@@ -286,28 +276,12 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Inventory
                     b.Property<bool>("IsCostCenter")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
                     b.ToTable("Storages");
                 });
 
             modelBuilder.Entity("Opplat.Domain.Entities.Inventory.TangibleFixedAsset", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
 
                     b.Property<decimal>("CurrentValue")
                         .HasColumnType("numeric");
@@ -328,44 +302,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Inventory
                     b.Property<decimal>("InitialValue")
                         .HasColumnType("numeric");
 
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
                     b.ToTable("TangibleFixedAsset");
-                });
-
-            modelBuilder.Entity("Opplat.Domain.Entities.Inventory.VoucherDetail", b =>
-                {
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("VoucherId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("ProductId", "VoucherId");
-
-                    b.HasIndex("VoucherId");
-
-                    b.ToTable("VoucherDetail");
-                });
-
-            modelBuilder.Entity("Opplat.Domain.Entities.Inventory.Product", b =>
-                {
-                    b.HasOne("Opplat.Domain.Entities.Inventory.ProductGroup", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Group");
                 });
 
             modelBuilder.Entity("Opplat.Domain.Entities.Inventory.ProductGroup", b =>
@@ -396,6 +333,36 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Inventory
                     b.Navigation("Product");
 
                     b.Navigation("Storage");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Inventory.VoucherDetail", b =>
+                {
+                    b.HasOne("Opplat.Domain.Entities.Inventory.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Opplat.Domain.Entities.Inventory.ReleaseVoucher", "Voucher")
+                        .WithMany("Products")
+                        .HasForeignKey("VoucherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Voucher");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Inventory.Product", b =>
+                {
+                    b.HasOne("Opplat.Domain.Entities.Inventory.ProductGroup", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
                 });
 
             modelBuilder.Entity("Opplat.Domain.Entities.Inventory.ProductMovement", b =>
@@ -433,25 +400,6 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Inventory
                     b.Navigation("Destination");
 
                     b.Navigation("Origin");
-                });
-
-            modelBuilder.Entity("Opplat.Domain.Entities.Inventory.VoucherDetail", b =>
-                {
-                    b.HasOne("Opplat.Domain.Entities.Inventory.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Opplat.Domain.Entities.Inventory.ReleaseVoucher", "Voucher")
-                        .WithMany("Products")
-                        .HasForeignKey("VoucherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Voucher");
                 });
 
             modelBuilder.Entity("Opplat.Domain.Entities.Inventory.ProductClassification", b =>

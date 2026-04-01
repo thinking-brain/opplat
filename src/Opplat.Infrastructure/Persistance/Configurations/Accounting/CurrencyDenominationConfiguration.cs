@@ -8,7 +8,6 @@ public sealed class CurrencyDenominationConfiguration : IEntityTypeConfiguration
 {
     public void Configure(EntityTypeBuilder<CurrencyDenomination> builder)
     {
-        builder.HasKey(c => c.Id);
         builder.Property(c => c.Description).IsRequired();
         builder.HasOne(c => c.Currency)
             .WithMany()

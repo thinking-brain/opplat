@@ -41,9 +41,21 @@
 - Generated migrations for all 4 DbContexts: AdminTenantCatalogDbContext, OpplatDbContext, SalesDbContext, InventoryDbContext
 - Applied namespace filters in ApplyConfigurationsFromAssembly to keep DbContext configurations modular and bounded
 - Removed all DataAnnotations attributes from 26 entity files while preserving JsonIgnore for serialization
+
+### 2026-04-01 20:02 — TPC Inheritance for BaseEntity
 
-### 2026-04-01 19:12 - Post-Implementation Coordination
-- Created session log: `.squad/log/2026-04-01T19-12-42Z-entity-configurations.md`
+- Made `BaseEntity` abstract
+- Updated `User` to inherit `BaseEntity` (removed duplicate `Guid Id`)
+- Removed `required string CreatedBy` from `JournalEntry` entity (was shadowing `BaseEntity.CreatedBy`, pre-existing CS0108 warning eliminated)
+- Created `Configurations/Common/BaseEntityConfiguration` using `UseTpcMappingStrategy()` (EF Core 10 API — NOT `UseTpc()`) with `gen_random_uuid()` default for `Id`, `CreatedAt`/`ModifiedAt` required, `CreatedBy`/`ModifiedBy` max 256
+- Added `Microsoft.EntityFrameworkCore.Relational` as explicit package reference to `Opplat.Infrastructure.csproj` — `UseTpcMappingStrategy()` extension method was not resolvable without it even though Npgsql brings it transitively
+- Updated all 4 DbContext `ApplyConfigurationsFromAssembly` filters to include `Common` namespace
+- Removed `HasKey(e => e.Id)` from all BaseEntity-inheriting entity configurations (~27 files across Administration, Sales, Inventory, Accounting, Core)
+- Additional cleanups in TenantConfiguration: removed `HasMaxLength(128)` on `Id` and `HasDefaultValue(DateTime.UtcNow)` on `CreatedAt` (static startup-time value, incorrect semantics)
+- JournalEntryConfiguration: removed `builder.Property(j => j.CreatedBy).IsRequired()` (now handled by BaseEntityConfiguration)
+- Deleted and regenerated all 4 migrations: InitialAdministration, InitialMain, InitialSales, InitialInventory
+- Build: 0 errors, 36 pre-existing warnings
+
+- Created session log: `.squad/log/2026-04-01T20-02-59Z-tpc-baseentity.md`
 - Merged decision from inbox to `.squad/decisions/decisions.md`
-- Updated this history and Bishop's history with entity configuration outcomes
-- Prepared git commit with comprehensive message documenting all changes
+- Scribe prepared git commit with comprehensive message documenting all changes

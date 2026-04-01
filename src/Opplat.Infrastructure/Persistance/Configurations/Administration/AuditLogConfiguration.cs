@@ -10,8 +10,6 @@ public sealed class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
     {
         builder.ToTable("audit_logs");
 
-        builder.HasKey(t => t.Id);
-
         builder.Property(l => l.ActorOid).HasMaxLength(128).IsRequired();
         builder.Property(l => l.TargetTenantId).HasMaxLength(128);
         builder.Property(l => l.TargetTenantIdFk).HasMaxLength(128);

@@ -8,7 +8,6 @@ public sealed class AdminTenantInfoConfiguration : IEntityTypeConfiguration<Admi
 {
     public void Configure(EntityTypeBuilder<AdminTenantInfo> builder)
     {
-        builder.HasKey(a => a.Id);
         builder.Property(a => a.Identifier).IsRequired();
         builder.Property(a => a.Name).IsRequired();
         builder.Property(a => a.DatabaseName).IsRequired();

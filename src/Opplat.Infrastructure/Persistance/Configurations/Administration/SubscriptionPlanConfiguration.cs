@@ -10,8 +10,6 @@ public sealed class SubscriptionPlanConfiguration : IEntityTypeConfiguration<Sub
     {
         builder.ToTable("subscription_plans");
 
-        builder.HasKey(t => t.Id);
-
         builder.Property(p => p.Name).HasMaxLength(128).IsRequired();
         builder.Property(p => p.Description).HasMaxLength(512);
         builder.Property(p => p.MaxActiveUsers).IsRequired();

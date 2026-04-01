@@ -10,13 +10,10 @@ public sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
     {
         builder.ToTable("tenants");
 
-        builder.HasKey(t => t.Id);
-        builder.Property(t => t.Id).HasMaxLength(128);
         builder.Property(t => t.Identifier).HasMaxLength(128).IsRequired();
         builder.Property(t => t.Name).HasMaxLength(256).IsRequired();
         builder.Property(t => t.Status).HasConversion<string>().IsRequired();
         builder.Property(t => t.SubscriptionPlanId).IsRequired();
-        builder.Property(t => t.CreatedAt).HasDefaultValue(DateTime.UtcNow);
         builder.Property(t => t.DatabaseInstanceId).IsRequired();
         builder.Property(t => t.DatabaseSchema).HasMaxLength(128);
         builder.HasIndex(t => t.Identifier).IsUnique();

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Opplat.Infrastructure.Persistance.Data.Administration;
@@ -11,9 +12,11 @@ using Opplat.Infrastructure.Persistance.Data.Administration;
 namespace Opplat.Infrastructure.Persistance.Migrations.Administration
 {
     [DbContext(typeof(AdminTenantCatalogDbContext))]
-    partial class AdminTenantCatalogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260401180005_InitialAdministration")]
+    partial class InitialAdministration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

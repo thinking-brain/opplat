@@ -17,6 +17,8 @@ public sealed class AdminTenantCatalogDbContext(DbContextOptions<AdminTenantCata
 
         builder.ApplyConfigurationsFromAssembly(
             typeof(AdminTenantCatalogDbContext).Assembly,
-            t => t.Namespace?.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Administration") == true);
+            t => t.Namespace != null && (
+                t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Common") ||
+                t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Administration")));
     }
 }

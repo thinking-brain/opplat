@@ -8,7 +8,6 @@ public sealed class TangibleFixedAssetConfiguration : IEntityTypeConfiguration<T
 {
     public void Configure(EntityTypeBuilder<TangibleFixedAsset> builder)
     {
-        builder.HasKey(t => t.Id);
         builder.Property(t => t.Description).IsRequired();
     }
 }

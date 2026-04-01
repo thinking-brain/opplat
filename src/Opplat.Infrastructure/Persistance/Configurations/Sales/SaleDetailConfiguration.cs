@@ -8,7 +8,6 @@ public sealed class SaleDetailConfiguration : IEntityTypeConfiguration<SaleDetai
 {
     public void Configure(EntityTypeBuilder<SaleDetail> builder)
     {
-        builder.HasKey(s => s.Id);
         builder.HasOne(s => s.Product)
             .WithMany()
             .HasForeignKey(s => s.ProductId);
