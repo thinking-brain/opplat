@@ -59,3 +59,18 @@
 - Created session log: `.squad/log/2026-04-01T20-02-59Z-tpc-baseentity.md`
 - Merged decision from inbox to `.squad/decisions/decisions.md`
 - Scribe prepared git commit with comprehensive message documenting all changes
+
+### 2026-04-01 21:00 — AdminApi Startup Refactoring
+
+- Split monolithic `WebBuilderExtension.cs` (335 lines) into focused extension files by concern:
+  - `AdminDatabaseExtensions.cs`: DbContext + Module 3 provisioning services registration
+  - `AdminAuthExtensions.cs`: Authentication (JWT, Cookie, OIDC), authorization policies, antiforgery
+  - `AdminMediatRExtensions.cs`: MediatR registration with selective handler filtering
+  - `AdminCorsExtensions.cs`: CORS policy configuration
+- Moved infrastructure services registration to `Opplat.Infrastructure.DependencyInjection.AdminInfrastructureExtensions`: Graph/Keycloak user services, audit logging
+- Kept Aspire dev support (`AddOpplatAspireDevelopmentSupport`) in AdminApi since it requires ASP.NET Core dependencies (health checks, forwarded headers) not available in Infrastructure project
+- Refactored `WebBuilderExtension.AddAdminApi()` to thin orchestrator (80 lines) that resolves auth config and delegates to focused extensions
+- Added EF Core migrations on startup in `Program.cs` with `db.Database.MigrateAsync()` before `app.Run()`
+- Created `DevDataSeeder` to seed subscription plans and database instances in Development environment only
+- Seeder uses actual entity structure: `PricingMonthly` (not `PricePerMonth`), `ResourceLimits` JSON string (not separate properties), `DatabaseInstance.Identifier` + `ConnectionStringReference` (not individual host/port/name fields)
+- Build: 0 errors after fixing `AuthRuntimeConfiguration` type name and matching entity properties
