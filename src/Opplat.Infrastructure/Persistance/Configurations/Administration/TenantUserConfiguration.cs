@@ -11,7 +11,7 @@ public sealed class TenantUserConfiguration : IEntityTypeConfiguration<TenantUse
         builder.ToTable("tenant_users");
 
         builder.HasKey(t => t.Id);
-        builder.Property(u => u.Id).UseIdentityByDefaultColumn();
+
         builder.Property(u => u.EntraOid).HasMaxLength(128).IsRequired();
         builder.Property(u => u.TenantId).HasMaxLength(128).IsRequired();
         builder.Property(u => u.Email).HasMaxLength(256).IsRequired();
@@ -23,6 +23,7 @@ public sealed class TenantUserConfiguration : IEntityTypeConfiguration<TenantUse
         builder.HasOne(u => u.Tenant)
             .WithMany(t => t.TenantUsers)
             .HasForeignKey(u => u.TenantId)
+            .HasPrincipalKey(t => t.Id)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

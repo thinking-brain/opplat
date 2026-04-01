@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Security.Claims;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -13,6 +14,7 @@ using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Infrastructure.DependencyInjection;
 using Opplat.Infrastructure.Persistance.Data.Administration;
+using Opplat.Application.Abstractions.Services;
 using Opplat.Infrastructure.Services;
 
 namespace Opplat.AdminApi.Extensions;
@@ -98,16 +100,50 @@ public static class WebBuilderExtension
         builder.Services.AddSingleton(databaseInstanceOptions);
         builder.Services.AddScoped<TenantSchemaProvisioningService>();
         builder.Services.AddScoped<DatabaseInstanceAutoScalingService>();
-        builder.Services.AddScoped<TenantSchemaMigrationRunner>();
-        builder.Services.AddScoped<TenantProvisioningCoordinator>();
-        builder.Services.AddSingleton<IEnumerable<ITenantProvisioningReporter>>([]);
-        builder.Services.AddSingleton<IEnumerable<ITenantSchemaMigrationReporter>>([]);
+        builder.Services.AddScoped<ITenantSchemaMigrationRunner, TenantSchemaMigrationRunner>();
+        builder.Services.AddScoped<ITenantProvisioningCoordinator, TenantProvisioningCoordinator>();
+        builder.Services.AddSingleton<IEnumerable<Opplat.Infrastructure.Services.ITenantProvisioningReporter>>([]);
+        builder.Services.AddSingleton<IEnumerable<Opplat.Application.Abstractions.Services.ITenantSchemaMigrationReporter>>([]);
 
         builder.Services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-            cfg.RegisterServicesFromAssembly(typeof(Opplat.Application.Features.Account.Commands.ChangePasswordCommand).Assembly);
         });
+
+        // Selectively register only admin- and account-relevant MediatR handlers from Opplat.Application
+        // to avoid pulling in Sales/Inventory/License/Menus handlers that require unregistered repositories.
+        // Handlers that depend on per-tenant services (OpplatDbContext, Finbuckle IMultiTenantContextAccessor /
+        // IMultiTenantStore) are excluded — AdminApi does not run in a per-tenant context.
+        var adminApiExcludedHandlers = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "GetAdminUsersQueryHandler",        // uses IMultiTenantStore (Finbuckle, not in AdminApi)
+            "GetTenantUsersQueryHandler",       // uses OpplatDbContext + IMultiTenantContextAccessor
+            "SetUserActiveStatusCommandHandler",// uses OpplatDbContext (per-tenant)
+            "CreateTenantUserCommandHandler",   // uses IMultiTenantContextAccessor (per-tenant)
+            "EditUserCommandHandler",           // uses OpplatDbContext (per-tenant account feature)
+            "ToggleUserActiveCommandHandler",   // uses OpplatDbContext (per-tenant account feature)
+            "GetUsersQueryHandler",             // uses OpplatDbContext (per-tenant account feature)
+        };
+
+        var appAssembly = typeof(Opplat.Application.Features.Account.Commands.ChangePasswordCommand).Assembly;
+        var adminHandlerTypes = appAssembly.ExportedTypes
+            .Where(t => !t.IsAbstract && !t.IsInterface
+                && !adminApiExcludedHandlers.Contains(t.Name)
+                && (t.Namespace?.StartsWith("Opplat.Application.Features.Admin") == true
+                    || t.Namespace?.StartsWith("Opplat.Application.Features.Account") == true))
+            .ToList();
+
+        foreach (var handlerType in adminHandlerTypes)
+        {
+            foreach (var iface in handlerType.GetInterfaces()
+                .Where(i => i.IsGenericType
+                    && (i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>)
+                        || i.GetGenericTypeDefinition() == typeof(IRequestHandler<>)
+                        || i.GetGenericTypeDefinition() == typeof(INotificationHandler<>))))
+            {
+                builder.Services.AddTransient(iface, handlerType);
+            }
+        }
         builder.Services.AddTransient<Microsoft.AspNetCore.Authentication.IClaimsTransformation, OidcClaimsTransformation>();
         builder.Services.AddMemoryCache();
         builder.Services.AddSingleton<MemoryCacheTicketStore>();
@@ -255,7 +291,8 @@ public static class WebBuilderExtension
         builder.Services.AddAuthorization(options =>
         {
             options.AddPolicy("AdminOnly", policy =>
-                policy.RequireAssertion(_ => true));
+                policy.RequireAuthenticatedUser()
+                      .RequireRole(authOptions.AdminRole));
         });
         builder.Services.AddCors(options =>
         {
@@ -276,6 +313,7 @@ public static class WebBuilderExtension
         builder.Services.AddOpplatAspireDevelopmentSupport(builder.Environment);
         builder.Services.AddGraphUserService(builder.Configuration);
         builder.Services.AddKeycloakUserService(builder.Configuration);
+        builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 
         return builder;
     }

@@ -1,14 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Opplat.Domain.Entities.Accounting;
+﻿namespace Opplat.Domain.Entities.Accounting;
 
 public class AccountLevel : BaseEntity
 {
-    [Required]
-    [Display(Name = "Number")]
     public required string Number { get; set; }
 
-    [Required]
     public required string Name { get; set; }
 
     public int? ParentLevelId { get; set; }

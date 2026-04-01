@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Opplat.Domain.Entities.Accounting;
+﻿namespace Opplat.Domain.Entities.Accounting;
 
 public enum OperationType
 {
@@ -10,12 +8,10 @@ public enum OperationType
 
 public class Movement
 {
-    [Key]
     public Guid JournalEntryId { get; set; }
 
     public virtual JournalEntry? JournalEntry { get; set; }
 
-    [Key]
     public Guid AccountId { get; set; }
 
     public virtual LedgerAccount? Account { get; set; }

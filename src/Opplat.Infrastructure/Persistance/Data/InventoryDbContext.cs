@@ -29,7 +29,9 @@ public class InventoryDbContext : DbContext, IMultiTenantDbContext
     {
         base.OnModelCreating(builder);
         builder.ConfigureMultiTenant();
-        builder.Entity<InventoryEntities.ProductInventory>().HasKey(entity => new { entity.ProductId, entity.StorageId });
+        builder.ApplyConfigurationsFromAssembly(
+            typeof(InventoryDbContext).Assembly,
+            t => t.Namespace?.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Inventory") == true);
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)

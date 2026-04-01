@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Opplat.Domain.Entities.Accounting;
+﻿namespace Opplat.Domain.Entities.Accounting;
 
 public class JournalEntry : BaseEntity
 {
@@ -16,7 +14,6 @@ public class JournalEntry : BaseEntity
 
     public required string Detail { get; set; }
 
-    [NotMapped]
     public bool IsValid
     {
         get

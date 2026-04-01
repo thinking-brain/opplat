@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Opplat.Domain.Entities.Accounting;
+﻿namespace Opplat.Domain.Entities.Accounting;
 
 public class LedgerAccount : BaseEntity
 {
@@ -14,7 +12,6 @@ public class LedgerAccount : BaseEntity
 
     public virtual ICollection<Movement> Movements { get; set; } = [];
 
-    [NotMapped]
     public string Number
     {
         get
@@ -34,13 +31,11 @@ public class LedgerAccount : BaseEntity
         }
     }
 
-    [NotMapped]
     public string Name
     {
         get { return Level != null ? Level.Name : "Account " + Id; }
     }
 
-    [NotMapped]
     public bool IsValid
     {
         get { return Level != null && Level.ChildLevels.Count == 0; }

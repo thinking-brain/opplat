@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Opplat.Domain.Models;
 
 public class Notification
@@ -10,7 +8,6 @@ public class Notification
     public DateTime CreateDate { get; set; } = DateTime.Now;
     public virtual ICollection<UserNotification> UserNotification { get; set; } = [];
 
-    [NotMapped]
     public string Created
     {
         get

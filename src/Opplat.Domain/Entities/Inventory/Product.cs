@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Opplat.Domain.Entities.Inventory;
@@ -33,7 +32,6 @@ public class ProductGroup: IEntity
 
 public class Product : BaseEntity
 {
-    [Required]
     public required string Name { get; set; }
 
     public required string Description { get; set; }

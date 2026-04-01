@@ -1,0 +1,10 @@
+refactor: move all entity config to Fluent API, remove DataAnnotations from domain
+
+- Create 47 IEntityTypeConfiguration<T> classes in Persistance/Configurations/ subfolders
+- Remove System.ComponentModel.DataAnnotations from 26 entity files
+- Update 4 DbContexts to use ApplyConfigurationsFromAssembly with namespace filters
+- Add Microsoft.EntityFrameworkCore.Design to AdminApi.csproj
+- Generate initial migrations for Administration, Main, Sales, Inventory contexts
+- Fix AuditLog.TargetUserId/TargetUser relationship via HasPrincipalKey(EntraOid)
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>

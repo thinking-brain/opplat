@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using Opplat.Application.Abstractions.Services;
 using Opplat.Domain.Entities.Administration;
 using Opplat.Domain.Models.Administration;
 using Opplat.Infrastructure.Persistance.Data.Administration;
@@ -12,7 +13,7 @@ public interface ITenantProvisioningReporter
     Task ReportAsync(TenantProvisioningResult result, CancellationToken cancellationToken);
 }
 
-public sealed class TenantProvisioningCoordinator
+public sealed class TenantProvisioningCoordinator : ITenantProvisioningCoordinator
 {
     private readonly AdminTenantCatalogDbContext _db;
     private readonly TenantSchemaProvisioningService _tenantSchemaProvisioningService;

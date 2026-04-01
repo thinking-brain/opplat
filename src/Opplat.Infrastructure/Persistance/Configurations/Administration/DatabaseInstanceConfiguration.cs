@@ -12,7 +12,6 @@ public sealed class DatabaseInstanceConfiguration : IEntityTypeConfiguration<Dat
 
         builder.HasKey(t => t.Id);
 
-        builder.Property(d => d.Id).UseIdentityByDefaultColumn();
         builder.Property(d => d.Identifier).HasMaxLength(128).IsRequired();
         builder.Property(d => d.ConnectionStringReference).HasMaxLength(512).IsRequired();
         builder.Property(d => d.CurrentTenantSchemaCount).IsRequired();

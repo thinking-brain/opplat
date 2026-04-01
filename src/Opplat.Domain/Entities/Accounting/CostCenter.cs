@@ -1,8 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿namespace Opplat.Domain.Entities.Accounting;
 
-namespace Opplat.Domain.Entities.Accounting;
-
-[Table("contb_centros_de_costo")]
 public class CostCenter : BaseEntity
 {
 

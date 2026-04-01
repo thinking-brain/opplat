@@ -29,8 +29,9 @@ public class SalesDbContext : DbContext, IMultiTenantDbContext
     {
         base.OnModelCreating(builder);
         builder.ConfigureMultiTenant();
-        builder.Entity<SalesEntities.AddedTopping>().HasKey(entity => new { entity.ToppingId, entity.SaleDetailId });
-        builder.Entity<SalesEntities.CostTabDetail>().HasKey(entity => new { entity.ProductForSaleId, entity.ProductId });
+        builder.ApplyConfigurationsFromAssembly(
+            typeof(SalesDbContext).Assembly,
+            t => t.Namespace?.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Sales") == true);
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)

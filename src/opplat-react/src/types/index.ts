@@ -90,3 +90,29 @@ export interface ProductMovement {
   type: string;
   observations: string;
 }
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description?: string;
+  pricingMonthly: number;
+  maxActiveUsers: number;
+  isActive: boolean;
+}
+
+export interface TenantRegistrationRequest {
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  password: string;
+  businessName: string;
+  tenantIdentifier: string;
+  subscriptionPlanId?: string;
+}
+
+export interface TenantRegistrationResult {
+  succeeded: boolean;
+  tenantIdentifier?: string;
+  message?: string;
+}

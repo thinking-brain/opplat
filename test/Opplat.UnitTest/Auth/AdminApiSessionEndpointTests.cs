@@ -18,6 +18,7 @@ using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 using Opplat.Infrastructure.Services;
+using Opplat.Application.Abstractions.Services;
 
 namespace Opplat.UnitTest.Auth;
 
@@ -147,10 +148,10 @@ public class AdminApiSessionEndpointTests
         });
         builder.Services.AddScoped<TenantSchemaProvisioningService>();
         builder.Services.AddScoped<DatabaseInstanceAutoScalingService>();
-        builder.Services.AddScoped<TenantSchemaMigrationRunner>();
-        builder.Services.AddScoped<TenantProvisioningCoordinator>();
-        builder.Services.AddSingleton<IEnumerable<ITenantProvisioningReporter>>([]);
-        builder.Services.AddSingleton<IEnumerable<ITenantSchemaMigrationReporter>>([]);
+        builder.Services.AddScoped<ITenantSchemaMigrationRunner, TenantSchemaMigrationRunner>();
+        builder.Services.AddScoped<ITenantProvisioningCoordinator, TenantProvisioningCoordinator>();
+        builder.Services.AddSingleton<IEnumerable<Opplat.Infrastructure.Services.ITenantProvisioningReporter>>([]);
+        builder.Services.AddSingleton<IEnumerable<Opplat.Application.Abstractions.Services.ITenantSchemaMigrationReporter>>([]);
         builder.Services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(Opplat.AdminApi.Endpoints.AdminEndpoints).Assembly));
 

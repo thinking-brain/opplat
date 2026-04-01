@@ -92,6 +92,8 @@ public sealed class UpsertTenantRequest
         }
     }
 
+    public Guid? SubscriptionPlanId { get; set; }
+
     public bool IsActive { get; set; } = true;
 }
 
@@ -109,4 +111,19 @@ public sealed class TenantSchemaMigrationRequest
 
     public int? DelayBetweenBatchesSeconds { get; set; }
 }
+
+public sealed record TenantRegistrationRequest(
+    string FirstName,
+    string LastName,
+    string Username,
+    string Email,
+    string Password,
+    string BusinessName,
+    string TenantIdentifier,
+    Guid? SubscriptionPlanId = null);
+
+public sealed record TenantRegistrationResult(
+    bool Succeeded,
+    string? TenantIdentifier = null,
+    string? Message = null);
 

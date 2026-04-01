@@ -1,12 +1,9 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using Opplat.Domain.Entities.Inventory;
 
 namespace Opplat.Domain.Entities.Sales;
 
 public class CostTab : IEntity
 {
-    [Key]
     public Guid ProductId { get; set; }
 
     public ProductForSale? Product { get; set; }
@@ -30,14 +27,10 @@ public class CostTab : IEntity
 
 public class CostTabDetail
 {
-    [Key]
-    [Column(Order = 1)]
     public Guid ProductForSaleId { get; set; }
 
     public ProductForSale? ProductForSale { get; set; }
 
-    [Key]
-    [Column(Order = 2)]
     public Guid ProductId { get; set; }
 
     public Product? Product { get; set; }

@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Opplat.Domain.Entities.Sales;
 
 /// <summary>
@@ -7,7 +5,6 @@ namespace Opplat.Domain.Entities.Sales;
 /// </summary>
 public class ProductTag : BaseEntity
 {
-    [Required]
     public required string Name { get; set; }
 
     public ICollection<ProductForSale> OnProducts { get; set; } = [];
@@ -19,7 +16,6 @@ public class ProductTag : BaseEntity
 /// </summary>
 public class ProductForSale : BaseEntity
 {
-    [Required]
     public required string Name { get; set; }
 
     public required string Code { get; set; }

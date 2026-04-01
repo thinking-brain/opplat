@@ -32,3 +32,18 @@
 - `RegisterTenantCommand` lives in `Opplat.Application.Features.Admin.Commands`, follows the same pattern as `CreateTenantCommand`: picks cheapest active plan if none specified, picks DB instance with lowest `CurrentTenantSchemaCount`, normalizes identifier via `AdminPortalMappings.NormalizeTenantIdentifier`.
 - Schema provisioning failure after self-registration is non-fatal: log warning, return success. Tenant and user records are already persisted.
 
+
+### 2026-04-01 19:11 - Entity Configuration Refactoring
+- Successfully moved all EF Core entity configuration from data annotations to Fluent API using IEntityTypeConfiguration<T> pattern
+- Created 47 configuration files organized by module (Core, Sales, Inventory, Accounting, Administration)
+- Fixed GUID identity column issues - UseIdentityByDefaultColumn() only works with integer types in PostgreSQL
+- Resolved FK type mismatches in Administration entities by using HasPrincipalKey() for alternate keys (e.g., Tenant.Identifier instead of Tenant.Id)
+- Generated migrations for all 4 DbContexts: AdminTenantCatalogDbContext, OpplatDbContext, SalesDbContext, InventoryDbContext
+- Applied namespace filters in ApplyConfigurationsFromAssembly to keep DbContext configurations modular and bounded
+- Removed all DataAnnotations attributes from 26 entity files while preserving JsonIgnore for serialization
+
+### 2026-04-01 19:12 - Post-Implementation Coordination
+- Created session log: `.squad/log/2026-04-01T19-12-42Z-entity-configurations.md`
+- Merged decision from inbox to `.squad/decisions/decisions.md`
+- Updated this history and Bishop's history with entity configuration outcomes
+- Prepared git commit with comprehensive message documenting all changes

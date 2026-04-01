@@ -1,6 +1,10 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Opplat.Application.Abstractions.Identity;
 using Opplat.Application.Abstractions.Services;
 using Opplat.Application.Dtos;
+using Opplat.Domain.Entities.Administration;
 using Opplat.Domain.Models.Administration;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 
@@ -27,11 +31,59 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
     public async Task<AdminTenantDto> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
     {
         var identifier = AdminPortalMappings.NormalizeTenantIdentifier(request.Request.Identifier);
-        var id = request.Request.Id == Guid.Empty
-            ? $"tenant-{identifier}"
-            : request.Request.Id.ToString();
+        var name = AdminPortalMappings.NormalizeTenantName(request.Request.Name);
+        var databaseName = AdminPortalMappings.NormalizeDatabaseName(request.Request.DatabaseName);
+        var databaseSchema = !string.IsNullOrWhiteSpace(request.Request.DatabaseSchema)
+            ? request.Request.DatabaseSchema.Trim()
+            : $"tenant_{identifier}";
 
-        throw new NotImplementedException();
+        if (await _db.Tenants.AnyAsync(t => t.Identifier == identifier, cancellationToken))
+            throw new InvalidOperationException($"A tenant with identifier '{identifier}' already exists.");
+
+        SubscriptionPlan plan;
+        if (request.Request.SubscriptionPlanId.HasValue && request.Request.SubscriptionPlanId.Value != Guid.Empty)
+        {
+            plan = await _db.SubscriptionPlans.FindAsync([request.Request.SubscriptionPlanId.Value], cancellationToken)
+                ?? throw new KeyNotFoundException($"Subscription plan '{request.Request.SubscriptionPlanId}' not found.");
+        }
+        else
+        {
+            plan = await _db.SubscriptionPlans
+                .Where(p => p.IsActive)
+                .OrderBy(p => p.PricingMonthly)
+                .FirstOrDefaultAsync(cancellationToken)
+                ?? throw new InvalidOperationException("No active subscription plans are available. Please create a subscription plan first.");
+        }
+
+        var dbInstance = await _db.DatabaseInstances
+            .Where(d => d.Status == DatabaseInstanceStatus.Active)
+            .OrderBy(d => d.CurrentTenantSchemaCount)
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new InvalidOperationException("No active database instances are available. Please configure a database instance first.");
+
+        var tenant = new Tenant
+        {
+            Identifier = identifier,
+            Name = name,
+            DatabaseName = databaseName,
+            DatabaseSchema = databaseSchema,
+            Status = TenantStatus.Active,
+            SubscriptionPlanId = plan.Id,
+            DatabaseInstanceId = dbInstance.Id,
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow
+        };
+
+        _db.Tenants.Add(tenant);
+        await _db.SaveChangesAsync(cancellationToken);
+
+        await _provisioningCoordinator.EnsureTenantProvisionedAsync(tenant, cancellationToken);
+
+        var created = await _db.Tenants
+            .Include(t => t.TenantUsers)
+            .FirstAsync(t => t.Id == tenant.Id, cancellationToken);
+
+        return AdminPortalMappings.ToDto(created);
     }
 }
 
@@ -48,17 +100,80 @@ public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCom
 
     public async Task<AdminTenantDto> Handle(UpdateTenantCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var identifier = AdminPortalMappings.NormalizeTenantIdentifier(request.Identifier);
+        var tenant = await _db.Tenants
+            .Include(t => t.TenantUsers)
+            .FirstOrDefaultAsync(t => t.Identifier == identifier, cancellationToken)
+            ?? throw new KeyNotFoundException($"Tenant '{identifier}' was not found.");
+
+        tenant.Name = AdminPortalMappings.NormalizeTenantName(request.Request.Name);
+        tenant.DatabaseName = AdminPortalMappings.NormalizeDatabaseName(request.Request.DatabaseName);
+
+        if (!string.IsNullOrWhiteSpace(request.Request.DatabaseSchema))
+            tenant.DatabaseSchema = request.Request.DatabaseSchema.Trim();
+
+        if (request.Request.SubscriptionPlanId.HasValue && request.Request.SubscriptionPlanId.Value != Guid.Empty)
+        {
+            var planExists = await _db.SubscriptionPlans.AnyAsync(p => p.Id == request.Request.SubscriptionPlanId.Value, cancellationToken);
+            if (!planExists)
+                throw new KeyNotFoundException($"Subscription plan '{request.Request.SubscriptionPlanId}' not found.");
+            tenant.SubscriptionPlanId = request.Request.SubscriptionPlanId.Value;
+        }
+
+        tenant.ModifiedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(cancellationToken);
+
+        return AdminPortalMappings.ToDto(tenant);
     }
 }
 
-public sealed class DeactivateTenantCommandHandler(AdminTenantCatalogDbContext db) : IRequestHandler<DeactivateTenantCommand>
+public sealed class DeactivateTenantCommandHandler : IRequestHandler<DeactivateTenantCommand>
 {
-    private readonly AdminTenantCatalogDbContext _db = db;
+    private readonly AdminTenantCatalogDbContext _db;
+    private readonly IGraphUserService _graphUserService;
+    private readonly ILogger<DeactivateTenantCommandHandler> _logger;
+
+    public DeactivateTenantCommandHandler(
+        AdminTenantCatalogDbContext db,
+        IGraphUserService graphUserService,
+        ILogger<DeactivateTenantCommandHandler> logger)
+    {
+        _db = db;
+        _graphUserService = graphUserService;
+        _logger = logger;
+    }
 
     public async Task Handle(DeactivateTenantCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var identifier = AdminPortalMappings.NormalizeTenantIdentifier(request.Identifier);
+        var tenant = await _db.Tenants
+            .Include(t => t.TenantUsers)
+            .FirstOrDefaultAsync(t => t.Identifier == identifier, cancellationToken)
+            ?? throw new KeyNotFoundException($"Tenant '{identifier}' was not found.");
+
+        if (tenant.Status == TenantStatus.Inactive)
+            return; // Idempotent
+
+        tenant.Status = TenantStatus.Inactive;
+        tenant.InactivatedAt = DateTime.UtcNow;
+        tenant.ModifiedAt = DateTime.UtcNow;
+
+        foreach (var user in tenant.TenantUsers.Where(u => u.IsActive))
+        {
+            if (!string.IsNullOrWhiteSpace(user.EntraOid))
+            {
+                var result = await _graphUserService.DisableUserAsync(user.EntraOid, cancellationToken);
+                if (!result.Succeeded)
+                    _logger.LogWarning(
+                        "Failed to disable Entra user {Oid} for tenant {Identifier}: {Error}",
+                        user.EntraOid, identifier, result.Error);
+            }
+
+            user.IsActive = false;
+            user.DeactivatedAt = DateTime.UtcNow;
+        }
+
+        await _db.SaveChangesAsync(cancellationToken);
     }
 }
 

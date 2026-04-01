@@ -1,6 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Opplat.Domain.Entities.Administration;
 
 public enum TenantUserRole
@@ -12,20 +9,12 @@ public enum TenantUserRole
 
 public sealed class TenantUser : BaseEntity
 {
-    [Required]
-    [MaxLength(128)]
     public string EntraOid { get; set; } = string.Empty;
 
-    [Required]
-    [ForeignKey(nameof(Tenant))]
-    [MaxLength(128)]
     public Guid TenantId { get; set; }
 
-    [Required]
-    [MaxLength(256)]
     public string Email { get; set; } = string.Empty;
 
-    [Required]
     public TenantUserRole Role { get; set; } = TenantUserRole.User;
 
     public bool IsPrimaryAdmin { get; set; } = false;

@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Opplat.Domain.Entities.Sales;
 
 
@@ -14,7 +12,6 @@ public enum CustomerType
 
 public class OrderDetail
 {
-    [Key]
     public Guid SaleDetailId { get; set; }
 
     public SaleDetail? SaleDetail { get; set; }

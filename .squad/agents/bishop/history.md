@@ -20,4 +20,9 @@
 
 ## Learnings
 
-<!-- Append new learnings below. Each entry is something lasting about the project. -->
+### 2026-04-01 - Entity Configuration Architecture
+- Mother refactored the entire persistence layer to Fluent API, moving all EF Core configuration from domain entities to 47 IEntityTypeConfiguration<T> classes
+- This removes infrastructure coupling from domain models, enabling cleaner unit testing and better separation of concerns
+- DbContexts now apply configurations via ApplyConfigurationsFromAssembly with namespace filters for bounded context isolation
+- PostgreSQL has specific limitations: UseIdentityByDefaultColumn() only works with integer types (not GUIDs); resolved via alternate key strategies like HasPrincipalKey()
+- FK relationships with type mismatches use HasPrincipalKey() to map to alternate keys (e.g., Tenant.Identifier as string principal key)

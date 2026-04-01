@@ -1,9 +1,13 @@
 using Finbuckle.MultiTenant.Abstractions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Opplat.Application.Abstractions.Auth;
+using Opplat.Application.Abstractions.Identity;
 using Opplat.Application.Dtos;
+using Opplat.Domain.Entities.Administration;
 using Opplat.Domain.Models;
+using Opplat.Infrastructure.Persistance.Data.Administration;
 
 namespace Opplat.Application.Features.Admin.Commands;
 
@@ -16,25 +20,26 @@ public record CreateTenantUserCommand(
 
 public sealed class CreateTenantUserCommandHandler : IRequestHandler<CreateTenantUserCommand, AdminUserDto?>
 {
-    // private readonly UserManager<Usuario> _userManager;
-    // private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly AdminTenantCatalogDbContext _db;
     private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
+    private readonly IGraphUserService _graphUserService;
     private readonly ILogger<CreateTenantUserCommandHandler> _logger;
 
     public CreateTenantUserCommandHandler(
-        // UserManager<Usuario> userManager,
-        // RoleManager<IdentityRole> roleManager,
+        AdminTenantCatalogDbContext db,
         IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+        IGraphUserService graphUserService,
         ILogger<CreateTenantUserCommandHandler> logger)
     {
-        // _userManager = userManager;
-        // _roleManager = roleManager;
+        _db = db;
         _tenantAccessor = tenantAccessor;
+        _graphUserService = graphUserService;
         _logger = logger;
     }
 
     public async Task<AdminUserDto?> Handle(CreateTenantUserCommand request, CancellationToken cancellationToken)
     {
+        // 1. Validate roles
         var roles = request.Roles
             .Where(role => !string.IsNullOrWhiteSpace(role))
             .Select(role => role.Trim())
@@ -60,57 +65,97 @@ public sealed class CreateTenantUserCommandHandler : IRequestHandler<CreateTenan
             return null;
         }
 
-        var user = new User
+        // 2. Get tenant context
+        var tenantInfo = _tenantAccessor.MultiTenantContext?.TenantInfo;
+        if (tenantInfo is null || !Guid.TryParse(tenantInfo.Id, out var tenantId))
         {
-            Name = request.Name,
-            LastName = request.LastName,
-            UserName = request.Username,
+            _logger.LogWarning("CreateTenantUserCommand: no valid tenant context available for user {UserName}.", request.Username);
+            return null;
+        }
+
+        // 3. Look up tenant with subscription plan and active users
+        var tenant = await _db.Tenants
+            .Include(t => t.SubscriptionPlan)
+            .Include(t => t.TenantUsers)
+            .FirstOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
+
+        if (tenant is null)
+        {
+            _logger.LogWarning("CreateTenantUserCommand: tenant {TenantId} not found in catalog.", tenantId);
+            return null;
+        }
+
+        // 4. Check seat limit against subscription plan
+        if (tenant.SubscriptionPlan is not null)
+        {
+            var activeCount = tenant.TenantUsers.Count(u => u.IsActive);
+            if (activeCount >= tenant.SubscriptionPlan.MaxActiveUsers)
+            {
+                _logger.LogWarning(
+                    "Tenant {TenantIdentifier} has reached the maximum of {Max} active users allowed by the subscription plan.",
+                    tenant.Identifier, tenant.SubscriptionPlan.MaxActiveUsers);
+                return null;
+            }
+        }
+
+        // 5. Generate temporary password meeting Entra complexity requirements
+        var temporaryPassword = $"Tmp!{Guid.NewGuid():N}1A";
+
+        // 6. Create user in identity provider
+        var graphResult = await _graphUserService.CreateUserAsync(new CreateGraphUserRequest
+        {
             Email = request.Email,
-            IsActive = true
+            DisplayName = $"{request.Name} {request.LastName}".Trim(),
+            GivenName = request.Name,
+            Surname = request.LastName,
+            TemporaryPassword = temporaryPassword
+        }, cancellationToken);
+
+        if (!graphResult.Succeeded)
+        {
+            _logger.LogError(
+                "Failed to create identity provider user for {Email}: {Error}",
+                request.Email, graphResult.Error);
+            return null;
+        }
+
+        // 7. Map role: TenantAdmin → Admin, otherwise → User
+        var tenantUserRole = roles.Contains(AuthRoles.TenantAdmin, StringComparer.OrdinalIgnoreCase)
+            ? TenantUserRole.Admin
+            : TenantUserRole.User;
+
+        // 8. Create TenantUser record in catalog
+        var tenantUser = new TenantUser
+        {
+            Id = Guid.NewGuid(),
+            EntraOid = graphResult.ObjectId ?? string.Empty,
+            TenantId = tenantId,
+            Email = request.Email,
+            Role = tenantUserRole,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow
         };
+        _db.TenantUsers.Add(tenantUser);
 
-        // var createResult = await _userManager.CreateAsync(user);
-        // if (!createResult.Succeeded)
-        //     return null;
+        // 9. Persist
+        await _db.SaveChangesAsync(cancellationToken);
 
-        foreach (var role in roles)
-        {
-            // if (!await _roleManager.RoleExistsAsync(role))
-            // {
-            //     var roleResult = await _roleManager.CreateAsync(new IdentityRole(role));
-            //     if (!roleResult.Succeeded)
-            //     {
-            //         await _userManager.DeleteAsync(user);
-            //         return null;
-            //     }
-            // }
-        }
+        _logger.LogInformation("Created tenant user {Email} (OID: {Oid}) for tenant {TenantIdentifier}.",
+            request.Email, graphResult.ObjectId, tenant.Identifier);
 
-        if (roles.Count > 0)
-        {
-            // var addRolesResult = await _userManager.AddToRolesAsync(user, roles);
-            // if (!addRolesResult.Succeeded)
-            // {
-            //     await _userManager.DeleteAsync(user);
-            //     return null;
-            // }
-        }
-
-        var tenant = _tenantAccessor.MultiTenantContext?.TenantInfo;
-        _logger.LogInformation("Created tenant user {UserName} for tenant {TenantIdentifier}.",
-            user.UserName, tenant?.Identifier);
-
+        // 10. Return populated DTO
         return new AdminUserDto
         {
-            TenantId = tenant?.Id ?? string.Empty,
-            TenantIdentifier = tenant?.Identifier ?? string.Empty,
-            TenantName = tenant?.Name ?? string.Empty,
-            UserId = user.Id,
-            Name = user.Name,
-            LastName = user.LastName,
-            Username = user.UserName ?? string.Empty,
-            Email = user.Email ?? string.Empty,
-            Active = user.IsActive,
+            TenantId = tenantInfo.Id,
+            TenantIdentifier = tenantInfo.Identifier,
+            TenantName = tenantInfo.Name ?? string.Empty,
+            UserId = tenantUser.Id,
+            Name = request.Name,
+            LastName = request.LastName,
+            Username = request.Username,
+            Email = request.Email,
+            Active = true,
             Roles = roles
         };
     }

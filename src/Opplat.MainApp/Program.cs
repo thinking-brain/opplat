@@ -52,10 +52,6 @@ builder.Services.AddDbContext<OpplatDbContext>((serviceProvider, options) =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddMemoryCache();
 
-builder.Services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<OpplatDbContext>()
-    .AddDefaultTokenProviders();
-
 builder.Services.AddScoped<DbContext, OpplatDbContext>();
 builder.Services.Configure<AuthOptions>(authSection);
 builder.Services.AddTransient<Microsoft.AspNetCore.Authentication.IClaimsTransformation, OidcClaimsTransformation>();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link as RouterLink, Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -8,7 +8,7 @@ import {
   CardContent,
   CircularProgress,
   Container,
-  Link,
+  Divider,
   Stack,
   Typography,
 } from '@mui/material';
@@ -27,6 +27,7 @@ interface LoginLocationState {
 export const LoginPage: React.FC = () => {
   const { isAuthenticated, loading, login, error } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const state = location.state as LoginLocationState | null;
   const returnTo = state?.from
     ? `${state.from.pathname}${state.from.search}${state.from.hash}`
@@ -68,12 +69,10 @@ export const LoginPage: React.FC = () => {
               >
                 {loading ? 'Redirigiendo...' : 'Entrar con OIDC'}
               </Button>
-              <Typography variant="body2" color="text.secondary">
-                Don't have an account?{' '}
-                <Link component={RouterLink} to="/register">
-                  Register
-                </Link>
-              </Typography>
+              <Divider sx={{ my: 2, width: '100%' }}>Don't have an account?</Divider>
+              <Button variant="outlined" fullWidth onClick={() => navigate('/register')}>
+                Create Account
+              </Button>
             </Stack>
           </CardContent>
         </Card>

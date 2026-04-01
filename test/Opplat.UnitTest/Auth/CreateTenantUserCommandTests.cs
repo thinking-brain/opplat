@@ -1,10 +1,12 @@
 using Finbuckle.MultiTenant.Abstractions;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Opplat.Application.Abstractions.Auth;
+using Opplat.Application.Abstractions.Identity;
 using Opplat.Application.Features.Admin.Commands;
 using Opplat.Domain.Models;
+using Opplat.Infrastructure.Persistance.Data.Administration;
 
 namespace Opplat.UnitTest.Auth;
 
@@ -13,22 +15,19 @@ public class CreateTenantUserCommandTests
     [Fact]
     public async Task Handle_RejectsRequestsWithoutAnyTenantRole()
     {
-        var userManager = CreateUserManager();
-        var handler = CreateHandler(userManager.Object, CreateRoleManager().Object);
+        var handler = CreateHandler();
 
         var result = await handler.Handle(
             new CreateTenantUserCommand("Tenant", "User", "tenant.user", "tenant.user@opplat.local", []),
             CancellationToken.None);
 
         Assert.Null(result);
-        userManager.Verify(manager => manager.CreateAsync(It.IsAny<User>()), Times.Never);
     }
 
     [Fact]
     public async Task Handle_RejectsRolesOutsideTenantAssignableSet()
     {
-        var userManager = CreateUserManager();
-        var handler = CreateHandler(userManager.Object, CreateRoleManager().Object);
+        var handler = CreateHandler();
 
         var result = await handler.Handle(
             new CreateTenantUserCommand(
@@ -40,42 +39,20 @@ public class CreateTenantUserCommandTests
             CancellationToken.None);
 
         Assert.Null(result);
-        userManager.Verify(manager => manager.CreateAsync(It.IsAny<User>()), Times.Never);
     }
 
-    private static CreateTenantUserCommandHandler CreateHandler(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+    private static CreateTenantUserCommandHandler CreateHandler()
     {
+        var options = new DbContextOptionsBuilder<AdminTenantCatalogDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        var db = new AdminTenantCatalogDbContext(options);
+
         return new CreateTenantUserCommandHandler(
-            // userManager,
-            // roleManager,
+            db,
             CreateTenantAccessor(),
+            Mock.Of<IGraphUserService>(),
             Mock.Of<ILogger<CreateTenantUserCommandHandler>>());
-    }
-
-    private static Mock<UserManager<User>> CreateUserManager()
-    {
-        var store = new Mock<IUserStore<User>>();
-        return new Mock<UserManager<User>>(
-            store.Object,
-            null!,
-            null!,
-            null!,
-            null!,
-            null!,
-            null!,
-            null!,
-            null!);
-    }
-
-    private static Mock<RoleManager<IdentityRole>> CreateRoleManager()
-    {
-        var store = new Mock<IRoleStore<IdentityRole>>();
-        return new Mock<RoleManager<IdentityRole>>(
-            store.Object,
-            null!,
-            null!,
-            null!,
-            null!);
     }
 
     private static IMultiTenantContextAccessor<AppTenantInfo> CreateTenantAccessor()

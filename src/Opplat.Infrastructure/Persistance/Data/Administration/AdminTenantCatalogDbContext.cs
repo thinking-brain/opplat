@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Opplat.Domain.Entities.Administration;
-using Opplat.Infrastructure.Persistance.Configurations.Administration;
 
 namespace Opplat.Infrastructure.Persistance.Data.Administration;
 
@@ -16,6 +15,8 @@ public sealed class AdminTenantCatalogDbContext(DbContextOptions<AdminTenantCata
     {
         base.OnModelCreating(builder);
 
-        builder.ApplyConfigurationsFromAssembly(typeof(SubscriptionPlanConfiguration).Assembly);
+        builder.ApplyConfigurationsFromAssembly(
+            typeof(AdminTenantCatalogDbContext).Assembly,
+            t => t.Namespace?.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Administration") == true);
     }
 }

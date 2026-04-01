@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Opplat.Domain.Entities.Sales;
 
 public class AddedTopping
@@ -15,7 +13,6 @@ public class AddedTopping
 
 public class Topping : BaseEntity
 {
-    [Required]
     public required string Name { get; set; }
 
     public ICollection<ProductForSale> OnProducts { get; set; } = [];

@@ -25,10 +25,12 @@ public class OpplatDbContext(
         
         builder.ConfigureMultiTenant();
         
-        builder.Entity<UserNotification>().HasKey(s => new { s.NotificationId, s.UserId });
-        builder.Entity<SalesEntities.AddedTopping>().HasKey(s => new { s.ToppingId, s.SaleDetailId });
-        builder.Entity<InventoryEntities.ProductInventory>().HasKey(s => new { s.ProductId, s.StorageId });
-        builder.Entity<SalesEntities.CostTabDetail>().HasKey(s => new { s.ProductForSaleId, s.ProductId });
+        builder.ApplyConfigurationsFromAssembly(
+            typeof(OpplatDbContext).Assembly,
+            t => t.Namespace != null && (
+                t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Sales") ||
+                t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Inventory") ||
+                t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Core")));
     }
     
     public override int SaveChanges(bool acceptAllChangesOnSuccess)

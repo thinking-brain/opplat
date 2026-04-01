@@ -121,6 +121,19 @@ public static class AdminEndpoints
 
         var bff = app.MapGroup("/auth/bff/admin").WithTags("Admin BFF");
 
+        var publicApi = app.MapGroup("/public").WithTags("Public");
+
+        publicApi.MapPost("/register",
+            async (TenantRegistrationRequest request, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var result = await mediator.Send(new RegisterTenantCommand(request), cancellationToken);
+                return result.Succeeded
+                    ? Results.Created($"/public/tenants/{result.TenantIdentifier}", result)
+                    : Results.BadRequest(new { Result = false, Message = result.Message });
+            })
+            .AllowAnonymous()
+            .WithSummary("Self-register a new tenant and primary admin user");
+
         bff.MapGet("/login",
             (string? returnUrl, HttpContext httpContext, IOptions<AuthOptions> authOptions) =>
             {
