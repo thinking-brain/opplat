@@ -74,3 +74,22 @@
 - Created `DevDataSeeder` to seed subscription plans and database instances in Development environment only
 - Seeder uses actual entity structure: `PricingMonthly` (not `PricePerMonth`), `ResourceLimits` JSON string (not separate properties), `DatabaseInstance.Identifier` + `ConnectionStringReference` (not individual host/port/name fields)
 - Build: 0 errors after fixing `AuthRuntimeConfiguration` type name and matching entity properties
+
+### 2026-04-02 — Database Connection Refactoring
+
+- Created `TenantDatabaseOptions` class to centralize tenant database credentials (Host, Port, Username, Password)
+- Renamed `DatabaseInstance.ConnectionStringReference` to `DatabaseName` - now stores only the database name (e.g., "opplat_tenants_db1"), not full connection strings
+- Created EF migration `20260402182510_RenameConnectionStringReferenceToDatabaseName` to rename column and reduce max length from 512 to 256
+- Updated `DatabaseInstanceConfiguration` with `HasColumnName("database_name")` mapping
+- Services now inject `TenantDatabaseOptions` and build connection strings dynamically using `NpgsqlConnectionStringBuilder`
+- Pattern: `new NpgsqlConnectionStringBuilder { Host = options.Host, Port = options.Port, Username = options.Username, Password = options.Password, Database = databaseName, SslMode = SslMode.Disable }`
+- Updated all SQL queries in `TenantCatalogStore` from `di."ConnectionStringReference"` to `di."DatabaseName"`
+- Updated services: TenantSchemaProvisioningService, TenantSchemaMigrationRunner, DatabaseInstanceAutoScalingService, TenantProvisioningCoordinator, TenantProvisioningService, Module2CatalogSync
+- Removed `DefaultConnectionString` property from `DatabaseInstanceOptions`
+- Updated appsettings.json files: `ConnectionStrings:DefaultConnection` → `ConnectionStrings:AdminDatabase` in AdminApi, added `TenantDatabase` section to both AdminApi and MainApp
+- Updated seeders (DevDataSeeder, Module2DataSeeder) to use `DatabaseName` instead of full connection strings
+- Fixed AdminPortalMappings: removed `ReadDatabaseName` helper, directly access `DatabaseName` property
+- Updated MainApp Program.cs: build default connection string from `TenantDatabaseOptions` instead of reading from ConnectionStrings
+- Fixed all test files: updated test data and assertions to use `DatabaseName` instead of `ConnectionStringReference`
+- Build succeeded with 0 errors after fixing all references
+

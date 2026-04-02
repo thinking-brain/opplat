@@ -129,6 +129,69 @@
 
 ---
 
+### 2026-04-02 — Centralized Tenant Database Configuration (Mother)
+
+**Date:** 2026-04-02  
+**Status:** Implemented  
+**Decider:** Mother (Elvis Crego)  
+**Context:** Database connections refactoring
+
+#### Decision
+Refactored database connection management to use centralized `TenantDatabaseOptions` configuration class instead of storing full connection strings in the database.
+
+#### Rationale — Problem
+- **Security Risk**: Full connection strings (including credentials) stored in `DatabaseInstance.ConnectionStringReference`
+- **Configuration Inflexibility**: Changing database credentials required updating every database instance record
+- **Duplication**: Same credentials repeated across multiple connection strings
+- **Separation of Concerns**: Connection credentials are infrastructure configuration, not catalog data
+
+#### Solution
+1. **Created TenantDatabaseOptions**: Stores Host, Port, Username, Password in appsettings
+2. **Changed DatabaseInstance Schema**: `ConnectionStringReference` → `DatabaseName` (stores only DB name)
+3. **Dynamic Connection String Building**: Services build connection strings from options + database name + schema
+4. **Centralized Configuration**: One place to manage tenant database credentials
+
+#### Benefits
+- **Security**: Credentials in configuration (can use environment variables, Key Vault) not in database
+- **Maintainability**: Change credentials in one place (appsettings) instead of updating DB records
+- **Clarity**: DatabaseInstance now stores what it owns (database name), not infrastructure config
+- **Flexibility**: Easy to integrate with secret management systems
+
+#### Trade-offs
+- **Migration Required**: Existing deployments need EF migration to rename column
+- **Breaking Change**: Services reading ConnectionStringReference need updates
+- **More Configuration**: appsettings files need TenantDatabase section
+- **Code Complexity**: Connection strings built dynamically instead of read directly
+
+#### Connection Building Pattern
+```csharp
+// Tenant DB: options + catalog data + schema
+var connectionString = new NpgsqlConnectionStringBuilder
+{
+    Host = tenantDbOptions.Host,
+    Port = tenantDbOptions.Port,
+    Username = tenantDbOptions.Username,
+    Password = tenantDbOptions.Password,
+    Database = databaseInstance.DatabaseName,
+    SslMode = SslMode.Disable
+}.ConnectionString;
+```
+
+#### Affected Components
+- AdminApi: Provisioning services, catalog sync, seeders
+- MainApp: DbContext registration, tenant provisioning
+- Infrastructure: All services that connect to tenant databases
+- Application: TenantCatalogStore (SQL queries updated)
+- Tests: Test data and assertions updated
+
+#### Migration Path
+1. Deploy code changes
+2. Run EF migration: `20260402182510_RenameConnectionStringReferenceToDatabaseName`
+3. Update appsettings.json with TenantDatabase section
+4. Restart services
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
