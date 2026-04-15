@@ -11,10 +11,9 @@ public sealed class DatabaseInstanceConfiguration : IEntityTypeConfiguration<Dat
         builder.ToTable("database_instances");
 
         builder.Property(d => d.Identifier).HasMaxLength(128).IsRequired();
-        builder.Property(d => d.ConnectionStringReference).HasMaxLength(512).IsRequired();
+        builder.Property(d => d.DatabaseName).HasColumnName("database_name").HasMaxLength(256).IsRequired();
         builder.Property(d => d.CurrentTenantSchemaCount).IsRequired();
         builder.Property(d => d.Status).HasConversion<string>();
-        builder.Property(d => d.CreatedAt).HasDefaultValue(DateTime.UtcNow);
         builder.HasMany(d => d.Tenants)
             .WithOne(t => t.DatabaseInstance)
             .HasForeignKey(t => t.DatabaseInstanceId)

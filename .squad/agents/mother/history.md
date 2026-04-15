@@ -93,3 +93,10 @@
 - Fixed all test files: updated test data and assertions to use `DatabaseName` instead of `ConnectionStringReference`
 - Build succeeded with 0 errors after fixing all references
 
+### 2026-04-02 — AdminApi Startup Migration Runner Fix
+
+- Fixed double-rename bug in migration `20260402182510_RenameConnectionStringReferenceToDatabaseName.cs`: removed redundant `migrationBuilder.Sql()` calls from both `Up()` and `Down()` methods that were attempting to rename the same column already handled by `migrationBuilder.RenameColumn()`
+- Verified migration runner already exists in `Program.cs` (lines 12-27): applies pending migrations with `db.Database.MigrateAsync()` and seeds dev data via `DevDataSeeder.SeedAsync()`
+- No changes needed to `WebApplicationExtensions.cs` - startup flow was already correct
+- Build succeeded with 0 errors after fixing migration
+

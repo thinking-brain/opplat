@@ -16,7 +16,6 @@ public sealed class TenantUserConfiguration : IEntityTypeConfiguration<TenantUse
         builder.Property(u => u.Role).HasConversion<string>().IsRequired();
         builder.Property(u => u.IsPrimaryAdmin).IsRequired();
         builder.Property(u => u.IsActive).IsRequired();
-        builder.Property(u => u.CreatedAt).HasDefaultValue(DateTime.UtcNow);
         builder.HasIndex(u => new { u.TenantId, u.EntraOid }).IsUnique();
         builder.HasOne(u => u.Tenant)
             .WithMany(t => t.TenantUsers)

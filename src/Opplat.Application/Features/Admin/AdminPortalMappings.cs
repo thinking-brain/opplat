@@ -1,4 +1,3 @@
-using Npgsql;
 using Opplat.Application.Dtos;
 using Opplat.Domain.Entities.Administration;
 
@@ -11,7 +10,6 @@ internal static class AdminPortalMappings
         Id = tenant.Id,
         Identifier = tenant.Identifier,
         Name = tenant.Name,
-        DatabaseName = tenant.DatabaseName,
         DatabaseSchema = tenant.DatabaseSchema,
         UserCount = tenant.TenantUsers.Count,
         IsActive = tenant.Status == TenantStatus.Active
@@ -22,7 +20,7 @@ internal static class AdminPortalMappings
         Id = tenant.Id,
         Identifier = tenant.Identifier,
         Name = tenant.Name,
-        DatabaseName = ReadDatabaseName(tenant.DatabaseInstance?.ConnectionStringReference),
+        DatabaseName = tenant.DatabaseInstance?.DatabaseName ?? string.Empty,
         DatabaseSchema = tenant.DatabaseSchema ?? string.Empty,
         Status = tenant.Status.ToString(),
         SubscriptionPlanId = tenant.SubscriptionPlanId,
@@ -51,7 +49,7 @@ internal static class AdminPortalMappings
     {
         Id = instance.Id,
         Identifier = instance.Identifier,
-        DatabaseName = ReadDatabaseName(instance.ConnectionStringReference),
+        DatabaseName = instance.DatabaseName,
         CurrentTenantSchemaCount = instance.CurrentTenantSchemaCount,
         Status = instance.Status.ToString()
     };
@@ -90,20 +88,5 @@ internal static class AdminPortalMappings
             throw new ArgumentException("Database schema is required.");
 
         return normalized;
-    }
-
-    internal static string ReadDatabaseName(string? connectionString)
-    {
-        if (string.IsNullOrWhiteSpace(connectionString))
-            return string.Empty;
-
-        try
-        {
-            return new NpgsqlConnectionStringBuilder(connectionString).Database ?? string.Empty;
-        }
-        catch (ArgumentException)
-        {
-            return string.Empty;
-        }
     }
 }

@@ -17,8 +17,6 @@ public sealed class SubscriptionPlanConfiguration : IEntityTypeConfiguration<Sub
         builder.Property(p => p.MaxStorageGb).IsRequired();
         builder.Property(p => p.PricingMonthly).IsRequired();
         builder.Property(p => p.ResourceLimits).HasColumnType("jsonb");
-        builder.Property(p => p.IsActive).IsRequired();
-        builder.Property(p => p.CreatedAt).HasDefaultValue(DateTime.UtcNow);
         builder.HasMany(p => p.Tenants)
             .WithOne(t => t.SubscriptionPlan)
             .HasForeignKey(t => t.SubscriptionPlanId)

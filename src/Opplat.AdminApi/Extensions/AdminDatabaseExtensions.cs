@@ -15,26 +15,24 @@ public static class AdminDatabaseExtensions
     {
         services.AddDbContext<AdminTenantCatalogDbContext>(options =>
             options.UseNpgsql(NormalizePostgresConnectionString(
-                configuration.GetConnectionString("DefaultConnection"))));
+                configuration.GetConnectionString("AdminDatabase"))));
 
         // Module 3: Provisioning & Migration Services
-        var databaseInstanceOptions = configuration.GetSection(DatabaseInstanceOptions.SectionName)
-            .Get<DatabaseInstanceOptions>() ?? new DatabaseInstanceOptions();
-        
-        if (string.IsNullOrWhiteSpace(databaseInstanceOptions.DefaultConnectionString))
-        {
-            databaseInstanceOptions.DefaultConnectionString =
-                "Host=localhost;Port=5432;Database=opplat_tenants_db1;Username=postgres;Password=Admin123*";
-        }
+        services.Configure<TenantDatabaseOptions>(configuration.GetSection(TenantDatabaseOptions.SectionName));
+        var tenantDatabaseOptions = configuration.GetSection(TenantDatabaseOptions.SectionName)
+            .Get<TenantDatabaseOptions>() ?? new TenantDatabaseOptions();
+        services.AddSingleton(tenantDatabaseOptions);
 
         services.Configure<DatabaseInstanceOptions>(configuration.GetSection(DatabaseInstanceOptions.SectionName));
+        var databaseInstanceOptions = configuration.GetSection(DatabaseInstanceOptions.SectionName)
+            .Get<DatabaseInstanceOptions>() ?? new DatabaseInstanceOptions();
         services.AddSingleton(databaseInstanceOptions);
         services.AddScoped<TenantSchemaProvisioningService>();
         services.AddScoped<DatabaseInstanceAutoScalingService>();
         services.AddScoped<ITenantSchemaMigrationRunner, TenantSchemaMigrationRunner>();
         services.AddScoped<ITenantProvisioningCoordinator, TenantProvisioningCoordinator>();
-        services.AddSingleton<IEnumerable<Opplat.Infrastructure.Services.ITenantProvisioningReporter>>([]);
-        services.AddSingleton<IEnumerable<Opplat.Application.Abstractions.Services.ITenantSchemaMigrationReporter>>([]);
+        services.AddSingleton<IEnumerable<Infrastructure.Services.ITenantProvisioningReporter>>([]);
+        services.AddSingleton<IEnumerable<ITenantSchemaMigrationReporter>>([]);
 
         return services;
     }
@@ -42,7 +40,7 @@ public static class AdminDatabaseExtensions
     private static string NormalizePostgresConnectionString(string? connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException("ConnectionStrings:DefaultConnection must be configured.");
+            throw new InvalidOperationException("ConnectionStrings:AdminDatabase must be configured.");
 
         var builder = new NpgsqlConnectionStringBuilder(connectionString);
         if (builder.SslMode == SslMode.Prefer)

@@ -6,43 +6,22 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Opplat.Infrastructure.Persistance.Migrations.Administration
 {
     /// <inheritdoc />
-    public partial class InitialAdministration : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AdminTenantInfo",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 50, DateTimeKind.Utc).AddTicks(974)),
-                    CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    Identifier = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    DatabaseName = table.Column<string>(type: "text", nullable: false),
-                    DatabaseSchema = table.Column<string>(type: "text", nullable: false),
-                    UserCount = table.Column<int>(type: "integer", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AdminTenantInfo", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "database_instances",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 50, DateTimeKind.Utc).AddTicks(974)),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ModifiedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Identifier = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    ConnectionStringReference = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    database_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     CurrentTenantSchemaCount = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
                     ArchivedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -57,7 +36,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 50, DateTimeKind.Utc).AddTicks(974)),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ModifiedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -86,7 +65,6 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     SubscriptionPlanId = table.Column<Guid>(type: "uuid", nullable: false),
                     InactivatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     DatabaseInstanceId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DatabaseName = table.Column<string>(type: "text", nullable: false),
                     DatabaseSchema = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
@@ -123,7 +101,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     IsPrimaryAdmin = table.Column<bool>(type: "boolean", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     DeactivatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 60, DateTimeKind.Utc).AddTicks(6726)),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ModifiedBy = table.Column<string>(type: "text", nullable: true)
@@ -145,7 +123,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 50, DateTimeKind.Utc).AddTicks(974)),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ModifiedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -156,7 +134,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     ActionType = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     BeforeState = table.Column<string>(type: "jsonb", nullable: true),
                     AfterState = table.Column<string>(type: "jsonb", nullable: true),
-                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2026, 4, 1, 18, 0, 5, 23, DateTimeKind.Utc).AddTicks(4911))
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
@@ -222,9 +200,6 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "AdminTenantInfo");
-
             migrationBuilder.DropTable(
                 name: "audit_logs");
 

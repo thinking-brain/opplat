@@ -22,6 +22,7 @@ using Opplat.MainApp.Endpoints.Inventory;
 using Opplat.MainApp.Endpoints.Sales;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Application.Abstractions.Auth;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 var authSection = builder.Configuration.GetSection(AuthOptions.SectionName);
@@ -40,9 +41,17 @@ builder.Services.AddMultiTenant<AppTenantInfo>()
 builder.Services.AddDbContext<OpplatDbContext>((serviceProvider, options) =>
 {
     var tenantAccessor = serviceProvider.GetService<IMultiTenantContextAccessor<AppTenantInfo>>();
-    var defaultConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? builder.Configuration.GetConnectionString("MainConnection")
-        ?? throw new InvalidOperationException("A default or tenant connection string must be configured.");
+    var tenantDbOptions = builder.Configuration.GetSection(TenantDatabaseOptions.SectionName).Get<TenantDatabaseOptions>()
+        ?? new TenantDatabaseOptions();
+    var defaultConnectionString = new NpgsqlConnectionStringBuilder
+    {
+        Host = tenantDbOptions.Host,
+        Port = tenantDbOptions.Port,
+        Username = tenantDbOptions.Username,
+        Password = tenantDbOptions.Password,
+        Database = "postgres",
+        SslMode = SslMode.Disable
+    }.ConnectionString;
     var connectionString = PostgresTenantConnectionStringResolver.Resolve(
         tenantAccessor?.MultiTenantContext?.TenantInfo,
         defaultConnectionString);

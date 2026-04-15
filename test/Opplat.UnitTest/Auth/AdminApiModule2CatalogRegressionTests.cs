@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Opplat.Domain.Entities.Administration;
+using Opplat.Infrastructure.Persistance.Data;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 
 namespace Opplat.UnitTest.Auth;
@@ -40,7 +41,6 @@ public class AdminApiModule2CatalogRegressionTests
             tenant =>
             {
                 Assert.Equal("bistrocentral", tenant.Identifier);
-                Assert.Equal("opplat_bistrocentral", tenant.DatabaseName);
                 Assert.Equal("tenant_bistrocentral", tenant.DatabaseSchema);
                 Assert.Equal(9, tenant.UserCount);
                 Assert.True(tenant.IsActive);
@@ -48,7 +48,6 @@ public class AdminApiModule2CatalogRegressionTests
             tenant =>
             {
                 Assert.Equal("lunahub", tenant.Identifier);
-                Assert.Equal("opplat_lunahub", tenant.DatabaseName);
                 Assert.Equal("tenant_lunahub", tenant.DatabaseSchema);
                 Assert.Equal(4, tenant.UserCount);
                 Assert.False(tenant.IsActive);
@@ -56,7 +55,6 @@ public class AdminApiModule2CatalogRegressionTests
             tenant =>
             {
                 Assert.Equal("mojocafe", tenant.Identifier);
-                Assert.Equal("opplat_mojocafe", tenant.DatabaseName);
                 Assert.Equal("tenant_mojocafe", tenant.DatabaseSchema);
                 Assert.Equal(18, tenant.UserCount);
                 Assert.True(tenant.IsActive);
@@ -96,7 +94,7 @@ public class AdminApiModule2CatalogRegressionTests
         Assert.Equal("db-primary-001", instance.Identifier);
         Assert.Equal(DatabaseInstanceStatus.Active, instance.Status);
         Assert.Equal(0, instance.CurrentTenantSchemaCount);
-        Assert.Contains("Database=opplat_tenants_db1", instance.ConnectionStringReference, StringComparison.Ordinal);
+        Assert.Equal("opplat_tenants_db1", instance.DatabaseName);
     }
 
     [Fact]
@@ -108,7 +106,7 @@ public class AdminApiModule2CatalogRegressionTests
 
         await using (var setup = new AdminTenantCatalogDbContext(options))
         {
-            await Module2DataSeeder.SeedModule2TablesAsync(setup);
+            await DataSeeder.SeedAsync(setup);
 
             var starterPlan = await setup.SubscriptionPlans.SingleAsync(plan => plan.Name == "Starter");
             var primaryInstance = await setup.DatabaseInstances.SingleAsync(instance => instance.Identifier == "db-primary-001");
@@ -122,7 +120,6 @@ public class AdminApiModule2CatalogRegressionTests
                 SubscriptionPlanId = starterPlan.Id,
                 DatabaseInstanceId = primaryInstance.Id,
                 DatabaseSchema = "tenant_central_regression",
-                DatabaseName = "opplat_central_regression"
             };
 
             setup.Tenants.Add(tenant);

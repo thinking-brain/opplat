@@ -37,10 +37,6 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     b.Property<Guid>("DatabaseInstanceId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("DatabaseName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("DatabaseSchema")
                         .IsRequired()
                         .HasMaxLength(128)
@@ -91,9 +87,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValue(new DateTime(2026, 4, 1, 18, 0, 5, 60, DateTimeKind.Utc).AddTicks(6726));
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -147,9 +141,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                         .HasDefaultValueSql("gen_random_uuid()");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValue(new DateTime(2026, 4, 1, 18, 0, 5, 50, DateTimeKind.Utc).AddTicks(974));
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(256)
@@ -167,35 +159,6 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     b.ToTable((string)null);
 
                     b.UseTpcMappingStrategy();
-                });
-
-            modelBuilder.Entity("Opplat.Domain.Entities.Administration.AdminTenantInfo", b =>
-                {
-                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
-
-                    b.Property<string>("DatabaseName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DatabaseSchema")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Identifier")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserCount")
-                        .HasColumnType("integer");
-
-                    b.ToTable("AdminTenantInfo");
                 });
 
             modelBuilder.Entity("Opplat.Domain.Entities.Administration.AuditLog", b =>
@@ -232,7 +195,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     b.Property<DateTime>("Timestamp")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValue(new DateTime(2026, 4, 1, 18, 0, 5, 23, DateTimeKind.Utc).AddTicks(4911));
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasIndex("ActorOid");
 
@@ -250,13 +213,14 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     b.Property<DateTime?>("ArchivedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ConnectionStringReference")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)");
-
                     b.Property<int>("CurrentTenantSchemaCount")
                         .HasColumnType("integer");
+
+                    b.Property<string>("DatabaseName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("database_name");
 
                     b.Property<string>("Identifier")
                         .IsRequired()

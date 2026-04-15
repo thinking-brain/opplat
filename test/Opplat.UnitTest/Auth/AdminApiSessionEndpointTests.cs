@@ -138,13 +138,27 @@ public class AdminApiSessionEndpointTests
         });
         builder.Services.AddDbContext<AdminTenantCatalogDbContext>(options =>
             options.UseInMemoryDatabase($"admin-session-tests-{Guid.NewGuid():N}"));
+        builder.Services.Configure<TenantDatabaseOptions>(options =>
+        {
+            options.Host = "localhost";
+            options.Port = 5432;
+            options.Username = "postgres";
+            options.Password = "Admin123*";
+        });
+        builder.Services.AddSingleton(new TenantDatabaseOptions
+        {
+            Host = "localhost",
+            Port = 5432,
+            Username = "postgres",
+            Password = "Admin123*"
+        });
         builder.Services.Configure<DatabaseInstanceOptions>(options =>
         {
-            options.DefaultConnectionString = "Host=localhost;Port=5432;Database=opplat_tenants_db1;Username=postgres;Password=Admin123*";
+            options.MaxTenantsPerInstance = 100;
         });
         builder.Services.AddSingleton(new DatabaseInstanceOptions
         {
-            DefaultConnectionString = "Host=localhost;Port=5432;Database=opplat_tenants_db1;Username=postgres;Password=Admin123*"
+            MaxTenantsPerInstance = 100
         });
         builder.Services.AddScoped<TenantSchemaProvisioningService>();
         builder.Services.AddScoped<DatabaseInstanceAutoScalingService>();

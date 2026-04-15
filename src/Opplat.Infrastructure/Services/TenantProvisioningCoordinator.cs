@@ -154,7 +154,7 @@ public sealed class TenantProvisioningCoordinator : ITenantProvisioningCoordinat
     {
         result.DatabaseInstanceId = databaseInstance.Id;
         result.DatabaseInstanceIdentifier = databaseInstance.Identifier;
-        result.DatabaseName = ReadDatabaseName(databaseInstance.ConnectionStringReference);
+        result.DatabaseName = databaseInstance.DatabaseName;
         result.DatabaseSchema = databaseSchema;
         result.Succeeded = succeeded;
         result.AlreadyProvisioned = alreadyProvisioned;
@@ -176,12 +176,6 @@ public sealed class TenantProvisioningCoordinator : ITenantProvisioningCoordinat
                 .Trim('_');
 
         return $"tenant_{normalizedIdentifier}";
-    }
-
-    private static string ReadDatabaseName(string connectionString)
-    {
-        var builder = new NpgsqlConnectionStringBuilder(connectionString);
-        return builder.Database ?? string.Empty;
     }
 }
 

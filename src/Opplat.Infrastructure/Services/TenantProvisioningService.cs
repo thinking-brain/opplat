@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Opplat.Application.Abstractions.Auth;
+using Opplat.Application.Abstractions.Options;
 using Opplat.Domain.Models;
 using Opplat.Infrastructure.Persistance.Data;
 using System.Collections.Concurrent;
@@ -31,9 +32,17 @@ public class TenantProvisioningService(IServiceProvider serviceProvider)
 
             using var scope = _serviceProvider.CreateScope();
             var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-            var defaultConnectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? configuration.GetConnectionString("MainConnection")
-                ?? throw new InvalidOperationException("A default tenant connection string must be configured.");
+            var tenantDbOptions = configuration.GetSection(TenantDatabaseOptions.SectionName).Get<TenantDatabaseOptions>()
+                ?? new TenantDatabaseOptions();
+            var defaultConnectionString = new NpgsqlConnectionStringBuilder
+            {
+                Host = tenantDbOptions.Host,
+                Port = tenantDbOptions.Port,
+                Username = tenantDbOptions.Username,
+                Password = tenantDbOptions.Password,
+                Database = "postgres",
+                SslMode = SslMode.Disable
+            }.ConnectionString;
             var tenantConnectionString = PostgresTenantConnectionStringResolver.Resolve(
                 tenantInfo,
                 defaultConnectionString);

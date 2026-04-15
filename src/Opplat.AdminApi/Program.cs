@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Opplat.AdminApi.Data;
 using Opplat.AdminApi.Extensions;
+using Opplat.Infrastructure.Persistance.Data;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,12 +18,10 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AdminTenantCatalogDbContext>();
     await db.Database.MigrateAsync();
     logger.LogInformation("Database migrations applied successfully");
-}
-
-// Seed development data if in Development environment
-if (app.Environment.IsDevelopment())
-{
-    await DevDataSeeder.SeedAsync(app.Services, logger);
+    if (app.Environment.IsDevelopment())
+    {
+        DataSeeder.SeedAsync(db, default).Wait();
+    }
 }
 
 await app.ConfigureAdminApp();

@@ -2,6 +2,7 @@ using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using Opplat.Application.Abstractions.Options;
 using Opplat.Domain.Entities.Administration;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 
@@ -15,13 +16,16 @@ namespace Opplat.Infrastructure.Services;
 public sealed class TenantSchemaProvisioningService
 {
     private readonly AdminTenantCatalogDbContext _db;
+    private readonly TenantDatabaseOptions _tenantDatabaseOptions;
     private readonly ILogger<TenantSchemaProvisioningService> _logger;
 
     public TenantSchemaProvisioningService(
         AdminTenantCatalogDbContext db,
+        TenantDatabaseOptions tenantDatabaseOptions,
         ILogger<TenantSchemaProvisioningService> logger)
     {
         _db = db;
+        _tenantDatabaseOptions = tenantDatabaseOptions;
         _logger = logger;
     }
 
@@ -44,14 +48,9 @@ public sealed class TenantSchemaProvisioningService
             throw new InvalidOperationException(
                 $"Database instance {tenant.DatabaseInstanceId} not found for tenant {tenant.Id}.");
 
-        var connectionString = databaseInstance.ConnectionStringReference;
-        if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException(
-                $"Database instance {databaseInstance.Id} has no connection string.");
-
-        var normalized = NormalizeConnectionString(connectionString);
-        var databaseName = ReadDatabaseName(normalized);
-        var databaseCreated = await EnsureDatabaseExistsAsync(normalized, cancellationToken);
+        var connectionString = BuildConnectionString(databaseInstance.DatabaseName);
+        var databaseName = databaseInstance.DatabaseName;
+        var databaseCreated = await EnsureDatabaseExistsAsync(connectionString, cancellationToken);
         var result = new TenantSchemaProvisioningOutcome
         {
             TenantId = tenant.Id,
@@ -68,7 +67,7 @@ public sealed class TenantSchemaProvisioningService
             "Provisioning schema '{Schema}' for tenant '{TenantId}' in database instance '{InstanceId}'.",
             tenant.DatabaseSchema, tenant.Id, databaseInstance.Id);
 
-        await using var connection = new NpgsqlConnection(normalized);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
 
         try
@@ -117,14 +116,14 @@ public sealed class TenantSchemaProvisioningService
             .AsNoTracking()
             .FirstOrDefaultAsync(d => d.Id == tenant.DatabaseInstanceId, cancellationToken);
 
-        if (databaseInstance == null || string.IsNullOrWhiteSpace(databaseInstance.ConnectionStringReference))
+        if (databaseInstance == null || string.IsNullOrWhiteSpace(databaseInstance.DatabaseName))
             return false;
 
-        var normalized = NormalizeConnectionString(databaseInstance.ConnectionStringReference);
-        if (!await DatabaseExistsAsync(normalized, cancellationToken))
+        var connectionString = BuildConnectionString(databaseInstance.DatabaseName);
+        if (!await DatabaseExistsAsync(connectionString, cancellationToken))
             return false;
 
-        await using var connection = new NpgsqlConnection(normalized);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
         return await SchemaExistsAsync(connection, tenant.DatabaseSchema, cancellationToken);
     }
@@ -147,17 +146,12 @@ public sealed class TenantSchemaProvisioningService
             throw new InvalidOperationException(
                 $"Database instance {tenant.DatabaseInstanceId} not found for tenant {tenant.Id}.");
 
-        var connectionString = databaseInstance.ConnectionStringReference;
-        if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException(
-                $"Database instance {databaseInstance.Id} has no connection string.");
-
         _logger.LogInformation(
             "Dropping schema '{Schema}' for tenant '{TenantId}' from database instance '{InstanceId}'.",
             tenant.DatabaseSchema, tenant.Id, databaseInstance.Id);
 
-        var normalized = NormalizeConnectionString(connectionString);
-        await using var connection = new NpgsqlConnection(normalized);
+        var connectionString = BuildConnectionString(databaseInstance.DatabaseName);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
 
         try
@@ -196,6 +190,24 @@ public sealed class TenantSchemaProvisioningService
 
         var result = await command.ExecuteScalarAsync(cancellationToken);
         return result != null && (int)result == 1;
+    }
+
+    private string BuildConnectionString(string databaseName, string? schema = null)
+    {
+        var builder = new NpgsqlConnectionStringBuilder
+        {
+            Host = _tenantDatabaseOptions.Host,
+            Port = _tenantDatabaseOptions.Port,
+            Username = _tenantDatabaseOptions.Username,
+            Password = _tenantDatabaseOptions.Password,
+            Database = databaseName,
+            SslMode = SslMode.Disable
+        };
+
+        if (!string.IsNullOrWhiteSpace(schema))
+            builder.SearchPath = schema;
+
+        return builder.ConnectionString;
     }
 
     private static string NormalizeConnectionString(string connectionString)

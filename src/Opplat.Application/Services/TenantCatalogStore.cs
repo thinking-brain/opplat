@@ -4,6 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
+using Opplat.Application.Abstractions.Options;
 using Opplat.Domain.Models;
 
 namespace Opplat.Application.Services;
@@ -14,6 +15,7 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
 
     private readonly string _catalogPath;
     private readonly string? _adminCatalogConnectionString;
+    private readonly TenantDatabaseOptions _tenantDbOptions;
     private readonly TimeSpan _cacheLifetime;
     private readonly List<AppTenantInfo> _seedTenants;
     private readonly IMemoryCache _memoryCache;
@@ -30,6 +32,7 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
             .GetSection("Finbuckle:MultiTenant:Stores:ConfigurationStore:Tenants")
             .Get<List<AppTenantInfo>>() ?? new List<AppTenantInfo>();
         _adminCatalogConnectionString = configuration.GetConnectionString("AdminCatalogConnection");
+        _tenantDbOptions = configuration.GetSection(TenantDatabaseOptions.SectionName).Get<TenantDatabaseOptions>() ?? new TenantDatabaseOptions();
         _cacheLifetime = TimeSpan.FromSeconds(Math.Max(5, configuration.GetValue("TenantStore:CatalogCacheSeconds", 30)));
 
         var relativePath = configuration["TenantStore:CatalogPath"];
@@ -273,7 +276,7 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
                    t."Name",
                    t."Status",
                    t."DatabaseSchema",
-                   di."ConnectionStringReference"
+                   di."DatabaseName"
             from tenants t
             inner join database_instances di on di."Id" = t."DatabaseInstanceId"
             order by t."Name", t."Identifier";
@@ -302,7 +305,7 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
                        t."Name",
                        t."Status",
                        t."DatabaseSchema",
-                       di."ConnectionStringReference"
+                       di."DatabaseName"
                 from tenants t
                 inner join database_instances di on di."Id" = t."DatabaseInstanceId"
                 where lower(t."Identifier") = lower(@identifier)
@@ -337,7 +340,7 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
                        t."Name",
                        t."Status",
                        t."DatabaseSchema",
-                       di."ConnectionStringReference"
+                       di."DatabaseName"
                 from tenants t
                 inner join database_instances di on di."Id" = t."DatabaseInstanceId"
                 where t."Id" = @id
@@ -597,17 +600,16 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
         if (existingInstanceId.HasValue)
             return existingInstanceId.Value;
 
-        var connectionStringReference = ResolveConnectionStringReference(tenantInfo, databaseName);
         const string insertSql =
             """
-            insert into database_instances ("Identifier", "ConnectionStringReference", "CurrentTenantSchemaCount", "Status", "CreatedAt")
-            values (@identifier, @connectionStringReference, 0, 'Active', @createdAt)
+            insert into database_instances ("Identifier", "DatabaseName", "CurrentTenantSchemaCount", "Status", "CreatedAt")
+            values (@identifier, @databaseName, 0, 'Active', @createdAt)
             returning "Id";
             """;
 
         await using var command = new NpgsqlCommand(insertSql, connection, transaction);
         command.Parameters.AddWithValue("identifier", $"db-{NormalizeIdentifier(databaseName)}");
-        command.Parameters.AddWithValue("connectionStringReference", connectionStringReference);
+        command.Parameters.AddWithValue("databaseName", databaseName);
         command.Parameters.AddWithValue("createdAt", DateTime.UtcNow);
         return Convert.ToInt32(await command.ExecuteScalarAsync());
     }
@@ -619,7 +621,7 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
     {
         const string sql =
             """
-            select "Id", "ConnectionStringReference"
+            select "Id", "DatabaseName"
             from database_instances
             order by "Id";
             """;
@@ -628,7 +630,7 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
         await using var reader = await command.ExecuteReaderAsync();
         while (await reader.ReadAsync())
         {
-            var candidateDatabaseName = ReadDatabaseName(reader.GetString(1));
+            var candidateDatabaseName = reader.GetString(1);
             if (string.Equals(candidateDatabaseName, databaseName, StringComparison.OrdinalIgnoreCase))
                 return reader.GetInt32(0);
         }
@@ -667,20 +669,17 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
             : databaseNameFromConnection;
     }
 
-    private static string ResolveConnectionStringReference(AppTenantInfo tenantInfo, string databaseName)
+    private static string ResolveConnectionStringReference(TenantDatabaseOptions options, string databaseName)
     {
-        var baseConnectionString = !string.IsNullOrWhiteSpace(tenantInfo.ConnectionString)
-            ? tenantInfo.ConnectionString!
-            : $"Host=localhost;Port=5432;Username=postgres;Password=Admin123*;Database={databaseName}";
-
-        var builder = new NpgsqlConnectionStringBuilder(baseConnectionString)
+        var builder = new NpgsqlConnectionStringBuilder
         {
+            Host = options.Host,
+            Port = options.Port,
+            Username = options.Username,
+            Password = options.Password,
             Database = databaseName,
-            SearchPath = null
+            SslMode = SslMode.Disable
         };
-
-        if (builder.SslMode == SslMode.Prefer)
-            builder.SslMode = SslMode.Disable;
 
         return builder.ConnectionString;
     }
@@ -733,18 +732,19 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
         IsActive = tenant.IsActive
     };
 
-    private static AppTenantInfo ReadTenant(NpgsqlDataReader reader)
+    private AppTenantInfo ReadTenant(NpgsqlDataReader reader)
     {
-        var connectionString = reader.IsDBNull(5) ? string.Empty : reader.GetString(5);
+        var databaseName = reader.IsDBNull(5) ? string.Empty : reader.GetString(5);
         var databaseSchema = reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
+        var connectionStringRef = ResolveConnectionStringReference(_tenantDbOptions, databaseName);
 
         return new AppTenantInfo
         {
             Id = reader.GetString(0),
             Identifier = reader.GetString(1),
             Name = reader.GetString(2),
-            ConnectionString = BuildTenantConnectionString(connectionString, databaseSchema),
-            DatabaseName = ReadDatabaseName(connectionString),
+            ConnectionString = BuildTenantConnectionString(connectionStringRef, databaseSchema),
+            DatabaseName = databaseName,
             DatabaseSchema = databaseSchema,
             IsActive = string.Equals(reader.GetString(3), "Active", StringComparison.OrdinalIgnoreCase)
         };

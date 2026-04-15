@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Npgsql;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Domain.Entities.Administration;
 using Opplat.Infrastructure.Persistance.Data.Administration;
@@ -151,22 +150,12 @@ public sealed class DatabaseInstanceAutoScalingService
         var newInstanceNumber = maxId + 1;
         var newIdentifier = $"db-primary-{newInstanceNumber:D3}";
 
-        // For now, construct a new connection string pointing to a new database on the same PostgreSQL instance.
-        // In production, this would provision new infrastructure and retrieve real connection details.
-        var templateConnectionString = string.IsNullOrWhiteSpace(_options.DefaultConnectionString)
-            ? referenceInstance.ConnectionStringReference
-            : _options.DefaultConnectionString;
-        var currentBuilder = new NpgsqlConnectionStringBuilder(templateConnectionString);
         var newDatabase = $"opplat_tenants_db{newInstanceNumber}";
-        currentBuilder.Database = newDatabase;
-        if (currentBuilder.SslMode == SslMode.Prefer)
-            currentBuilder.SslMode = SslMode.Disable;
-        var newConnectionString = currentBuilder.ConnectionString;
 
         var newInstance = new DatabaseInstance
         {
             Identifier = newIdentifier,
-            ConnectionStringReference = newConnectionString,
+            DatabaseName = newDatabase,
             CurrentTenantSchemaCount = 0,
             Status = DatabaseInstanceStatus.Active
         };

@@ -65,7 +65,6 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
         {
             Identifier = identifier,
             Name = name,
-            DatabaseName = databaseName,
             DatabaseSchema = databaseSchema,
             Status = TenantStatus.Active,
             SubscriptionPlanId = plan.Id,
@@ -107,7 +106,6 @@ public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCom
             ?? throw new KeyNotFoundException($"Tenant '{identifier}' was not found.");
 
         tenant.Name = AdminPortalMappings.NormalizeTenantName(request.Request.Name);
-        tenant.DatabaseName = AdminPortalMappings.NormalizeDatabaseName(request.Request.DatabaseName);
 
         if (!string.IsNullOrWhiteSpace(request.Request.DatabaseSchema))
             tenant.DatabaseSchema = request.Request.DatabaseSchema.Trim();

@@ -18,7 +18,7 @@ public class AdminApiModule3RegressionTests
         setup.DatabaseInstances.Add(new DatabaseInstance
         {
             Identifier = "db-primary-001",
-            ConnectionStringReference = "Host=localhost;Port=5432;Username=postgres;Password=Admin123*;Database=opplat_tenants_db1",
+            DatabaseName = "opplat_tenants_db1",
             CurrentTenantSchemaCount = 1,
             Status = DatabaseInstanceStatus.Active
         });
@@ -47,7 +47,7 @@ public class AdminApiModule3RegressionTests
         setup.DatabaseInstances.Add(new DatabaseInstance
         {
             Identifier = "db-primary-001",
-            ConnectionStringReference = "Host=localhost;Port=5432;Username=postgres;Password=Admin123*;Database=opplat_tenants_db1",
+            DatabaseName = "opplat_tenants_db1",
             CurrentTenantSchemaCount = 2,
             Status = DatabaseInstanceStatus.Active
         });
@@ -63,7 +63,7 @@ public class AdminApiModule3RegressionTests
 
         Assert.NotEqual(currentInstance.Id, resolvedInstance.Id);
         Assert.Equal("db-primary-002", resolvedInstance.Identifier);
-        Assert.Contains("Database=opplat_tenants_db2", resolvedInstance.ConnectionStringReference, StringComparison.Ordinal);
+        Assert.Equal("opplat_tenants_db2", resolvedInstance.DatabaseName);
         Assert.Equal(0, resolvedInstance.CurrentTenantSchemaCount);
         Assert.Equal(DatabaseInstanceStatus.Active, resolvedInstance.Status);
         Assert.Equal(2, await setup.DatabaseInstances.CountAsync());
@@ -78,7 +78,7 @@ public class AdminApiModule3RegressionTests
         setup.DatabaseInstances.Add(new DatabaseInstance
         {
             Identifier = "db-primary-001",
-            ConnectionStringReference = "Host=localhost;Port=5432;Username=postgres;Password=Admin123*;Database=opplat_tenants_db1",
+            DatabaseName = "opplat_tenants_db1",
             CurrentTenantSchemaCount = 0,
             Status = DatabaseInstanceStatus.Active
         });

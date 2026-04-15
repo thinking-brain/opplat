@@ -97,7 +97,6 @@ public sealed class RegisterTenantCommandHandler : IRequestHandler<RegisterTenan
             Id = Guid.NewGuid(),
             Identifier = identifier,
             Name = request.BusinessName.Trim(),
-            DatabaseName = $"{identifier}_db",
             DatabaseSchema = $"tenant_{identifier}",
             Status = TenantStatus.Active,
             SubscriptionPlanId = plan.Id,

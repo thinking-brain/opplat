@@ -20,14 +20,13 @@ public sealed class Tenant : BaseEntity
 
     public Guid DatabaseInstanceId { get; set; }
 
-    public required string DatabaseName { get; set; }
     public required string DatabaseSchema { get; set; }
 
     public SubscriptionPlan? SubscriptionPlan { get; set; }
 
     public DatabaseInstance? DatabaseInstance { get; set; }
 
-    public ICollection<TenantUser> TenantUsers { get; } = [];
+    public ICollection<TenantUser> TenantUsers { get; set; } = [];
 
     public ICollection<AuditLog> AuditLogs { get; } = [];
 

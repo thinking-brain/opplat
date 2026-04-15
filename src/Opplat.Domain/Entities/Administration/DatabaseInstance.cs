@@ -11,7 +11,7 @@ public sealed class DatabaseInstance : BaseEntity
 
     public string Identifier { get; set; } = string.Empty;
 
-    public string ConnectionStringReference { get; set; } = string.Empty;
+    public string DatabaseName { get; set; } = string.Empty;
 
     public int CurrentTenantSchemaCount { get; set; } = 0;
 

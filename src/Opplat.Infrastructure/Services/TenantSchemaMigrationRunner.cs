@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Opplat.Domain.Entities.Administration;
 using Opplat.Application.Abstractions.Services;
 using Opplat.Domain.Models.Administration;
+using Opplat.Application.Abstractions.Options;
 
 namespace Opplat.Infrastructure.Services;
 
@@ -14,21 +15,16 @@ namespace Opplat.Infrastructure.Services;
 /// Executes database schema changes across tenant schemas.
 /// Supports per-tenant execution, bulk execution, phased/rolling deployments, and rollback.
 /// </summary>
-public sealed class TenantSchemaMigrationRunner : ITenantSchemaMigrationRunner
+public sealed class TenantSchemaMigrationRunner(
+    AdminTenantCatalogDbContext db,
+    TenantDatabaseOptions tenantDatabaseOptions,
+    ILogger<TenantSchemaMigrationRunner> logger,
+    IEnumerable<ITenantSchemaMigrationReporter> reporters) : ITenantSchemaMigrationRunner
 {
-    private readonly AdminTenantCatalogDbContext _db;
-    private readonly ILogger<TenantSchemaMigrationRunner> _logger;
-    private readonly IEnumerable<ITenantSchemaMigrationReporter> _reporters;
-
-    public TenantSchemaMigrationRunner(
-        AdminTenantCatalogDbContext db,
-        ILogger<TenantSchemaMigrationRunner> logger,
-        IEnumerable<ITenantSchemaMigrationReporter> reporters)
-    {
-        _db = db;
-        _logger = logger;
-        _reporters = reporters;
-    }
+    private readonly AdminTenantCatalogDbContext _db = db;
+    private readonly TenantDatabaseOptions _tenantDatabaseOptions = tenantDatabaseOptions;
+    private readonly ILogger<TenantSchemaMigrationRunner> _logger = logger;
+    private readonly IEnumerable<ITenantSchemaMigrationReporter> _reporters = reporters;
 
     public async Task<TenantSchemaMigrationRunReport> ExecuteMigrationForTenantAsync(
         string tenantIdentifier,
@@ -100,14 +96,13 @@ public sealed class TenantSchemaMigrationRunner : ITenantSchemaMigrationRunner
                 return result;
             }
 
-            var connectionString = databaseInstance.ConnectionStringReference;
-            var normalized = NormalizeConnectionString(connectionString);
+            var connectionString = BuildConnectionString(databaseInstance.DatabaseName);
 
             _logger.LogInformation(
                 "Executing migration '{MigrationName}' for tenant '{TenantId}' (schema: '{Schema}').",
                 migrationName, tenant.Id, tenant.DatabaseSchema);
 
-            await using var connection = new NpgsqlConnection(normalized);
+            await using var connection = new NpgsqlConnection(connectionString);
             await connection.OpenAsync(cancellationToken);
 
             try
@@ -286,7 +281,7 @@ public sealed class TenantSchemaMigrationRunner : ITenantSchemaMigrationRunner
             if (databaseInstance == null)
                 return;
 
-            await using var rollbackConnection = new NpgsqlConnection(NormalizeConnectionString(databaseInstance.ConnectionStringReference));
+            await using var rollbackConnection = new NpgsqlConnection(BuildConnectionString(databaseInstance.DatabaseName));
             await rollbackConnection.OpenAsync(cancellationToken);
             await using var rollbackCommand = rollbackConnection.CreateCommand();
             rollbackCommand.CommandText = $"SET search_path TO \"{tenant.DatabaseSchema}\"; {rollbackSql}";
@@ -324,5 +319,18 @@ public sealed class TenantSchemaMigrationRunner : ITenantSchemaMigrationRunner
     {
         foreach (var reporter in _reporters)
             await reporter.ReportRunCompletedAsync(report, cancellationToken);
+    }
+
+    private string BuildConnectionString(string databaseName)
+    {
+        return new NpgsqlConnectionStringBuilder
+        {
+            Host = _tenantDatabaseOptions.Host,
+            Port = _tenantDatabaseOptions.Port,
+            Username = _tenantDatabaseOptions.Username,
+            Password = _tenantDatabaseOptions.Password,
+            Database = databaseName,
+            SslMode = SslMode.Disable
+        }.ConnectionString;
     }
 }

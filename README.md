@@ -512,6 +512,10 @@ When running with Docker Compose, the following databases are automatically conf
 
 ## Database Migrations
 
+### Generate migrations
+
+`dotnet ef migrations add Initial --project src/Opplat.Infrastructure --startup-project src/Opplat.AdminApi --context AdminTenantCatalogDbContext --output-dir Persistance/Migrations/Administration`
+
 ### Apply Migrations with Docker
 
 ```bash
