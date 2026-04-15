@@ -17,3 +17,14 @@
 ## Learnings
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
+- React SPA URL config is split between `src\Opplat.AppHost\Program.cs` (Aspire env injection) and each app's `src\runtimeConfig.ts`, which prefers `window.__OPPLAT_RUNTIME_CONFIG__` over `import.meta.env`.
+- `src\opplat-react\src\api\auth.api.ts` routes subscription-plan and tenant-registration calls through `adminPublicAxiosClient`, so the client app also depends on the admin API base URL being correct.
+- Current local port contract is inconsistent: Aspire runs `admin-api` on `http://localhost:8084`, but `src\opplat-react\src\runtimeConfig.ts` still falls back to `http://localhost:5160`, which is the standalone `Opplat.AdminApi` launchSettings port.
+- The documented QA command in this history points to a missing project; the available backend test project in this repo is `test\Opplat.UnitTest\Opplat.UnitTest.csproj`.
+
+### 2026-04-15 — Team Validation & Decision Merge
+- Bishop completed SPA URL simplification; verified both React apps build green
+- Mother validated Aspire as SSOT; confirmed client-app regression surface and build status
+- Regression coverage confirmed: frontend green, backend baseline failures unrelated to URL changes
+- Decision merged to `.squad/decisions.md`; orchestration logs created
+- Session log: `.squad/log/2026-04-15T19-13-58Z-url-config.md`

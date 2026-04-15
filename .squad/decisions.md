@@ -192,6 +192,74 @@ var connectionString = new NpgsqlConnectionStringBuilder
 
 ---
 
+### 2026-04-15 — Simplify SPA API URL Configuration (Bishop, Carl, Mother)
+
+**Date:** 2026-04-15  
+**Status:** Implemented  
+**Deciders:** Bishop, Carl (QA), Mother  
+**Context:** Client-app unable to reach AdminApi; registration and subscription plan fetching broken
+
+#### Problem
+
+1. **Wrong default port:** `runtimeConfig.ts` defaulted `VITE_ADMIN_API_URL` to `http://localhost:5160`; AdminApi runs on 8084
+2. **Missing CORS origin:** AdminApi allowed 3101/3201/5174 but not 3200 (client-app)
+3. **Redundant env vars:** Aspire set `VITE_AUTH_API_URL`, `VITE_SALES_API_URL`, `VITE_INVENTORY_API_URL` for non-existent separate backends
+
+#### Decision — Strategy per SPA
+
+| SPA | API Connection | Why |
+|-----|----------------|-----|
+| **opplat-admin** | Vite dev proxy (same-origin) | Cookie-based BFF auth; same-origin required |
+| **opplat-react** | Mixed: absolute URL for MainApp, Vite proxy for AdminApi | MainApp uses dynamic `/{tenantId}/*` paths (can't proxy statically); AdminApi uses fixed `/admin`, `/public` prefixes (proxy cleanly) |
+
+#### Implementation
+
+**Aspire env vars** (AppHost):
+- Keep: `VITE_API_URL` (MainApp on 8080)
+- Add: `VITE_DEV_PROXY_TARGET` (AdminApi on 8084)
+- Add: `VITE_ADMIN_API_URL` (empty string → same-origin proxy)
+- Remove: `VITE_AUTH_API_URL`, `VITE_SALES_API_URL`, `VITE_INVENTORY_API_URL`, `VITE_AUTH_USE_AUDIENCE_QUERY_PARAM`
+
+**Vite proxy rules:**
+- `opplat-react/vite.config.ts` and `opplat-admin/vite.config.ts`: added `/admin` and `/public` proxy routes
+- Empty `VITE_ADMIN_API_URL` forces same-origin; requests routed through Vite dev server to AdminApi
+
+**Config defaults** (`runtimeConfig.ts`):
+- `adminApiUrl`: `'http://localhost:5160'` → `''` (empty = same-origin)
+- Others default to `VITE_API_URL` (backward compatible)
+
+#### Trade-offs
+
+- **MainApp calls remain cross-origin in dev** — fixing would require regex proxying of dynamic paths (fragile, over-engineered)
+- **Production:** Both SPAs behind reverse proxy (nginx/Front Door) → same-origin anyway
+- **Future:** If Sales/Inventory split to separate services, re-add env vars and point to new ports; runtimeConfig already supports this
+
+#### Files Changed
+
+- `src/Opplat.AppHost/Program.cs`
+- `src/opplat-react/vite.config.ts`
+- `src/opplat-react/src/runtimeConfig.ts`
+- `src/opplat-react/src/vite-env.d.ts`
+- `src/opplat-react/.env.example`
+- `src/opplat-admin/vite.config.ts`
+
+#### Validation
+
+- Frontend: linted & built ✅
+- Release builds: AppHost/MainApp/AdminApi ✅
+- Backend tests: Baseline failures (unrelated, pre-existing)
+
+#### QA Coverage Required
+
+- Client app loads subscription plans in Aspire
+- Registration posts to live admin API
+- Auth/login/logout redirects resolve correctly
+- Tenant-scoped API calls work (path/header behavior)
+- Admin app same-origin `/admin/*` proxy works in dev
+- BFF/auth cookie flows succeed from expected origin
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus

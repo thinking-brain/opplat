@@ -94,9 +94,24 @@
 - Build succeeded with 0 errors after fixing all references
 
 ### 2026-04-02 — AdminApi Startup Migration Runner Fix
-
+ 
 - Fixed double-rename bug in migration `20260402182510_RenameConnectionStringReferenceToDatabaseName.cs`: removed redundant `migrationBuilder.Sql()` calls from both `Up()` and `Down()` methods that were attempting to rename the same column already handled by `migrationBuilder.RenameColumn()`
 - Verified migration runner already exists in `Program.cs` (lines 12-27): applies pending migrations with `db.Database.MigrateAsync()` and seeds dev data via `DevDataSeeder.SeedAsync()`
 - No changes needed to `WebApplicationExtensions.cs` - startup flow was already correct
 - Build succeeded with 0 errors after fixing migration
+
+### 2026-04-15 — Aspire SPA URL Wiring Review
+
+- `src\Opplat.AppHost\Program.cs` should use Aspire `GetEndpoint(...)` references when feeding `VITE_API_URL`, `VITE_DEV_PROXY_TARGET`, and Admin BFF origin env vars so frontend URL config follows the real backend/app ports instead of duplicated localhost strings.
+- Under Aspire local dev, both React apps intentionally keep `VITE_ADMIN_API_URL` empty and rely on Vite same-origin proxying for `/admin` and `/public`; the client app still needs `VITE_API_URL` pointed at MainApp for tenant-scoped APIs.
+- `client-app` should `WaitFor(admin-api)` as well as MainApp/Keycloak because registration and subscription-plan calls flow through AdminApi.
+- Release builds validated the AppHost/MainApp/AdminApi wiring; the debug AppHost build failure was only a locked `Opplat.AppHost.exe` from an already running local process, not a code regression.
+- Current `Opplat.UnitTest` failures are baseline noise unrelated to this URL change: several tests assert against moved/deleted files like `src\Opplat.MainApp\Auth\OidcClaimsTransformation.cs`, `src\Opplat.AdminApi\Endpoints\AdminContracts.cs`, and `test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj`.
+
+### 2026-04-15 — Scribe Post-Session Tasks
+- Orchestration logs created for Bishop, Carl, Mother with agent-specific work summaries and findings
+- Session log: `.squad/log/2026-04-15T19-13-58Z-url-config.md` (brief summary of URL config session)
+- Decision inbox merged into `.squad/decisions.md`; deduplicated across Bishop/Carl/Mother documents
+- Agent history files updated to include team validation notes and decision merge
+- Ready for git commit with squad/* staging
 
