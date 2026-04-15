@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
       open: !runningInAspire,
       proxy: {
         '/admin': proxyOptions,
+        '/public': proxyOptions,
       },
     },
   };

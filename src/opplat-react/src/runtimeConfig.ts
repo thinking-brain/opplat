@@ -50,7 +50,7 @@ export const appConfig = {
   authApiUrl: readConfig('VITE_AUTH_API_URL', readConfig('VITE_API_URL', 'http://localhost:8080')),
   salesApiUrl: readConfig('VITE_SALES_API_URL', readConfig('VITE_API_URL', 'http://localhost:8080')),
   inventoryApiUrl: readConfig('VITE_INVENTORY_API_URL', readConfig('VITE_API_URL', 'http://localhost:8080')),
-  adminApiUrl: readConfig('VITE_ADMIN_API_URL', 'http://localhost:5160'),
+  adminApiUrl: readConfig('VITE_ADMIN_API_URL', ''),
   authAuthority,
   authClientId: readConfig('VITE_AUTH_CLIENT_ID', 'opplat-client'),
   authAudience,

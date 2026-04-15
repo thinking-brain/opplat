@@ -59,13 +59,12 @@ var adminApi = builder.AddProject(
     .WithEnvironment("Auth__Authority", KeycloakAuthority)
     .WithEnvironment("Auth__MetadataAddress", KeycloakMetadataAddress)
     .WithEnvironment("Auth__Audience", "opplat-api")
-    .WithEnvironment("Auth__AdminBff__ClientId", "opplat-admin")
-    .WithEnvironment("Auth__AdminBff__DefaultOrigin", "http://localhost:3201")
-    .WithEnvironment("Auth__AdminBff__AllowedOrigins__0", "http://localhost:3101")
-    .WithEnvironment("Auth__AdminBff__AllowedOrigins__1", "http://localhost:3201")
-    .WithEnvironment("Auth__AdminBff__AllowedOrigins__2", "http://localhost:5174");
+    .WithEnvironment("Auth__AdminBff__ClientId", "opplat-admin");
 
-builder.AddViteApp(
+var mainAppHttp = mainApp.GetEndpoint("mainapp-http");
+var adminApiHttp = adminApi.GetEndpoint("admin-api-http");
+
+var clientApp = builder.AddViteApp(
         "client-app",
         RepoPath("src", "opplat-react"),
         "dev:aspire")
@@ -77,21 +76,20 @@ builder.AddViteApp(
     })
     .WithEnvironment("PORT", "3200")
     .WaitFor(mainApp)
+    .WaitFor(adminApi)
     .WaitFor(keycloak)
     .WithEnvironment("BROWSER", "none")
     .WithEnvironment("OPPLAT_RUNNING_IN_ASPIRE", "true")
     .WithEnvironment("VITE_APP_NAME", "Opplat Client")
-    .WithEnvironment("VITE_API_URL", "http://localhost:8080")
-    .WithEnvironment("VITE_AUTH_API_URL", "http://localhost:8080")
-    .WithEnvironment("VITE_SALES_API_URL", "http://localhost:8083")
-    .WithEnvironment("VITE_INVENTORY_API_URL", "http://localhost:8082")
+    .WithEnvironment("VITE_API_URL", mainAppHttp)
+    .WithEnvironment("VITE_DEV_PROXY_TARGET", adminApiHttp)
+    .WithEnvironment("VITE_ADMIN_API_URL", string.Empty)
     .WithEnvironment("VITE_AUTH_AUTHORITY", KeycloakAuthority)
     .WithEnvironment("VITE_AUTH_CLIENT_ID", "opplat-client")
     .WithEnvironment("VITE_AUTH_AUDIENCE", "opplat-api")
-    .WithEnvironment("VITE_AUTH_SCOPE", "openid profile email offline_access")
-    .WithEnvironment("VITE_AUTH_USE_AUDIENCE_QUERY_PARAM", "false");
+    .WithEnvironment("VITE_AUTH_SCOPE", "openid profile email offline_access");
 
-builder.AddViteApp(
+var adminApp = builder.AddViteApp(
         "admin-app",
         RepoPath("src", "opplat-admin"),
         "dev:aspire")
@@ -106,8 +104,16 @@ builder.AddViteApp(
     .WithEnvironment("BROWSER", "none")
     .WithEnvironment("OPPLAT_RUNNING_IN_ASPIRE", "true")
     .WithEnvironment("VITE_APP_NAME", "Opplat Admin")
-    .WithEnvironment("VITE_DEV_PROXY_TARGET", "http://localhost:8084")
+    .WithEnvironment("VITE_DEV_PROXY_TARGET", adminApiHttp)
     .WithEnvironment("VITE_ADMIN_API_URL", string.Empty);
+
+var clientAppHttp = clientApp.GetEndpoint("http");
+var adminAppHttp = adminApp.GetEndpoint("http");
+
+adminApi
+    .WithEnvironment("Auth__AdminBff__DefaultOrigin", adminAppHttp)
+    .WithEnvironment("Auth__AdminBff__AllowedOrigins__0", clientAppHttp)
+    .WithEnvironment("Auth__AdminBff__AllowedOrigins__1", adminAppHttp);
 
 await builder.Build().RunAsync();
 
