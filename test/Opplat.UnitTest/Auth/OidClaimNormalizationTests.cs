@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
+using Moq;
 using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Abstractions.Options;
+using Opplat.Application.Abstractions.Services;
 using Opplat.MainApp;
 
 namespace Opplat.UnitTest.Auth;
@@ -71,7 +73,7 @@ public class OidClaimNormalizationTests
     [Fact]
     public void Source_OidcClaimsNormalizerCallsNormalizeObjectId()
     {
-        var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Auth", "OidcClaimsNormalizer.cs");
+        var source = TestRepository.ReadAllText("src", "Opplat.Application", "Dtos", "Auth", "OidcClaimsNormalizer.cs");
 
         Assert.Contains("NormalizeObjectId", source);
         Assert.Contains("AuthClaimTypes.ObjectId", source);
@@ -80,10 +82,13 @@ public class OidClaimNormalizationTests
 
     private static OidcClaimsTransformation CreateTransformation()
     {
+        var resolver = new Mock<IUserTenantResolver>();
+        resolver.Setup(r => r.ResolveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserTenantInfo?)null);
         return new OidcClaimsTransformation(Options.Create(new AuthOptions
         {
             ClaimNamespace = "https://opplat.com"
-        }));
+        }), resolver.Object);
     }
 
     private static ClaimsPrincipal CreatePrincipal(params Claim[] claims)

@@ -157,6 +157,30 @@ public class AuthEndpointAuthorizationIntegrationTests
     }
 
     [Fact]
+    public async Task TenantContextEndpoint_FallsBackToTenantStoreWhenAccessorIsUnresolved()
+    {
+        await using var app = await CreateAppAsync(
+            resolvedTenantId: null,
+            resolvedTenantIdentifier: null,
+            storeTenantId: "tenant-a",
+            storeTenantIdentifier: "mojocafe");
+        var client = CreateAuthenticatedClient(
+            app,
+            [AuthRoles.TenantUser],
+            [new Claim(AuthClaimTypes.TenantIdentifier, "mojocafe")]);
+
+        var response = await client.GetAsync("/auth/account/tenant-context");
+        var payload = await response.Content.ReadFromJsonAsync<TenantAccessContextDto>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(payload);
+        Assert.True(payload.IsResolved);
+        Assert.Equal("tenant-a", payload.TenantId);
+        Assert.Equal("mojocafe", payload.TenantIdentifier);
+        Assert.Equal("active", payload.Status);
+    }
+
+    [Fact]
     public async Task TenantAdmin_CanManageTenantUsersButCannotAccessAdminPanel()
     {
         await using var app = await CreateAppAsync();
@@ -238,6 +262,8 @@ public class AuthEndpointAuthorizationIntegrationTests
     private static async Task<WebApplication> CreateAppAsync(
         string? resolvedTenantId = "tenant-a",
         string? resolvedTenantIdentifier = "mojocafe",
+        string? storeTenantId = null,
+        string? storeTenantIdentifier = null,
         bool shellModeEnabled = false,
         bool tenantIsActive = true)
     {
@@ -282,14 +308,17 @@ public class AuthEndpointAuthorizationIntegrationTests
         builder.Services.AddSingleton<IMultiTenantContextAccessor<AppTenantInfo>>(
             new StaticTenantAccessor(resolvedTenantId, resolvedTenantIdentifier, tenantIsActive));
         builder.Services.AddSingleton<IMultiTenantStore<AppTenantInfo>>(
-            new StaticTenantStore(resolvedTenantId, resolvedTenantIdentifier, tenantIsActive));
+            new StaticTenantStore(
+                storeTenantId ?? resolvedTenantId,
+                storeTenantIdentifier ?? resolvedTenantIdentifier,
+                tenantIsActive));
 
         var app = builder.Build();
         app.UseAuthentication();
         app.UseMiddleware<TenantValidationMiddleware>();
         app.UseAuthorization();
-        // app.MapAccountEndpoints();
-        // app.MapAdminEndpoints();
+        Opplat.MainApp.Endpoints.AccountEndpoints.MapAccountEndpoints(app);
+        Opplat.MainApp.Endpoints.AdminEndpoints.MapAdminEndpoints(app);
 
         await app.StartAsync();
         return app;
@@ -360,15 +389,18 @@ public class AuthEndpointAuthorizationIntegrationTests
 
     private sealed class StaticTenantAccessor : IMultiTenantContextAccessor<AppTenantInfo>
     {
-        private readonly IMultiTenantContext<AppTenantInfo> _multiTenantContext;
+        private readonly IMultiTenantContext<AppTenantInfo>? _multiTenantContext;
 
         public StaticTenantAccessor(string? tenantId, string? tenantIdentifier, bool tenantIsActive)
         {
+            if (string.IsNullOrWhiteSpace(tenantId) && string.IsNullOrWhiteSpace(tenantIdentifier))
+                return;
+
             var tenantContext = new Mock<IMultiTenantContext<AppTenantInfo>>();
             tenantContext.SetupGet(context => context.TenantInfo).Returns(new AppTenantInfo
             {
-                Id = tenantId,
-                Identifier = tenantIdentifier,
+                Id = tenantId ?? string.Empty,
+                Identifier = tenantIdentifier ?? string.Empty,
                 Name = tenantIdentifier ?? tenantId ?? string.Empty,
                 IsActive = tenantIsActive
             });
@@ -376,9 +408,9 @@ public class AuthEndpointAuthorizationIntegrationTests
             _multiTenantContext = tenantContext.Object;
         }
 
-        public IMultiTenantContext<AppTenantInfo> MultiTenantContext => _multiTenantContext;
+        public IMultiTenantContext<AppTenantInfo> MultiTenantContext => _multiTenantContext!;
 
-        IMultiTenantContext IMultiTenantContextAccessor.MultiTenantContext => _multiTenantContext;
+        IMultiTenantContext IMultiTenantContextAccessor.MultiTenantContext => _multiTenantContext!;
     }
 
     private sealed class StaticTenantStore : IMultiTenantStore<AppTenantInfo>
@@ -391,8 +423,8 @@ public class AuthEndpointAuthorizationIntegrationTests
                 ? null
                 : new AppTenantInfo
                 {
-                    Id = tenantId,
-                    Identifier = tenantIdentifier,
+                    Id = tenantId ?? string.Empty,
+                    Identifier = tenantIdentifier ?? string.Empty,
                     Name = tenantIdentifier ?? tenantId ?? string.Empty,
                     IsActive = tenantIsActive
                 };
@@ -438,20 +470,14 @@ public class AuthEndpointAuthorizationIntegrationTests
             throw new NotImplementedException();
         }
 
-        public Task<AppTenantInfo?> GetByIdentifierAsync(string identifier)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<AppTenantInfo?> GetByIdentifierAsync(string identifier) =>
+            Task.FromResult(MatchesIdentifier(identifier) ? _tenant : null);
 
-        public Task<AppTenantInfo?> GetAsync(string id)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<AppTenantInfo?> GetAsync(string id) =>
+            Task.FromResult(MatchesId(id) ? _tenant : null);
 
-        public Task<IEnumerable<AppTenantInfo>> GetAllAsync(int take, int skip)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<IEnumerable<AppTenantInfo>> GetAllAsync(int take, int skip) =>
+            Task.FromResult<IEnumerable<AppTenantInfo>>(_tenant is null ? [] : [_tenant]);
     }
 
     private sealed class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>

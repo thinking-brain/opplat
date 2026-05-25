@@ -2,7 +2,9 @@ using System.Security.Claims;
 using Finbuckle.MultiTenant.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
+using Opplat.Application.Abstractions.Options;
 using Opplat.Domain.Models;
 using Opplat.MainApp.Middleware;
 
@@ -23,7 +25,7 @@ public class TenantValidationMiddlewareTests
         var context = CreateHttpContext(
             CreateAuthenticatedUser(new Claim("tenant_id", "tenant-a")));
 
-        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-a", "mojocafe"));
+        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-a", "mojocafe"), Options.Create(new AuthOptions()));
 
         Assert.True(nextCalled);
         Assert.NotEqual(StatusCodes.Status403Forbidden, context.Response.StatusCode);
@@ -42,7 +44,7 @@ public class TenantValidationMiddlewareTests
         var context = CreateHttpContext(
             CreateAuthenticatedUser(new Claim("tenant_id", "tenant-a")));
 
-        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-b", "demo"));
+        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-b", "demo"), Options.Create(new AuthOptions()));
 
         context.Response.Body.Position = 0;
         using var reader = new StreamReader(context.Response.Body);
@@ -66,7 +68,7 @@ public class TenantValidationMiddlewareTests
         var context = CreateHttpContext(
             CreateAuthenticatedUser(new Claim("tenant_identifier", "mojocafe")));
 
-        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-a", "demo"));
+        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-a", "demo"), Options.Create(new AuthOptions()));
 
         context.Response.Body.Position = 0;
         using var reader = new StreamReader(context.Response.Body);
@@ -90,7 +92,7 @@ public class TenantValidationMiddlewareTests
         var context = CreateHttpContext(
             CreateAuthenticatedUser(new Claim("tenant_identifier", "mojocafe")));
 
-        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-a", "mojocafe", isActive: false));
+        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-a", "mojocafe", isActive: false), Options.Create(new AuthOptions()));
 
         context.Response.Body.Position = 0;
         using var reader = new StreamReader(context.Response.Body);
@@ -113,7 +115,7 @@ public class TenantValidationMiddlewareTests
 
         var context = CreateHttpContext(new ClaimsPrincipal(new ClaimsIdentity()));
 
-        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-a", "mojocafe"));
+        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-a", "mojocafe"), Options.Create(new AuthOptions()));
 
         Assert.True(nextCalled);
         Assert.NotEqual(StatusCodes.Status403Forbidden, context.Response.StatusCode);
@@ -131,7 +133,7 @@ public class TenantValidationMiddlewareTests
 
         var context = CreateHttpContext(CreateAuthenticatedUser());
 
-        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-a", "mojocafe"));
+        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-a", "mojocafe"), Options.Create(new AuthOptions()));
 
         Assert.True(nextCalled);
         Assert.NotEqual(StatusCodes.Status403Forbidden, context.Response.StatusCode);
@@ -154,7 +156,7 @@ public class TenantValidationMiddlewareTests
             CreateAuthenticatedUser(new Claim("tenant_id", "tenant-a")),
             path);
 
-        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-b", "demo"));
+        await middleware.InvokeAsync(context, CreateTenantAccessor("tenant-b", "demo"), Options.Create(new AuthOptions()));
 
         Assert.True(nextCalled);
         Assert.NotEqual(StatusCodes.Status403Forbidden, context.Response.StatusCode);

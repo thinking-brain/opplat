@@ -115,3 +115,10 @@
 - Agent history files updated to include team validation notes and decision merge
 - Ready for git commit with squad/* staging
 
+### 2026-04-28 — MainApp tenant-context DI fix
+
+- `src\Opplat.MainApp\Endpoints\AccountEndpoints.cs` and `src\Opplat.MainApp\Middleware\TenantValidationMiddleware.cs` must resolve the Finbuckle tenant store through `IMultiTenantStore<AppTenantInfo>`, not the concrete `TenantCatalogStore`.
+- `builder.Services.AddMultiTenant<AppTenantInfo>().WithStore<TenantCatalogStore>(...)` registers the store abstraction for Finbuckle resolution; injecting `TenantCatalogStore` directly causes runtime failures like "No service for type 'TenantCatalogStore' has been registered."
+- When consuming the abstraction, use Finbuckle store methods `GetByIdentifierAsync` / `GetAsync` (the interface surface), not the concrete helper methods `TryGetByIdentifierAsync` / `TryGetAsync`.
+- Added a source-level guard in `test\Opplat.UnitTest\Architecture\MultitenancyConfigurationTests.cs` so future endpoint or middleware changes do not regress back to concrete store injection.
+

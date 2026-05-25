@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Application.Abstractions.Services;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 using Opplat.Infrastructure.Services;
 
-namespace Opplat.AdminApi.Extensions;
+namespace Opplat.Infrastructure.DependencyInjection;
 
 public static class AdminDatabaseExtensions
 {
@@ -13,9 +15,15 @@ public static class AdminDatabaseExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddDbContext<AdminTenantCatalogDbContext>(options =>
-            options.UseNpgsql(NormalizePostgresConnectionString(
+        // Singleton factory — safe to inject into singleton services like TenantCatalogStore.
+        services.AddDbContextFactory<AdminTenantCatalogDbContext>(
+            options => options.UseNpgsql(NormalizePostgresConnectionString(
                 configuration.GetConnectionString("AdminDatabase"))));
+
+        // Scoped context — satisfies services that inject AdminTenantCatalogDbContext directly.
+        services.AddScoped<AdminTenantCatalogDbContext>(sp =>
+            sp.GetRequiredService<IDbContextFactory<AdminTenantCatalogDbContext>>()
+              .CreateDbContext());
 
         // Module 3: Provisioning & Migration Services
         services.Configure<TenantDatabaseOptions>(configuration.GetSection(TenantDatabaseOptions.SectionName));

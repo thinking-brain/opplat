@@ -8,6 +8,7 @@ public static class AuthClaimTypes
     public const string RealmAccessRoles = "realm_access.roles";
     public const string Roles = "roles";
     public const string PreferredUserName = "preferred_username";
+    public const string Email = "email";
 
     /// <summary>
     /// Entra ID stable object identifier. Used as the primary user key for Graph API operations.

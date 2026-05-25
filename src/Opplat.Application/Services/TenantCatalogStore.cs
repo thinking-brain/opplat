@@ -1,11 +1,14 @@
 using System.Text.Json;
 using Finbuckle.MultiTenant.Abstractions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
 using Opplat.Application.Abstractions.Options;
+using Opplat.Domain.Entities.Administration;
 using Opplat.Domain.Models;
+using Opplat.Infrastructure.Persistance.Data.Administration;
 
 namespace Opplat.Application.Services;
 
@@ -19,15 +22,21 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
     private readonly TimeSpan _cacheLifetime;
     private readonly List<AppTenantInfo> _seedTenants;
     private readonly IMemoryCache _memoryCache;
+    private readonly IDbContextFactory<AdminTenantCatalogDbContext> _dbContextFactory;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
     };
 
-    public TenantCatalogStore(IConfiguration configuration, IHostEnvironment hostEnvironment, IMemoryCache memoryCache)
+    public TenantCatalogStore(
+        IConfiguration configuration,
+        IHostEnvironment hostEnvironment,
+        IMemoryCache memoryCache,
+        IDbContextFactory<AdminTenantCatalogDbContext> dbContextFactory)
     {
         _memoryCache = memoryCache;
+        _dbContextFactory = dbContextFactory;
         _seedTenants = configuration
             .GetSection("Finbuckle:MultiTenant:Stores:ConfigurationStore:Tenants")
             .Get<List<AppTenantInfo>>() ?? new List<AppTenantInfo>();
@@ -254,11 +263,11 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
             _memoryCache.Set(CentralCatalogCacheKey, catalog, _cacheLifetime);
             return catalog.Select(CloneTenant).ToList();
         }
-        catch (NpgsqlException)
+        catch (NpgsqlException ex)
         {
             return null;
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException ex)
         {
             return null;
         }
@@ -266,59 +275,29 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
 
     private async Task<List<AppTenantInfo>> ReadCentralCatalogAsync()
     {
-        await using var connection = new NpgsqlConnection(_adminCatalogConnectionString);
-        await connection.OpenAsync();
+        await using var db = await _dbContextFactory.CreateDbContextAsync();
+        var tenants = await db.Tenants
+            .AsNoTracking()
+            .Include(t => t.DatabaseInstance)
+            .OrderBy(t => t.Name)
+            .ThenBy(t => t.Identifier)
+            .ToListAsync();
 
-        const string sql =
-            """
-            select t."Id",
-                   t."Identifier",
-                   t."Name",
-                   t."Status",
-                   t."DatabaseSchema",
-                   di."DatabaseName"
-            from tenants t
-            inner join database_instances di on di."Id" = t."DatabaseInstanceId"
-            order by t."Name", t."Identifier";
-            """;
-
-        await using var command = new NpgsqlCommand(sql, connection);
-        await using var reader = await command.ExecuteReaderAsync();
-        var catalog = new List<AppTenantInfo>();
-        while (await reader.ReadAsync())
-            catalog.Add(ReadTenant(reader));
-
-        return catalog;
+        return tenants.Select(MapToTenantInfo).ToList();
     }
 
     private async Task<AppTenantInfo?> TryReadCentralTenantByIdentifierAsync(string identifier)
     {
         try
         {
-            await using var connection = new NpgsqlConnection(_adminCatalogConnectionString);
-            await connection.OpenAsync();
+            var normalized = identifier.Trim().ToLowerInvariant();
+            await using var db = await _dbContextFactory.CreateDbContextAsync();
+            var tenant = await db.Tenants
+                .AsNoTracking()
+                .Include(t => t.DatabaseInstance)
+                .FirstOrDefaultAsync(t => t.Identifier.ToLower() == normalized);
 
-            const string sql =
-                """
-                select t."Id",
-                       t."Identifier",
-                       t."Name",
-                       t."Status",
-                       t."DatabaseSchema",
-                       di."DatabaseName"
-                from tenants t
-                inner join database_instances di on di."Id" = t."DatabaseInstanceId"
-                where lower(t."Identifier") = lower(@identifier)
-                limit 1;
-                """;
-
-            await using var command = new NpgsqlCommand(sql, connection);
-            command.Parameters.AddWithValue("identifier", identifier.Trim());
-            await using var reader = await command.ExecuteReaderAsync();
-            if (!await reader.ReadAsync())
-                return null;
-
-            return ReadTenant(reader);
+            return tenant is null ? null : MapToTenantInfo(tenant);
         }
         catch (NpgsqlException)
         {
@@ -330,30 +309,16 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
     {
         try
         {
-            await using var connection = new NpgsqlConnection(_adminCatalogConnectionString);
-            await connection.OpenAsync();
-
-            const string sql =
-                """
-                select t."Id",
-                       t."Identifier",
-                       t."Name",
-                       t."Status",
-                       t."DatabaseSchema",
-                       di."DatabaseName"
-                from tenants t
-                inner join database_instances di on di."Id" = t."DatabaseInstanceId"
-                where t."Id" = @id
-                limit 1;
-                """;
-
-            await using var command = new NpgsqlCommand(sql, connection);
-            command.Parameters.AddWithValue("id", id.Trim());
-            await using var reader = await command.ExecuteReaderAsync();
-            if (!await reader.ReadAsync())
+            if (!Guid.TryParse(id.Trim(), out var tenantId))
                 return null;
 
-            return ReadTenant(reader);
+            await using var db = await _dbContextFactory.CreateDbContextAsync();
+            var tenant = await db.Tenants
+                .AsNoTracking()
+                .Include(t => t.DatabaseInstance)
+                .FirstOrDefaultAsync(t => t.Id == tenantId);
+
+            return tenant is null ? null : MapToTenantInfo(tenant);
         }
         catch (NpgsqlException)
         {
@@ -732,52 +697,36 @@ public sealed class TenantCatalogStore : IMultiTenantStore<AppTenantInfo>
         IsActive = tenant.IsActive
     };
 
-    private AppTenantInfo ReadTenant(NpgsqlDataReader reader)
+    private AppTenantInfo MapToTenantInfo(Tenant tenant)
     {
-        var databaseName = reader.IsDBNull(5) ? string.Empty : reader.GetString(5);
-        var databaseSchema = reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
+        var databaseName = tenant.DatabaseInstance?.DatabaseName ?? string.Empty;
         var connectionStringRef = ResolveConnectionStringReference(_tenantDbOptions, databaseName);
-
         return new AppTenantInfo
         {
-            Id = reader.GetString(0),
-            Identifier = reader.GetString(1),
-            Name = reader.GetString(2),
-            ConnectionString = BuildTenantConnectionString(connectionStringRef, databaseSchema),
+            Id = tenant.Id.ToString(),
+            Identifier = tenant.Identifier,
+            Name = tenant.Name,
+            ConnectionString = BuildTenantConnectionString(connectionStringRef, tenant.DatabaseSchema),
             DatabaseName = databaseName,
-            DatabaseSchema = databaseSchema,
-            IsActive = string.Equals(reader.GetString(3), "Active", StringComparison.OrdinalIgnoreCase)
+            DatabaseSchema = tenant.DatabaseSchema,
+            IsActive = tenant.Status == TenantStatus.Active
         };
     }
 
-    public Task<bool> AddAsync(AppTenantInfo tenantInfo)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<bool> AddAsync(AppTenantInfo tenantInfo) => TryAddAsync(tenantInfo);
 
-    public Task<bool> UpdateAsync(AppTenantInfo tenantInfo)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<bool> UpdateAsync(AppTenantInfo tenantInfo) => TryUpdateAsync(tenantInfo);
 
-    public Task<bool> RemoveAsync(string identifier)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<bool> RemoveAsync(string identifier) => TryRemoveAsync(identifier);
 
-    public Task<AppTenantInfo?> GetByIdentifierAsync(string identifier)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<AppTenantInfo?> GetByIdentifierAsync(string identifier) => TryGetByIdentifierAsync(identifier);
 
-    public Task<AppTenantInfo?> GetAsync(string id)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<AppTenantInfo?> GetAsync(string id) => TryGetAsync(id);
 
-    public Task<IEnumerable<AppTenantInfo>> GetAllAsync(int take, int skip)
+    public async Task<IEnumerable<AppTenantInfo>> GetAllAsync(int take, int skip)
     {
-        throw new NotImplementedException();
+        var all = await GetAllAsync();
+        return all.Skip(skip).Take(take);
     }
 
     private sealed class TenantCatalogDocument

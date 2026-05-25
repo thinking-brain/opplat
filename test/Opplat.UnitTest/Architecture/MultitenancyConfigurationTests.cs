@@ -47,6 +47,18 @@ public class MultitenancyConfigurationTests
     }
 
     [Fact]
+    public void TenantResolutionConsumers_UseTheRegisteredStoreAbstraction()
+    {
+        var accountEndpoints = TestRepository.ReadAllText("src", "Opplat.MainApp", "Endpoints", "AccountEndpoints.cs");
+        var middleware = TestRepository.ReadAllText("src", "Opplat.MainApp", "Middleware", "TenantValidationMiddleware.cs");
+
+        Assert.Contains("[FromServices] IMultiTenantStore<AppTenantInfo> tenantStore", accountEndpoints);
+        Assert.Contains("GetService<IMultiTenantStore<AppTenantInfo>>()", middleware);
+        Assert.DoesNotContain("[FromServices] TenantCatalogStore tenantStore", accountEndpoints, StringComparison.Ordinal);
+        Assert.DoesNotContain("GetService<TenantCatalogStore>()", middleware, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void OpplatDbContext_ConfiguresAndEnforcesFinbuckleIsolation()
     {
         var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Data", "OpplatDbContext.cs");

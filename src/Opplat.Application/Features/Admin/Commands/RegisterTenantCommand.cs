@@ -83,7 +83,7 @@ public sealed class RegisterTenantCommandHandler : IRequestHandler<RegisterTenan
         }
 
         // 5. Pick the DatabaseInstance with lowest CurrentTenantSchemaCount
-        var dbInstance = await _db.DatabaseInstances
+        var dbInstance = await _db.Set<DatabaseInstance>()
             .Where(d => d.Status == DatabaseInstanceStatus.Active)
             .OrderBy(d => d.CurrentTenantSchemaCount)
             .FirstOrDefaultAsync(cancellationToken);

@@ -1,11 +1,11 @@
 using Finbuckle.MultiTenant.Abstractions;
+using Finbuckle.MultiTenant.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Dtos;
 using Opplat.Application.Features.Account.Commands;
 using Opplat.Application.Features.Account.Queries;
-using Opplat.Application.Services;
 using Opplat.Domain.Models;
 using Opplat.MainApp.Features.Account.Queries;
 
@@ -59,17 +59,17 @@ public static class AccountEndpoints
         group.MapGet("/tenant-context",
             async (HttpContext httpContext,
                 IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
-                [FromServices] TenantCatalogStore tenantStore) =>
+                [FromServices] IMultiTenantStore<AppTenantInfo> tenantStore) =>
             {
                 var tenantInfo = tenantAccessor.MultiTenantContext?.TenantInfo;
                 var claimTenantIdentifier = httpContext.User.FindFirst(AuthClaimTypes.TenantIdentifier)?.Value;
                 var claimTenantId = httpContext.User.FindFirst(AuthClaimTypes.TenantId)?.Value;
 
                 if (tenantInfo is null && !string.IsNullOrWhiteSpace(claimTenantIdentifier))
-                    tenantInfo = await tenantStore.TryGetByIdentifierAsync(claimTenantIdentifier);
+                    tenantInfo = await tenantStore.GetByIdentifierAsync(claimTenantIdentifier);
 
                 if (tenantInfo is null && !string.IsNullOrWhiteSpace(claimTenantId))
-                    tenantInfo = await tenantStore.TryGetAsync(claimTenantId);
+                    tenantInfo = await tenantStore.GetAsync(claimTenantId);
 
                 if (tenantInfo is null)
                 {

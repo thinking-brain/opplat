@@ -8,7 +8,7 @@ namespace Opplat.Infrastructure.Persistance.Data;
 public static class DataSeeder
 {
     public const string SubscriptionPlanId = "00000000-0000-0000-0000-000000000001";
-    public const string DatabaseInstanceId = "00000000-0000-0000-0000-000000000001";
+    public const string DatabaseInstanceId = "00000000-0000-0000-0000-000000000002";
     public const string SeederUserId = "Seeder";
 
     public static async Task SeedAsync(

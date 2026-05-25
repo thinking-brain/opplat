@@ -15,6 +15,7 @@ public static class AdminInfrastructureExtensions
         services.AddGraphUserService(configuration);
         services.AddKeycloakUserService(configuration);
         services.AddScoped<IAuditLogService, AuditLogService>();
+        services.AddScoped<IUserTenantResolver, UserTenantResolver>();
 
         return services;
     }

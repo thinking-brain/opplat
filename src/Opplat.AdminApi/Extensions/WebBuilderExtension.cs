@@ -1,6 +1,5 @@
 using Opplat.AdminApi.Auth;
 using Opplat.AdminApi.Hosting;
-using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Infrastructure.DependencyInjection;
 

@@ -23,6 +23,7 @@ using Opplat.MainApp.Endpoints.Sales;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Application.Abstractions.Auth;
 using Npgsql;
+using Opplat.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 var authSection = builder.Configuration.GetSection(AuthOptions.SectionName);
@@ -33,7 +34,6 @@ var requireHttpsMetadata = !builder.Environment.IsDevelopment();
 // MULTI-TENANT CONFIGURATION
 // ============================================
 builder.Services.AddMultiTenant<AppTenantInfo>()
-    .WithRouteStrategy("__tenant__", true)
     .WithHeaderStrategy("X-Tenant-Identifier")
     .WithStore<TenantCatalogStore>(ServiceLifetime.Singleton);
 
@@ -175,7 +175,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSignalR();
 builder.Services.AddOpplatAspireDevelopmentSupport(builder.Environment);
-
+builder.Services.AddAdminDatabase(builder.Configuration);
+builder.Services.AddAdminInfrastructure(builder.Configuration);
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
