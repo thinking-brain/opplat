@@ -22,4 +22,11 @@ public sealed class NoOpKeycloakUserService(ILogger<NoOpKeycloakUserService> log
         _logger.LogWarning("Keycloak disabled — skipping DeleteUser for {UserId}", userId);
         return Task.FromResult(KeycloakUserResult.Success(userId));
     }
+
+    public Task<KeycloakUserResult> AssignRealmRolesAsync(string userId, IEnumerable<string> roleNames, CancellationToken ct = default)
+    {
+        _logger.LogWarning("Keycloak disabled — skipping AssignRealmRoles [{Roles}] for {UserId}",
+            string.Join(", ", roleNames), userId);
+        return Task.FromResult(KeycloakUserResult.Success(userId));
+    }
 }

@@ -107,6 +107,68 @@ public sealed class KeycloakUserService(
         }
     }
 
+    public async Task<KeycloakUserResult> AssignRealmRolesAsync(string userId, IEnumerable<string> roleNames, CancellationToken ct = default)
+    {
+        try
+        {
+            var token = await GetAdminTokenAsync(ct);
+            if (token is null)
+                return KeycloakUserResult.Failure("Failed to obtain Keycloak admin token.");
+
+            // Resolve each role name to its {id, name} representation required by the Keycloak API.
+            var roleRepresentations = new List<object>();
+            foreach (var roleName in roleNames)
+            {
+                using var roleRequest = new HttpRequestMessage(
+                    HttpMethod.Get,
+                    $"{_options.BaseUrl}/admin/realms/{_options.Realm}/roles/{Uri.EscapeDataString(roleName)}");
+                roleRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                using var roleResponse = await _httpClient.SendAsync(roleRequest, ct);
+                if (!roleResponse.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Keycloak role '{RoleName}' not found: {Status}", roleName, roleResponse.StatusCode);
+                    return KeycloakUserResult.Failure($"Role '{roleName}' not found in Keycloak realm.");
+                }
+
+                var roleJson = await roleResponse.Content.ReadAsStringAsync(ct);
+                using var roleDoc = JsonDocument.Parse(roleJson);
+                var roleId = roleDoc.RootElement.GetProperty("id").GetString();
+                var rolNameFromResponse = roleDoc.RootElement.GetProperty("name").GetString();
+                roleRepresentations.Add(new { id = roleId, name = rolNameFromResponse });
+            }
+
+            if (roleRepresentations.Count == 0)
+                return KeycloakUserResult.Success(userId);
+
+            using var assignRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                $"{_options.BaseUrl}/admin/realms/{_options.Realm}/users/{userId}/role-mappings/realm");
+            assignRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            assignRequest.Content = new StringContent(
+                JsonSerializer.Serialize(roleRepresentations),
+                Encoding.UTF8,
+                "application/json");
+
+            using var assignResponse = await _httpClient.SendAsync(assignRequest, ct);
+            if (assignResponse.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Assigned realm roles [{Roles}] to Keycloak user {UserId}",
+                    string.Join(", ", roleNames), userId);
+                return KeycloakUserResult.Success(userId);
+            }
+
+            var body = await assignResponse.Content.ReadAsStringAsync(ct);
+            _logger.LogWarning("Keycloak role assignment failed {Status}: {Body}", assignResponse.StatusCode, body);
+            return KeycloakUserResult.Failure($"Keycloak returned {(int)assignResponse.StatusCode} during role assignment.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unhandled error assigning roles to Keycloak user {UserId}", userId);
+            return KeycloakUserResult.Failure("An unexpected error occurred during role assignment.");
+        }
+    }
+
     private async Task<string?> GetAdminTokenAsync(CancellationToken ct)
     {
         var tokenEndpoint = $"{_options.BaseUrl}/realms/master/protocol/openid-connect/token";

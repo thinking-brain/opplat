@@ -14,6 +14,12 @@ public interface IKeycloakUserService
 
     /// <summary>Permanently deletes the Keycloak user.</summary>
     Task<KeycloakUserResult> DeleteUserAsync(string userId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Assigns realm-level roles to an existing Keycloak user.
+    /// Each role name must match a role that already exists in the configured realm.
+    /// </summary>
+    Task<KeycloakUserResult> AssignRealmRolesAsync(string userId, IEnumerable<string> roleNames, CancellationToken ct = default);
 }
 
 /// <summary>Request to create a new Keycloak user.</summary>

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Abstractions.Identity;
 using Opplat.Application.Abstractions.Services;
 using Opplat.Application.Dtos;
@@ -80,6 +81,20 @@ public sealed class RegisterTenantCommandHandler : IRequestHandler<RegisterTenan
                 "Keycloak user creation failed for {Email} during self-registration: {Error}",
                 normalizedEmail, keycloakResult.ErrorMessage);
             return new TenantRegistrationResult(false, null, keycloakResult.ErrorMessage ?? "Failed to create user account.");
+        }
+
+        // 4.5. Assign TenantAdmin and TenantUser realm roles so the primary admin can access management features.
+        var roleAssignResult = await _keycloakUserService.AssignRealmRolesAsync(
+            keycloakResult.UserId!,
+            [AuthRoles.TenantAdmin, AuthRoles.TenantUser],
+            cancellationToken);
+
+        if (!roleAssignResult.Succeeded)
+        {
+            _logger.LogWarning(
+                "Keycloak role assignment failed for user {UserId} during self-registration: {Error}",
+                keycloakResult.UserId, roleAssignResult.ErrorMessage);
+            return new TenantRegistrationResult(false, null, "Failed to assign tenant roles. Please contact support.");
         }
 
         // 5. Pick the DatabaseInstance with lowest CurrentTenantSchemaCount
