@@ -25,6 +25,9 @@ import {
   People as UsersIcon,
   Settings as SettingsIcon,
   Warehouse as InventoryIcon,
+  Store as WarehouseIcon,
+  Category as CategoryIcon,
+  GroupWork as GroupWorkIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../auth/AuthContext';
 import { hasAnyRole, hasRole, TENANT_ADMIN_ROLE, TENANT_USER_ROLE } from '../auth/roles';
@@ -44,6 +47,9 @@ const navItems: NavItem[] = [
   { label: 'Products', path: '/products', icon: <ProductsIcon /> },
   { label: 'Sell', path: '/sell', icon: <SellIcon /> },
   { label: 'Inventory', path: '/inventory', icon: <InventoryIcon /> },
+  { label: 'Almacenes', path: '/inventory/warehouses', icon: <WarehouseIcon /> },
+  { label: 'Clasificaciones', path: '/inventory/classifications', icon: <CategoryIcon /> },
+  { label: 'Grupos', path: '/inventory/groups', icon: <GroupWorkIcon /> },
   {
     label: 'Users',
     path: '/users',

@@ -22,3 +22,9 @@
 - MUI Stepper components: `Stepper`, `Step`, `StepLabel`, `StepContent` for visual progress tracking. Validation happens per-step; form state managed in component.
 - Subscription plan fetching from GET /admin/subscription-plans (anonymously accessible). TenantRegistrationRequest POST payload includes selectedPlanId, businessName, tenantIdentifier, email, password.
 - LoginPage updated with prominent "Create Account" button linking to RegisterPage. Provider-neutral auth fields preserved (email, not Keycloak/Entra-specific claims).
+- Angular-to-React inventory migration: ported Warehouses, ProductClassifications, and ProductGroups CRUD pages. All follow ProductsPage.tsx dialog+table pattern with MUI Paper/TableContainer, Snackbar toasts, LoadingSpinner, and Spanish UI text.
+- New types added to types/index.ts: `Warehouse`, `ProductClassification`, `ProductGroup`, `MovementType`.
+- `CreateMovementData` type changed to `Omit<ProductMovement, 'id' | 'date'>` — the `date` field is server-set and should not be sent in the payload.
+- InventoryPage enhanced with "Nuevo Movimiento" dialog that loads warehouses and products from the API dynamically. State lifted within the page component; warehouses loaded in the same `Promise.all` as products/movements to avoid extra requests.
+- Layout nav extended with `Store` (WarehouseIcon), `Category`, and `GroupWork` MUI icons for the three sub-inventory pages.
+- Pre-existing build error: `LicensePage.tsx` imports from `'../api/license.api'` which does not exist. This is unrelated to inventory migration work and was present before this task.

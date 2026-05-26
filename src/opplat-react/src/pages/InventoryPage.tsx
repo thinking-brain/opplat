@@ -2,9 +2,16 @@ import React, { useState, useEffect } from 'react';
 import {
   Alert,
   Box,
+  Button,
   Chip,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  MenuItem,
   Paper,
+  Snackbar,
   Table,
   TableBody,
   TableCell,
@@ -13,10 +20,13 @@ import {
   TableRow,
   Tabs,
   Tab,
+  TextField,
   Typography,
 } from '@mui/material';
+import { Add as AddIcon } from '@mui/icons-material';
 import { inventoryApi } from '../api/inventory.api';
-import type { InventoryProduct, ProductMovement } from '../types';
+import type { CreateMovementData } from '../api/inventory.api';
+import type { InventoryProduct, ProductMovement, Warehouse } from '../types';
 
 interface TabPanelProps {
   children: React.ReactNode;
@@ -52,19 +62,41 @@ export const InventoryPage: React.FC = () => {
   const [tab, setTab] = useState(0);
   const [products, setProducts] = useState<InventoryProduct[]>([]);
   const [movements, setMovements] = useState<ProductMovement[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [movementDialogOpen, setMovementDialogOpen] = useState(false);
+  const [movementForm, setMovementForm] = useState<CreateMovementData>({
+    productId: 0,
+    storageId: 0,
+    quantity: 1,
+    type: '',
+    observations: '',
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error',
+  });
+
+  const MOVEMENT_TYPES = [
+    { value: 'in', label: 'Entrada' },
+    { value: 'out', label: 'Salida' },
+    { value: 'adjustment', label: 'Ajuste' },
+  ];
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const [prodRes, movRes] = await Promise.all([
+        const [prodRes, movRes, whRes] = await Promise.all([
           inventoryApi.getProducts(),
           inventoryApi.getMovements(),
+          inventoryApi.listWarehouses(),
         ]);
         setProducts(prodRes.data);
         setMovements(movRes.data);
+        setWarehouses(whRes.data);
       } catch {
         setError('Failed to load inventory data.');
       } finally {
@@ -73,6 +105,31 @@ export const InventoryPage: React.FC = () => {
     };
     void loadData();
   }, []);
+
+  const loadMovements = async () => {
+    try {
+      const res = await inventoryApi.getMovements();
+      setMovements(res.data);
+    } catch {
+      setSnackbar({ open: true, message: 'Error al cargar movimientos', severity: 'error' });
+    }
+  };
+
+  const handleOpenMovementDialog = () => {
+    setMovementForm({ productId: 0, storageId: 0, quantity: 1, type: '', observations: '' });
+    setMovementDialogOpen(true);
+  };
+
+  const handleSaveMovement = async () => {
+    try {
+      await inventoryApi.createMovement(movementForm);
+      setSnackbar({ open: true, message: 'Movimiento registrado correctamente', severity: 'success' });
+      setMovementDialogOpen(false);
+      void loadMovements();
+    } catch {
+      setSnackbar({ open: true, message: 'Error al conectar con el servidor', severity: 'error' });
+    }
+  };
 
   if (loading) {
     return (
@@ -148,16 +205,21 @@ export const InventoryPage: React.FC = () => {
 
       {/* Movements Tab */}
       <TabPanel value={tab} index={1}>
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleOpenMovementDialog}>
+            Nuevo Movimiento
+          </Button>
+        </Box>
         <TableContainer component={Paper}>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Product ID</TableCell>
-                <TableCell>Storage ID</TableCell>
-                <TableCell align="right">Quantity</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Observations</TableCell>
+                <TableCell>Fecha</TableCell>
+                <TableCell>Producto ID</TableCell>
+                <TableCell>Almacén ID</TableCell>
+                <TableCell align="right">Cantidad</TableCell>
+                <TableCell>Tipo</TableCell>
+                <TableCell>Observaciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -188,6 +250,93 @@ export const InventoryPage: React.FC = () => {
           </Table>
         </TableContainer>
       </TabPanel>
+
+      {/* New Movement Dialog */}
+      <Dialog open={movementDialogOpen} onClose={() => setMovementDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Nuevo Movimiento</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            select
+            label="Almacén"
+            value={movementForm.storageId || ''}
+            onChange={(e) => setMovementForm({ ...movementForm, storageId: Number(e.target.value) })}
+            margin="normal"
+            required
+          >
+            {warehouses.map((w) => (
+              <MenuItem key={w.id} value={w.id}>
+                {w.description}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            fullWidth
+            select
+            label="Producto"
+            value={movementForm.productId || ''}
+            onChange={(e) => setMovementForm({ ...movementForm, productId: Number(e.target.value) })}
+            margin="normal"
+            required
+          >
+            {products.map((p) => (
+              <MenuItem key={p.id} value={p.id}>
+                {p.nombre}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            fullWidth
+            select
+            label="Tipo"
+            value={movementForm.type}
+            onChange={(e) => setMovementForm({ ...movementForm, type: e.target.value })}
+            margin="normal"
+            required
+          >
+            {MOVEMENT_TYPES.map((t) => (
+              <MenuItem key={t.value} value={t.value}>
+                {t.label}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            fullWidth
+            label="Cantidad"
+            type="number"
+            value={movementForm.quantity}
+            onChange={(e) => setMovementForm({ ...movementForm, quantity: Math.max(1, parseInt(e.target.value) || 1) })}
+            margin="normal"
+            required
+            inputProps={{ min: 1 }}
+          />
+          <TextField
+            fullWidth
+            label="Observaciones"
+            value={movementForm.observations}
+            onChange={(e) => setMovementForm({ ...movementForm, observations: e.target.value })}
+            margin="normal"
+            multiline
+            rows={3}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMovementDialogOpen(false)}>Cancelar</Button>
+          <Button onClick={() => void handleSaveMovement()} variant="contained" color="primary">
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

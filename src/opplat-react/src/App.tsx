@@ -9,8 +9,11 @@ import { LicensePage } from './pages/LicensePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ProductsPage } from './pages/ProductsPage';
+import { ProductClassificationsPage } from './pages/ProductClassificationsPage';
+import { ProductGroupsPage } from './pages/ProductGroupsPage';
 import { SellPage } from './pages/SellPage';
 import { UsersPage } from './pages/UsersPage';
+import { WarehousesPage } from './pages/WarehousesPage';
 import { appConfig } from './runtimeConfig';
 
 function App() {
@@ -46,6 +49,9 @@ function App() {
           )}
         />
         <Route path="inventory" element={<InventoryPage />} />
+        <Route path="inventory/warehouses" element={<WarehousesPage />} />
+        <Route path="inventory/classifications" element={<ProductClassificationsPage />} />
+        <Route path="inventory/groups" element={<ProductGroupsPage />} />
         <Route path="license" element={<LicensePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

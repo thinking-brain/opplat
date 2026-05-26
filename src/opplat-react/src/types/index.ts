@@ -116,3 +116,27 @@ export interface TenantRegistrationResult {
   tenantIdentifier?: string;
   message?: string;
 }
+
+export interface Warehouse {
+  id: string;
+  code: string;
+  description: string;
+  isCostCenter: boolean;
+}
+
+export interface ProductClassification {
+  id: number;
+  description: string;
+}
+
+export interface ProductGroup {
+  id: string;
+  description: string;
+  classification?: ProductClassification;
+  classificationId: number;
+}
+
+export interface MovementType {
+  id: number;
+  name: string;
+}

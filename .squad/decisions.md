@@ -260,6 +260,100 @@ var connectionString = new NpgsqlConnectionStringBuilder
 
 ---
 
+### 2026-04-28 — MainApp Tenant Store DI Consumption (Mother)
+
+**Date:** 2026-04-28  
+**Status:** Implemented  
+**Decider:** Mother
+
+#### Decision
+Consume the tenant catalog through `IMultiTenantStore<AppTenantInfo>` in MainApp endpoints and middleware. Do not inject `TenantCatalogStore` directly outside multitenancy registration/composition code.
+
+#### Context
+`MainApp` configures multitenancy with `builder.Services.AddMultiTenant<AppTenantInfo>().WithStore<TenantCatalogStore>(ServiceLifetime.Singleton)`. `/auth/account/tenant-context` failed at runtime because the endpoint requested `TenantCatalogStore` directly from DI. `TenantValidationMiddleware` used the same concrete lookup pattern.
+
+#### Why
+- Finbuckle resolves and exposes the store through the `IMultiTenantStore<AppTenantInfo>` abstraction.
+- Requesting the concrete class creates a registration mismatch and runtime activation failure even though the multitenant store is configured correctly.
+- Depending on the abstraction keeps MainApp aligned with the Finbuckle contract and makes tests easier to stub.
+
+#### Notes
+- When using the abstraction, call `GetByIdentifierAsync` / `GetAsync`; the `Try*` helpers are concrete convenience methods on `TenantCatalogStore`, not part of the interface contract.
+
+---
+
+### 2026-04-28 — QA Regression Scope for MainApp Tenant Context (Carl)
+
+**Date:** 2026-04-28  
+**Status:** Implemented  
+**Decider:** Carl (QA)
+
+#### Decision
+Treat `test\Opplat.UnitTest\Auth\AuthEndpointAuthorizationIntegrationTests.cs` as the regression harness for `/auth/account/tenant-context`. Cover the runtime fix in two ways:
+1. Source-level architecture assertion that MainApp consumers depend on `IMultiTenantStore<AppTenantInfo>`
+2. Integration coverage that proves `/auth/account/tenant-context` resolves a tenant from claims when the accessor is empty but the multitenant store can resolve it
+
+#### Why
+- The production failure was a DI activation bug, not a business-rule failure. Coverage must prove both the abstraction choice and the live endpoint behavior.
+- The fallback test is the edge case most likely to regress during future multitenancy refactors because it only happens when middleware cannot pre-resolve tenant context.
+
+---
+
+### 2026-05-26 — Angular-to-React Migration: Inventory Sub-Pages (Bishop)
+
+**Date:** 2026-05-26  
+**Status:** Implemented  
+**Decider:** Bishop (Lead Engineer)  
+**Context:** Liz implementing Warehouses, ProductClassifications, ProductGroups pages in `opplat-react`
+
+#### 1. Sub-routes use the sibling pattern, not nested outlet
+
+Add `/inventory/warehouses`, `/inventory/classifications`, `/inventory/groups` as sibling routes inside the existing layout wrapper — NOT as React Router nested children of the `inventory` route.
+
+`InventoryPage` is a leaf component; refactoring it to render an `<Outlet>` would be scope creep. Sibling routes follow the existing pattern (`products`, `sell`, `users`) and require no changes to `InventoryPage` itself.
+
+#### 2. API endpoint casing must match the backend exactly
+
+| Resource | API path (exact) |
+|----------|------------------|
+| Warehouses/Storages | `/inventory/storages` |
+| Classifications | `/inventory/ProductClassifications` |
+| Product Groups | `/inventory/ProductGroups` |
+
+Linux deployments are case-sensitive. `ProductClassifications` and `ProductGroups` are PascalCase in the Angular client. No trailing slashes.
+
+#### 3. React route paths are lowercase kebab-case
+
+UI route paths (`/inventory/warehouses`, `/inventory/classifications`, `/inventory/groups`) remain lowercase regardless of API path casing.
+
+---
+
+### 2026-05-26 — Angular-to-React Migration: Frontend Implementation Decisions (Liz)
+
+**Date:** 2026-05-26  
+**Status:** Implemented  
+**Decider:** Liz (Frontend Dev)
+
+#### 1. `CreateMovementData` excludes `date`
+Changed to `Omit<ProductMovement, 'id' | 'date'>`. The `date` field is assigned server-side.
+
+#### 2. Warehouses loaded eagerly on InventoryPage
+Added `inventoryApi.listWarehouses()` to the existing `Promise.all` in `InventoryPage`'s `useEffect`. Avoids a secondary fetch when the user opens the "Nuevo Movimiento" dialog.
+
+#### 3. Sub-inventory nav items are flat in the sidebar (not nested)
+Three new items (Almacenes, Clasificaciones, Grupos) added as flat entries. A collapsible parent group can be introduced separately if the nav grows further.
+
+#### 4. `Store` icon used for WarehousesPage nav item
+MUI's `Warehouse` is already aliased to `InventoryIcon`. Using `Store` avoids confusion. Cosmetic change only.
+
+#### 5. Page-level Spanish text convention followed
+All UI strings are in Spanish, consistent with the Angular app and existing SPA. No i18n abstraction added.
+
+#### 6. Pre-existing `license.api.ts` missing file not in scope
+`LicensePage.tsx` imports from `'../api/license.api'` which does not exist. Pre-existing issue; tracked separately.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
