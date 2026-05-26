@@ -2,7 +2,6 @@ import axios, { AxiosHeaders, type AxiosInstance, type InternalAxiosRequestConfi
 import { getStoredTenantIdentifier, getTenantIdentifierFromUser, persistTenantIdentifier } from '../auth/claims';
 import { getOidcUser, removeOidcUser } from '../auth/oidc';
 import { appConfig } from '../runtimeConfig';
-import { prefixTenantPath } from './tenantPath';
 
 const isAbsoluteUrl = (value: string): boolean => /^https?:\/\//i.test(value);
 
@@ -38,10 +37,6 @@ const createAxiosClient = (baseURL: string, tenantScoped = true): AxiosInstance 
       if (tenantIdentifier) {
         persistTenantIdentifier(tenantIdentifier);
         setHeader(config, 'X-Tenant-Identifier', tenantIdentifier);
-
-        if (tenantScoped && config.url && !isAbsoluteUrl(config.url)) {
-          config.url = prefixTenantPath(config.url, tenantIdentifier);
-        }
       }
 
       return config;
