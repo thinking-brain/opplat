@@ -16,3 +16,16 @@ export interface UpsertTenantRequest {
   databaseSchema: string;
   isActive: boolean;
 }
+
+export interface TenantProvisioningResult {
+  tenantId: string;
+  tenantIdentifier: string;
+  databaseSchema: string;
+  databaseName: string;
+  databaseInstanceIdentifier: string;
+  succeeded: boolean;
+  alreadyProvisioned: boolean;
+  schemaCreated: boolean;
+  errorMessage?: string;
+  executedAt: string;
+}

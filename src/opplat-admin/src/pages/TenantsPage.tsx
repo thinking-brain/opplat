@@ -22,13 +22,14 @@ import {
 } from '@mui/material';
 import {
   Add as AddIcon,
+  Build as BuildIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { adminApi } from '../api/admin.api';
 import { PageHeader } from '../components/PageHeader';
-import type { AdminTenant, UpsertTenantRequest } from '../types';
+import type { AdminTenant, TenantProvisioningResult, UpsertTenantRequest } from '../types';
 
 interface TenantFormState {
   id: string;
@@ -61,6 +62,9 @@ export const TenantsPage: React.FC = () => {
   const [formState, setFormState] = useState<TenantFormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [provisioningIdentifier, setProvisioningIdentifier] = useState<string | null>(null);
+  const [provisionResult, setProvisionResult] = useState<TenantProvisioningResult | null>(null);
+  const [provisionError, setProvisionError] = useState<string | null>(null);
 
   const isFormValid = useMemo(
     () =>
@@ -168,6 +172,21 @@ export const TenantsPage: React.FC = () => {
     }
   };
 
+  const handleProvision = async (tenant: AdminTenant): Promise<void> => {
+    setProvisioningIdentifier(tenant.identifier);
+    setProvisionResult(null);
+    setProvisionError(null);
+    try {
+      const result = await adminApi.provisionTenant(tenant.identifier);
+      setProvisionResult(result);
+    } catch (provisionErr) {
+      setProvisionError(getErrorMessage(provisionErr));
+      setProvisionResult(null);
+    } finally {
+      setProvisioningIdentifier(null);
+    }
+  };
+
   return (
     <Stack spacing={3}>
       <PageHeader
@@ -231,6 +250,18 @@ export const TenantsPage: React.FC = () => {
                     <IconButton size="small" onClick={() => openEditDialog(tenant)}>
                       <EditIcon fontSize="small" />
                     </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Provisionar schema">
+                    <span>
+                      <IconButton
+                        size="small"
+                        color="primary"
+                        disabled={provisioningIdentifier === tenant.identifier}
+                        onClick={() => { void handleProvision(tenant); }}
+                      >
+                        <BuildIcon fontSize="small" />
+                      </IconButton>
+                    </span>
                   </Tooltip>
                   <Tooltip title="Desactivar">
                     <span>
@@ -331,6 +362,40 @@ export const TenantsPage: React.FC = () => {
           <Button color="error" variant="contained" onClick={() => { void handleDeactivate(); }} disabled={saving}>
             {saving ? 'Desactivando...' : 'Desactivar'}
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(provisionResult) || Boolean(provisionError)}
+        onClose={() => { setProvisionResult(null); setProvisionError(null); }}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Resultado de provisionamiento</DialogTitle>
+        <DialogContent>
+          <Stack spacing={1.5} mt={1}>
+            {provisionError ? (
+              <Alert severity="error">{provisionError}</Alert>
+            ) : provisionResult ? (
+              <>
+                <Alert severity={provisionResult.succeeded ? 'success' : 'error'}>
+                  {provisionResult.succeeded
+                    ? provisionResult.alreadyProvisioned
+                      ? 'Schema ya existía — migraciones aplicadas correctamente.'
+                      : 'Schema provisionado correctamente.'
+                    : `Falló: ${provisionResult.errorMessage ?? 'Error desconocido'}`}
+                </Alert>
+                <Stack spacing={0.5}>
+                  <Typography variant="body2"><strong>Tenant:</strong> {provisionResult.tenantIdentifier}</Typography>
+                  <Typography variant="body2"><strong>Schema:</strong> {provisionResult.databaseSchema}</Typography>
+                  <Typography variant="body2"><strong>Base de datos:</strong> {provisionResult.databaseName}</Typography>
+                </Stack>
+              </>
+            ) : null}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setProvisionResult(null); setProvisionError(null); }}>Cerrar</Button>
         </DialogActions>
       </Dialog>
     </Stack>

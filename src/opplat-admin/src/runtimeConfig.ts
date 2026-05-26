@@ -14,4 +14,6 @@ const adminApiBaseUrl = trimTrailingSlash(readConfig('VITE_ADMIN_API_URL', ''));
 export const appConfig = {
   appName: readConfig('VITE_APP_NAME', 'Opplat Admin'),
   adminApiUrl: adminApiBaseUrl,
+  keycloakUrl: trimTrailingSlash(readConfig('VITE_KEYCLOAK_URL', 'http://localhost:8180')),
+  keycloakRealm: readConfig('VITE_KEYCLOAK_REALM', 'opplat'),
 };

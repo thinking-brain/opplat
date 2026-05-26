@@ -14,6 +14,7 @@ public sealed record CreateTenantCommand(UpsertTenantRequest Request) : IRequest
 public sealed record UpdateTenantCommand(string Identifier, UpsertTenantRequest Request) : IRequest<AdminTenantDto>;
 public sealed record DeactivateTenantCommand(string Identifier) : IRequest;
 public sealed record ProvisionTenantSchemaCommand(string Identifier) : IRequest<TenantProvisioningResult>;
+public sealed record BulkReprovisionTenantsCommand : IRequest<BulkTenantProvisioningResult>;
 public sealed record RunTenantSchemaMigrationCommand(string Identifier, TenantSchemaMigrationRequest Request) : IRequest<TenantSchemaMigrationRunReport>;
 public sealed record RunBulkTenantSchemaMigrationCommand(TenantSchemaMigrationRequest Request) : IRequest<TenantSchemaMigrationRunReport>;
 
@@ -181,6 +182,63 @@ public sealed class ProvisionTenantSchemaCommandHandler(ITenantProvisioningCoord
 
     public Task<TenantProvisioningResult> Handle(ProvisionTenantSchemaCommand request, CancellationToken cancellationToken) =>
         _provisioningCoordinator.EnsureTenantProvisionedAsync(request.Identifier, cancellationToken);
+}
+
+public sealed class BulkReprovisionTenantsCommandHandler : IRequestHandler<BulkReprovisionTenantsCommand, BulkTenantProvisioningResult>
+{
+    private readonly AdminTenantCatalogDbContext _db;
+    private readonly ITenantProvisioningCoordinator _provisioningCoordinator;
+    private readonly ILogger<BulkReprovisionTenantsCommandHandler> _logger;
+
+    public BulkReprovisionTenantsCommandHandler(
+        AdminTenantCatalogDbContext db,
+        ITenantProvisioningCoordinator provisioningCoordinator,
+        ILogger<BulkReprovisionTenantsCommandHandler> logger)
+    {
+        _db = db;
+        _provisioningCoordinator = provisioningCoordinator;
+        _logger = logger;
+    }
+
+    public async Task<BulkTenantProvisioningResult> Handle(BulkReprovisionTenantsCommand request, CancellationToken cancellationToken)
+    {
+        var tenants = await _db.Tenants
+            .AsNoTracking()
+            .Where(t => t.Status == TenantStatus.Active && !string.IsNullOrEmpty(t.DatabaseSchema))
+            .ToListAsync(cancellationToken);
+
+        var results = new List<TenantProvisioningResult>(tenants.Count);
+
+        foreach (var tenant in tenants)
+        {
+            try
+            {
+                var result = await _provisioningCoordinator.EnsureTenantProvisionedAsync(tenant, cancellationToken);
+                results.Add(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Bulk reprovision failed for tenant '{Identifier}'.", tenant.Identifier);
+                results.Add(new TenantProvisioningResult
+                {
+                    TenantId = tenant.Id,
+                    TenantIdentifier = tenant.Identifier,
+                    DatabaseSchema = tenant.DatabaseSchema ?? string.Empty,
+                    Succeeded = false,
+                    ErrorMessage = ex.Message,
+                    ExecutedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        return new BulkTenantProvisioningResult
+        {
+            Total = results.Count,
+            Succeeded = results.Count(r => r.Succeeded),
+            Failed = results.Count(r => !r.Succeeded),
+            Results = results
+        };
+    }
 }
 
 public sealed class RunTenantSchemaMigrationCommandHandler(ITenantSchemaMigrationRunner migrationRunner) : IRequestHandler<RunTenantSchemaMigrationCommand, TenantSchemaMigrationRunReport>

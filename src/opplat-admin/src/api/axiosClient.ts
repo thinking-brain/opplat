@@ -5,6 +5,7 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from 'axios';
 import { appConfig } from '../runtimeConfig';
+import { keycloak } from '../auth/keycloakClient';
 
 declare module 'axios' {
   interface AxiosRequestConfig<D = any> {
@@ -41,6 +42,18 @@ const createAxiosClient = (baseURL: string): AxiosInstance => {
     async (config: InternalAxiosRequestConfig) => {
       if (!config.headers?.has?.('X-Requested-With')) {
         setHeader(config, 'X-Requested-With', 'XMLHttpRequest');
+      }
+
+      if (keycloak.authenticated) {
+        try {
+          await keycloak.updateToken(30);
+        } catch {
+          void keycloak.login();
+          return Promise.reject(new Error('Token refresh failed'));
+        }
+        if (keycloak.token) {
+          setHeader(config, 'Authorization', `Bearer ${keycloak.token}`);
+        }
       }
 
       const tenantIdentifier = config.tenantIdentifier;

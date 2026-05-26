@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "src/Opplat.AppHost/Opplat.AppHost.csproj"
+  }
+}

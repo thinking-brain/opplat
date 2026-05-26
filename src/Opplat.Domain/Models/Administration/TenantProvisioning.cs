@@ -1,5 +1,13 @@
 namespace Opplat.Domain.Models.Administration;
 
+public sealed class BulkTenantProvisioningResult
+{
+    public int Total { get; init; }
+    public int Succeeded { get; init; }
+    public int Failed { get; init; }
+    public IReadOnlyList<TenantProvisioningResult> Results { get; init; } = [];
+}
+
 public sealed class TenantProvisioningResult
 {
     public required Guid TenantId { get; set; }
@@ -30,5 +38,6 @@ public sealed class TenantSchemaProvisioningOutcome
     public bool AlreadyProvisioned { get; set; }
     public bool DatabaseCreated { get; set; }
     public bool SchemaCreated { get; set; }
+    public bool MigrationsApplied { get; set; }
     public DateTime ExecutedAt { get; set; }
 }

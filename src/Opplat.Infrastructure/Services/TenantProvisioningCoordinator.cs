@@ -93,7 +93,12 @@ public sealed class TenantProvisioningCoordinator : ITenantProvisioningCoordinat
 
             if (await _tenantSchemaProvisioningService.SchemaExistsAsync(trackedTenant, cancellationToken))
             {
-                PopulateResult(result, trackedTenant.DatabaseInstance, trackedTenant.DatabaseSchema, succeeded: true, alreadyProvisioned: true);
+                // Schema exists — run migrations idempotently to handle tenants that were
+                // created before migrations were wired into provisioning.
+                var repairOutcome = await _tenantSchemaProvisioningService.ProvisionTenantSchemaAsync(trackedTenant, cancellationToken);
+                PopulateResult(result, trackedTenant.DatabaseInstance, trackedTenant.DatabaseSchema,
+                    succeeded: repairOutcome.Succeeded,
+                    alreadyProvisioned: true);
                 await ReportAsync(result, cancellationToken);
                 return result;
             }

@@ -3,7 +3,6 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Box,
-  Chip,
   CssBaseline,
   Divider,
   Drawer,
@@ -15,15 +14,19 @@ import {
   ListItemText,
   Stack,
   Toolbar,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import {
+  AccountCircle as AccountCircleIcon,
   Dashboard as DashboardIcon,
   Domain as TenantsIcon,
+  Logout as LogoutIcon,
   Menu as MenuIcon,
   Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { appConfig } from '../runtimeConfig';
+import { useAuth } from '../auth/AuthContext';
 
 const drawerWidth = 260;
 
@@ -44,6 +47,7 @@ export const Layout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const handleNavigation = (path: string): void => {
     navigate(path);
@@ -113,24 +117,22 @@ export const Layout: React.FC = () => {
           </IconButton>
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="h6">Portal administrativo</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Shell React sin flujo de login propio. La autenticación se resuelve fuera de esta SPA.
-            </Typography>
           </Box>
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Chip
-              label="Auth manual"
-              color="secondary"
-              variant="outlined"
-            />
-            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-              <Typography variant="body2" fontWeight={600}>
-                {appConfig.appName}
+          <Stack direction="row" spacing={1} alignItems="center">
+            <AccountCircleIcon color="action" />
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+              <Typography variant="body2" fontWeight={600} lineHeight={1.2}>
+                {user.name}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {appConfig.adminApiUrl || 'Same-origin (/admin/*)'}
+                {user.email}
               </Typography>
             </Box>
+            <Tooltip title="Cerrar sesión">
+              <IconButton size="small" onClick={logout} color="inherit">
+                <LogoutIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Stack>
         </Toolbar>
       </AppBar>

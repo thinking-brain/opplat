@@ -105,7 +105,13 @@ public static class AdminEndpoints
             async (string identifier, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
                 await ExecuteAdminWriteAsync(async () =>
                     Results.Ok(await mediator.Send(new ProvisionTenantSchemaCommand(identifier), cancellationToken))))
-            .WithSummary("Provision or verify a tenant schema from the central catalog");
+            .WithSummary("Provision or repair a single tenant schema (idempotent — safe to call on already-provisioned tenants)");
+
+        admin.MapPost("/core/tenants/provision/all",
+            async ([FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+                await ExecuteAdminWriteAsync(async () =>
+                    Results.Ok(await mediator.Send(new BulkReprovisionTenantsCommand(), cancellationToken))))
+            .WithSummary("Re-provision all active tenants — runs EF migrations for any tenant whose schema exists but tables are missing");
 
         admin.MapPost("/core/migrations/tenants/{identifier}",
             async (string identifier, TenantSchemaMigrationRequest request, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>

@@ -1,6 +1,7 @@
 import { adminAxiosClient } from './axiosClient';
 import type {
   AdminTenant,
+  TenantProvisioningResult,
   UpsertTenantRequest,
 } from '../types';
 
@@ -22,5 +23,12 @@ export const adminApi = {
 
   deactivateTenant: async (identifier: string): Promise<void> => {
     await adminAxiosClient.delete(`/admin/tenants/${identifier}`);
+  },
+
+  provisionTenant: async (identifier: string): Promise<TenantProvisioningResult> => {
+    const response = await adminAxiosClient.post<TenantProvisioningResult>(
+      `/admin/core/tenants/${identifier}/provision`,
+    );
+    return response.data;
   },
 };

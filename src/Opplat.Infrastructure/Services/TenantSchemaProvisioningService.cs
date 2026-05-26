@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Npgsql;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Domain.Entities.Administration;
+using Opplat.Infrastructure.Persistance.Data;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 
 namespace Opplat.Infrastructure.Services;
@@ -81,24 +82,32 @@ public sealed class TenantSchemaProvisioningService
                     tenant.DatabaseSchema, tenant.Id);
                 result.AlreadyProvisioned = true;
                 result.Succeeded = true;
-                return result;
             }
+            else
+            {
+                // Create schema with AUTHORIZATION clause so tenant owns it.
+                var createSchemaCommand = $"CREATE SCHEMA \"{tenant.DatabaseSchema}\" AUTHORIZATION postgres;";
+                await using var command = connection.CreateCommand();
+                command.CommandText = createSchemaCommand;
+                await command.ExecuteNonQueryAsync(cancellationToken);
 
-            // Create schema with AUTHORIZATION clause so tenant owns it.
-            var createSchemaCommand = $"CREATE SCHEMA \"{tenant.DatabaseSchema}\" AUTHORIZATION postgres;";
-            await using var command = connection.CreateCommand();
-            command.CommandText = createSchemaCommand;
-            await command.ExecuteNonQueryAsync(cancellationToken);
-
-            _logger.LogInformation(
-                "Schema '{Schema}' successfully created for tenant '{TenantId}'.",
-                tenant.DatabaseSchema, tenant.Id);
-            result.SchemaCreated = true;
-            result.Succeeded = true;
+                _logger.LogInformation(
+                    "Schema '{Schema}' successfully created for tenant '{TenantId}'.",
+                    tenant.DatabaseSchema, tenant.Id);
+                result.SchemaCreated = true;
+                result.Succeeded = true;
+            }
         }
         finally
         {
             await connection.CloseAsync();
+        }
+
+        if (result.Succeeded)
+        {
+            var migrationConnectionString = BuildConnectionString(databaseInstance.DatabaseName, tenant.DatabaseSchema);
+            await RunEfMigrationsAsync(migrationConnectionString, tenant.DatabaseSchema, cancellationToken);
+            result.MigrationsApplied = true;
         }
 
         return result;
@@ -190,6 +199,35 @@ public sealed class TenantSchemaProvisioningService
 
         var result = await command.ExecuteScalarAsync(cancellationToken);
         return result != null && (int)result == 1;
+    }
+
+    private async Task RunEfMigrationsAsync(string connectionString, string schemaName, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation(
+            "Running EF Core migrations for tenant schema '{Schema}'.",
+            schemaName);
+
+        var inventoryOptions = new DbContextOptionsBuilder<InventoryDbContext>()
+            .UseNpgsql(connectionString)
+            .Options;
+        await using var inventoryDb = new InventoryDbContext(inventoryOptions, null);
+        await inventoryDb.Database.MigrateAsync(cancellationToken);
+
+        var salesOptions = new DbContextOptionsBuilder<SalesDbContext>()
+            .UseNpgsql(connectionString)
+            .Options;
+        await using var salesDb = new SalesDbContext(salesOptions, null);
+        await salesDb.Database.MigrateAsync(cancellationToken);
+
+        var opplatOptions = new DbContextOptionsBuilder<OpplatDbContext>()
+            .UseNpgsql(connectionString)
+            .Options;
+        await using var opplatDb = new OpplatDbContext(opplatOptions, null);
+        await opplatDb.Database.MigrateAsync(cancellationToken);
+
+        _logger.LogInformation(
+            "EF Core migrations completed for tenant schema '{Schema}'.",
+            schemaName);
     }
 
     private string BuildConnectionString(string databaseName, string? schema = null)
@@ -299,5 +337,6 @@ public sealed class TenantSchemaProvisioningOutcome
     public bool AlreadyProvisioned { get; set; }
     public bool DatabaseCreated { get; set; }
     public bool SchemaCreated { get; set; }
+    public bool MigrationsApplied { get; set; }
     public DateTime ExecutedAt { get; set; }
 }
