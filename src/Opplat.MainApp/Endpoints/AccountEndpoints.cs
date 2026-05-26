@@ -1,5 +1,4 @@
 using Finbuckle.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Opplat.Application.Abstractions.Auth;
@@ -15,12 +14,9 @@ public static class AccountEndpoints
 {
     public static void MapAccountEndpoints(this WebApplication app)
     {
-        // Both tenant-prefixed and legacy (no-tenant) route groups
-        var authTenant = app.MapGroup("/{__tenant__}/auth/account").WithTags("Auth");
-        var authLegacy = app.MapGroup("/auth/account").WithTags("Auth");
+        var authRoute = app.MapGroup("/auth/account").WithTags("Auth");
 
-        MapEndpoints(authTenant);
-        MapEndpoints(authLegacy);
+        MapEndpoints(authRoute);
     }
 
     private static void MapEndpoints(RouteGroupBuilder group)
@@ -45,7 +41,7 @@ public static class AccountEndpoints
                 return Results.Ok(users);
             })
             .RequireAuthorization("TenantAdminOnly")
-            .WithSummary("Listado de usuarios");
+            .WithSummary("User list for tenant administrators");
 
         group.MapGet("/profile/{name}",
             async (string name, IMediator mediator) =>
@@ -54,7 +50,7 @@ public static class AccountEndpoints
                 return user is null ? Results.NotFound() : Results.Ok(user);
             })
             .RequireAuthorization()
-            .WithSummary("Perfil de usuario");
+            .WithSummary("User profile");
 
         group.MapGet("/tenant-context",
             async (HttpContext httpContext,
@@ -98,7 +94,7 @@ public static class AccountEndpoints
                 });
             })
             .RequireAuthorization()
-            .WithSummary("Contexto de tenant resuelto");
+            .WithSummary("Resolve tenant context for the current user");
 
         group.MapPost("/add-user",
             async (Register register, IMediator mediator) =>
@@ -112,7 +108,7 @@ public static class AccountEndpoints
                     : Results.BadRequest(result.Errors);
             })
             .RequireAuthorization("TenantAdminOnly")
-            .WithSummary("Crear usuario");
+            .WithSummary("Create user");
 
         group.MapPost("/edit-user",
             async (EditUserNameDto dto, IMediator mediator) =>
@@ -120,10 +116,10 @@ public static class AccountEndpoints
                 var ok = await mediator.Send(new EditUserCommand(dto.Id, dto.Name, dto.LastName));
                 return ok
                     ? Results.Ok()
-                    : Results.BadRequest(new { Result = false, Message = "Error modificando el usuario." });
+                    : Results.BadRequest(new { Result = false, Message = "Error modifying user." });
             })
             .RequireAuthorization("TenantAdminOnly")
-            .WithSummary("Editar nombre/apellido de usuario");
+            .WithSummary("Edit user name/last name");
 
         group.MapPost("/reset-password",
             () =>
@@ -149,16 +145,16 @@ public static class AccountEndpoints
             .RequireAuthorization()
             .WithSummary("Password change delegated to IdP");
 
-        group.MapGet("/cambiar-estado",
+        group.MapGet("/toggle-user-status",
             async (string userId, IMediator mediator) =>
             {
                 var found = await mediator.Send(new ToggleUserActiveCommand(userId));
                 return found ? Results.Ok() : Results.NotFound();
             })
             .RequireAuthorization("TenantAdminOnly")
-            .WithSummary("Activar/desactivar usuario");
+            .WithSummary("Activate/deactivate user");
 
-        group.MapPost("/cambiar-roles",
+        group.MapPost("/change-roles",
             async (ChangeRolesDto dto, IMediator mediator) =>
             {
                 var result = await mediator.Send(new ChangeRolesCommand(dto.UserId, dto.Roles));
@@ -167,6 +163,6 @@ public static class AccountEndpoints
                     : Results.BadRequest(new { Resultado = false, Mensaje = result.ErrorMessage });
             })
             .RequireAuthorization("TenantAdminOnly")
-            .WithSummary("Cambiar roles de usuario");
+            .WithSummary("Change user roles");
     }
 }

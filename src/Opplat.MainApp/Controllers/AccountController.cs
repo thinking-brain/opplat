@@ -222,7 +222,7 @@
 //     /// </summary>
 //     /// <param name="idUsuario">Id del usuario al que se le va a cambiar el estado</param>
 //     /// <returns></returns>
-//     [HttpGet("cambiar-estado")]
+//     [HttpGet("toggle-user-status")]
 //     public async Task<IActionResult> CambiarEstadoUsuario(string idUsuario)
 //     {
 //         var usuario = await _db.Set<Usuario>().FindAsync(idUsuario);
@@ -242,7 +242,7 @@
 //     /// <param name="rolesDto"></param>
 //     /// <returns>Un objeto con {Resultado: bool, Mensaje:string}</returns>
 //     [HttpPost]
-//     [Route("cambiar-roles")]
+//     [Route("change-roles")]
 //     public async Task<IActionResult> CambiarRoles([FromBody] CambiarRolesDto rolesDto)
 //     {
 //         var usuario = await _userManager.FindByIdAsync(rolesDto.idUsuario);

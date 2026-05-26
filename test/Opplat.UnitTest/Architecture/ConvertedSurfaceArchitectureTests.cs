@@ -22,8 +22,6 @@ public class ConvertedSurfaceArchitectureTests
         Assert.DoesNotContain("MapPost(\"/auth/account", program, StringComparison.Ordinal);
         Assert.DoesNotContain("MapGet(\"/admin/tenants", program, StringComparison.Ordinal);
         Assert.DoesNotContain("MapPost(\"/admin/tenants", program, StringComparison.Ordinal);
-        Assert.DoesNotContain("MapGet(\"/admin/licencia", program, StringComparison.Ordinal);
-        Assert.DoesNotContain("MapPost(\"/admin/licencia", program, StringComparison.Ordinal);
         Assert.DoesNotContain("MapGet(\"/admin/menus", program, StringComparison.Ordinal);
         Assert.DoesNotContain("InventoryArea", program, StringComparison.Ordinal);
         Assert.DoesNotContain("tenant-inventory", program, StringComparison.Ordinal);

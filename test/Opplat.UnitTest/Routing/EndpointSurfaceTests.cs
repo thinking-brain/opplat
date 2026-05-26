@@ -62,7 +62,6 @@ public class EndpointSurfaceTests
         Assert.Contains("/admin/users", patterns);
         Assert.Contains("/admin/menus", patterns);
         Assert.Contains("/admin/menus/FromModulo", patterns);
-        Assert.Contains("/admin/licencia", patterns);
     }
 
     [Fact]

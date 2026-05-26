@@ -218,10 +218,8 @@ app.UseAuthorization();
 // MINIMAL API ENDPOINTS (Admin / Account / Inventory / License / Menus / Sales)
 // ============================================
 app.MapOpplatHealthEndpoints("main-api");
-app.MapAdminEndpoints();
 app.MapAccountEndpoints();
 app.MapInventoryEndpoints();
-app.MapLicenseEndpoints();
 app.MapMenusEndpoints();
 app.MapSalesEndpoints();
 

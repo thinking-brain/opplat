@@ -21,7 +21,7 @@ export const usersApi = {
   },
 
   changeRoles: async (userId: string, roles: string[]): Promise<ResponseDto> => {
-    const response = await authAxiosClient.post<ResponseDto>('/auth/Account/cambiar-roles', {
+    const response = await authAxiosClient.post<ResponseDto>('/auth/Account/change-roles', {
       idUsuario: userId,
       Roles: roles,
     });
@@ -29,7 +29,7 @@ export const usersApi = {
   },
 
   toggleActive: async (userId: string): Promise<void> => {
-    await authAxiosClient.get(`/auth/Account/cambiar-estado?idUsuario=${userId}`);
+    await authAxiosClient.get(`/auth/Account/toggle-user-status?idUsuario=${userId}`);
   },
 
   delete: async (userId: string): Promise<void> => {
