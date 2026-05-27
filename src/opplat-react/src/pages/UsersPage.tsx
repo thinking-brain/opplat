@@ -27,7 +27,7 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { buildAuthAssetUrl } from '../api/tenantPath';
 import { usersApi } from '../api/users.api';
 import { User, RegisterUser } from '../types';
