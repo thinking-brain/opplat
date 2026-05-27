@@ -22,10 +22,6 @@ import {
   Switch,
   Avatar,
   Tooltip,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { buildAuthAssetUrl } from '../api/tenantPath';
@@ -53,7 +49,6 @@ export const UsersPage: React.FC = () => {
     email: '',
     password: '',
   });
-  const [selectedRole, setSelectedRole] = useState<TenantRole>(TENANT_USER_ROLE);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
 
   useEffect(() => {
@@ -82,7 +77,6 @@ export const UsersPage: React.FC = () => {
         email: user.email,
         password: '',
       });
-      setSelectedRole(getEditableTenantRole(user.roles));
     } else {
       setEditingUser(null);
       setFormData({
@@ -92,7 +86,6 @@ export const UsersPage: React.FC = () => {
         email: '',
         password: '',
       });
-      setSelectedRole(TENANT_USER_ROLE);
     }
     setDialogOpen(true);
   };
@@ -100,7 +93,6 @@ export const UsersPage: React.FC = () => {
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setEditingUser(null);
-    setSelectedRole(TENANT_USER_ROLE);
   };
 
   const handleSave = async () => {
@@ -109,7 +101,7 @@ export const UsersPage: React.FC = () => {
         await usersApi.edit(editingUser.userId, formData.name, formData.lastName);
         setSnackbar({ open: true, message: 'Usuario actualizado exitosamente', severity: 'success' });
       } else {
-        const createdUser = await usersApi.create(formData);
+        await usersApi.create(formData);
         setSnackbar({ open: true, message: 'Usuario creado exitosamente', severity: 'success' });
       }
       handleCloseDialog();

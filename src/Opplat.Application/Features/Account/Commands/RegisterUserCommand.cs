@@ -85,7 +85,7 @@ public class RegisterUserCommandHandler(
         var idpResult = await _userManagementService.CreateUserAsync(new CreateUserRequest
         {
             Email = request.Email,
-            UserName = $"{request.Name} {request.LastName}".Trim(),
+            UserName = $"{request.Username}.{request.LastName}@{tenantInfo.Identifier}".ToLowerInvariant().Trim(),
             FirstName = request.Name,
             LastName = request.LastName,
             Password = temporaryPassword
