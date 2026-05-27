@@ -126,21 +126,14 @@ public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCom
     }
 }
 
-public sealed class DeactivateTenantCommandHandler : IRequestHandler<DeactivateTenantCommand>
+public sealed class DeactivateTenantCommandHandler(
+    AdminTenantCatalogDbContext db,
+    IUserManagementService userManagementService,
+    ILogger<DeactivateTenantCommandHandler> logger) : IRequestHandler<DeactivateTenantCommand>
 {
-    private readonly AdminTenantCatalogDbContext _db;
-    private readonly IGraphUserService _graphUserService;
-    private readonly ILogger<DeactivateTenantCommandHandler> _logger;
-
-    public DeactivateTenantCommandHandler(
-        AdminTenantCatalogDbContext db,
-        IGraphUserService graphUserService,
-        ILogger<DeactivateTenantCommandHandler> logger)
-    {
-        _db = db;
-        _graphUserService = graphUserService;
-        _logger = logger;
-    }
+    private readonly AdminTenantCatalogDbContext _db = db;
+    private readonly IUserManagementService _userManagementService = userManagementService;
+    private readonly ILogger<DeactivateTenantCommandHandler> _logger = logger;
 
     public async Task Handle(DeactivateTenantCommand request, CancellationToken cancellationToken)
     {
@@ -161,7 +154,7 @@ public sealed class DeactivateTenantCommandHandler : IRequestHandler<DeactivateT
         {
             if (!string.IsNullOrWhiteSpace(user.EntraOid))
             {
-                var result = await _graphUserService.DisableUserAsync(user.EntraOid, cancellationToken);
+                var result = await _userManagementService.DisableUserAsync(user.EntraOid, cancellationToken);
                 if (!result.Succeeded)
                     _logger.LogWarning(
                         "Failed to disable Entra user {Oid} for tenant {Identifier}: {Error}",

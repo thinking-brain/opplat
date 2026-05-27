@@ -1,5 +1,8 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Opplat.Application.Abstractions.Identity;
+using Opplat.Infrastructure.Persistance.Data.Administration;
 
 namespace Opplat.Application.Features.Account.Commands;
 
@@ -7,34 +10,44 @@ public record ResetPasswordCommand(string UserId, string NewPassword) : IRequest
 
 public record PasswordOpResult(bool Success, object? Errors);
 
-public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, PasswordOpResult>
+public class ResetPasswordCommandHandler(
+    AdminTenantCatalogDbContext db,
+    IUserManagementService userManagementService,
+    ILogger<ResetPasswordCommandHandler> logger) : IRequestHandler<ResetPasswordCommand, PasswordOpResult>
 {
-    // private readonly UserManager<Usuario> _userManager;
-    private readonly ILogger<ResetPasswordCommandHandler> _logger;
-
-    public ResetPasswordCommandHandler(
-        // UserManager<Usuario> userManager,
-        ILogger<ResetPasswordCommandHandler> logger)
-    {
-        // _userManager = userManager;
-        _logger      = logger;
-    }
+    private readonly AdminTenantCatalogDbContext _db = db;
+    private readonly IUserManagementService _userManagementService = userManagementService;
+    private readonly ILogger<ResetPasswordCommandHandler> _logger = logger;
 
     public async Task<PasswordOpResult> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
-        // var user = await _userManager.FindByIdAsync(request.UserId);
-        // if (user == null) return new PasswordOpResult(false, "No existe el usuario solicitado");
+        if (!Guid.TryParse(request.UserId, out var userId))
+            return new PasswordOpResult(false, "Invalid user ID format.");
 
-        // await _userManager.RemovePasswordAsync(user);
-        // var result = await _userManager.AddPasswordAsync(user, request.NewPassword);
+        var tenantUser = await _db.TenantUsers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
-        // if (result.Succeeded)
-        // {
-        //     _logger.LogInformation("Se reseteo la contraseña del usuario {UserName}.", user.UserName);
-        //     return new PasswordOpResult(true, null);
-        // }
+        if (tenantUser is null)
+            return new PasswordOpResult(false, "User not found.");
 
-        // return new PasswordOpResult(false, result.Errors);
-        return new PasswordOpResult(false, null);
+        if (string.IsNullOrWhiteSpace(tenantUser.EntraOid))
+            return new PasswordOpResult(false, "User has no identity provider account linked.");
+
+        var result = await _userManagementService.ResetPasswordAsync(
+            tenantUser.EntraOid, request.NewPassword, cancellationToken);
+
+        if (result.Succeeded)
+        {
+            _logger.LogInformation(
+                "Password reset for user {UserId} (OID: {Oid}).",
+                userId, tenantUser.EntraOid);
+            return new PasswordOpResult(true, null);
+        }
+
+        _logger.LogWarning(
+            "Password reset failed for user {UserId}: {Error}.",
+            userId, result.Error);
+        return new PasswordOpResult(false, result.Error);
     }
 }

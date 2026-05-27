@@ -29,13 +29,13 @@ public class GraphUserServiceRetryTests
             MaxRetryAttempts = 2
         });
 
-        var result = await sut.CreateUserAsync(new CreateGraphUserRequest
+        var result = await sut.CreateUserAsync(new CreateUserRequest
         {
             Email = "user@example.com",
-            DisplayName = "Test User",
-            GivenName = "Test",
-            Surname = "User",
-            TemporaryPassword = "TempP@ss1!"
+            UserName = "Test User",
+            FirstName = "Test",
+            LastName = "User",
+            Password = "TempP@ss1!"
         });
 
         Assert.True(result.Succeeded);

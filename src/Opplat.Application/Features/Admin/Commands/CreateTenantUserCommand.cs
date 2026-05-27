@@ -18,24 +18,16 @@ public record CreateTenantUserCommand(
     string Email,
     IReadOnlyCollection<string> Roles) : IRequest<AdminUserDto?>;
 
-public sealed class CreateTenantUserCommandHandler : IRequestHandler<CreateTenantUserCommand, AdminUserDto?>
+public sealed class CreateTenantUserCommandHandler(
+    AdminTenantCatalogDbContext db,
+    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+    IUserManagementService userManagementService,
+    ILogger<CreateTenantUserCommandHandler> logger) : IRequestHandler<CreateTenantUserCommand, AdminUserDto?>
 {
-    private readonly AdminTenantCatalogDbContext _db;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
-    private readonly IGraphUserService _graphUserService;
-    private readonly ILogger<CreateTenantUserCommandHandler> _logger;
-
-    public CreateTenantUserCommandHandler(
-        AdminTenantCatalogDbContext db,
-        IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
-        IGraphUserService graphUserService,
-        ILogger<CreateTenantUserCommandHandler> logger)
-    {
-        _db = db;
-        _tenantAccessor = tenantAccessor;
-        _graphUserService = graphUserService;
-        _logger = logger;
-    }
+    private readonly AdminTenantCatalogDbContext _db = db;
+    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor = tenantAccessor;
+    private readonly IUserManagementService _userManagementService = userManagementService;
+    private readonly ILogger<CreateTenantUserCommandHandler> _logger = logger;
 
     public async Task<AdminUserDto?> Handle(CreateTenantUserCommand request, CancellationToken cancellationToken)
     {
@@ -102,20 +94,20 @@ public sealed class CreateTenantUserCommandHandler : IRequestHandler<CreateTenan
         var temporaryPassword = $"Tmp!{Guid.NewGuid():N}1A";
 
         // 6. Create user in identity provider
-        var graphResult = await _graphUserService.CreateUserAsync(new CreateGraphUserRequest
+        var userCreateResult = await _userManagementService.CreateUserAsync(new CreateUserRequest
         {
             Email = request.Email,
-            DisplayName = $"{request.Name} {request.LastName}".Trim(),
-            GivenName = request.Name,
-            Surname = request.LastName,
-            TemporaryPassword = temporaryPassword
+            UserName = $"{request.Name} {request.LastName}".Trim(),
+            FirstName = request.Name,
+            LastName = request.LastName,
+            Password = temporaryPassword
         }, cancellationToken);
 
-        if (!graphResult.Succeeded)
+        if (!userCreateResult.Succeeded)
         {
             _logger.LogError(
                 "Failed to create identity provider user for {Email}: {Error}",
-                request.Email, graphResult.Error);
+                request.Email, userCreateResult.Error);
             return null;
         }
 
@@ -128,7 +120,7 @@ public sealed class CreateTenantUserCommandHandler : IRequestHandler<CreateTenan
         var tenantUser = new TenantUser
         {
             Id = Guid.NewGuid(),
-            EntraOid = graphResult.ObjectId ?? string.Empty,
+            EntraOid = userCreateResult.ObjectId ?? string.Empty,
             TenantId = tenantId,
             Email = request.Email,
             Role = tenantUserRole,
@@ -142,7 +134,7 @@ public sealed class CreateTenantUserCommandHandler : IRequestHandler<CreateTenan
         await _db.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Created tenant user {Email} (OID: {Oid}) for tenant {TenantIdentifier}.",
-            request.Email, graphResult.ObjectId, tenant.Identifier);
+            request.Email, userCreateResult.ObjectId, tenant.Identifier);
 
         // 10. Return populated DTO
         return new AdminUserDto

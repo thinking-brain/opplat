@@ -22,17 +22,17 @@ export const usersApi = {
 
   changeRoles: async (userId: string, roles: string[]): Promise<ResponseDto> => {
     const response = await authAxiosClient.post<ResponseDto>('/auth/Account/change-roles', {
-      idUsuario: userId,
-      Roles: roles,
+      userId: userId,
+      roles: roles,
     });
     return response.data;
   },
 
   toggleActive: async (userId: string): Promise<void> => {
-    await authAxiosClient.get(`/auth/Account/toggle-user-status?idUsuario=${userId}`);
+    await authAxiosClient.get(`/auth/account/toggle-user-status?userId=${userId}`);
   },
 
   delete: async (userId: string): Promise<void> => {
-    await authAxiosClient.delete(`/auth/Account/delete-user?idUsuario=${userId}`);
+    await authAxiosClient.delete(`/auth/account/delete-user?userId=${userId}`);
   },
 };

@@ -1,8 +1,11 @@
+using Finbuckle.MultiTenant.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Dtos;
+using Opplat.Domain.Entities.Administration;
 using Opplat.Domain.Models;
-using Opplat.Infrastructure.Persistance.Data;
+using Opplat.Infrastructure.Persistance.Data.Administration;
 
 namespace Opplat.Application.Features.Account.Queries;
 
@@ -10,30 +13,47 @@ public record GetUsersQuery : IRequest<List<AccountDto>>;
 
 public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, List<AccountDto>>
 {
-    private readonly OpplatDbContext _db;
-    // private readonly UserManager<Usuario> _userManager;
+    private readonly AdminTenantCatalogDbContext _db;
+    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
 
-    public GetUsersQueryHandler(OpplatDbContext db/*, UserManager<Usuario> userManager*/)
+    public GetUsersQueryHandler(
+        AdminTenantCatalogDbContext db,
+        IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
     {
-        _db = db;
-        // _userManager = userManager;
+        _db             = db;
+        _tenantAccessor = tenantAccessor;
     }
 
     public async Task<List<AccountDto>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
     {
-        var result = await _db.Set<User>()
+        var tenantInfo = _tenantAccessor.MultiTenantContext?.TenantInfo;
+        if (tenantInfo is null || !Guid.TryParse(tenantInfo.Id, out var tenantId))
+            return [];
+
+        var tenantUsers = await _db.TenantUsers
+            .AsNoTracking()
+            .Where(u => u.TenantId == tenantId)
+            .OrderBy(u => u.Email)
+            .ToListAsync(cancellationToken);
+
+        return tenantUsers
             .Select(u => new AccountDto
             {
                 UserId   = u.Id,
-                Name     = u.Name,
-                LastName = u.LastName,
-                Username = u.UserName!,
-                Email    = u.Email!,
+                Name     = string.Empty,
+                LastName = string.Empty,
+                Username = u.Email,
+                Email    = u.Email,
                 Active   = u.IsActive,
-                Roles    = new List<string>() // _userManager.GetRolesAsync(u).Result.ToList()
+                Roles    = [MapRole(u.Role)]
             })
-            .ToListAsync(cancellationToken);
-
-        return result;
+            .ToList();
     }
+
+    private static string MapRole(TenantUserRole role) => role switch
+    {
+        TenantUserRole.PrimaryAdmin => AuthRoles.TenantAdmin,
+        TenantUserRole.Admin        => AuthRoles.TenantAdmin,
+        _                           => AuthRoles.TenantUser
+    };
 }

@@ -13,43 +13,35 @@ namespace Opplat.Infrastructure.Identity;
 /// UPNs follow the collision-safe format <c>{uuid}@{TenantDomain}</c>.
 /// All operations are async with explicit retry handling for transient 429/503 failures.
 /// </summary>
-public sealed class GraphUserService : IGraphUserService
+public sealed class GraphUserService(
+    GraphServiceClient client,
+    IOptions<GraphApiOptions> options,
+    ILogger<GraphUserService> logger,
+    TimeProvider timeProvider) : IUserManagementService
 {
-    private readonly GraphServiceClient _client;
-    private readonly GraphApiOptions _options;
-    private readonly ILogger<GraphUserService> _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly GraphServiceClient _client = client;
+    private readonly GraphApiOptions _options = options.Value;
+    private readonly ILogger<GraphUserService> _logger = logger;
+    private readonly TimeProvider _timeProvider = timeProvider;
 
-    public GraphUserService(
-        GraphServiceClient client,
-        IOptions<GraphApiOptions> options,
-        ILogger<GraphUserService> logger,
-        TimeProvider timeProvider)
-    {
-        _client = client;
-        _options = options.Value;
-        _logger = logger;
-        _timeProvider = timeProvider;
-    }
-
-    public async Task<GraphUserResult> CreateUserAsync(CreateGraphUserRequest request, CancellationToken ct = default)
+    public async Task<UserOperationResult> CreateUserAsync(CreateUserRequest request, CancellationToken ct = default)
     {
         var upn = $"{Guid.NewGuid()}@{_options.TenantDomain}";
 
         var user = new User
         {
             AccountEnabled = true,
-            DisplayName = request.DisplayName,
-            GivenName = request.GivenName,
-            Surname = request.Surname,
+            DisplayName = request.UserName,
+            GivenName = request.FirstName,
+            Surname = request.LastName,
             MailNickname = upn.Split('@')[0],
             UserPrincipalName = upn,
             Mail = request.Email,
-            OtherMails = new List<string> { request.Email },
+            OtherMails = [request.Email],
             PasswordProfile = new PasswordProfile
             {
                 ForceChangePasswordNextSignIn = true,
-                Password = request.TemporaryPassword
+                Password = request.Password
             }
         };
 
@@ -62,7 +54,7 @@ public sealed class GraphUserService : IGraphUserService
                 ct);
 
             _logger.LogInformation("Created Entra user {Oid} with UPN {Upn}", created?.Id, upn);
-            return GraphUserResult.Success(created?.Id);
+            return UserOperationResult.Success(created?.Id);
         }
         catch (ODataError ex)
         {
@@ -70,17 +62,17 @@ public sealed class GraphUserService : IGraphUserService
         }
     }
 
-    public async Task<GraphUserResult> EnableUserAsync(string objectId, CancellationToken ct = default)
+    public async Task<UserOperationResult> EnableUserAsync(string objectId, CancellationToken ct = default)
     {
         return await PatchAccountEnabled(objectId, true, ct);
     }
 
-    public async Task<GraphUserResult> DisableUserAsync(string objectId, CancellationToken ct = default)
+    public async Task<UserOperationResult> DisableUserAsync(string objectId, CancellationToken ct = default)
     {
         return await PatchAccountEnabled(objectId, false, ct);
     }
 
-    public async Task<GraphUserResult> DeleteUserAsync(string objectId, CancellationToken ct = default)
+    public async Task<UserOperationResult> DeleteUserAsync(string objectId, CancellationToken ct = default)
     {
         try
         {
@@ -91,7 +83,7 @@ public sealed class GraphUserService : IGraphUserService
                 ct);
 
             _logger.LogInformation("Deleted Entra user {Oid}", objectId);
-            return GraphUserResult.Success(objectId);
+            return UserOperationResult.Success(objectId);
         }
         catch (ODataError ex)
         {
@@ -99,7 +91,7 @@ public sealed class GraphUserService : IGraphUserService
         }
     }
 
-    public async Task<GraphUserResult> ResetPasswordAsync(string objectId, string temporaryPassword, CancellationToken ct = default)
+    public async Task<UserOperationResult> ResetPasswordAsync(string objectId, string temporaryPassword, CancellationToken ct = default)
     {
         try
         {
@@ -117,7 +109,7 @@ public sealed class GraphUserService : IGraphUserService
                 ct);
 
             _logger.LogInformation("Reset password for Entra user {Oid}", objectId);
-            return GraphUserResult.Success(objectId);
+            return UserOperationResult.Success(objectId);
         }
         catch (ODataError ex)
         {
@@ -125,7 +117,7 @@ public sealed class GraphUserService : IGraphUserService
         }
     }
 
-    private async Task<GraphUserResult> PatchAccountEnabled(string objectId, bool enabled, CancellationToken ct)
+    private async Task<UserOperationResult> PatchAccountEnabled(string objectId, bool enabled, CancellationToken ct)
     {
         try
         {
@@ -139,7 +131,7 @@ public sealed class GraphUserService : IGraphUserService
                 ct);
 
             _logger.LogInformation("{Action} Entra user {Oid}", enabled ? "Enabled" : "Disabled", objectId);
-            return GraphUserResult.Success(objectId);
+            return UserOperationResult.Success(objectId);
         }
         catch (ODataError ex)
         {
@@ -147,7 +139,7 @@ public sealed class GraphUserService : IGraphUserService
         }
     }
 
-    private GraphUserResult HandleODataError(ODataError ex, string operation, string target)
+    private UserOperationResult HandleODataError(ODataError ex, string operation, string target)
     {
         var statusCode = ex.ResponseStatusCode;
         var message = ex.Error?.Message ?? ex.Message;
@@ -155,7 +147,7 @@ public sealed class GraphUserService : IGraphUserService
         _logger.LogError(ex, "Graph API {Operation} failed for {Target}: {StatusCode} {Message}",
             operation, target, statusCode, message);
 
-        return GraphUserResult.Failure(
+        return UserOperationResult.Failure(
             $"{operation} failed: {message}",
             statusCode);
     }
@@ -297,7 +289,12 @@ public sealed class GraphUserService : IGraphUserService
             }
         }
 
-        values = Array.Empty<string>();
+        values = [];
         return false;
+    }
+
+    public Task<UserOperationResult> AssignRolesAsync(string userId, IEnumerable<string> roleNames, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
     }
 }

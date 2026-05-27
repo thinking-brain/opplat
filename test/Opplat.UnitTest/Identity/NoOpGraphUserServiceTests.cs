@@ -17,11 +17,13 @@ public class NoOpGraphUserServiceTests
     [Fact]
     public async Task CreateUserAsync_ReturnsSuccess_WithNoopObjectId()
     {
-        var request = new CreateGraphUserRequest
+        var request = new CreateUserRequest
         {
             Email = "test@example.com",
-            DisplayName = "Test User",
-            TemporaryPassword = "TempP@ss1"
+            UserName = "Test User",
+            Password = "TempP@ss1",
+            FirstName = "Test",
+            LastName = "User"
         };
 
         var result = await _sut.CreateUserAsync(request);
@@ -70,6 +72,6 @@ public class NoOpGraphUserServiceTests
     [Fact]
     public void NoOpImplementsInterface()
     {
-        Assert.IsAssignableFrom<IGraphUserService>(_sut);
+        Assert.IsType<IUserManagementService>(_sut, exactMatch: false);
     }
 }

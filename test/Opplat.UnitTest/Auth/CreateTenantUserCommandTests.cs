@@ -51,7 +51,7 @@ public class CreateTenantUserCommandTests
         return new CreateTenantUserCommandHandler(
             db,
             CreateTenantAccessor(),
-            Mock.Of<IGraphUserService>(),
+            Mock.Of<IUserManagementService>(),
             Mock.Of<ILogger<CreateTenantUserCommandHandler>>());
     }
 

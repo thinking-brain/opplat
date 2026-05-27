@@ -9,7 +9,7 @@ public class GraphUserServiceTests
     [Fact]
     public void Interface_DefinesAllRequiredOperations()
     {
-        var methods = typeof(IGraphUserService).GetMethods();
+        var methods = typeof(IUserManagementService).GetMethods();
         var methodNames = methods.Select(m => m.Name).ToHashSet();
 
         Assert.Contains("CreateUserAsync", methodNames);
@@ -20,20 +20,20 @@ public class GraphUserServiceTests
     }
 
     [Fact]
-    public void Interface_AllMethodsReturnGraphUserResult()
+    public void Interface_AllMethodsReturnUserOperationResult()
     {
-        var methods = typeof(IGraphUserService).GetMethods();
+        var methods = typeof(IUserManagementService).GetMethods();
 
         foreach (var method in methods)
         {
-            Assert.Equal(typeof(Task<GraphUserResult>), method.ReturnType);
+            Assert.Equal(typeof(Task<UserOperationResult>), method.ReturnType);
         }
     }
 
     [Fact]
     public void Interface_AllMethodsAcceptCancellationToken()
     {
-        var methods = typeof(IGraphUserService).GetMethods();
+        var methods = typeof(IUserManagementService).GetMethods();
 
         foreach (var method in methods)
         {
@@ -42,9 +42,9 @@ public class GraphUserServiceTests
     }
 
     [Fact]
-    public void GraphUserResult_Success_SetsCorrectProperties()
+    public void UserOperationResult_Success_SetsCorrectProperties()
     {
-        var result = GraphUserResult.Success("test-oid");
+        var result = UserOperationResult.Success("test-oid");
 
         Assert.True(result.Succeeded);
         Assert.Equal("test-oid", result.ObjectId);
@@ -53,9 +53,9 @@ public class GraphUserServiceTests
     }
 
     [Fact]
-    public void GraphUserResult_Failure_SetsCorrectProperties()
+    public void UserOperationResult_Failure_SetsCorrectProperties()
     {
-        var result = GraphUserResult.Failure("something broke", 404);
+        var result = UserOperationResult.Failure("something broke", 404);
 
         Assert.False(result.Succeeded);
         Assert.Null(result.ObjectId);
@@ -64,45 +64,31 @@ public class GraphUserServiceTests
     }
 
     [Fact]
-    public void GraphUserResult_SuccessWithoutOid_ReturnsNullObjectId()
+    public void UserOperationResult_SuccessWithoutOid_ReturnsNullObjectId()
     {
-        var result = GraphUserResult.Success();
+        var result = UserOperationResult.Success();
 
         Assert.True(result.Succeeded);
         Assert.Null(result.ObjectId);
     }
 
     [Fact]
-    public void CreateGraphUserRequest_RequiresEmail_DisplayName_TemporaryPassword()
+    public void CreateUserRequest_RequireFields()
     {
-        var request = new CreateGraphUserRequest
+        var request = new CreateUserRequest
         {
             Email = "user@example.com",
-            DisplayName = "Test User",
-            TemporaryPassword = "P@ssw0rd!"
+            UserName = "Test User",
+            Password = "P@ssw0rd!",
+            FirstName = "Test",
+            LastName = "User"
         };
 
         Assert.Equal("user@example.com", request.Email);
-        Assert.Equal("Test User", request.DisplayName);
-        Assert.Equal("P@ssw0rd!", request.TemporaryPassword);
-        Assert.Null(request.GivenName);
-        Assert.Null(request.Surname);
-    }
-
-    [Fact]
-    public void CreateGraphUserRequest_SupportsOptionalFields()
-    {
-        var request = new CreateGraphUserRequest
-        {
-            Email = "user@example.com",
-            DisplayName = "Test User",
-            TemporaryPassword = "P@ssw0rd!",
-            GivenName = "Test",
-            Surname = "User"
-        };
-
-        Assert.Equal("Test", request.GivenName);
-        Assert.Equal("User", request.Surname);
+        Assert.Equal("Test User", request.UserName);
+        Assert.Equal("P@ssw0rd!", request.Password);
+        Assert.Equal("Test", request.FirstName);
+        Assert.Equal("User", request.LastName);
     }
 
     [Fact]

@@ -12,24 +12,16 @@ namespace Opplat.Application.Features.Admin.Commands;
 
 public sealed record RegisterTenantCommand(TenantRegistrationRequest Request) : IRequest<TenantRegistrationResult>;
 
-public sealed class RegisterTenantCommandHandler : IRequestHandler<RegisterTenantCommand, TenantRegistrationResult>
+public sealed class RegisterTenantCommandHandler(
+    AdminTenantCatalogDbContext db,
+    IUserManagementService userManagementService,
+    ITenantProvisioningCoordinator provisioningCoordinator,
+    ILogger<RegisterTenantCommandHandler> logger) : IRequestHandler<RegisterTenantCommand, TenantRegistrationResult>
 {
-    private readonly AdminTenantCatalogDbContext _db;
-    private readonly IKeycloakUserService _keycloakUserService;
-    private readonly ITenantProvisioningCoordinator _provisioningCoordinator;
-    private readonly ILogger<RegisterTenantCommandHandler> _logger;
-
-    public RegisterTenantCommandHandler(
-        AdminTenantCatalogDbContext db,
-        IKeycloakUserService keycloakUserService,
-        ITenantProvisioningCoordinator provisioningCoordinator,
-        ILogger<RegisterTenantCommandHandler> logger)
-    {
-        _db = db;
-        _keycloakUserService = keycloakUserService;
-        _provisioningCoordinator = provisioningCoordinator;
-        _logger = logger;
-    }
+    private readonly AdminTenantCatalogDbContext _db = db;
+    private readonly IUserManagementService _userManagementService = userManagementService;
+    private readonly ITenantProvisioningCoordinator _provisioningCoordinator = provisioningCoordinator;
+    private readonly ILogger<RegisterTenantCommandHandler> _logger = logger;
 
     public async Task<TenantRegistrationResult> Handle(RegisterTenantCommand command, CancellationToken cancellationToken)
     {
@@ -64,28 +56,26 @@ public sealed class RegisterTenantCommandHandler : IRequestHandler<RegisterTenan
         }
 
         // 4. Create user in Keycloak
-        var keycloakResult = await _keycloakUserService.CreateUserAsync(new CreateKeycloakUserRequest
+        var createUserResult = await _userManagementService.CreateUserAsync(new CreateUserRequest
         {
-            Username = request.Username,
+            UserName = request.Username,
             Email = normalizedEmail,
             FirstName = request.FirstName,
             LastName = request.LastName,
             Password = request.Password,
-            Enabled = true,
-            EmailVerified = false
         }, cancellationToken);
 
-        if (!keycloakResult.Succeeded)
+        if (!createUserResult.Succeeded)
         {
             _logger.LogWarning(
                 "Keycloak user creation failed for {Email} during self-registration: {Error}",
-                normalizedEmail, keycloakResult.ErrorMessage);
-            return new TenantRegistrationResult(false, null, keycloakResult.ErrorMessage ?? "Failed to create user account.");
+                normalizedEmail, createUserResult.Error);
+            return new TenantRegistrationResult(false, null, createUserResult.Error ?? "Failed to create user account.");
         }
 
         // 4.5. Assign TenantAdmin and TenantUser realm roles so the primary admin can access management features.
-        var roleAssignResult = await _keycloakUserService.AssignRealmRolesAsync(
-            keycloakResult.UserId!,
+        var roleAssignResult = await _userManagementService.AssignRolesAsync(
+            createUserResult.ObjectId!,
             [AuthRoles.TenantAdmin, AuthRoles.TenantUser],
             cancellationToken);
 
@@ -93,7 +83,7 @@ public sealed class RegisterTenantCommandHandler : IRequestHandler<RegisterTenan
         {
             _logger.LogWarning(
                 "Keycloak role assignment failed for user {UserId} during self-registration: {Error}",
-                keycloakResult.UserId, roleAssignResult.ErrorMessage);
+                createUserResult.ObjectId, roleAssignResult.Error);
             return new TenantRegistrationResult(false, null, "Failed to assign tenant roles. Please contact support.");
         }
 
@@ -124,7 +114,7 @@ public sealed class RegisterTenantCommandHandler : IRequestHandler<RegisterTenan
         var tenantUser = new TenantUser
         {
             Id = Guid.NewGuid(),
-            EntraOid = keycloakResult.UserId ?? string.Empty,
+            EntraOid = createUserResult.ObjectId ?? string.Empty,
             TenantId = tenant.Id,
             Email = normalizedEmail,
             Role = TenantUserRole.Admin,
@@ -141,7 +131,7 @@ public sealed class RegisterTenantCommandHandler : IRequestHandler<RegisterTenan
 
         _logger.LogInformation(
             "Self-registered tenant '{Identifier}' with primary admin '{Email}' (KeycloakId: {UserId}).",
-            identifier, normalizedEmail, keycloakResult.UserId);
+            identifier, normalizedEmail, createUserResult.ObjectId);
 
         // 9. Provision tenant schema (non-fatal if it fails)
         try

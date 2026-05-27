@@ -14,28 +14,28 @@ namespace Opplat.Infrastructure.Identity;
 public sealed class KeycloakUserService(
     HttpClient httpClient,
     IOptions<KeycloakAdminOptions> options,
-    ILogger<KeycloakUserService> logger) : IKeycloakUserService
+    ILogger<KeycloakUserService> logger) : IUserManagementService
 {
     private readonly HttpClient _httpClient = httpClient;
     private readonly KeycloakAdminOptions _options = options.Value;
     private readonly ILogger<KeycloakUserService> _logger = logger;
 
-    public async Task<KeycloakUserResult> CreateUserAsync(CreateKeycloakUserRequest request, CancellationToken ct = default)
+    public async Task<UserOperationResult> CreateUserAsync(CreateUserRequest request, CancellationToken ct = default)
     {
         try
         {
             var token = await GetAdminTokenAsync(ct);
             if (token is null)
-                return KeycloakUserResult.Failure("Failed to obtain Keycloak admin token.");
+                return UserOperationResult.Failure("Failed to obtain Keycloak admin token.");
 
             var userPayload = new
             {
-                username = request.Username,
+                username = request.UserName,
                 email = request.Email,
                 firstName = request.FirstName,
                 lastName = request.LastName,
-                enabled = request.Enabled,
-                emailVerified = request.EmailVerified,
+                enabled = true,
+                emailVerified = false,
                 credentials = new[]
                 {
                     new { type = "password", value = request.Password, temporary = false }
@@ -57,31 +57,31 @@ public sealed class KeycloakUserService(
             {
                 var location = response.Headers.Location?.ToString();
                 var userId = location?.Split('/').LastOrDefault();
-                _logger.LogInformation("Created Keycloak user {Username} with id {UserId}", request.Username, userId);
-                return KeycloakUserResult.Success(userId);
+                _logger.LogInformation("Created Keycloak user {Username} with id {UserId}", request.UserName, userId);
+                return UserOperationResult.Success(userId);
             }
 
             if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
-                return KeycloakUserResult.Failure("A user with this username or email already exists.");
+                return UserOperationResult.Failure("A user with this username or email already exists.");
 
             var body = await response.Content.ReadAsStringAsync(ct);
             _logger.LogWarning("Keycloak CreateUser failed {Status}: {Body}", response.StatusCode, body);
-            return KeycloakUserResult.Failure($"Keycloak returned {(int)response.StatusCode}.");
+            return UserOperationResult.Failure($"Keycloak returned {(int)response.StatusCode}.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled error creating Keycloak user {Username}", request.Username);
-            return KeycloakUserResult.Failure("An unexpected error occurred.");
+            _logger.LogError(ex, "Unhandled error creating Keycloak user {Username}", request.UserName);
+            return UserOperationResult.Failure("An unexpected error occurred.");
         }
     }
 
-    public async Task<KeycloakUserResult> DeleteUserAsync(string userId, CancellationToken ct = default)
+    public async Task<UserOperationResult> DeleteUserAsync(string userId, CancellationToken ct = default)
     {
         try
         {
             var token = await GetAdminTokenAsync(ct);
             if (token is null)
-                return KeycloakUserResult.Failure("Failed to obtain Keycloak admin token.");
+                return UserOperationResult.Failure("Failed to obtain Keycloak admin token.");
 
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
@@ -93,27 +93,27 @@ public sealed class KeycloakUserService(
             if (response.IsSuccessStatusCode)
             {
                 _logger.LogInformation("Deleted Keycloak user {UserId}", userId);
-                return KeycloakUserResult.Success(userId);
+                return UserOperationResult.Success(userId);
             }
 
             var body = await response.Content.ReadAsStringAsync(ct);
             _logger.LogWarning("Keycloak DeleteUser failed {Status}: {Body}", response.StatusCode, body);
-            return KeycloakUserResult.Failure($"Keycloak returned {(int)response.StatusCode}.");
+            return UserOperationResult.Failure($"Keycloak returned {(int)response.StatusCode}.");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled error deleting Keycloak user {UserId}", userId);
-            return KeycloakUserResult.Failure("An unexpected error occurred.");
+            return UserOperationResult.Failure("An unexpected error occurred.");
         }
     }
 
-    public async Task<KeycloakUserResult> AssignRealmRolesAsync(string userId, IEnumerable<string> roleNames, CancellationToken ct = default)
+    public async Task<UserOperationResult> AssignRolesAsync(string userId, IEnumerable<string> roleNames, CancellationToken ct = default)
     {
         try
         {
             var token = await GetAdminTokenAsync(ct);
             if (token is null)
-                return KeycloakUserResult.Failure("Failed to obtain Keycloak admin token.");
+                return UserOperationResult.Failure("Failed to obtain Keycloak admin token.");
 
             // Resolve each role name to its {id, name} representation required by the Keycloak API.
             var roleRepresentations = new List<object>();
@@ -128,7 +128,7 @@ public sealed class KeycloakUserService(
                 if (!roleResponse.IsSuccessStatusCode)
                 {
                     _logger.LogWarning("Keycloak role '{RoleName}' not found: {Status}", roleName, roleResponse.StatusCode);
-                    return KeycloakUserResult.Failure($"Role '{roleName}' not found in Keycloak realm.");
+                    return UserOperationResult.Failure($"Role '{roleName}' not found in Keycloak realm.");
                 }
 
                 var roleJson = await roleResponse.Content.ReadAsStringAsync(ct);
@@ -139,7 +139,7 @@ public sealed class KeycloakUserService(
             }
 
             if (roleRepresentations.Count == 0)
-                return KeycloakUserResult.Success(userId);
+                return UserOperationResult.Success(userId);
 
             using var assignRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -155,17 +155,17 @@ public sealed class KeycloakUserService(
             {
                 _logger.LogInformation("Assigned realm roles [{Roles}] to Keycloak user {UserId}",
                     string.Join(", ", roleNames), userId);
-                return KeycloakUserResult.Success(userId);
+                return UserOperationResult.Success(userId);
             }
 
             var body = await assignResponse.Content.ReadAsStringAsync(ct);
             _logger.LogWarning("Keycloak role assignment failed {Status}: {Body}", assignResponse.StatusCode, body);
-            return KeycloakUserResult.Failure($"Keycloak returned {(int)assignResponse.StatusCode} during role assignment.");
+            return UserOperationResult.Failure($"Keycloak returned {(int)assignResponse.StatusCode} during role assignment.");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled error assigning roles to Keycloak user {UserId}", userId);
-            return KeycloakUserResult.Failure("An unexpected error occurred during role assignment.");
+            return UserOperationResult.Failure("An unexpected error occurred during role assignment.");
         }
     }
 
@@ -196,4 +196,113 @@ public sealed class KeycloakUserService(
         using var doc = JsonDocument.Parse(json);
         return doc.RootElement.TryGetProperty("access_token", out var tokenEl) ? tokenEl.GetString() : null;
     }
+
+    public async Task<UserOperationResult> EnableUserAsync(string objectId, CancellationToken ct = default)
+    {
+        try
+        {
+            var token = await GetAdminTokenAsync(ct);
+            if (token is null)
+                return UserOperationResult.Failure("Failed to obtain Keycloak admin token.");
+
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                $"{_options.BaseUrl}/admin/realms/{_options.Realm}/users/{objectId}");
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            httpRequest.Content = new StringContent(
+                JsonSerializer.Serialize(new { enabled = true }),
+                Encoding.UTF8,
+                "application/json");
+
+            using var response = await _httpClient.SendAsync(httpRequest, ct);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Enabled Keycloak user {UserId}", objectId);
+                return UserOperationResult.Success(objectId);
+            }
+
+            var body = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogWarning("Keycloak EnableUser failed {Status}: {Body}", response.StatusCode, body);
+            return UserOperationResult.Failure($"Keycloak returned {(int)response.StatusCode}.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unhandled error enabling Keycloak user {UserId}", objectId);
+            return UserOperationResult.Failure("An unexpected error occurred.");
+        }
+    }
+
+    public async Task<UserOperationResult> DisableUserAsync(string objectId, CancellationToken ct = default)
+    {
+        try
+        {
+            var token = await GetAdminTokenAsync(ct);
+            if (token is null)
+                return UserOperationResult.Failure("Failed to obtain Keycloak admin token.");
+
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                $"{_options.BaseUrl}/admin/realms/{_options.Realm}/users/{objectId}");
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            httpRequest.Content = new StringContent(
+                JsonSerializer.Serialize(new { enabled = false }),
+                Encoding.UTF8,
+                "application/json");
+
+            using var response = await _httpClient.SendAsync(httpRequest, ct);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Disabled Keycloak user {UserId}", objectId);
+                return UserOperationResult.Success(objectId);
+            }
+
+            var body = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogWarning("Keycloak DisableUser failed {Status}: {Body}", response.StatusCode, body);
+            return UserOperationResult.Failure($"Keycloak returned {(int)response.StatusCode}.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unhandled error disabling Keycloak user {UserId}", objectId);
+            return UserOperationResult.Failure("An unexpected error occurred.");
+        }
+    }
+
+    public async Task<UserOperationResult> ResetPasswordAsync(string objectId, string temporaryPassword, CancellationToken ct = default)
+    {
+        try
+        {
+            var token = await GetAdminTokenAsync(ct);
+            if (token is null)
+                return UserOperationResult.Failure("Failed to obtain Keycloak admin token.");
+
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                $"{_options.BaseUrl}/admin/realms/{_options.Realm}/users/{objectId}/reset-password");
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            httpRequest.Content = new StringContent(
+                JsonSerializer.Serialize(new { type = "password", value = temporaryPassword, temporary = true }),
+                Encoding.UTF8,
+                "application/json");
+
+            using var response = await _httpClient.SendAsync(httpRequest, ct);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Reset password for Keycloak user {UserId}", objectId);
+                return UserOperationResult.Success(objectId);
+            }
+
+            var body = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogWarning("Keycloak ResetPassword failed {Status}: {Body}", response.StatusCode, body);
+            return UserOperationResult.Failure($"Keycloak returned {(int)response.StatusCode}.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unhandled error resetting password for Keycloak user {UserId}", objectId);
+            return UserOperationResult.Failure("An unexpected error occurred.");
+        }
+    }
+
 }

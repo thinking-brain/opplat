@@ -21,7 +21,7 @@ public class GraphServiceRegistrationTests
         services.AddGraphUserService(config);
 
         var provider = services.BuildServiceProvider();
-        var service = provider.GetRequiredService<IGraphUserService>();
+        var service = provider.GetRequiredService<IUserManagementService>();
 
         Assert.IsType<NoOpGraphUserService>(service);
     }
@@ -43,7 +43,7 @@ public class GraphServiceRegistrationTests
         services.AddGraphUserService(config);
 
         var provider = services.BuildServiceProvider();
-        var service = provider.GetRequiredService<IGraphUserService>();
+        var service = provider.GetRequiredService<IUserManagementService>();
 
         Assert.IsType<GraphUserService>(service);
     }
@@ -63,7 +63,7 @@ public class GraphServiceRegistrationTests
         services.AddGraphUserService(config);
 
         var provider = services.BuildServiceProvider();
-        var service = provider.GetRequiredService<IGraphUserService>();
+        var service = provider.GetRequiredService<IUserManagementService>();
 
         Assert.IsType<NoOpGraphUserService>(service);
     }
@@ -78,7 +78,7 @@ public class GraphServiceRegistrationTests
         services.AddGraphUserService(config);
 
         var provider = services.BuildServiceProvider();
-        var service = provider.GetRequiredService<IGraphUserService>();
+        var service = provider.GetRequiredService<IUserManagementService>();
 
         Assert.IsType<NoOpGraphUserService>(service);
     }

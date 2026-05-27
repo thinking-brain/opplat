@@ -25,6 +25,7 @@ public static class AdminMediatRExtensions
             "EditUserCommandHandler",           // uses OpplatDbContext (per-tenant account feature)
             "ToggleUserActiveCommandHandler",   // uses OpplatDbContext (per-tenant account feature)
             "GetUsersQueryHandler",             // uses OpplatDbContext (per-tenant account feature)
+            "RegisterUserCommandHandler",       // uses OpplatDbContext (per-tenant account feature)
         };
 
         var appAssembly = typeof(Opplat.Application.Features.Account.Commands.ChangePasswordCommand).Assembly;

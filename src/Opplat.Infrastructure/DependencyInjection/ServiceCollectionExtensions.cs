@@ -42,11 +42,11 @@ public static class ServiceCollectionExtensions
                 return new GraphServiceClient(credential, ["https://graph.microsoft.com/.default"]);
             });
 
-            services.AddScoped<IGraphUserService, GraphUserService>();
+            services.AddScoped<IUserManagementService, GraphUserService>();
         }
         else
         {
-            services.AddScoped<IGraphUserService, NoOpGraphUserService>();
+            services.AddScoped<IUserManagementService, NoOpGraphUserService>();
         }
 
         return services;
@@ -66,11 +66,11 @@ public static class ServiceCollectionExtensions
             && !string.IsNullOrWhiteSpace(options.Realm))
         {
             services.AddHttpClient<KeycloakUserService>();
-            services.AddScoped<IKeycloakUserService, KeycloakUserService>();
+            services.AddScoped<IUserManagementService, KeycloakUserService>();
         }
         else
         {
-            services.AddScoped<IKeycloakUserService, NoOpKeycloakUserService>();
+            services.AddScoped<IUserManagementService, NoOpKeycloakUserService>();
         }
 
         return services;

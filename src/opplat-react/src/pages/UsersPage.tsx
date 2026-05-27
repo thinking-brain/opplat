@@ -27,7 +27,7 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Add as AddIcon, Edit as EditIcon } from '@mui/icons-material';
 import { buildAuthAssetUrl } from '../api/tenantPath';
 import { usersApi } from '../api/users.api';
 import { User, RegisterUser } from '../types';
@@ -35,8 +35,6 @@ import { LoadingSpinner } from '../components/LoadingSpinner';
 import { TENANT_ADMIN_ROLE, TENANT_USER_ROLE, normalizeRoles } from '../auth/roles';
 
 type TenantRole = typeof TENANT_ADMIN_ROLE | typeof TENANT_USER_ROLE;
-
-const roleOptions: TenantRole[] = [TENANT_ADMIN_ROLE, TENANT_USER_ROLE];
 
 const getEditableTenantRole = (roles: string[]): TenantRole =>
   normalizeRoles(roles).includes(TENANT_ADMIN_ROLE) ? TENANT_ADMIN_ROLE : TENANT_USER_ROLE;
@@ -109,11 +107,9 @@ export const UsersPage: React.FC = () => {
     try {
       if (editingUser) {
         await usersApi.edit(editingUser.userId, formData.name, formData.lastName);
-        await usersApi.changeRoles(editingUser.userId, [selectedRole]);
         setSnackbar({ open: true, message: 'Usuario actualizado exitosamente', severity: 'success' });
       } else {
         const createdUser = await usersApi.create(formData);
-        await usersApi.changeRoles(createdUser.userId, [selectedRole]);
         setSnackbar({ open: true, message: 'Usuario creado exitosamente', severity: 'success' });
       }
       handleCloseDialog();
@@ -285,21 +281,6 @@ export const UsersPage: React.FC = () => {
             required
             disabled={!!editingUser}
           />
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="tenant-role-label">Rol del tenant</InputLabel>
-            <Select
-              labelId="tenant-role-label"
-              label="Rol del tenant"
-              value={selectedRole}
-              onChange={(event) => setSelectedRole(event.target.value as TenantRole)}
-            >
-              {roleOptions.map((role) => (
-                <MenuItem key={role} value={role}>
-                  {role}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <Alert severity="info" sx={{ mt: 2 }}>
             TenantAdmin gestiona usuarios y permisos del tenant desde esta pantalla. SuperAdmin solo existe en el portal administrativo.
           </Alert>

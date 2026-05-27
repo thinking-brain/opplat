@@ -7,37 +7,43 @@ namespace Opplat.Infrastructure.Identity;
 /// No-op Graph API stub for local development (Keycloak).
 /// Logs a warning and returns success so upstream flows don't fail.
 /// </summary>
-public sealed class NoOpGraphUserService(ILogger<NoOpGraphUserService> logger) : IGraphUserService
+public sealed class NoOpGraphUserService(ILogger<NoOpGraphUserService> logger) : IUserManagementService
 {
     private readonly ILogger<NoOpGraphUserService> _logger = logger;
 
-    public Task<GraphUserResult> CreateUserAsync(CreateGraphUserRequest request, CancellationToken ct = default)
+    public Task<UserOperationResult> CreateUserAsync(CreateUserRequest request, CancellationToken ct = default)
     {
         _logger.LogWarning("Graph API disabled — skipping CreateUser for {Email}", request.Email);
-        return Task.FromResult(GraphUserResult.Success($"noop-{Guid.NewGuid():N}"));
+        return Task.FromResult(UserOperationResult.Success($"noop-{Guid.NewGuid():N}"));
     }
 
-    public Task<GraphUserResult> EnableUserAsync(string objectId, CancellationToken ct = default)
+    public Task<UserOperationResult> EnableUserAsync(string objectId, CancellationToken ct = default)
     {
         _logger.LogWarning("Graph API disabled — skipping EnableUser for {ObjectId}", objectId);
-        return Task.FromResult(GraphUserResult.Success(objectId));
+        return Task.FromResult(UserOperationResult.Success(objectId));
     }
 
-    public Task<GraphUserResult> DisableUserAsync(string objectId, CancellationToken ct = default)
+    public Task<UserOperationResult> DisableUserAsync(string objectId, CancellationToken ct = default)
     {
         _logger.LogWarning("Graph API disabled — skipping DisableUser for {ObjectId}", objectId);
-        return Task.FromResult(GraphUserResult.Success(objectId));
+        return Task.FromResult(UserOperationResult.Success(objectId));
     }
 
-    public Task<GraphUserResult> DeleteUserAsync(string objectId, CancellationToken ct = default)
+    public Task<UserOperationResult> DeleteUserAsync(string objectId, CancellationToken ct = default)
     {
         _logger.LogWarning("Graph API disabled — skipping DeleteUser for {ObjectId}", objectId);
-        return Task.FromResult(GraphUserResult.Success(objectId));
+        return Task.FromResult(UserOperationResult.Success(objectId));
     }
 
-    public Task<GraphUserResult> ResetPasswordAsync(string objectId, string temporaryPassword, CancellationToken ct = default)
+    public Task<UserOperationResult> ResetPasswordAsync(string objectId, string temporaryPassword, CancellationToken ct = default)
     {
         _logger.LogWarning("Graph API disabled — skipping ResetPassword for {ObjectId}", objectId);
-        return Task.FromResult(GraphUserResult.Success(objectId));
+        return Task.FromResult(UserOperationResult.Success(objectId));
+    }
+
+    public Task<UserOperationResult> AssignRolesAsync(string userId, IEnumerable<string> roleNames, CancellationToken ct = default)
+    {
+        _logger.LogWarning("Graph API disabled — skipping AssignRoles for {UserId}", userId);
+        return Task.FromResult(UserOperationResult.Success(userId));
     }
 }

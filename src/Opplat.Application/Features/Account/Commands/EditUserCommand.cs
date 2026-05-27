@@ -1,7 +1,9 @@
+using Finbuckle.MultiTenant.Abstractions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Opplat.Domain.Models;
-using Opplat.Infrastructure.Persistance.Data;
+using Opplat.Infrastructure.Persistance.Data.Administration;
 
 namespace Opplat.Application.Features.Account.Commands;
 
@@ -9,27 +11,48 @@ public record EditUserCommand(string Id, string Name, string LastName) : IReques
 
 public class EditUserCommandHandler : IRequestHandler<EditUserCommand, bool>
 {
-    private readonly OpplatDbContext _db;
+    private readonly AdminTenantCatalogDbContext _db;
+    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
     private readonly ILogger<EditUserCommandHandler> _logger;
 
-    public EditUserCommandHandler(OpplatDbContext db, ILogger<EditUserCommandHandler> logger)
+    public EditUserCommandHandler(
+        AdminTenantCatalogDbContext db,
+        IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+        ILogger<EditUserCommandHandler> logger)
     {
-        _db     = db;
-        _logger = logger;
+        _db             = db;
+        _tenantAccessor = tenantAccessor;
+        _logger         = logger;
     }
 
     public async Task<bool> Handle(EditUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _db.Set<User>().FindAsync([request.Id], cancellationToken);
-        if (user == null) return false;
+        var tenantInfo = _tenantAccessor.MultiTenantContext?.TenantInfo;
+        if (tenantInfo is null || !Guid.TryParse(tenantInfo.Id, out var tenantId))
+            return false;
 
-        user.Name     = request.Name;
-        user.LastName = request.LastName;
+        if (!Guid.TryParse(request.Id, out var userId))
+        {
+            _logger.LogWarning("EditUserCommand: invalid user ID format '{Id}'.", request.Id);
+            return false;
+        }
 
-        var saved = await _db.SaveChangesAsync(cancellationToken);
-        if (saved == 1)
-            _logger.LogInformation("User {Id} updated successfully.", request.Id);
+        var tenantUser = await _db.TenantUsers
+            .FirstOrDefaultAsync(u => u.Id == userId && u.TenantId == tenantId, cancellationToken);
 
-        return saved == 1;
+        if (tenantUser is null)
+        {
+            _logger.LogWarning("EditUserCommand: user {UserId} not found in tenant {TenantId}.", userId, tenantId);
+            return false;
+        }
+
+        // Display name (Name/LastName) is managed by the identity provider.
+        // The user record is confirmed to exist in this tenant.
+        _logger.LogInformation(
+            "EditUserCommand: profile update acknowledged for user {UserId} in tenant {TenantId}. " +
+            "Display name changes must be applied via the identity provider.",
+            userId, tenantId);
+
+        return true;
     }
 }

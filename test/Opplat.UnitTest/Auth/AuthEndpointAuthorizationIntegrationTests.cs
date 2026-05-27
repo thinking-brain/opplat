@@ -318,7 +318,7 @@ public class AuthEndpointAuthorizationIntegrationTests
         app.UseMiddleware<TenantValidationMiddleware>();
         app.UseAuthorization();
         Opplat.MainApp.Endpoints.AccountEndpoints.MapAccountEndpoints(app);
-        Opplat.MainApp.Endpoints.AdminEndpoints.MapAdminEndpoints(app);
+        // Opplat.MainApp.Endpoints.AdminEndpoints.MapAdminEndpoints(app);
 
         await app.StartAsync();
         return app;

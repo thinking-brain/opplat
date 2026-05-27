@@ -14,21 +14,14 @@ public record UpdateTenantUserCommand(
     string Email,
     bool Active) : IRequest<bool>;
 
-public sealed class UpdateTenantUserCommandHandler : IRequestHandler<UpdateTenantUserCommand, bool>
+public sealed class UpdateTenantUserCommandHandler(
+    AdminTenantCatalogDbContext db,
+    IUserManagementService userManagementService,
+    ILogger<UpdateTenantUserCommandHandler> logger) : IRequestHandler<UpdateTenantUserCommand, bool>
 {
-    private readonly AdminTenantCatalogDbContext _db;
-    private readonly IGraphUserService _graphUserService;
-    private readonly ILogger<UpdateTenantUserCommandHandler> _logger;
-
-    public UpdateTenantUserCommandHandler(
-        AdminTenantCatalogDbContext db,
-        IGraphUserService graphUserService,
-        ILogger<UpdateTenantUserCommandHandler> logger)
-    {
-        _db = db;
-        _graphUserService = graphUserService;
-        _logger = logger;
-    }
+    private readonly AdminTenantCatalogDbContext _db = db;
+    private readonly IUserManagementService _userManagementService = userManagementService;
+    private readonly ILogger<UpdateTenantUserCommandHandler> _logger = logger;
 
     public async Task<bool> Handle(UpdateTenantUserCommand request, CancellationToken cancellationToken)
     {
@@ -52,7 +45,7 @@ public sealed class UpdateTenantUserCommandHandler : IRequestHandler<UpdateTenan
         {
             if (request.Active)
             {
-                var enableResult = await _graphUserService.EnableUserAsync(tenantUser.EntraOid, cancellationToken);
+                var enableResult = await _userManagementService.EnableUserAsync(tenantUser.EntraOid, cancellationToken);
                 if (!enableResult.Succeeded)
                 {
                     _logger.LogError("Failed to enable identity provider user {EntraOid}: {Error}",
@@ -62,7 +55,7 @@ public sealed class UpdateTenantUserCommandHandler : IRequestHandler<UpdateTenan
             }
             else
             {
-                var disableResult = await _graphUserService.DisableUserAsync(tenantUser.EntraOid, cancellationToken);
+                var disableResult = await _userManagementService.DisableUserAsync(tenantUser.EntraOid, cancellationToken);
                 if (!disableResult.Succeeded)
                 {
                     _logger.LogError("Failed to disable identity provider user {EntraOid}: {Error}",

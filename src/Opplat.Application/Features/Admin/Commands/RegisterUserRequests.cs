@@ -19,26 +19,24 @@ public sealed record RegisterUserResult(bool Succeeded, string? UserId, string? 
         new(false, null, errorMessage);
 }
 
-public sealed class RegisterUserCommandHandler(IKeycloakUserService keycloakUserService)
+public sealed class RegisterUserCommandHandler(IUserManagementService userManagementService)
     : ICommandHandler<RegisterUserCommand, RegisterUserResult>
 {
     public async Task<RegisterUserResult> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        var keycloakRequest = new CreateKeycloakUserRequest
+        var createUserRequest = new CreateUserRequest
         {
-            Username = request.Username,
+            UserName = request.Username,
             Email = request.Email,
             FirstName = request.FirstName,
             LastName = request.LastName,
             Password = request.Password,
-            Enabled = true,
-            EmailVerified = false
         };
 
-        var result = await keycloakUserService.CreateUserAsync(keycloakRequest, cancellationToken);
+        var result = await userManagementService.CreateUserAsync(createUserRequest, cancellationToken);
 
         return result.Succeeded
-            ? RegisterUserResult.Success(result.UserId)
-            : RegisterUserResult.Failure(result.ErrorMessage ?? "Registration failed.");
+            ? RegisterUserResult.Success(result.ObjectId)
+            : RegisterUserResult.Failure(result.Error ?? "Registration failed.");
     }
 }
