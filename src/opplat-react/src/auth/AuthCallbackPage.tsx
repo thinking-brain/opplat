@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
-import { Refresh as RefreshIcon } from '@mui/icons-material';
+import { RefreshCw } from 'lucide-react';
 import { useAuth } from './AuthContext';
 
 interface AuthCallbackPageProps {
@@ -35,33 +34,31 @@ export const AuthCallbackPage: React.FC<AuthCallbackPageProps> = ({ title }) => 
   const showError = error && !isAuthenticated && !loading;
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" px={2}>
-      <Stack spacing={2} alignItems="center" maxWidth={420}>
+    <div className="flex justify-center items-center min-h-screen px-4">
+      <div className="flex flex-col items-center gap-4 max-w-sm w-full">
         {showError ? (
           <>
-            <Alert severity="error" sx={{ width: '100%' }}>
+            <div className="w-full bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm">
               {error.message}
-            </Alert>
-            <Button
-              variant="contained"
-              startIcon={<RefreshIcon />}
+            </div>
+            <button
               onClick={handleRetry}
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
             >
+              <RefreshCw size={16} />
               Reintentar autenticación
-            </Button>
+            </button>
           </>
         ) : (
-          <CircularProgress />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
         )}
-        <Typography variant="h6" align="center">
-          {title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" align="center">
+        <h2 className="text-lg font-semibold text-center">{title}</h2>
+        <p className="text-sm text-gray-500 text-center">
           {showError
             ? 'Hubo un problema al validar tu sesión. Intenta nuevamente.'
             : 'Estamos validando tu sesión y recuperando el contexto del tenant.'}
-        </Typography>
-      </Stack>
-    </Box>
+        </p>
+      </div>
+    </div>
   );
 };

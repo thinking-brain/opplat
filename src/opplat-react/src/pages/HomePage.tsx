@@ -1,27 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box,
-  Card,
-  CardContent,
-  CardActionArea,
-  Chip,
-  Grid,
-  Paper,
-  Stack,
-  Typography,
-} from '@mui/material';
-import {
-  Inventory as ProductsIcon,
-  Lock as LockIcon,
-  PointOfSale as SellIcon,
-  People as UsersIcon,
-  Warehouse as InventoryNavIcon,
-  Settings as LicenseNavIcon,
-  TrendingUp as TrendingUpIcon,
-  CheckCircle as CheckCircleIcon,
-  Warning as WarningIcon,
-} from '@mui/icons-material';
+  Package,
+  Lock,
+  ShoppingCart,
+  Users,
+  Warehouse,
+  Settings,
+  TrendingUp,
+  CheckCircle2,
+  AlertTriangle,
+} from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -62,21 +51,21 @@ const quickAccessCards: QuickAccessCard[] = [
   {
     title: 'Products',
     description: 'Manage product catalog',
-    icon: <ProductsIcon sx={{ fontSize: 36 }} />,
+    icon: <Package size={36} />,
     path: '/products',
     color: '#1976d2',
   },
   {
     title: 'Sell',
     description: 'Create new sales',
-    icon: <SellIcon sx={{ fontSize: 36 }} />,
+    icon: <ShoppingCart size={36} />,
     path: '/sell',
     color: '#2e7d32',
   },
   {
     title: 'Users',
     description: 'Manage system users',
-    icon: <UsersIcon sx={{ fontSize: 36 }} />,
+    icon: <Users size={36} />,
     path: '/users',
     color: '#ed6c02',
     requiredRoles: appConfig.accessControl.tenantUserManagementRoles,
@@ -84,14 +73,14 @@ const quickAccessCards: QuickAccessCard[] = [
   {
     title: 'Inventory',
     description: 'Stock & movements',
-    icon: <InventoryNavIcon sx={{ fontSize: 36 }} />,
+    icon: <Warehouse size={36} />,
     path: '/inventory',
     color: '#7b1fa2',
   },
   {
     title: 'Settings',
     description: 'License & config',
-    icon: <LicenseNavIcon sx={{ fontSize: 36 }} />,
+    icon: <Settings size={36} />,
     path: '/license',
     color: '#0288d1',
   },
@@ -111,19 +100,19 @@ const statCards: StatCard[] = [
   {
     title: 'Total Sales Today',
     value: '$3,200',
-    icon: <TrendingUpIcon fontSize="large" />,
+    icon: <TrendingUp size={28} />,
     color: '#1976d2',
   },
   {
     title: 'Active Products',
     value: 142,
-    icon: <CheckCircleIcon fontSize="large" />,
+    icon: <CheckCircle2 size={28} />,
     color: '#2e7d32',
   },
   {
     title: 'Low Stock Alerts',
     value: 5,
-    icon: <WarningIcon fontSize="large" />,
+    icon: <AlertTriangle size={28} />,
     color: '#ed6c02',
   },
 ];
@@ -135,65 +124,52 @@ export const HomePage: React.FC = () => {
   const isTenantUser = hasRole(roles, TENANT_USER_ROLE);
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Dashboard
-      </Typography>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} mb={2}>
-        <Typography variant="body1" color="text.secondary">
-          Bienvenido, {user?.username}.
-        </Typography>
-        {tenantIdentifier && <Chip label={`Tenant ${tenantIdentifier}`} color="primary" variant="outlined" />}
+    <div>
+      <h1 className="text-2xl font-bold mb-3">Dashboard</h1>
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <span className="text-sm text-gray-500">Bienvenido, {user?.username}.</span>
+        {tenantIdentifier && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border border-blue-400 text-blue-700 bg-blue-50">
+            Tenant {tenantIdentifier}
+          </span>
+        )}
         {roles.map((role) => (
-          <Chip key={role} label={role} size="small" />
+          <span key={role} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+            {role}
+          </span>
         ))}
-      </Stack>
+      </div>
 
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          Sesión OIDC activa
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+      <div className="card p-4 mb-4">
+        <p className="text-sm font-medium mb-1">Sesión OIDC activa</p>
+        <p className="text-sm text-gray-500">
           El tenant se resuelve desde tus claims y cada llamada API incluye el header X-Tenant-Identifier además del prefijo de ruta correspondiente.
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        </p>
+        <p className="text-sm text-gray-500 mt-1">
           {canManageTenantUsers
             ? 'Tu rol TenantAdmin puede gestionar usuarios y permisos del tenant desde esta app.'
             : isTenantUser
               ? 'Tu rol TenantUser puede operar la app, pero la administración de usuarios está reservada para TenantAdmin.'
               : 'Tu sesión no tiene un rol de tenant reconocido todavía, así que el acceso administrativo del tenant permanecerá oculto.'}
-        </Typography>
-      </Paper>
+        </p>
+      </div>
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
         {statCards.map((stat) => (
-          <Grid item xs={12} sm={4} key={stat.title}>
-            <Card>
-              <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box sx={{ color: stat.color }}>{stat.icon}</Box>
-                <Box>
-                  <Typography variant="h5" component="div">
-                    {stat.value}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {stat.title}
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+          <div key={stat.title} className="card p-4 flex items-center gap-3">
+            <div style={{ color: stat.color }}>{stat.icon}</div>
+            <div>
+              <p className="text-2xl font-bold">{stat.value}</p>
+              <p className="text-sm text-gray-500">{stat.title}</p>
+            </div>
+          </div>
         ))}
-      </Grid>
+      </div>
 
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Weekly Sales Overview
-        </Typography>
+      <div className="card p-4 mb-4">
+        <p className="text-base font-semibold mb-3">Weekly Sales Overview</p>
         <ResponsiveContainer width="100%" height={280}>
-          <BarChart
-            data={salesData}
-            margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-          >
+          <BarChart data={salesData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="day" />
             <YAxis />
@@ -203,59 +179,32 @@ export const HomePage: React.FC = () => {
             <Bar dataKey="transactions" fill="#2e7d32" name="Transactions" />
           </BarChart>
         </ResponsiveContainer>
-      </Paper>
+      </div>
 
-      <Typography variant="h6" gutterBottom>
-        Quick Access
-      </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+      <p className="text-base font-semibold mb-3">Quick Access</p>
+      <div className="flex flex-wrap gap-4">
         {quickAccessCards.map((card) => {
           const canAccessCard = !card.requiredRoles || hasAnyRole(roles, card.requiredRoles);
-
           return (
-            <Box key={card.path} sx={{ flex: '1 1 140px', minWidth: 120, maxWidth: 180 }}>
-              <Card>
-                <CardActionArea
-                  disabled={!canAccessCard}
-                  onClick={() => navigate(card.path)}
-                >
-                <CardContent
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    py: 2,
-                    px: 1,
-                  }}
-                >
-                  <Box sx={{ color: card.color, mb: 1 }}>{card.icon}</Box>
-                  <Typography
-                    variant="subtitle2"
-                    component="div"
-                    align="center"
-                    sx={{ fontWeight: 600 }}
-                  >
-                    {card.title}
-                  </Typography>
-                  <Typography variant="caption" color="textSecondary" align="center">
-                    {card.description}
-                  </Typography>
-                   {card.requiredRoles && !canAccessCard ? (
-                     <Chip
-                       icon={<LockIcon />}
-                       label="TenantAdmin"
-                       size="small"
-                      variant="outlined"
-                      sx={{ mt: 1 }}
-                    />
-                  ) : null}
-                </CardContent>
-                </CardActionArea>
-              </Card>
-            </Box>
+            <button
+              key={card.path}
+              className="card p-4 text-left hover:shadow-md cursor-pointer w-32 flex flex-col items-center gap-2 transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => navigate(card.path)}
+              disabled={!canAccessCard}
+            >
+              <div style={{ color: card.color }}>{card.icon}</div>
+              <p className="text-sm font-semibold text-center">{card.title}</p>
+              <p className="text-xs text-gray-500 text-center">{card.description}</p>
+              {card.requiredRoles && !canAccessCard && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs border border-gray-300 text-gray-500">
+                  <Lock size={10} />
+                  TenantAdmin
+                </span>
+              )}
+            </button>
           );
         })}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };

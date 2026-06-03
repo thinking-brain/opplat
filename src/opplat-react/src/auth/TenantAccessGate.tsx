@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { authApi } from '../api/auth.api';
 import type { TenantAccessContext } from '../types';
 import { persistTenantIdentifier } from './claims';
@@ -70,65 +69,72 @@ export const TenantAccessGate: React.FC<TenantAccessGateProps> = ({ children }) 
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" px={2}>
-        <Stack spacing={2} maxWidth={560}>
-          <Typography variant="h5">No se pudo validar el tenant</Typography>
-          <Alert severity="error">{error}</Alert>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-            <Button variant="contained" onClick={() => { window.location.reload(); }}>
+      <div className="flex justify-center items-center min-h-screen px-4">
+        <div className="flex flex-col gap-3 max-w-md w-full">
+          <h2 className="text-xl font-semibold">No se pudo validar el tenant</h2>
+          <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm">
+            {error}
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button className="btn-primary" onClick={() => { window.location.reload(); }}>
               Reintentar
-            </Button>
-            <Button variant="outlined" onClick={() => { void logout(); }}>
+            </button>
+            <button className="btn-secondary" onClick={() => { void logout(); }}>
               Cerrar sesión
-            </Button>
-          </Stack>
-        </Stack>
-      </Box>
+            </button>
+          </div>
+        </div>
+      </div>
     );
   }
 
   if (tenantContext && !tenantContext.isResolved) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" px={2}>
-        <Stack spacing={2} maxWidth={560}>
-          <Typography variant="h5">Tu usuario no tiene tenant asignado</Typography>
-          <Alert severity="warning">{tenantContext.message}</Alert>
-          <Typography color="text.secondary">
+      <div className="flex justify-center items-center min-h-screen px-4">
+        <div className="flex flex-col gap-3 max-w-md w-full">
+          <h2 className="text-xl font-semibold">Tu usuario no tiene tenant asignado</h2>
+          <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-md text-sm">
+            {tenantContext.message}
+          </div>
+          <p className="text-sm text-gray-500">
             Necesitas una asignacion de tenant antes de poder usar la aplicacion.
-          </Typography>
-          <Button variant="outlined" onClick={() => { void logout(); }}>
+          </p>
+          <button className="btn-secondary" onClick={() => { void logout(); }}>
             Cerrar sesión
-          </Button>
-        </Stack>
-      </Box>
+          </button>
+        </div>
+      </div>
     );
   }
 
   if (tenantContext && !tenantContext.isActive) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" px={2}>
-        <Stack spacing={2} maxWidth={560}>
-          <Typography variant="h5">Tenant inactivo</Typography>
-          <Alert severity="warning">{tenantContext.message}</Alert>
-          <Typography color="text.secondary">
+      <div className="flex justify-center items-center min-h-screen px-4">
+        <div className="flex flex-col gap-3 max-w-md w-full">
+          <h2 className="text-xl font-semibold">Tenant inactivo</h2>
+          <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-md text-sm">
+            {tenantContext.message}
+          </div>
+          <p className="text-sm text-gray-500">
             {tenantContext.tenantName ?? tenantContext.tenantIdentifier ?? 'Tu tenant'} esta temporalmente inactivo.
             Contacta al administrador principal para reactivar el acceso.
-          </Typography>
-          <Button variant="outlined" onClick={() => { void logout(); }}>
+          </p>
+          <button className="btn-secondary" onClick={() => { void logout(); }}>
             Cerrar sesión
-          </Button>
-        </Stack>
-      </Box>
+          </button>
+        </div>
+      </div>
     );
   }
 
   return <>{children}</>;
 };
+

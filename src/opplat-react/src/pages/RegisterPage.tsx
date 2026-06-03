@@ -1,18 +1,4 @@
-import { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CircularProgress,
-  Divider,
-  Stepper,
-  Step,
-  StepLabel,
-  TextField,
-  Typography,
-  Alert,
-} from '@mui/material';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSubscriptionPlans, registerTenant } from '../api/auth.api';
 import type { SubscriptionPlan } from '../types';
@@ -118,178 +104,169 @@ export const RegisterPage = () => {
 
   if (submitSuccess) {
     return (
-      <Box sx={{ maxWidth: 480, mx: 'auto', mt: 8, p: 3 }}>
-        <Alert severity="success" sx={{ mb: 2 }}>
+      <div className="max-w-lg mx-auto mt-16 px-4">
+        <div className="bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-md text-sm mb-4">
           Registration successful! Your account is being set up.
-        </Alert>
-        <Button variant="contained" onClick={() => navigate('/login')}>
+        </div>
+        <button className="btn-primary" onClick={() => navigate('/login')}>
           Go to Login
-        </Button>
-      </Box>
+        </button>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ maxWidth: 700, mx: 'auto', mt: 6, p: 3 }}>
-      <Typography variant="h5" fontWeight={600} mb={3}>
-        Create your account
-      </Typography>
+    <div className="max-w-2xl mx-auto mt-10 px-4">
+      <h1 className="text-2xl font-semibold mb-6">Create your account</h1>
 
-      <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-        {STEPS.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
+      {/* Step indicator */}
+      <div className="flex items-center gap-2 mb-8">
+        {STEPS.map((label, index) => (
+          <React.Fragment key={label}>
+            <div className="flex items-center gap-1.5">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-medium ${index <= activeStep ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                {index + 1}
+              </div>
+              <span className={`text-sm hidden sm:block ${index === activeStep ? 'font-semibold text-gray-900' : 'text-gray-500'}`}>{label}</span>
+            </div>
+            {index < STEPS.length - 1 && <div className={`flex-1 h-0.5 ${index < activeStep ? 'bg-blue-600' : 'bg-gray-200'}`} />}
+          </React.Fragment>
         ))}
-      </Stepper>
+      </div>
 
       {/* Step 0: Plan Selection */}
       {activeStep === 0 && (
-        <Box>
+        <div>
           {plansLoading && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
-            </Box>
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+            </div>
           )}
-          {plansError && <Alert severity="error">{plansError}</Alert>}
+          {plansError && (
+            <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm">
+              {plansError}
+            </div>
+          )}
           {!plansLoading && !plansError && (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            <div className="flex flex-wrap gap-4">
               {plans.map((plan) => (
-                <Box key={plan.id} sx={{ flexBasis: { xs: '100%', sm: 'calc(50% - 8px)' } }}>
-                  <Card
+                <div key={plan.id} className="flex-1 min-w-[200px] max-w-[280px]">
+                  <button
+                    type="button"
                     onClick={() => setSelectedPlanId(plan.id)}
-                    sx={{
-                      cursor: 'pointer',
-                      border: selectedPlanId === plan.id ? '2px solid' : '2px solid transparent',
-                      borderColor: selectedPlanId === plan.id ? 'primary.main' : 'transparent',
-                      transition: 'border-color 0.2s',
-                    }}
+                    className={`w-full text-left card p-5 transition-all ${selectedPlanId === plan.id ? 'border-blue-600 border-2' : 'hover:shadow-md'}`}
                   >
-                    <CardContent>
-                      <Typography variant="h6">{plan.name}</Typography>
-                      {plan.description && (
-                        <Typography variant="body2" color="text.secondary" mb={1}>
-                          {plan.description}
-                        </Typography>
-                      )}
-                      <Typography variant="body1" fontWeight={600}>
-                        ${plan.pricingMonthly}/month
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Up to {plan.maxActiveUsers} users
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Box>
+                    <p className="text-lg font-semibold">{plan.name}</p>
+                    {plan.description && (
+                      <p className="text-sm text-gray-500 mb-2">{plan.description}</p>
+                    )}
+                    <p className="text-base font-bold">${plan.pricingMonthly}/month</p>
+                    <p className="text-sm text-gray-500">Up to {plan.maxActiveUsers} users</p>
+                  </button>
+                </div>
               ))}
-            </Box>
+            </div>
           )}
-        </Box>
+        </div>
       )}
 
       {/* Step 1: Business Info */}
       {activeStep === 1 && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            label="Business Name"
-            value={businessName}
-            onChange={(e) => setBusinessName(e.target.value)}
-            required
-            fullWidth
-          />
-          <TextField
-            label="Tenant Identifier"
-            value={tenantIdentifier}
-            onChange={(e) => {
-              setTenantIdentifier(e.target.value);
-              setIdentifierManuallyEdited(true);
-            }}
-            required
-            fullWidth
-            helperText="Lowercase letters, numbers, and hyphens only (3–30 characters)"
-            error={tenantIdentifier.length > 0 && !IDENTIFIER_REGEX.test(tenantIdentifier)}
-          />
-        </Box>
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Business Name *</label>
+            <input
+              className="input-field"
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tenant Identifier *</label>
+            <input
+              className={`input-field ${tenantIdentifier.length > 0 && !IDENTIFIER_REGEX.test(tenantIdentifier) ? 'border-red-500' : ''}`}
+              value={tenantIdentifier}
+              onChange={(e) => {
+                setTenantIdentifier(e.target.value);
+                setIdentifierManuallyEdited(true);
+              }}
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">Lowercase letters, numbers, and hyphens only (3–30 characters)</p>
+          </div>
+        </div>
       )}
 
       {/* Step 2: Account Info */}
       {activeStep === 2 && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            label="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-            fullWidth
-          />
-          <TextField
-            label="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-            fullWidth
-          />
-          <TextField
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            fullWidth
-          />
-          <TextField
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            fullWidth
-            helperText="Minimum 8 characters"
-            inputProps={{ minLength: 8 }}
-          />
-          <TextField
-            label="Confirm Password"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            fullWidth
-            error={confirmPassword.length > 0 && password !== confirmPassword}
-            helperText={
-              confirmPassword.length > 0 && password !== confirmPassword
-                ? 'Passwords do not match'
-                : ''
-            }
-          />
-          {submitError && <Alert severity="error">{submitError}</Alert>}
-        </Box>
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+            <input className="input-field" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+            <input className="input-field" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+            <input className="input-field" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+            <input className="input-field" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
+            <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password *</label>
+            <input
+              className={`input-field ${confirmPassword.length > 0 && password !== confirmPassword ? 'border-red-500' : ''}`}
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+            {confirmPassword.length > 0 && password !== confirmPassword && (
+              <p className="text-xs text-red-600 mt-1">Passwords do not match</p>
+            )}
+          </div>
+          {submitError && (
+            <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm">
+              {submitError}
+            </div>
+          )}
+        </div>
       )}
 
-      <Divider sx={{ my: 3 }} />
+      <hr className="my-6" />
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Button onClick={handleBack} disabled={activeStep === 0}>
+      <div className="flex justify-between">
+        <button className="btn-ghost" onClick={handleBack} disabled={activeStep === 0}>
           Back
-        </Button>
+        </button>
         {activeStep < STEPS.length - 1 ? (
-          <Button
-            variant="contained"
+          <button
+            className="btn-primary"
             onClick={handleNext}
             disabled={!canProceed || plansLoading}
           >
             Next
-          </Button>
+          </button>
         ) : (
-          <Button
-            variant="contained"
+          <button
+            className="btn-primary flex items-center gap-2"
             onClick={() => { void handleSubmit(); }}
             disabled={!canProceed || submitting}
-            startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : null}
           >
+            {submitting && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />}
             {submitting ? 'Creating account...' : 'Create Account'}
-          </Button>
+          </button>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
+
+
+

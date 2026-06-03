@@ -3,8 +3,6 @@ import { getStoredTenantIdentifier, getTenantIdentifierFromUser, persistTenantId
 import { getOidcUser, removeOidcUser } from '../auth/oidc';
 import { appConfig } from '../runtimeConfig';
 
-const isAbsoluteUrl = (value: string): boolean => /^https?:\/\//i.test(value);
-
 const setHeader = (
   config: InternalAxiosRequestConfig,
   headerName: string,
@@ -17,7 +15,7 @@ const setHeader = (
   config.headers.set(headerName, value);
 };
 
-const createAxiosClient = (baseURL: string, tenantScoped = true): AxiosInstance => {
+const createAxiosClient = (baseURL: string, _tenantScoped = true): AxiosInstance => {
   const client = axios.create({
     baseURL,
     headers: {

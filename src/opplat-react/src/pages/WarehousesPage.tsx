@@ -1,29 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
-  IconButton,
-  Paper,
-  Snackbar,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { inventoryApi } from '../api/inventory.api';
 import type { Warehouse } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -132,139 +108,139 @@ export const WarehousesPage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (!snackbar.open) return;
+    const t = setTimeout(() => setSnackbar((s) => ({ ...s, open: false })), 6000);
+    return () => clearTimeout(t);
+  }, [snackbar.open]);
+
   if (loading) return <LoadingSpinner />;
 
   return (
-    <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4">Almacenes</Typography>
-        <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
-          Nuevo Almacén
-        </Button>
-      </Box>
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Almacenes</h1>
+        <button className="btn-primary flex items-center gap-2" onClick={() => handleOpenDialog()}>
+          <Plus size={16} /> Nuevo Almacén
+        </button>
+      </div>
 
-      <Box mb={2}>
-        <TextField
-          fullWidth
-          label="Buscar almacenes"
-          variant="outlined"
+      <div className="mb-4">
+        <input
+          className="input-field"
+          placeholder="Buscar almacenes..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          size="small"
         />
-      </Box>
+      </div>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Código</TableCell>
-              <TableCell>Descripción</TableCell>
-              <TableCell>Centro de Costo</TableCell>
-              <TableCell align="right">Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      <div className="card overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Centro de Costo</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
             {filteredWarehouses.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">No se encontraron almacenes.</Typography>
-                </TableCell>
-              </TableRow>
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-sm text-gray-500">No se encontraron almacenes.</td>
+              </tr>
             ) : (
               filteredWarehouses.map((w) => (
-                <TableRow key={w.id} hover>
-                  <TableCell>{w.code}</TableCell>
-                  <TableCell>{w.description}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={w.isCostCenter ? 'Sí' : 'No'}
-                      color={w.isCostCenter ? 'success' : 'default'}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Tooltip title="Editar">
-                      <IconButton color="primary" size="small" onClick={() => handleOpenDialog(w)}>
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Eliminar">
-                      <IconButton color="error" size="small" onClick={() => handleOpenConfirmDialog(w)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
+                <tr key={w.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm font-mono">{w.code}</td>
+                  <td className="px-4 py-3 text-sm">{w.description}</td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${w.isCostCenter ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                      {w.isCostCenter ? 'Sí' : 'No'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button title="Editar" className="p-1 text-blue-600 hover:bg-blue-50 rounded mr-1" onClick={() => handleOpenDialog(w)}>
+                      <Pencil size={16} />
+                    </button>
+                    <button title="Eliminar" className="p-1 text-red-600 hover:bg-red-50 rounded" onClick={() => handleOpenConfirmDialog(w)}>
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
+                </tr>
               ))
             )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </tbody>
+        </table>
+      </div>
 
       {/* Create / Edit Dialog */}
-      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingWarehouse ? 'Editar Almacén' : 'Nuevo Almacén'}</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            label="Descripción"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            margin="normal"
-            required
-          />
-          <TextField
-            fullWidth
-            label="Código"
-            value={formData.code}
-            onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-            margin="normal"
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={formData.isCostCenter}
-                onChange={(e) => setFormData({ ...formData, isCostCenter: e.target.checked })}
-              />
-            }
-            label="Centro de Costo"
-            sx={{ mt: 1 }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancelar</Button>
-          <Button onClick={() => void handleSave()} variant="contained" color="primary">
-            Guardar
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {dialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold">{editingWarehouse ? 'Editar Almacén' : 'Nuevo Almacén'}</h2>
+            </div>
+            <div className="px-6 py-4 flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción <span className="text-red-500">*</span></label>
+                <input
+                  className="input-field"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Código</label>
+                <input
+                  className="input-field"
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                />
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer mt-1">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300"
+                  checked={formData.isCostCenter}
+                  onChange={(e) => setFormData({ ...formData, isCostCenter: e.target.checked })}
+                />
+                <span className="text-sm font-medium text-gray-700">Centro de Costo</span>
+              </label>
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 border-t">
+              <button className="btn-ghost" onClick={handleCloseDialog}>Cancelar</button>
+              <button className="btn-primary" onClick={() => void handleSave()}>Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirm Dialog */}
-      <Dialog open={confirmDialogOpen} onClose={handleCloseConfirmDialog}>
-        <DialogTitle>Confirmar Eliminación</DialogTitle>
-        <DialogContent>
-          <Typography>
-            {`¿Eliminar almacén '${deletingWarehouse?.description}'?`}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseConfirmDialog}>Cancelar</Button>
-          <Button onClick={() => void handleConfirmDelete()} variant="contained" color="error">
-            Eliminar
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {confirmDialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold">Confirmar Eliminación</h2>
+            </div>
+            <div className="px-6 py-4 text-sm">
+              {`¿Eliminar almacén '${deletingWarehouse?.description}'?`}
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 border-t">
+              <button className="btn-ghost" onClick={handleCloseConfirmDialog}>Cancelar</button>
+              <button className="btn-danger" onClick={() => void handleConfirmDelete()}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+      {snackbar.open && (
+        <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-lg shadow-lg text-white text-sm flex items-center gap-2 ${snackbar.severity === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
           {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+          <button onClick={() => setSnackbar((s) => ({ ...s, open: false }))} className="ml-1 hover:opacity-75">✕</button>
+        </div>
+      )}
+    </div>
   );
 };

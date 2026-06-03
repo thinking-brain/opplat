@@ -1,18 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CircularProgress,
-  Container,
-  Divider,
-  Stack,
-  Typography,
-} from '@mui/material';
-import { Login as LoginIcon, Security as SecurityIcon } from '@mui/icons-material';
+import { LogIn, Shield } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { appConfig } from '../runtimeConfig';
 
@@ -38,45 +26,50 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="sm">
-      <Box display="flex" alignItems="center" justifyContent="center" minHeight="100vh">
-        <Card sx={{ width: '100%', maxWidth: 400 }}>
-          <CardContent sx={{ p: 4 }}>
-            <Stack spacing={3} alignItems="center" textAlign="center">
-              <SecurityIcon color="primary" sx={{ fontSize: 56 }} />
-              <Box>
-                <Typography variant="h4" component="h1" gutterBottom>
-                  {appConfig.appName}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  Inicia sesión con tu proveedor OIDC. El tenant se deduce automáticamente desde tus claims.
-                </Typography>
-              </Box>
-              {error && <Alert severity="error" sx={{ width: '100%' }}>{error.message}</Alert>}
-              <Box sx={{ width: '100%', textAlign: 'left' }}>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Authority
-                </Typography>
-                <Typography variant="body2">{appConfig.authAuthority}</Typography>
-              </Box>
-              <Button
-                fullWidth
-                size="large"
-                variant="contained"
-                disabled={loading}
-                startIcon={loading ? <CircularProgress size={18} color="inherit" /> : <LoginIcon />}
-                onClick={() => { void login(returnTo); }}
-              >
-                {loading ? 'Redirigiendo...' : 'Entrar con OIDC'}
-              </Button>
-              <Divider sx={{ my: 2, width: '100%' }}>Don't have an account?</Divider>
-              <Button variant="outlined" fullWidth onClick={() => navigate('/register')}>
-                Create Account
-              </Button>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Box>
-    </Container>
+    <div className="flex items-center justify-center min-h-screen px-4 bg-gray-50">
+      <div className="card p-8 w-full max-w-sm">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Shield size={56} className="text-blue-600" />
+          <div>
+            <h1 className="text-2xl font-bold">{appConfig.appName}</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Inicia sesión con tu proveedor OIDC. El tenant se deduce automáticamente desde tus claims.
+            </p>
+          </div>
+          {error && (
+            <div className="w-full bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm">
+              {error.message}
+            </div>
+          )}
+          <div className="w-full text-left">
+            <p className="text-xs text-gray-500 font-medium">Authority</p>
+            <p className="text-sm text-gray-700">{appConfig.authAuthority}</p>
+          </div>
+          <button
+            className="btn-primary w-full flex items-center justify-center gap-2 py-3 text-base"
+            disabled={loading}
+            onClick={() => { void login(returnTo); }}
+          >
+            {loading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+            ) : (
+              <LogIn size={18} />
+            )}
+            {loading ? 'Redirigiendo...' : 'Entrar con OIDC'}
+          </button>
+          <div className="w-full flex items-center gap-3">
+            <div className="flex-1 border-t border-gray-200" />
+            <span className="text-xs text-gray-400">Don't have an account?</span>
+            <div className="flex-1 border-t border-gray-200" />
+          </div>
+          <button
+            className="btn-secondary w-full py-3"
+            onClick={() => navigate('/register')}
+          >
+            Create Account
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };

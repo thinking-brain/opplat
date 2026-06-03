@@ -1,15 +1,9 @@
 import React from 'react';
-import { CircularProgress, Box } from '@mui/material';
 
 export const LoadingSpinner: React.FC = () => {
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="200px"
-    >
-      <CircularProgress />
-    </Box>
+    <div className="flex justify-center items-center min-h-[200px]">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+    </div>
   );
 };

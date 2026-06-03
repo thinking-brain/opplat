@@ -1,27 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  MenuItem,
-  Paper,
-  Snackbar,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { inventoryApi } from '../api/inventory.api';
 import type { ProductGroup, ProductClassification } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -130,118 +108,121 @@ export const ProductGroupsPage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (!snackbar.open) return;
+    const t = setTimeout(() => setSnackbar((s) => ({ ...s, open: false })), 6000);
+    return () => clearTimeout(t);
+  }, [snackbar.open]);
+
   if (loading) return <LoadingSpinner />;
 
   return (
-    <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4">Grupos de Productos</Typography>
-        <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
-          Nuevo Grupo
-        </Button>
-      </Box>
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Grupos de Productos</h1>
+        <button className="btn-primary flex items-center gap-2" onClick={() => handleOpenDialog()}>
+          <Plus size={16} /> Nuevo Grupo
+        </button>
+      </div>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Descripción</TableCell>
-              <TableCell>Clasificación</TableCell>
-              <TableCell align="right">Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      <div className="card overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Clasificación</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
             {groups.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={3} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">No se encontraron grupos.</Typography>
-                </TableCell>
-              </TableRow>
+              <tr>
+                <td colSpan={3} className="px-4 py-8 text-center text-sm text-gray-500">No se encontraron grupos.</td>
+              </tr>
             ) : (
               groups.map((g) => (
-                <TableRow key={g.id} hover>
-                  <TableCell>{g.description}</TableCell>
-                  <TableCell>{g.classification?.description ?? '—'}</TableCell>
-                  <TableCell align="right">
-                    <Tooltip title="Editar">
-                      <IconButton color="primary" size="small" onClick={() => handleOpenDialog(g)}>
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Eliminar">
-                      <IconButton color="error" size="small" onClick={() => handleOpenConfirmDialog(g)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
+                <tr key={g.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm">{g.description}</td>
+                  <td className="px-4 py-3 text-sm">{g.classification?.description ?? '—'}</td>
+                  <td className="px-4 py-3 text-right">
+                    <button title="Editar" className="p-1 text-blue-600 hover:bg-blue-50 rounded mr-1" onClick={() => handleOpenDialog(g)}>
+                      <Pencil size={16} />
+                    </button>
+                    <button title="Eliminar" className="p-1 text-red-600 hover:bg-red-50 rounded" onClick={() => handleOpenConfirmDialog(g)}>
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
+                </tr>
               ))
             )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </tbody>
+        </table>
+      </div>
 
       {/* Create / Edit Dialog */}
-      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingGroup ? 'Editar Grupo' : 'Nuevo Grupo'}</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            label="Descripción"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            margin="normal"
-            required
-          />
-          <TextField
-            fullWidth
-            select
-            label="Clasificación"
-            value={formData.classificationId || ''}
-            onChange={(e) => setFormData({ ...formData, classificationId: Number(e.target.value) })}
-            margin="normal"
-            required
-          >
-            {classifications.map((c) => (
-              <MenuItem key={c.id} value={c.id}>
-                {c.description}
-              </MenuItem>
-            ))}
-          </TextField>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancelar</Button>
-          <Button onClick={() => void handleSave()} variant="contained" color="primary">
-            Guardar
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {dialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold">{editingGroup ? 'Editar Grupo' : 'Nuevo Grupo'}</h2>
+            </div>
+            <div className="px-6 py-4 flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción <span className="text-red-500">*</span></label>
+                <input
+                  className="input-field"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Clasificación <span className="text-red-500">*</span></label>
+                <select
+                  className="input-field"
+                  value={formData.classificationId || ''}
+                  onChange={(e) => setFormData({ ...formData, classificationId: Number(e.target.value) })}
+                  required
+                >
+                  <option value="">Seleccionar clasificación</option>
+                  {classifications.map((c) => (
+                    <option key={c.id} value={c.id}>{c.description}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 border-t">
+              <button className="btn-ghost" onClick={handleCloseDialog}>Cancelar</button>
+              <button className="btn-primary" onClick={() => void handleSave()}>Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirm Dialog */}
-      <Dialog open={confirmDialogOpen} onClose={handleCloseConfirmDialog}>
-        <DialogTitle>Confirmar Eliminación</DialogTitle>
-        <DialogContent>
-          <Typography>
-            {`¿Eliminar grupo '${deletingGroup?.description}'?`}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseConfirmDialog}>Cancelar</Button>
-          <Button onClick={() => void handleConfirmDelete()} variant="contained" color="error">
-            Eliminar
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {confirmDialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold">Confirmar Eliminación</h2>
+            </div>
+            <div className="px-6 py-4 text-sm">
+              {`¿Eliminar grupo '${deletingGroup?.description}'?`}
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 border-t">
+              <button className="btn-ghost" onClick={handleCloseConfirmDialog}>Cancelar</button>
+              <button className="btn-danger" onClick={() => void handleConfirmDelete()}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+      {snackbar.open && (
+        <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-lg shadow-lg text-white text-sm flex items-center gap-2 ${snackbar.severity === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
           {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+          <button onClick={() => setSnackbar((s) => ({ ...s, open: false }))} className="ml-1 hover:opacity-75">✕</button>
+        </div>
+      )}
+    </div>
   );
 };

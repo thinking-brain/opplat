@@ -1,29 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Grid,
-  Typography,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
-  Alert,
-  Snackbar,
-  Autocomplete,
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Remove as RemoveIcon,
-  Delete as DeleteIcon,
-  ShoppingCart as CartIcon,
-} from '@mui/icons-material';
+import { Plus, Minus, Trash2, ShoppingCart } from 'lucide-react';
 import { productsApi } from '../api/products.api';
 import { salesApi } from '../api/sales.api';
 import { ProductForSale, SaleItem } from '../types';
@@ -145,196 +121,169 @@ export const SellPage: React.FC = () => {
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  useEffect(() => {
+    if (!snackbar.open) return;
+    const t = setTimeout(() => setSnackbar((s) => ({ ...s, open: false })), 6000);
+    return () => clearTimeout(t);
+  }, [snackbar.open]);
+
   if (loading) return <LoadingSpinner />;
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Punto de Venta
-      </Typography>
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Punto de Venta</h1>
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Detalles de Venta
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Autocomplete
-                options={dependienteOptions}
-                value={saleDetails.dependiente}
-                onChange={(_, newValue) =>
-                  setSaleDetails({ ...saleDetails, dependiente: newValue || '' })
-                }
-                renderInput={(params) => <TextField {...params} label="Dependiente" fullWidth />}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Autocomplete
-                options={posicionOptions}
-                value={saleDetails.posicion}
-                onChange={(_, newValue) =>
-                  setSaleDetails({ ...saleDetails, posicion: newValue || '' })
-                }
-                renderInput={(params) => <TextField {...params} label="Posición" fullWidth />}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Comanda"
-                value={saleDetails.comanda}
-                onChange={(e) => setSaleDetails({ ...saleDetails, comanda: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Observaciones"
-                multiline
-                rows={2}
-                value={saleDetails.observaciones}
-                onChange={(e) => setSaleDetails({ ...saleDetails, observaciones: e.target.value })}
-              />
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+      {/* Sale Details */}
+      <div className="card p-4 mb-4">
+        <h2 className="text-base font-semibold mb-3">Detalles de Venta</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Dependiente</label>
+            <select
+              className="input-field"
+              value={saleDetails.dependiente}
+              onChange={(e) => setSaleDetails({ ...saleDetails, dependiente: e.target.value })}
+            >
+              <option value="">Seleccionar dependiente...</option>
+              {dependienteOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Posición</label>
+            <select
+              className="input-field"
+              value={saleDetails.posicion}
+              onChange={(e) => setSaleDetails({ ...saleDetails, posicion: e.target.value })}
+            >
+              <option value="">Seleccionar posición...</option>
+              {posicionOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Comanda</label>
+            <input
+              className="input-field"
+              value={saleDetails.comanda}
+              onChange={(e) => setSaleDetails({ ...saleDetails, comanda: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+            <textarea
+              className="input-field resize-none"
+              rows={2}
+              value={saleDetails.observaciones}
+              onChange={(e) => setSaleDetails({ ...saleDetails, observaciones: e.target.value })}
+            />
+          </div>
+        </div>
+      </div>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={7}>
-          <Card>
-            <CardContent>
-              <TextField
-                fullWidth
-                label="Buscar Productos"
-                variant="outlined"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                margin="normal"
-              />
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+        {/* Product Grid */}
+        <div className="md:col-span-4">
+          <div className="card p-4">
+            <input
+              className="input-field mb-4"
+              placeholder="Buscar productos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {filteredProducts.map((product) => (
+                <button
+                  key={product.id}
+                  className="card p-3 text-left hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => addToCart(product)}
+                >
+                  <p className="font-semibold text-sm truncate">{product.name}</p>
+                  <p className="text-blue-600 text-sm font-medium">${product.price.toFixed(2)}</p>
+                  <p className="text-xs text-gray-400">Stock: {product.stock || 0}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
-              <Grid container spacing={2} sx={{ mt: 1 }}>
-                {filteredProducts.map((product) => (
-                  <Grid item xs={12} sm={6} md={4} key={product.id}>
-                    <Card
-                      sx={{
-                        cursor: 'pointer',
-                        '&:hover': { boxShadow: 6 },
-                      }}
-                      onClick={() => addToCart(product)}
-                    >
-                      <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                          {product.name}
-                        </Typography>
-                        <Typography variant="body1" color="primary">
-                          ${product.price.toFixed(2)}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          Stock: {product.stock || 0}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
+        {/* Cart */}
+        <div className="md:col-span-3">
+          <div className="card p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <ShoppingCart size={18} className="text-gray-600" />
+              <h2 className="font-semibold">Carrito</h2>
+            </div>
 
-        <Grid item xs={12} md={5}>
-          <Card>
-            <CardContent>
-              <Box display="flex" alignItems="center" mb={2}>
-                <CartIcon sx={{ mr: 1 }} />
-                <Typography variant="h6">Carrito</Typography>
-              </Box>
-
-              {cart.length === 0 ? (
-                <Typography color="textSecondary">El carrito está vacío</Typography>
-              ) : (
-                <>
-                  <TableContainer>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Producto</TableCell>
-                          <TableCell align="center">Cant.</TableCell>
-                          <TableCell align="right">Precio</TableCell>
-                          <TableCell align="right">Total</TableCell>
-                          <TableCell></TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {cart.map((item) => (
-                          <TableRow key={item.productId}>
-                            <TableCell>{item.productName}</TableCell>
-                            <TableCell align="center">
-                              <Box display="flex" alignItems="center" justifyContent="center">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => updateQuantity(item.productId, -1)}
-                                >
-                                  <RemoveIcon fontSize="small" />
-                                </IconButton>
-                                <Typography sx={{ mx: 1 }}>{item.quantity}</Typography>
-                                <IconButton
-                                  size="small"
-                                  onClick={() => updateQuantity(item.productId, 1)}
-                                >
-                                  <AddIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
-                            </TableCell>
-                            <TableCell align="right">${item.price.toFixed(2)}</TableCell>
-                            <TableCell align="right">${item.subtotal.toFixed(2)}</TableCell>
-                            <TableCell>
-                              <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => removeFromCart(item.productId)}
+            {cart.length === 0 ? (
+              <p className="text-sm text-gray-400">El carrito está vacío</p>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-1 font-medium text-gray-500">Producto</th>
+                        <th className="text-center py-1 font-medium text-gray-500">Cant.</th>
+                        <th className="text-right py-1 font-medium text-gray-500">Total</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cart.map((item) => (
+                        <tr key={item.productId} className="border-b last:border-0">
+                          <td className="py-1.5 pr-2 truncate max-w-[100px]">{item.productName}</td>
+                          <td className="py-1.5">
+                            <div className="flex items-center justify-center gap-1">
+                              <button
+                                className="p-0.5 rounded hover:bg-gray-100"
+                                onClick={() => updateQuantity(item.productId, -1)}
                               >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                                <Minus size={12} />
+                              </button>
+                              <span className="w-5 text-center">{item.quantity}</span>
+                              <button
+                                className="p-0.5 rounded hover:bg-gray-100"
+                                onClick={() => updateQuantity(item.productId, 1)}
+                              >
+                                <Plus size={12} />
+                              </button>
+                            </div>
+                          </td>
+                          <td className="py-1.5 text-right">${item.subtotal.toFixed(2)}</td>
+                          <td className="py-1.5 pl-1">
+                            <button
+                              className="p-0.5 text-red-500 hover:bg-red-50 rounded"
+                              onClick={() => removeFromCart(item.productId)}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-4 pt-3 border-t">
+                  <p className="text-right font-bold text-lg mb-3">Total: ${calculateTotal().toFixed(2)}</p>
+                  <button
+                    className="btn-primary w-full py-3 text-base"
+                    onClick={handleCheckout}
+                    disabled={submitting}
+                  >
+                    {submitting ? 'Procesando...' : 'Registrar Venta'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
 
-                  <Box sx={{ mt: 3, pt: 2, borderTop: 1, borderColor: 'divider' }}>
-                    <Typography variant="h5" align="right" gutterBottom>
-                      Importe Total: ${calculateTotal().toFixed(2)}
-                    </Typography>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      onClick={handleCheckout}
-                      disabled={submitting}
-                    >
-                      {submitting ? 'Procesando...' : 'Registrar Venta'}
-                    </Button>
-                  </Box>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+      {snackbar.open && (
+        <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-lg shadow-lg text-white text-sm flex items-center gap-2 ${snackbar.severity === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
           {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+          <button onClick={() => setSnackbar((s) => ({ ...s, open: false }))} className="ml-1 hover:opacity-75">✕</button>
+        </div>
+      )}
+    </div>
   );
 };

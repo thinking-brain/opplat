@@ -1,62 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  MenuItem,
-  Paper,
-  Snackbar,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tabs,
-  Tab,
-  TextField,
-  Typography,
-} from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Plus } from 'lucide-react';
 import { inventoryApi } from '../api/inventory.api';
 import type { CreateMovementData } from '../api/inventory.api';
 import type { InventoryProduct, ProductMovement, Warehouse } from '../types';
 
-interface TabPanelProps {
-  children: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-const TabPanel: React.FC<TabPanelProps> = ({ children, value, index }) => (
-  <div role="tabpanel" hidden={value !== index} aria-labelledby={`inventory-tab-${index}`}>
-    {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
-  </div>
-);
-
-const movementChipColor = (
-  type: string,
-): 'success' | 'error' | 'warning' | 'default' => {
+const movementBadgeClass = (type: string): string => {
   switch (type.toLowerCase()) {
     case 'in':
     case 'entrada':
-      return 'success';
+      return 'bg-green-100 text-green-800';
     case 'out':
     case 'salida':
-      return 'error';
+      return 'bg-red-100 text-red-800';
     case 'adjustment':
     case 'ajuste':
-      return 'warning';
+      return 'bg-yellow-100 text-yellow-800';
     default:
-      return 'default';
+      return 'bg-gray-100 text-gray-700';
   }
 };
+
+const MOVEMENT_TYPES = [
+  { value: 'in', label: 'Entrada' },
+  { value: 'out', label: 'Salida' },
+  { value: 'adjustment', label: 'Ajuste' },
+];
 
 export const InventoryPage: React.FC = () => {
   const [tab, setTab] = useState(0);
@@ -79,11 +47,12 @@ export const InventoryPage: React.FC = () => {
     severity: 'success' as 'success' | 'error',
   });
 
-  const MOVEMENT_TYPES = [
-    { value: 'in', label: 'Entrada' },
-    { value: 'out', label: 'Salida' },
-    { value: 'adjustment', label: 'Ajuste' },
-  ];
+  useEffect(() => {
+    if (snackbar.open) {
+      const t = setTimeout(() => setSnackbar((s) => ({ ...s, open: false })), 6000);
+      return () => clearTimeout(t);
+    }
+  }, [snackbar.open]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -133,210 +102,206 @@ export const InventoryPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" pt={8}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center pt-16">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
     );
   }
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Inventory
-      </Typography>
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Inventory</h1>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm mb-4">
           {error}
-        </Alert>
+        </div>
       )}
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs
-          value={tab}
-          onChange={(_event: React.SyntheticEvent, newValue: number) => setTab(newValue)}
-          aria-label="inventory tabs"
-        >
-          <Tab label="Productos" id="inventory-tab-0" aria-controls="tabpanel-0" />
-          <Tab label="Movimientos" id="inventory-tab-1" aria-controls="tabpanel-1" />
-        </Tabs>
-      </Box>
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200 mb-4">
+        {['Productos', 'Movimientos'].map((label, i) => (
+          <button
+            key={label}
+            className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 transition-colors ${tab === i ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+            onClick={() => setTab(i)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       {/* Products Tab */}
-      <TabPanel value={tab} index={0}>
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Group</TableCell>
-                <TableCell>Unit</TableCell>
-                <TableCell align="right">Total Stock</TableCell>
-                <TableCell>Status</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+      {tab === 0 && (
+        <div className="overflow-auto rounded-md border border-gray-200">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-2 text-left font-medium text-gray-600">Name</th>
+                <th className="px-4 py-2 text-left font-medium text-gray-600">Group</th>
+                <th className="px-4 py-2 text-left font-medium text-gray-600">Unit</th>
+                <th className="px-4 py-2 text-right font-medium text-gray-600">Total Stock</th>
+                <th className="px-4 py-2 text-left font-medium text-gray-600">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
               {products.map((p) => (
-                <TableRow key={p.id} hover>
-                  <TableCell>{p.nombre}</TableCell>
-                  <TableCell>{p.grupo.descripcion}</TableCell>
-                  <TableCell>{p.unidadDeMedida.siglas}</TableCell>
-                  <TableCell align="right">{p.existenciaTotal ?? 0}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={p.active ? 'Active' : 'Inactive'}
-                      color={p.active ? 'success' : 'default'}
-                      size="small"
-                    />
-                  </TableCell>
-                </TableRow>
+                <tr key={p.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2">{p.nombre}</td>
+                  <td className="px-4 py-2">{p.grupo.descripcion}</td>
+                  <td className="px-4 py-2">{p.unidadDeMedida.siglas}</td>
+                  <td className="px-4 py-2 text-right">{p.existenciaTotal ?? 0}</td>
+                  <td className="px-4 py-2">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${p.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                      {p.active ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                </tr>
               ))}
               {products.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                    No products found.
-                  </TableCell>
-                </TableRow>
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center text-gray-400">No products found.</td>
+                </tr>
               )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </TabPanel>
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Movements Tab */}
-      <TabPanel value={tab} index={1}>
-        <Box display="flex" justifyContent="flex-end" mb={2}>
-          <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleOpenMovementDialog}>
-            Nuevo Movimiento
-          </Button>
-        </Box>
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Fecha</TableCell>
-                <TableCell>Producto ID</TableCell>
-                <TableCell>Almacén ID</TableCell>
-                <TableCell align="right">Cantidad</TableCell>
-                <TableCell>Tipo</TableCell>
-                <TableCell>Observaciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {movements.map((m) => (
-                <TableRow key={m.id} hover>
-                  <TableCell>{new Date(m.date).toLocaleDateString()}</TableCell>
-                  <TableCell>{m.productId}</TableCell>
-                  <TableCell>{m.storageId}</TableCell>
-                  <TableCell align="right">{m.quantity}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={m.type}
-                      color={movementChipColor(m.type)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{m.observations || '—'}</TableCell>
-                </TableRow>
-              ))}
-              {movements.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                    No movements found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </TabPanel>
+      {tab === 1 && (
+        <div>
+          <div className="flex justify-end mb-3">
+            <button className="btn-primary flex items-center gap-1.5" onClick={handleOpenMovementDialog}>
+              <Plus size={18} />
+              Nuevo Movimiento
+            </button>
+          </div>
+          <div className="overflow-auto rounded-md border border-gray-200">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left font-medium text-gray-600">Fecha</th>
+                  <th className="px-4 py-2 text-left font-medium text-gray-600">Producto ID</th>
+                  <th className="px-4 py-2 text-left font-medium text-gray-600">Almacén ID</th>
+                  <th className="px-4 py-2 text-right font-medium text-gray-600">Cantidad</th>
+                  <th className="px-4 py-2 text-left font-medium text-gray-600">Tipo</th>
+                  <th className="px-4 py-2 text-left font-medium text-gray-600">Observaciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {movements.map((m) => (
+                  <tr key={m.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2">{new Date(m.date).toLocaleDateString()}</td>
+                    <td className="px-4 py-2">{m.productId}</td>
+                    <td className="px-4 py-2">{m.storageId}</td>
+                    <td className="px-4 py-2 text-right">{m.quantity}</td>
+                    <td className="px-4 py-2">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${movementBadgeClass(m.type)}`}>
+                        {m.type}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2">{m.observations || '—'}</td>
+                  </tr>
+                ))}
+                {movements.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-gray-400">No movements found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* New Movement Dialog */}
-      <Dialog open={movementDialogOpen} onClose={() => setMovementDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Nuevo Movimiento</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            select
-            label="Almacén"
-            value={movementForm.storageId || ''}
-            onChange={(e) => setMovementForm({ ...movementForm, storageId: Number(e.target.value) })}
-            margin="normal"
-            required
-          >
-            {warehouses.map((w) => (
-              <MenuItem key={w.id} value={w.id}>
-                {w.description}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            fullWidth
-            select
-            label="Producto"
-            value={movementForm.productId || ''}
-            onChange={(e) => setMovementForm({ ...movementForm, productId: Number(e.target.value) })}
-            margin="normal"
-            required
-          >
-            {products.map((p) => (
-              <MenuItem key={p.id} value={p.id}>
-                {p.nombre}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            fullWidth
-            select
-            label="Tipo"
-            value={movementForm.type}
-            onChange={(e) => setMovementForm({ ...movementForm, type: e.target.value })}
-            margin="normal"
-            required
-          >
-            {MOVEMENT_TYPES.map((t) => (
-              <MenuItem key={t.value} value={t.value}>
-                {t.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            fullWidth
-            label="Cantidad"
-            type="number"
-            value={movementForm.quantity}
-            onChange={(e) => setMovementForm({ ...movementForm, quantity: Math.max(1, parseInt(e.target.value) || 1) })}
-            margin="normal"
-            required
-            inputProps={{ min: 1 }}
-          />
-          <TextField
-            fullWidth
-            label="Observaciones"
-            value={movementForm.observations}
-            onChange={(e) => setMovementForm({ ...movementForm, observations: e.target.value })}
-            margin="normal"
-            multiline
-            rows={3}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setMovementDialogOpen(false)}>Cancelar</Button>
-          <Button onClick={() => void handleSaveMovement()} variant="contained" color="primary">
-            Guardar
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {movementDialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
+            <div className="px-5 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold">Nuevo Movimiento</h2>
+            </div>
+            <div className="px-5 py-4 flex flex-col gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Almacén *</label>
+                <select
+                  className="input-field"
+                  value={movementForm.storageId || ''}
+                  onChange={(e) => setMovementForm({ ...movementForm, storageId: Number(e.target.value) })}
+                  required
+                >
+                  <option value="">— seleccionar —</option>
+                  {warehouses.map((w) => (
+                    <option key={w.id} value={w.id}>{w.description}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Producto *</label>
+                <select
+                  className="input-field"
+                  value={movementForm.productId || ''}
+                  onChange={(e) => setMovementForm({ ...movementForm, productId: Number(e.target.value) })}
+                  required
+                >
+                  <option value="">— seleccionar —</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>{p.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
+                <select
+                  className="input-field"
+                  value={movementForm.type}
+                  onChange={(e) => setMovementForm({ ...movementForm, type: e.target.value })}
+                  required
+                >
+                  <option value="">— seleccionar —</option>
+                  {MOVEMENT_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cantidad *</label>
+                <input
+                  className="input-field"
+                  type="number"
+                  min={1}
+                  value={movementForm.quantity}
+                  onChange={(e) => setMovementForm({ ...movementForm, quantity: Math.max(1, parseInt(e.target.value) || 1) })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                <textarea
+                  className="input-field"
+                  rows={3}
+                  value={movementForm.observations}
+                  onChange={(e) => setMovementForm({ ...movementForm, observations: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="px-5 py-3 border-t border-gray-200 flex justify-end gap-2">
+              <button className="btn-secondary" onClick={() => setMovementDialogOpen(false)}>Cancelar</button>
+              <button className="btn-primary" onClick={() => void handleSaveMovement()}>Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+      {/* Snackbar */}
+      {snackbar.open && (
+        <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-md shadow-lg text-sm font-medium ${snackbar.severity === 'success' ? 'bg-green-700 text-white' : 'bg-red-700 text-white'}`}>
           {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+        </div>
+      )}
+    </div>
   );
 };
+
+
