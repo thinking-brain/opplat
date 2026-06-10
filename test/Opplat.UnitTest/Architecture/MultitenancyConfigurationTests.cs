@@ -26,7 +26,7 @@ public class MultitenancyConfigurationTests
     [Fact]
     public void Program_ConfiguresDbContextToPreferTenantConnectionString()
     {
-        var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Program.cs");
+        var source = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Program.cs");
 
         Assert.Contains("tenantAccessor?.MultiTenantContext?.TenantInfo", source);
         Assert.Contains("PostgresTenantConnectionStringResolver.Resolve(", source);
@@ -37,7 +37,7 @@ public class MultitenancyConfigurationTests
     [Fact]
     public void Program_ConfiguresTenantResolutionFromRouteAndHeader()
     {
-        var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Program.cs");
+        var source = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Program.cs");
 
         Assert.Contains("builder.Services.AddMultiTenant<AppTenantInfo>()", source);
         Assert.Contains(".WithRouteStrategy(\"__tenant__\")", source);
@@ -49,8 +49,8 @@ public class MultitenancyConfigurationTests
     [Fact]
     public void TenantResolutionConsumers_UseTheRegisteredStoreAbstraction()
     {
-        var accountEndpoints = TestRepository.ReadAllText("src", "Opplat.MainApp", "Endpoints", "AccountEndpoints.cs");
-        var middleware = TestRepository.ReadAllText("src", "Opplat.MainApp", "Middleware", "TenantValidationMiddleware.cs");
+        var accountEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Endpoints", "AccountEndpoints.cs");
+        var middleware = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Middleware", "TenantValidationMiddleware.cs");
 
         Assert.Contains("[FromServices] IMultiTenantStore<AppTenantInfo> tenantStore", accountEndpoints);
         Assert.Contains("GetService<IMultiTenantStore<AppTenantInfo>>()", middleware);
@@ -61,7 +61,7 @@ public class MultitenancyConfigurationTests
     [Fact]
     public void OpplatDbContext_ConfiguresAndEnforcesFinbuckleIsolation()
     {
-        var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Data", "OpplatDbContext.cs");
+        var source = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Data", "OpplatDbContext.cs");
 
         Assert.Contains("builder.ConfigureMultiTenant();", source);
         Assert.Contains("this.EnforceMultiTenant();", source);
@@ -72,8 +72,8 @@ public class MultitenancyConfigurationTests
     [Fact]
     public void TenantScopedAdminHandlers_DeriveIsolationMetadataFromTheResolvedTenantContext()
     {
-        var getTenantUsers = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Admin", "Queries", "GetTenantUsersQuery.cs");
-        var createTenantUser = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Admin", "Commands", "CreateTenantUserCommand.cs");
+        var getTenantUsers = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Features", "Admin", "Queries", "GetTenantUsersQuery.cs");
+        var createTenantUser = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Features", "Admin", "Commands", "CreateTenantUserCommand.cs");
 
         Assert.Contains("public record GetTenantUsersQuery() : IRequest<List<AdminUserDto>>;", getTenantUsers);
         Assert.Contains("var tenant = _tenantAccessor.MultiTenantContext?.TenantInfo;", getTenantUsers);

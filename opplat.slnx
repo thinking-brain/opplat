@@ -1,12 +1,12 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/Opplat.AdminApi/Opplat.AdminApi.csproj" />
+    <Project Path="src/Opplat.Api.Admin/Opplat.Api.Admin.csproj" />
+    <Project Path="src/Opplat.Api.Main/Opplat.Api.Main.csproj" />
     <Project Path="src/Opplat.AppHost/Opplat.AppHost.csproj" />
     <Project Path="src/Opplat.Application.Abstractions/Opplat.Application.Abstractions.csproj" />
     <Project Path="src/Opplat.Application/Opplat.Application.csproj" />
     <Project Path="src/Opplat.Domain/Opplat.Domain.csproj" />
     <Project Path="src/Opplat.Infrastructure/Opplat.Infrastructure.csproj" />
-    <Project Path="src/Opplat.MainApp/Opplat.MainApp.csproj" />
   </Folder>  
   <Folder Name="/test/">
     <Project Path="test/Opplat.UnitTest/Opplat.UnitTest.csproj" />

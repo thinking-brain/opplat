@@ -81,7 +81,7 @@
 - Replace `RegisterServicesFromAssembly` on full `Opplat.Application` assembly with reflection-based namespace filter.
 - Selectively register only handlers from `Opplat.Application.Features.Admin.*` and `Opplat.Application.Features.Account.*`.
 - Prevents loading Sales/Inventory/License/Menus handlers whose constructor dependencies are never registered in AdminApi.
-- Files changed: `src\Opplat.AdminApi\Extensions\WebBuilderExtension.cs`.
+- Files changed: `src\Opplat.Api.Admin\Extensions\WebBuilderExtension.cs`.
 
 #### 2. Public /public/register self-registration endpoint
 - Added `RegisterTenantCommand` + `RegisterTenantCommandHandler` following the `CreateTenantCommand` orchestration pattern.
@@ -92,7 +92,7 @@
 - Files changed:
   - `src\Opplat.Application\Dtos\AdminDtos.cs`
   - `src\Opplat.Application\Features\Admin\Commands\RegisterTenantCommand.cs` (new)
-  - `src\Opplat.AdminApi\Endpoints\AdminEndpoints.cs`
+  - `src\Opplat.Api.Admin\Endpoints\AdminEndpoints.cs`
 
 #### 3. IKeycloakUserService DI registration
 - No change needed. Already registered in `WebBuilderExtension.AddAdminApi`.

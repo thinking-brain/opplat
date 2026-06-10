@@ -5,10 +5,10 @@ public class PostgresMigrationContractTests
     [Fact]
     public void MainRuntimeSources_UsePostgresProviders_ForTenantAndDesignTimeFlows()
     {
-        var mainProgram = TestRepository.ReadAllText("src", "Opplat.MainApp", "Program.cs");
-        var designTimeFactory = TestRepository.ReadAllText("src", "Opplat.MainApp", "Data", "DesignTimeDbContextFactory.cs");
-        var tenantProvisioning = TestRepository.ReadAllText("src", "Opplat.MainApp", "Services", "TenantProvisioningService.cs");
-        var adminUserQuery = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Admin", "Queries", "GetAdminUsersQuery.cs");
+        var mainProgram = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Program.cs");
+        var designTimeFactory = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Data", "DesignTimeDbContextFactory.cs");
+        var tenantProvisioning = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Services", "TenantProvisioningService.cs");
+        var adminUserQuery = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Features", "Admin", "Queries", "GetAdminUsersQuery.cs");
 
         Assert.Contains("options.UseNpgsql(connectionString);", mainProgram);
         Assert.Contains("optionsBuilder.UseNpgsql(", designTimeFactory);
@@ -50,7 +50,7 @@ public class PostgresMigrationContractTests
     {
         var readme = TestRepository.ReadAllText("README.md");
         var envDocker = TestRepository.ReadAllText(".env.docker");
-        var mainSettings = TestRepository.ReadAllText("src", "Opplat.MainApp", "appsettings.json");
+        var mainSettings = TestRepository.ReadAllText("src", "Opplat.Api.Main", "appsettings.json");
         var salesSettings = TestRepository.ReadAllText("src", "Services", "Sales", "Opplat.Services.Sales.Api", "appsettings.json");
         var inventorySettings = TestRepository.ReadAllText("src", "Services", "Inventory", "Opplat.Services.Inventory.Api", "appsettings.json");
 

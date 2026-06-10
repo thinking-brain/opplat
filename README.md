@@ -116,7 +116,7 @@ If your priority is the lowest possible client-facing infrastructure cost, use t
 - one shared PostgreSQL instance
 - no Kubernetes
 - no paid API gateway
-- `Opplat.MainApp` only for shared bearer-auth, license, and menu endpoints
+- `Opplat.Api.Main` only for shared bearer-auth, license, and menu endpoints
 - dedicated `admin-api` for admin auth/session/BFF endpoints
 - `Sales` and `Inventory` traffic sent directly to their own services
 
@@ -137,15 +137,15 @@ docker compose -f docker compose.yml up -d
 
 The repository now includes four independently runnable ASP.NET Core backends:
 
-- `src/Opplat.MainApp` - existing monolith / composition root
-- `src/Opplat.AdminApi` - dedicated admin auth/session API host
+- `src/Opplat.Api.Main` - existing monolith / composition root
+- `src/Opplat.Api.Admin` - dedicated admin auth/session API host
 - `src/Services/Sales/Opplat.Services.Sales.Api` - Sales microservice host
 - `src/Services/Inventory/Opplat.Services.Inventory.Api` - Inventory microservice host
 
 Run any service locally with:
 
 ```bash
-cd src/Opplat.MainApp
+cd src/Opplat.Api.Main
 dotnet restore
 dotnet run
 # API runs at https://localhost:5001 / http://localhost:5000
@@ -154,7 +154,7 @@ dotnet run
 For the new service hosts:
 
 ```bash
-cd src/Opplat.AdminApi
+cd src/Opplat.Api.Admin
 dotnet run
 
 cd src/Services/Sales/Opplat.Services.Sales.Api
@@ -234,7 +234,7 @@ Use `VITE_AUTH_SCOPE` for Entra API permissions. Keep `VITE_AUTH_AUDIENCE` / `VI
 ```
 opplat/
 ├── src/
-│   ├── Opplat.MainApp/          # ASP.NET Core API (net10.0)
+│   ├── Opplat.Api.Main/          # ASP.NET Core API (net10.0)
 │   │   ├── Areas/               # Feature areas (CashRegister, Inventory, Sales)
 │   │   ├── Controllers/         # Auth, License, API controllers
 │   │   ├── Hubs/                # SignalR real-time hubs
@@ -304,12 +304,12 @@ Opplat uses **Finbuckle.MultiTenant** for complete tenant isolation with per-ten
 
 - **Tenant resolution**: Via route prefix (e.g., `/{tenant}/api/...`)
 - **Database isolation**: Each tenant has its own database with independent connection string
-- **Configuration**: Tenants seed from `appsettings.json` and persist in `src/Opplat.MainApp/Data/tenant-catalog.json`
+- **Configuration**: Tenants seed from `appsettings.json` and persist in `src/Opplat.Api.Main/Data/tenant-catalog.json`
 - **Default tenants**: `mojocafe`, `demo`, `test`
 
 ## Authentication
 
-`Opplat.MainApp` now validates bearer tokens through OIDC discovery, while the dedicated admin API owns the admin cookie/BFF contract:
+`Opplat.Api.Main` now validates bearer tokens through OIDC discovery, while the dedicated admin API owns the admin cookie/BFF contract:
 
 - **Production / shared environments**: point `Auth__Authority` at Auth0
 - **Local Docker development**: point `Auth__Authority` at Keycloak (included in docker compose.yml)
@@ -323,7 +323,7 @@ The dedicated `admin-api` exposes the **admin-first BFF session layer** for `opp
 - `POST /auth/bff/admin/logout` clears the backend admin session cookie
 - `GET /admin/session/current-user` returns the current authenticated SuperAdmin session payload
 - `GET /admin/session/csrf` issues the antiforgery token required for mutating cookie-authenticated admin requests
-- Admin cookie/session ownership no longer lives in `Opplat.MainApp`
+- Admin cookie/session ownership no longer lives in `Opplat.Api.Main`
 
 ### Admin BFF configuration contract
 
@@ -514,7 +514,7 @@ When running with Docker Compose, the following databases are automatically conf
 
 ### Generate migrations
 
-`dotnet ef migrations add Initial --project src/Opplat.Infrastructure --startup-project src/Opplat.AdminApi --context AdminTenantCatalogDbContext --output-dir Persistance/Migrations/Administration`
+`dotnet ef migrations add Initial --project src/Opplat.Infrastructure --startup-project src/Opplat.Api.Admin --context AdminTenantCatalogDbContext --output-dir Persistance/Migrations/Administration`
 
 ### Apply Migrations with Docker
 
@@ -529,7 +529,7 @@ docker compose exec api dotnet ef migrations add MigrationName
 ### Apply Migrations Locally
 
 ```bash
-cd src/Opplat.MainApp
+cd src/Opplat.Api.Main
 dotnet ef database update
 dotnet ef migrations add MigrationName
 ```
@@ -550,7 +550,7 @@ Opplat uses SignalR for real-time features. WebSocket endpoint:
 http://localhost:8080/hubs/{hubname}
 ```
 
-Available hubs are defined in `src/Opplat.MainApp/Hubs/`.
+Available hubs are defined in `src/Opplat.Api.Main/Hubs/`.
 
 ## Development Notes
 

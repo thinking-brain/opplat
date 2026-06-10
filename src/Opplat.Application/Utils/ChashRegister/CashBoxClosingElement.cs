@@ -4,7 +4,7 @@
 // using System.Linq;
 // using System.Threading.Tasks;
 
-// namespace Opplat.MainApp.Areas.Caja.Utils
+// namespace Opplat.Api.Main.Areas.Caja.Utils
 // {
 //     public class CierreCajaElement : ICierreContableElement
 //     {

@@ -178,7 +178,7 @@ public class AdminApiModule2CatalogRegressionTests
     [Fact]
     public void Module2CentralCatalogSource_MapsCoreTablesAndPostgresShapedColumns()
     {
-        var dbContextSource = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Data", "AdminTenantCatalogDbContext.cs");
+        var dbContextSource = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Data", "AdminTenantCatalogDbContext.cs");
 
         Assert.Contains("public DbSet<SubscriptionPlan> SubscriptionPlans", dbContextSource);
         Assert.Contains("public DbSet<Tenant> Tenants", dbContextSource);
@@ -205,7 +205,7 @@ public class AdminApiModule2CatalogRegressionTests
     [Fact]
     public void AdminFrontend_TenantCatalogContract_UsesModule2MetadataSurface()
     {
-        var backendContracts = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Endpoints", "AdminContracts.cs");
+        var backendContracts = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Endpoints", "AdminContracts.cs");
         var frontendTypes = TestRepository.ReadAllText("src", "opplat-admin", "src", "types", "index.ts");
         var frontendApi = TestRepository.ReadAllText("src", "opplat-admin", "src", "api", "admin.api.ts");
         var tenantsPage = TestRepository.ReadAllText("src", "opplat-admin", "src", "pages", "TenantsPage.tsx");

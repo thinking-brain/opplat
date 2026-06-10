@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Opplat.MainApp\Opplat.MainApp.csproj" />
-    <ProjectReference Include="..\Opplat.AdminApi\Opplat.AdminApi.csproj" />
+    <ProjectReference Include="..\Opplat.Api.Main\Opplat.Api.Main.csproj" />
+    <ProjectReference Include="..\Opplat.Api.Admin\Opplat.Api.Admin.csproj" />
   </ItemGroup>
 
 </Project>

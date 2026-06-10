@@ -4,7 +4,7 @@ using Moq;
 using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Application.Abstractions.Services;
-using Opplat.MainApp;
+using Opplat.Api.Main;
 
 namespace Opplat.UnitTest.Auth;
 

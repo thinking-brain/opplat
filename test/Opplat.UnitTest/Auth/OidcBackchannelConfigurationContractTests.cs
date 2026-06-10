@@ -7,8 +7,8 @@ public class OidcBackchannelConfigurationContractTests
     [Fact]
     public void BackendOidcConfiguration_SupportsSeparateDiscoveryMetadataAddress()
     {
-        var authOptions = TestRepository.ReadAllText("src", "Opplat.MainApp", "Auth", "AuthOptions.cs");
-        var program = TestRepository.ReadAllText("src", "Opplat.MainApp", "Program.cs");
+        var authOptions = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Auth", "AuthOptions.cs");
+        var program = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Program.cs");
 
         Assert.Contains("public string? MetadataAddress { get; set; }", authOptions);
         Assert.Contains("options.MetadataAddress = authOptions.MetadataAddress;", program);

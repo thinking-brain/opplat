@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
-using Opplat.AdminApi.Auth;
+using Opplat.Api.Admin.Auth;
 using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Abstractions.Options;
 
@@ -110,7 +110,7 @@ public class OidcClaimsTransformationTests
     [Fact]
     public void Source_MapsRolesFromProviderSpecificClaims()
     {
-        var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Auth", "OidcClaimsTransformation.cs");
+        var source = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Auth", "OidcClaimsTransformation.cs");
 
         Assert.Contains("AuthClaimTypes.RealmAccess", source);
         Assert.Contains("AuthClaimTypes.Roles", source);
@@ -153,7 +153,7 @@ public class OidcClaimsTransformationTests
     [Fact]
     public void Source_NormalizesTenantClaimsThroughSharedNormalizer()
     {
-        var source = TestRepository.ReadAllText("src", "Opplat.MainApp", "Auth", "OidcClaimsNormalizer.cs");
+        var source = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Auth", "OidcClaimsNormalizer.cs");
 
         Assert.Contains("NormalizeClaim(identity, AuthClaimTypes.TenantId", source);
         Assert.Contains("NormalizeClaim(identity, AuthClaimTypes.TenantIdentifier", source);

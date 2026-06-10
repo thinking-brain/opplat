@@ -12,7 +12,7 @@
 - AdminApi DbContexts: `AdminTenantCatalogDbContext` (Module 2+ models), `LegacyTenants` DbSet for backward compatibility
 - NpgsqlConnection with SSL mode normalization used across provisioning services
 - Build with: `dotnet build .\opplat.slnx -m:1 -v minimal`
-- Focused build: `dotnet build .\src\Opplat.AdminApi\Opplat.AdminApi.csproj -nologo`
+- Focused build: `dotnet build .\src\Opplat.Api.Admin\Opplat.Api.Admin.csproj -nologo`
 
 ## Learnings
 
@@ -41,7 +41,8 @@
 - Generated migrations for all 4 DbContexts: AdminTenantCatalogDbContext, OpplatDbContext, SalesDbContext, InventoryDbContext
 - Applied namespace filters in ApplyConfigurationsFromAssembly to keep DbContext configurations modular and bounded
 - Removed all DataAnnotations attributes from 26 entity files while preserving JsonIgnore for serialization
-
+
+
 ### 2026-04-01 20:02 — TPC Inheritance for BaseEntity
 
 - Made `BaseEntity` abstract
@@ -105,8 +106,8 @@
 - `src\Opplat.AppHost\Program.cs` should use Aspire `GetEndpoint(...)` references when feeding `VITE_API_URL`, `VITE_DEV_PROXY_TARGET`, and Admin BFF origin env vars so frontend URL config follows the real backend/app ports instead of duplicated localhost strings.
 - Under Aspire local dev, both React apps intentionally keep `VITE_ADMIN_API_URL` empty and rely on Vite same-origin proxying for `/admin` and `/public`; the client app still needs `VITE_API_URL` pointed at MainApp for tenant-scoped APIs.
 - `client-app` should `WaitFor(admin-api)` as well as MainApp/Keycloak because registration and subscription-plan calls flow through AdminApi.
-- Release builds validated the AppHost/MainApp/AdminApi wiring; the debug AppHost build failure was only a locked `Opplat.AppHost.exe` from an already running local process, not a code regression.
-- Current `Opplat.UnitTest` failures are baseline noise unrelated to this URL change: several tests assert against moved/deleted files like `src\Opplat.MainApp\Auth\OidcClaimsTransformation.cs`, `src\Opplat.AdminApi\Endpoints\AdminContracts.cs`, and `test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj`.
+- Release builds validated the AppHost/MainApp/AdminApi wiring; the debug AppHost build failure was only a locked `Opplat.AppHost.exe` from an alOpplat.Api.Mainlocal process, not a code regression.Opplat.Api.MainOpplat.Api.Main
+- Current `Opplat.UnitTest` failures are baseline noise unrelated to this URL change: several tests assert against moved/deleted files like `src\Opplat.MainApp\Auth\OidcClaimsTransformation.cs`, `src\Opplat.Api.Admin\Endpoints\AdminContracts.cs`, and `test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj`.
 
 ### 2026-04-15 — Scribe Post-Session Tasks
 - Orchestration logs created for Bishop, Carl, Mother with agent-specific work summaries and findings
@@ -116,7 +117,7 @@
 - Ready for git commit with squad/* staging
 
 ### 2026-04-28 — MainApp tenant-context DI fix
-
+Opplat.Api.MainOpplat.Api.Main
 - `src\Opplat.MainApp\Endpoints\AccountEndpoints.cs` and `src\Opplat.MainApp\Middleware\TenantValidationMiddleware.cs` must resolve the Finbuckle tenant store through `IMultiTenantStore<AppTenantInfo>`, not the concrete `TenantCatalogStore`.
 - `builder.Services.AddMultiTenant<AppTenantInfo>().WithStore<TenantCatalogStore>(...)` registers the store abstraction for Finbuckle resolution; injecting `TenantCatalogStore` directly causes runtime failures like "No service for type 'TenantCatalogStore' has been registered."
 - When consuming the abstraction, use Finbuckle store methods `GetByIdentifierAsync` / `GetAsync` (the interface surface), not the concrete helper methods `TryGetByIdentifierAsync` / `TryGetAsync`.

@@ -21,7 +21,7 @@ public class AdminApiMinimalEndpointContractTests
     {
         using var app = CreateApp();
 
-        Opplat.AdminApi.Endpoints.AdminEndpoints.MapAdminEndpoints(app);
+        Opplat.Api.Admin.Endpoints.AdminEndpoints.MapAdminEndpoints(app);
 
         var endpoints = GetRouteEndpoints(app).ToList();
 
@@ -77,8 +77,8 @@ public class AdminApiMinimalEndpointContractTests
     [Fact]
     public void AdminTenantContracts_PinMetadataAndExcludeAdminUserCrud()
     {
-        var contracts = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Endpoints", "AdminContracts.cs");
-        var endpoints = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Endpoints", "AdminEndpoints.cs");
+        var contracts = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Endpoints", "AdminContracts.cs");
+        var endpoints = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Endpoints", "AdminEndpoints.cs");
 
         Assert.Contains("public string DatabaseName", contracts);
         Assert.Contains("public string DatabaseSchema", contracts);
@@ -93,8 +93,8 @@ public class AdminApiMinimalEndpointContractTests
     [Fact]
     public void AdminApiHost_UsesEndpointModulesInsteadOfMvcControllers()
     {
-        var program = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Program.cs");
-        var endpoints = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Endpoints", "AdminEndpoints.cs");
+        var program = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Program.cs");
+        var endpoints = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Endpoints", "AdminEndpoints.cs");
 
         Assert.Contains("app.MapGeneralEndpoints();", program);
         Assert.Contains("app.MapAdminEndpoints();", program);
@@ -104,7 +104,7 @@ public class AdminApiMinimalEndpointContractTests
         Assert.DoesNotContain("MapPost(\"/admin", program, StringComparison.Ordinal);
         Assert.DoesNotContain("MapPut(\"/admin", program, StringComparison.Ordinal);
         Assert.DoesNotContain("MapDelete(\"/admin", program, StringComparison.Ordinal);
-        Assert.False(Directory.Exists(TestRepository.ResolvePath("src", "Opplat.AdminApi", "Controllers")));
+        Assert.False(Directory.Exists(TestRepository.ResolvePath("src", "Opplat.Api.Admin", "Controllers")));
 
         Assert.Contains("[FromServices] IMediator mediator", endpoints);
         Assert.DoesNotContain("ControllerBase", endpoints, StringComparison.Ordinal);
@@ -308,22 +308,22 @@ public class AdminApiMinimalEndpointContractTests
         });
         builder.Services.AddDbContext<AdminTenantCatalogDbContext>(options =>
             options.UseInMemoryDatabase(databaseName));
-        // builder.Services.Configure<Opplat.AdminApi.Configuration.DatabaseInstanceOptions>(options =>
+        // builder.Services.Configure<Opplat.Api.Admin.Configuration.DatabaseInstanceOptions>(options =>
         // {
         //     options.DefaultConnectionString = "Host=localhost;Port=5432;Database=opplat_tenants_db1;Username=postgres;Password=Admin123*";
         // });
-        // builder.Services.AddSingleton(new Opplat.AdminApi.Configuration.DatabaseInstanceOptions
+        // builder.Services.AddSingleton(new Opplat.Api.Admin.Configuration.DatabaseInstanceOptions
         // {
         //     DefaultConnectionString = "Host=localhost;Port=5432;Database=opplat_tenants_db1;Username=postgres;Password=Admin123*"
         // });
-        // builder.Services.AddScoped<Opplat.AdminApi.Services.TenantSchemaProvisioningService>();
-        // builder.Services.AddScoped<Opplat.AdminApi.Services.DatabaseInstanceAutoScalingService>();
-        // builder.Services.AddScoped<Opplat.AdminApi.Services.TenantSchemaMigrationRunner>();
-        // builder.Services.AddScoped<Opplat.AdminApi.Services.TenantProvisioningCoordinator>();
-        // builder.Services.AddSingleton<IEnumerable<Opplat.AdminApi.Services.ITenantProvisioningReporter>>([]);
-        // builder.Services.AddSingleton<IEnumerable<Opplat.AdminApi.Services.ITenantSchemaMigrationReporter>>([]);
+        // builder.Services.AddScoped<Opplat.Api.Admin.Services.TenantSchemaProvisioningService>();
+        // builder.Services.AddScoped<Opplat.Api.Admin.Services.DatabaseInstanceAutoScalingService>();
+        // builder.Services.AddScoped<Opplat.Api.Admin.Services.TenantSchemaMigrationRunner>();
+        // builder.Services.AddScoped<Opplat.Api.Admin.Services.TenantProvisioningCoordinator>();
+        // builder.Services.AddSingleton<IEnumerable<Opplat.Api.Admin.Services.ITenantProvisioningReporter>>([]);
+        // builder.Services.AddSingleton<IEnumerable<Opplat.Api.Admin.Services.ITenantSchemaMigrationReporter>>([]);
         builder.Services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(typeof(Opplat.AdminApi.Endpoints.AdminEndpoints).Assembly));
+            cfg.RegisterServicesFromAssembly(typeof(Opplat.Api.Admin.Endpoints.AdminEndpoints).Assembly));
 
         return builder.Build();
     }
@@ -332,7 +332,7 @@ public class AdminApiMinimalEndpointContractTests
     {
         var app = CreateApp();
         // await AdminPortalDataSeeder.InitializeAsync(app.Services);
-        Opplat.AdminApi.Endpoints.AdminEndpoints.MapAdminEndpoints(app);
+        Opplat.Api.Admin.Endpoints.AdminEndpoints.MapAdminEndpoints(app);
         await app.StartAsync();
         return app;
     }

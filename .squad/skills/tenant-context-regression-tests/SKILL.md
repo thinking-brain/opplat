@@ -14,7 +14,7 @@ Use this when a MainApp endpoint depends on tenant resolution through Finbuckle 
 
 ### Map the real minimal API endpoints in the test host
 
-For MainApp auth integration tests, explicitly map `Opplat.MainApp.Endpoints.AccountEndpoints.MapAccountEndpoints(app)` and any companion endpoint groups the assertions need. If you skip mapping, endpoint tests can fail as 404s and hide the real regression surface.
+For MainApp auth integration tests, explicitly map `Opplat.Api.Main.Endpoints.AccountEndpoints.MapAccountEndpoints(app)` and any companion endpoint groups the assertions need. If you skip mapping, endpoint tests can fail as 404s and hide the real regression surface.
 
 ### Stub the abstraction, not the concrete store
 

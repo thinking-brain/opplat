@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Opplat.Infrastructure.Services;
 
-namespace Opplat.MainApp.Features.License.Commands;
+namespace Opplat.Api.Main.Features.License.Commands;
 
 public record DeleteLicenseCommand : IRequest<bool>;
 

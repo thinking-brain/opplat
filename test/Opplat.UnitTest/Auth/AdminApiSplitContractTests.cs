@@ -6,20 +6,20 @@ public class AdminApiSplitContractTests
     public void AdminApiProject_UsesNewRootProjectInsteadOfLegacyServiceHost()
     {
         var solution = TestRepository.ReadAllText("opplat.slnx");
-        var testProject = TestRepository.ReadAllText("test", "Opplat.MainApp.Test", "Opplat.MainApp.Test.csproj");
+        var testProject = TestRepository.ReadAllText("test", "Opplat.Api.Main.Test", "Opplat.Api.Main.Test.csproj");
         var readme = TestRepository.ReadAllText("README.md");
         var compose = TestRepository.ReadAllText("docker-compose.yml");
 
-        Assert.Contains("src/Opplat.AdminApi/Opplat.AdminApi.csproj", solution);
+        Assert.Contains("src/Opplat.Api.Admin/Opplat.Api.Admin.csproj", solution);
         Assert.DoesNotContain("Opplat.Services.Admin.Api", solution);
 
-        Assert.Contains("..\\..\\src\\Opplat.AdminApi\\Opplat.AdminApi.csproj", testProject);
+        Assert.Contains("..\\..\\src\\Opplat.Api.Admin\\Opplat.Api.Admin.csproj", testProject);
         Assert.DoesNotContain("Opplat.Services.Admin.Api.csproj", testProject);
 
-        Assert.Contains("src/Opplat.AdminApi", readme);
+        Assert.Contains("src/Opplat.Api.Admin", readme);
         Assert.DoesNotContain("src/Services/Admin/Opplat.Services.Admin.Api", readme);
 
-        Assert.Contains("dockerfile: src/Opplat.AdminApi/Dockerfile", compose);
+        Assert.Contains("dockerfile: src/Opplat.Api.Admin/Dockerfile", compose);
         Assert.DoesNotContain("dockerfile: src/Services/Admin/Opplat.Services.Admin.Api/Dockerfile", compose);
 
         Assert.False(Directory.Exists(TestRepository.ResolvePath("src", "Services", "Admin", "Opplat.Services.Admin.Api")));
@@ -28,9 +28,9 @@ public class AdminApiSplitContractTests
     [Fact]
     public void AdminApiProject_MapsDedicatedEndpointModulesWithoutTemplateEndpoints()
     {
-        var generalEndpoints = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Endpoints", "GeneralEndpoints.cs");
-        var adminEndpoints = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Endpoints", "AdminEndpoints.cs");
-        var program = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Program.cs");
+        var generalEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Endpoints", "GeneralEndpoints.cs");
+        var adminEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Endpoints", "AdminEndpoints.cs");
+        var program = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Program.cs");
 
         Assert.Contains("public static class GeneralEndpoints", generalEndpoints);
         Assert.Contains("MapGeneralEndpoints", generalEndpoints);
@@ -41,7 +41,7 @@ public class AdminApiSplitContractTests
         Assert.Contains("MapAdminEndpoints", adminEndpoints);
         Assert.Contains("/admin", adminEndpoints);
 
-        Assert.Contains("using Opplat.AdminApi.Endpoints;", program);
+        Assert.Contains("using Opplat.Api.Admin.Endpoints;", program);
         Assert.Contains("app.MapGeneralEndpoints();", program);
         Assert.Contains("app.MapAdminEndpoints();", program);
         Assert.DoesNotContain("weatherforecast", program);
@@ -50,13 +50,13 @@ public class AdminApiSplitContractTests
     [Fact]
     public void AdminApiComposeHealthProbe_MatchesNewProjectHealthEndpoint()
     {
-        var generalEndpoints = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Endpoints", "GeneralEndpoints.cs");
+        var generalEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Endpoints", "GeneralEndpoints.cs");
         var compose = TestRepository.ReadAllText("docker-compose.yml");
-        var dockerfile = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Dockerfile");
+        var dockerfile = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Dockerfile");
 
         Assert.Contains("/health", generalEndpoints);
         Assert.Contains("/healthcheck", generalEndpoints);
-        Assert.Contains("ENTRYPOINT [\"dotnet\", \"Opplat.AdminApi.dll\"]", dockerfile);
+        Assert.Contains("ENTRYPOINT [\"dotnet\", \"Opplat.Api.Admin.dll\"]", dockerfile);
         Assert.Contains("GET /health HTTP/1.1", compose);
     }
 

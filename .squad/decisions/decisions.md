@@ -129,7 +129,7 @@ The `WebBuilderExtension.cs` file in AdminApi had grown to 335 lines, handling d
 
 #### 1. Split by Concern into Focused Extension Files
 
-Created four new extension files in `src/Opplat.AdminApi/Extensions/`:
+Created four new extension files in `src/Opplat.Api.Admin/Extensions/`:
 
 - **AdminDatabaseExtensions.cs**: Registers `AdminTenantCatalogDbContext` with connection string normalization, plus all Module 3 provisioning services (`TenantSchemaProvisioningService`, `DatabaseInstanceAutoScalingService`, `ITenantSchemaMigrationRunner`, `ITenantProvisioningCoordinator`, reporters)
   
@@ -159,7 +159,7 @@ Updated `Program.cs` to:
 - Apply pending EF migrations on startup with `db.Database.MigrateAsync()`
 - Seed development data only when `app.Environment.IsDevelopment()` is true
 
-Created `DevDataSeeder.cs` in `src/Opplat.AdminApi/Data/`:
+Created `DevDataSeeder.cs` in `src/Opplat.Api.Admin/Data/`:
 - Seeds 3 subscription plans (Starter, Professional, Enterprise) with correct entity properties: `PricingMonthly`, `MaxActiveUsers`, `MaxApiCallsPerMonth`, `MaxStorageGb`, `ResourceLimits` JSON string
 - Seeds 1 database instance with `Identifier` and `ConnectionStringReference`
 - Idempotent: checks for existing data before inserting
@@ -189,4 +189,4 @@ Created `DevDataSeeder.cs` in `src/Opplat.AdminApi/Data/`:
 ### References
 
 - Task request: Elvis Crego, 2026-04-01
-- Files: `src/Opplat.AdminApi/Extensions/*.cs`, `src/Opplat.Infrastructure/DependencyInjection/AdminInfrastructureExtensions.cs`, `src/Opplat.AdminApi/Program.cs`, `src/Opplat.AdminApi/Data/DevDataSeeder.cs`
+- Files: `src/Opplat.Api.Admin/Extensions/*.cs`, `src/Opplat.Infrastructure/DependencyInjection/AdminInfrastructureExtensions.cs`, `src/Opplat.Api.Admin/Program.cs`, `src/Opplat.Api.Admin/Data/DevDataSeeder.cs`

@@ -7,7 +7,7 @@ using Opplat.Domain.Entities.Administration;
 using Opplat.Domain.Models;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 
-namespace Opplat.MainApp.Features.Account.Queries;
+namespace Opplat.Api.Main.Features.Account.Queries;
 
 public record GetUserProfileQuery(string Username) : IRequest<AccountDto?>;
 

@@ -53,7 +53,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: src/Opplat.MainApp/Dockerfile
+      dockerfile: src/Opplat.Api.Main/Dockerfile
     container_name: opplat-api
     depends_on:
       postgres:
@@ -199,7 +199,7 @@ services:
   admin-api:
     build:
       context: .
-      dockerfile: src/Opplat.AdminApi/Dockerfile
+      dockerfile: src/Opplat.Api.Admin/Dockerfile
     container_name: opplat-admin-api
     depends_on:
       postgres:

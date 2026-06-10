@@ -11,7 +11,7 @@
 
 ## What I Own
 
-- `test/Opplat.MainApp.Test/` — backend test project
+- `test/Opplat.Api.Main.Test/` — backend test project
 - Test plans for new features
 - Quality gate criteria for PRs
 - Edge case discovery and documentation
@@ -20,7 +20,7 @@
 ## How I Work
 
 - I write tests from requirements and implementation plans — not just from the code. If `Tenant-requirements.md` says something must happen, there's a test for it.
-- I run the existing test suite before touching anything: `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --no-build --logger "console;verbosity=minimal"`
+- I run the existing test suite before touching anything: `dotnet test .\test\Opplat.Api.Main.Test\Opplat.Api.Main.Test.csproj --no-build --logger "console;verbosity=minimal"`
 - I test multitenant scenarios explicitly: does data leak across tenants? Does provisioning fail gracefully? Does auth reject the right requests?
 - I flag coverage gaps to Bishop. I don't merge my own test results — Bishop reviews test coverage before a feature is called done.
 

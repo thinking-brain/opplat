@@ -10,7 +10,7 @@
 // using System;
 // using Modulos.Core;
 
-// namespace Opplat.MainApp.Areas.Utils
+// namespace Opplat.Api.Main.Areas.Utils
 // {
 //     public class ResumenCierre:ICierreContableLoader
 //     {

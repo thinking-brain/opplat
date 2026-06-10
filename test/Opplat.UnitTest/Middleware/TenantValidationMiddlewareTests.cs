@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Domain.Models;
-using Opplat.MainApp.Middleware;
+using Opplat.Api.Main.Middleware;
 
 namespace Opplat.UnitTest.Middleware;
 

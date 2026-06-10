@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Opplat.AdminApi.Endpoints;
+using Opplat.Api.Admin.Endpoints;
 using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Infrastructure.Persistance.Data.Administration;
@@ -95,7 +95,7 @@ public class AdminApiSessionEndpointTests
     public void AdminSessionContracts_ExposeStableOidAndOptionalAccessTokenSurface()
     {
         var contractsSource = TestRepository.ReadAllText("src", "Opplat.Application.Abstractions", "Admin", "AdminSessionContracts.cs");
-        var programSource = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Program.cs");
+        var programSource = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Program.cs");
 
         Assert.Contains("public string UserId", contractsSource);
         Assert.Contains("public string ObjectId", contractsSource);
@@ -167,7 +167,7 @@ public class AdminApiSessionEndpointTests
         builder.Services.AddSingleton<IEnumerable<Opplat.Infrastructure.Services.ITenantProvisioningReporter>>([]);
         builder.Services.AddSingleton<IEnumerable<Opplat.Application.Abstractions.Services.ITenantSchemaMigrationReporter>>([]);
         builder.Services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(typeof(Opplat.AdminApi.Endpoints.AdminEndpoints).Assembly));
+            cfg.RegisterServicesFromAssembly(typeof(Opplat.Api.Admin.Endpoints.AdminEndpoints).Assembly));
 
         var app = builder.Build();
         // await AdminPortalDataSeeder.InitializeAsync(app.Services);

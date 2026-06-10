@@ -14,8 +14,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using Opplat.MainApp.Features.Account.Queries;
-using Opplat.MainApp.Middleware;
+using Opplat.Api.Main.Features.Account.Queries;
+using Opplat.Api.Main.Middleware;
 using Opplat.Application.Dtos;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Domain.Models;
@@ -317,8 +317,8 @@ public class AuthEndpointAuthorizationIntegrationTests
         app.UseAuthentication();
         app.UseMiddleware<TenantValidationMiddleware>();
         app.UseAuthorization();
-        Opplat.MainApp.Endpoints.AccountEndpoints.MapAccountEndpoints(app);
-        // Opplat.MainApp.Endpoints.AdminEndpoints.MapAdminEndpoints(app);
+        Opplat.Api.Main.Endpoints.AccountEndpoints.MapAccountEndpoints(app);
+        // Opplat.Api.Main.Endpoints.AdminEndpoints.MapAdminEndpoints(app);
 
         await app.StartAsync();
         return app;

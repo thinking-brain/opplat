@@ -15,7 +15,7 @@
 - DatabaseInstanceAutoScalingService auto-provisions overflow instances when MaxTenantsPerInstance (default 100) is reached
 - Auth: provider-neutral via AuthClaimTypes + OidcClaimsNormalizer; Keycloak local, Entra ID production
 - Build: `dotnet build .\opplat.slnx -m:1 -v minimal`
-- Test: `dotnet test .\test\Opplat.MainApp.Test\Opplat.MainApp.Test.csproj --no-build --logger "console;verbosity=minimal"`
+- Test: `dotnet test .\test\Opplat.Api.Main.Test\Opplat.Api.Main.Test.csproj --no-build --logger "console;verbosity=minimal"`
 - Frontend validate: `npm run lint && npm run build` in `src\opplat-react` and `src\opplat-admin`
 
 ## Learnings

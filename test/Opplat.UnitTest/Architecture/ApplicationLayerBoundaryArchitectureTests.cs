@@ -48,10 +48,10 @@ public class ApplicationLayerBoundaryArchitectureTests
     [Fact]
     public void Hosts_RegisterSharedApplicationHandlersFromSharedApplicationProject()
     {
-        var mainAppProject = TestRepository.ReadAllText("src", "Opplat.MainApp", "Opplat.MainApp.csproj");
-        var mainAppProgram = TestRepository.ReadAllText("src", "Opplat.MainApp", "Program.cs");
-        var mainAppSalesEndpoints = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Sales", "SalesEndpoints.cs");
-        var mainAppInventoryEndpoints = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Inventory", "InventoryEndpoints.cs");
+        var mainAppProject = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Opplat.Api.Main.csproj");
+        var mainAppProgram = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Program.cs");
+        var mainAppSalesEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Features", "Sales", "SalesEndpoints.cs");
+        var mainAppInventoryEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Features", "Inventory", "InventoryEndpoints.cs");
         var salesApiProject = TestRepository.ReadAllText("src", "Services", "Sales", "Opplat.Services.Sales.Api", "Opplat.Services.Sales.Api.csproj");
         var salesApiProgram = TestRepository.ReadAllText("src", "Services", "Sales", "Opplat.Services.Sales.Api", "Program.cs");
         var salesApiEndpoints = TestRepository.ReadAllText("src", "Services", "Sales", "Opplat.Services.Sales.Api", "Endpoints", "SalesEndpoints.cs");

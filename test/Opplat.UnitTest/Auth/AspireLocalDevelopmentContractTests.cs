@@ -86,8 +86,8 @@ public class AspireLocalDevelopmentContractTests
         Assert.Contains("options.ExcludeKestrelEndpoints = true;", appHost);
         Assert.Contains("RepoPath(\"src\", \"opplat-react\")", appHost);
         Assert.Contains("RepoPath(\"src\", \"opplat-admin\")", appHost);
-        Assert.Contains("RepoPath(\"src\", \"Opplat.MainApp\", \"Opplat.MainApp.csproj\")", appHost);
-        Assert.Contains("RepoPath(\"src\", \"Opplat.AdminApi\", \"Opplat.AdminApi.csproj\")", appHost);
+        Assert.Contains("RepoPath(\"src\", \"Opplat.Api.Main\", \"Opplat.Api.Main.csproj\")", appHost);
+        Assert.Contains("RepoPath(\"src\", \"Opplat.Api.Admin\", \"Opplat.Api.Admin.csproj\")", appHost);
         Assert.Contains("RepoPath(\"src\", \"Services\", \"Sales\", \"Opplat.Services.Sales.Api\", \"Opplat.Services.Sales.Api.csproj\")", appHost);
         Assert.Contains("RepoPath(\"src\", \"Services\", \"Inventory\", \"Opplat.Services.Inventory.Api\", \"Opplat.Services.Inventory.Api.csproj\")", appHost);
     }
@@ -95,7 +95,7 @@ public class AspireLocalDevelopmentContractTests
     [Fact]
     public void MainApp_SwaggerXmlComments_AreOptionalForAppHostRuntime()
     {
-        var mainProgram = TestRepository.ReadAllText("src", "Opplat.MainApp", "Program.cs");
+        var mainProgram = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Program.cs");
 
         Assert.Contains("if (File.Exists(xmlPath))", mainProgram);
         Assert.Contains("c.IncludeXmlComments(xmlPath);", mainProgram);

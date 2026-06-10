@@ -104,7 +104,7 @@ public class AdminApiModule3RegressionTests
     [Fact]
     public void TenantSchemaProvisioning_SourceContract_RemainsIdempotentAndSchemaScoped()
     {
-        var source = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Services", "TenantSchemaProvisioningService.cs");
+        var source = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Services", "TenantSchemaProvisioningService.cs");
 
         Assert.Contains("SchemaExistsAsync(connection, tenant.DatabaseSchema, cancellationToken)", source);
         Assert.Contains("Skipping creation (idempotent)", source, StringComparison.Ordinal);
@@ -116,7 +116,7 @@ public class AdminApiModule3RegressionTests
     [Fact]
     public void TenantSchemaMigrationRunner_SourceContract_LocksPerTenantBulkAndRollbackSeams()
     {
-        var source = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Services", "TenantSchemaMigrationRunner.cs");
+        var source = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Services", "TenantSchemaMigrationRunner.cs");
 
         Assert.Contains("SET search_path TO \\\"{tenant.DatabaseSchema}\\\"; {migrationSql}", source);
         Assert.Contains(".Where(t => t.Status == TenantStatus.Active)", source);
@@ -131,8 +131,8 @@ public class AdminApiModule3RegressionTests
     [Fact]
     public void Module3OptionsAndServices_SourceContract_KeepThresholdConfigExternalized()
     {
-        var optionsSource = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Configuration", "DatabaseInstanceOptions.cs");
-        var autoScalingSource = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Services", "DatabaseInstanceAutoScalingService.cs");
+        var optionsSource = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Configuration", "DatabaseInstanceOptions.cs");
+        var autoScalingSource = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Services", "DatabaseInstanceAutoScalingService.cs");
 
         Assert.Contains("SectionName = \"DatabaseInstance\"", optionsSource);
         Assert.Contains("public int MaxTenantsPerInstance", optionsSource);

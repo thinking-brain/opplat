@@ -8,7 +8,7 @@ public class ConvertedSurfaceArchitectureTests
     [Fact]
     public void MainAppProgram_MapsConvertedFeaturesViaMinimalApiExtensions()
     {
-        var program = TestRepository.ReadAllText("src", "Opplat.MainApp", "Program.cs");
+        var program = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Program.cs");
 
         Assert.Contains("app.MapAdminEndpoints();", program);
         Assert.Contains("app.MapAccountEndpoints();", program);
@@ -32,12 +32,12 @@ public class ConvertedSurfaceArchitectureTests
     [Fact]
     public void MainAppConvertedFeatureEndpoints_StayMediatorBackedAndControllerFree()
     {
-        var adminEndpoints = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Admin", "AdminEndpoints.cs");
-        var accountEndpoints = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Account", "AccountEndpoints.cs");
-        var inventoryEndpoints = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Inventory", "InventoryEndpoints.cs");
-        var licenseEndpoints = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "License", "LicenseEndpoints.cs");
-        var menusEndpoints = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Menus", "MenusEndpoints.cs");
-        var salesEndpoints = TestRepository.ReadAllText("src", "Opplat.MainApp", "Features", "Sales", "SalesEndpoints.cs");
+        var adminEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Features", "Admin", "AdminEndpoints.cs");
+        var accountEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Features", "Account", "AccountEndpoints.cs");
+        var inventoryEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Features", "Inventory", "InventoryEndpoints.cs");
+        var licenseEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Features", "License", "LicenseEndpoints.cs");
+        var menusEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Features", "Menus", "MenusEndpoints.cs");
+        var salesEndpoints = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Features", "Sales", "SalesEndpoints.cs");
 
         AssertMinimalEndpointModule(adminEndpoints);
         Assert.Contains("[FromServices] IAntiforgery antiforgery", adminEndpoints);
@@ -99,11 +99,11 @@ public class ConvertedSurfaceArchitectureTests
     [Fact]
     public void MainAppArchivedControllers_StayUnmappedAfterMinimalApiConversion()
     {
-        var accountController = TestRepository.ReadAllText("src", "Opplat.MainApp", "Controllers", "AccountController.cs");
-        var inventoryControllersPath = TestRepository.ResolvePath("src", "Opplat.MainApp", "Areas", "Inventory", "Controllers");
-        var salesControllersPath = TestRepository.ResolvePath("src", "Opplat.MainApp", "Areas", "Sales", "Controllers");
-        var licenseController = TestRepository.ReadAllText("src", "Opplat.MainApp", "Controllers", "LicenciaController.cs");
-        var menusController = TestRepository.ReadAllText("src", "Opplat.MainApp", "Controllers", "MenusController.cs");
+        var accountController = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Controllers", "AccountController.cs");
+        var inventoryControllersPath = TestRepository.ResolvePath("src", "Opplat.Api.Main", "Areas", "Inventory", "Controllers");
+        var salesControllersPath = TestRepository.ResolvePath("src", "Opplat.Api.Main", "Areas", "Sales", "Controllers");
+        var licenseController = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Controllers", "LicenciaController.cs");
+        var menusController = TestRepository.ReadAllText("src", "Opplat.Api.Main", "Controllers", "MenusController.cs");
 
         AssertArchivedController(accountController, "Features/Account/", "AccountController_Archived");
         AssertArchivedInventoryControllers(inventoryControllersPath);
@@ -117,8 +117,8 @@ public class ConvertedSurfaceArchitectureTests
     {
         var controllerRoots = new[]
         {
-            TestRepository.ResolvePath("src", "Opplat.MainApp", "Controllers"),
-            TestRepository.ResolvePath("src", "Opplat.MainApp", "Areas")
+            TestRepository.ResolvePath("src", "Opplat.Api.Main", "Controllers"),
+            TestRepository.ResolvePath("src", "Opplat.Api.Main", "Areas")
         };
 
         var controllerFiles = controllerRoots
@@ -142,8 +142,8 @@ public class ConvertedSurfaceArchitectureTests
     [Fact]
     public void AdminApiHost_StaysThinAndControllerFree()
     {
-        var program = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Program.cs");
-        var endpoints = TestRepository.ReadAllText("src", "Opplat.AdminApi", "Endpoints", "AdminEndpoints.cs");
+        var program = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Program.cs");
+        var endpoints = TestRepository.ReadAllText("src", "Opplat.Api.Admin", "Endpoints", "AdminEndpoints.cs");
 
         Assert.Contains("app.MapGeneralEndpoints();", program);
         Assert.Contains("app.MapAdminEndpoints();", program);
@@ -153,7 +153,7 @@ public class ConvertedSurfaceArchitectureTests
         Assert.DoesNotContain("MapPost(\"/admin", program, StringComparison.Ordinal);
         Assert.DoesNotContain("MapPut(\"/admin", program, StringComparison.Ordinal);
         Assert.DoesNotContain("MapDelete(\"/admin", program, StringComparison.Ordinal);
-        Assert.False(Directory.Exists(TestRepository.ResolvePath("src", "Opplat.AdminApi", "Controllers")));
+        Assert.False(Directory.Exists(TestRepository.ResolvePath("src", "Opplat.Api.Admin", "Controllers")));
 
         AssertMinimalEndpointModule(endpoints);
         Assert.Contains("[FromServices] IMediator mediator", endpoints);

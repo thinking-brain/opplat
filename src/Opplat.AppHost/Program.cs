@@ -30,13 +30,13 @@ var keycloak = builder.AddContainer("keycloak", "quay.io/keycloak/keycloak", "26
     .WithVolume("opplat-keycloak-data", "/opt/keycloak/data")
     .WithContainerRuntimeArgs("--label", "com.docker.compose.project=opplat");
 
-var mainApp = builder.AddProject(
-        "mainapp",
-        RepoPath("src", "Opplat.MainApp", "Opplat.MainApp.csproj"),
+var mainApi = builder.AddProject(
+        "main-api",
+        RepoPath("src", "Opplat.Api.Main", "Opplat.Api.Main.csproj"),
         ConfigureProjectDefaults)
     .WithReference(postgres)
     .WaitFor(postgres)
-    .WithHttpEndpoint(port: 8080, name: "mainapp-http")
+    .WithHttpEndpoint(port: 8080, name: "main-api-http")
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
     .WithEnvironment(context => ConfigureTenantAwareApiEnvironmentAsync(
         context,
@@ -49,7 +49,7 @@ var mainApp = builder.AddProject(
 
 var adminApi = builder.AddProject(
         "admin-api",
-        RepoPath("src", "Opplat.AdminApi", "Opplat.AdminApi.csproj"),
+        RepoPath("src", "Opplat.Api.Admin", "Opplat.Api.Admin.csproj"),
         ConfigureProjectDefaults)
     .WithReference(postgres)
     .WaitFor(postgres)
@@ -61,7 +61,7 @@ var adminApi = builder.AddProject(
     .WithEnvironment("Auth__Audience", "opplat-api")
     .WithEnvironment("Auth__AdminBff__ClientId", "opplat-admin");
 
-var mainAppHttp = mainApp.GetEndpoint("mainapp-http");
+var mainApiHttp = mainApi.GetEndpoint("main-api-http");
 var adminApiHttp = adminApi.GetEndpoint("admin-api-http");
 
 var clientApp = builder.AddViteApp(
@@ -75,13 +75,13 @@ var clientApp = builder.AddViteApp(
         endpoint.IsProxied = false;
     })
     .WithEnvironment("PORT", "3200")
-    .WaitFor(mainApp)
+    .WaitFor(mainApi)
     .WaitFor(adminApi)
     .WaitFor(keycloak)
     .WithEnvironment("BROWSER", "none")
     .WithEnvironment("OPPLAT_RUNNING_IN_ASPIRE", "true")
     .WithEnvironment("VITE_APP_NAME", "Opplat Client")
-    .WithEnvironment("VITE_API_URL", mainAppHttp)
+    .WithEnvironment("VITE_API_URL", mainApiHttp)
     .WithEnvironment("VITE_DEV_PROXY_TARGET", adminApiHttp)
     .WithEnvironment("VITE_ADMIN_API_URL", string.Empty)
     .WithEnvironment("VITE_AUTH_AUTHORITY", KeycloakAuthority)
