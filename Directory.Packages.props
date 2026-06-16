@@ -38,12 +38,12 @@
     <!-- API & Swagger -->
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.3.1" />
     <!-- Microsoft Graph & Azure Identity -->
-    <PackageVersion Include="Microsoft.Graph" Version="5.103.0" />
+    <PackageVersion Include="Microsoft.Graph" Version="6.2.0" />
     <PackageVersion Include="Azure.Identity" Version="1.19.0" />
     <!-- HTTP Resilience (Polly-based retry for HttpClient) -->
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.0.0" />
     <!-- Mail -->
-    <PackageVersion Include="mailkit" Version="4.15.1" />
+    <PackageVersion Include="mailkit" Version="4.17.0" />
     <!-- Testing -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
@@ -55,5 +55,6 @@
     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.3.5" />
     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.0.0" />
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.3.5" />
+    <PackageVersion Include="Microsoft.Kiota.Abstractions" Version="2.0.0" />
   </ItemGroup>
 </Project>
