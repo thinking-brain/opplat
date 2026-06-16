@@ -26,8 +26,8 @@
     <PackageReference Include="Finbuckle.MultiTenant.EntityFrameworkCore" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Opplat.Domain\Opplat.Domain.csproj" />
-    <ProjectReference Include="..\Opplat.Infrastructure\Opplat.Infrastructure.csproj" />
-    <ProjectReference Include="..\Opplat.Application\Opplat.Application.csproj" />
+    <ProjectReference Include="..\..\Opplat.Domain\Opplat.Domain.csproj" />
+    <ProjectReference Include="..\..\Opplat.Infrastructure\Opplat.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Opplat.Application\Opplat.Application.csproj" />
   </ItemGroup>
 </Project>

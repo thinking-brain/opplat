@@ -32,7 +32,7 @@ var keycloak = builder.AddContainer("keycloak", "quay.io/keycloak/keycloak", "26
 
 var mainApi = builder.AddProject(
         "main-api",
-        RepoPath("src", "Opplat.Api.Main", "Opplat.Api.Main.csproj"),
+        RepoPath("src", "Apis", "Opplat.Api.Main", "Opplat.Api.Main.csproj"),
         ConfigureProjectDefaults)
     .WithReference(postgres)
     .WaitFor(postgres)
@@ -49,7 +49,7 @@ var mainApi = builder.AddProject(
 
 var adminApi = builder.AddProject(
         "admin-api",
-        RepoPath("src", "Opplat.Api.Admin", "Opplat.Api.Admin.csproj"),
+        RepoPath("src", "Apis", "Opplat.Api.Admin", "Opplat.Api.Admin.csproj"),
         ConfigureProjectDefaults)
     .WithReference(postgres)
     .WaitFor(postgres)

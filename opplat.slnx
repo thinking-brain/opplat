@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/Opplat.Api.Admin/Opplat.Api.Admin.csproj" />
-    <Project Path="src/Opplat.Api.Main/Opplat.Api.Main.csproj" />
+    <Project Path="src/Apis/Opplat.Api.Admin/Opplat.Api.Admin.csproj" />
+    <Project Path="src/Apis/Opplat.Api.Main/Opplat.Api.Main.csproj" />
     <Project Path="src/Opplat.AppHost/Opplat.AppHost.csproj" />
     <Project Path="src/Opplat.Application.Abstractions/Opplat.Application.Abstractions.csproj" />
     <Project Path="src/Opplat.Application/Opplat.Application.csproj" />
