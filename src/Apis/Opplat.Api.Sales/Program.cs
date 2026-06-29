@@ -1,5 +1,5 @@
 using Opplat.Application.DependencyInjection;
-using Opplat.Api.Catalog.Endpoints;
+using Opplat.Api.Sales.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +7,6 @@ builder.Services.AddOpplatApplication();
 
 var app = builder.Build();
 
-app.MapCatalogEndpoints();
+app.MapSalesEndpoints();
 
 app.Run();

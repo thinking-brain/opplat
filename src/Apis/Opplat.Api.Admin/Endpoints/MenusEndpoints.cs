@@ -2,19 +2,19 @@ using System.Security.Claims;
 using MediatR;
 using Opplat.Application.Features.Menus.Queries;
 
-namespace Opplat.Api.Main.Endpoints;
+namespace Opplat.Api.Sales.Endpoints;
 
 public static class MenusEndpoints
 {
-    public static void MapMenusEndpoints(this WebApplication app)
+    public static void MapMenusEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = app.MapGroup("/admin/menus").WithTags("Menus");
+        var group = endpoints.MapGroup("/admin/menus").WithTags("Sales");
 
         group.MapGet("/",
             async (ClaimsPrincipal user, IMediator mediator) =>
             {
                 var username = user.Identity!.Name!;
-                var roles    = user.Claims
+                var roles = user.Claims
                     .Where(c => c.Type == ClaimTypes.Role)
                     .Select(c => c.Value)
                     .ToArray();

@@ -1,8 +1,7 @@
 using Finbuckle.MultiTenant.Abstractions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
-using Opplat.Api.Main.Hosting;
+using Opplat.Api.Common.Hosting;
 using Opplat.Api.Main.Middleware;
 using Opplat.Application.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,14 +15,14 @@ using Opplat.Infrastructure.Persistance.Data;
 using Opplat.Api.Main;
 using Opplat.Infrastructure.Services;
 using Opplat.Application.Utils;
-using Opplat.Api.Main.Endpoints;
-using Opplat.Api.Main.Endpoints.Inventory;
-using Opplat.Api.Main.Endpoints.Sales;
+using Opplat.Api.Account.Endpoints;
+using Opplat.Api.Catalog.Endpoints;
+using Opplat.Api.Inventory.Endpoints;
+using Opplat.Api.Sales.Endpoints;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Application.Abstractions.Auth;
 using Npgsql;
 using Opplat.Infrastructure.DependencyInjection;
-using Opplat.Api.Catalog.Endpoints;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -205,7 +204,6 @@ app.UseAuthorization();
 app.MapOpplatHealthEndpoints("main-api");
 app.MapAccountEndpoints();
 app.MapInventoryEndpoints();
-app.MapMenusEndpoints();
 app.MapSalesEndpoints();
 app.MapCatalogEndpoints();
 

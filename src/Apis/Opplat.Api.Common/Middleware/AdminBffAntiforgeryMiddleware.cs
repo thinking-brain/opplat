@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http;
 
-namespace Opplat.Api.Main.Middleware;
+namespace Opplat.Api.Common.Middleware;
 
 public sealed class AdminBffAntiforgeryMiddleware
 {

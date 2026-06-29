@@ -2,9 +2,9 @@ namespace Opplat.Api.Catalog.Endpoints;
 
 public static class CatalogEndpoints
 {
-    public static void MapCatalogEndpoints(this WebApplication app)
+    public static void MapCatalogEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var catalog = app.MapGroup("/catalog").WithTags("Catalog");
+        var catalog = endpoints.MapGroup("/catalog").WithTags("Catalog");
         ProductEndpoints.MapProducts(catalog);
         ProductClassificationEndpoints.MapProductClassifications(catalog);
         ProductGroupEndpoints.MapProductGroups(catalog);

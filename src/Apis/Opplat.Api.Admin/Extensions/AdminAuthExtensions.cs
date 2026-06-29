@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Opplat.Api.Admin.Auth;
-using Opplat.Api.Admin.Hosting;
 using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Abstractions.Options;
 

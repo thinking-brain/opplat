@@ -14,7 +14,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using Opplat.Api.Main.Features.Account.Queries;
 using Opplat.Api.Main.Middleware;
 using Opplat.Application.Dtos;
 using Opplat.Application.Abstractions.Options;

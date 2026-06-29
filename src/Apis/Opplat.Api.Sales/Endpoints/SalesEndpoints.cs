@@ -3,19 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 using Opplat.Application.Dtos;
 using Opplat.Application.Features.Sales.Common;
 using Opplat.Application.Features.Sales.CostTabs;
-using Opplat.Application.Features.Sales.Products;
 using Opplat.Application.Features.Sales.ProductTags;
 using Opplat.Application.Features.Sales.Sales;
 using Opplat.Application.Features.Sales.Toppings;
 using Opplat.Domain.Entities.Sales;
 
-namespace Opplat.Api.Main.Endpoints.Sales;
+namespace Opplat.Api.Sales.Endpoints;
 
 public static class SalesEndpoints
 {
-    public static void MapSalesEndpoints(this WebApplication app)
+    public static void MapSalesEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var sales = app.MapGroup("/sales");
+        var sales = endpoints.MapGroup("/sales").WithTags("Sales");
 
         sales.MapGet(string.Empty, async ([FromServices] IMediator mediator) =>
         {
@@ -23,37 +22,9 @@ public static class SalesEndpoints
             return Results.Ok(result);
         }).RequireAuthorization();
 
-        MapProducts(sales);
         MapToppings(sales);
         MapProductTags(sales);
         MapCostTabs(sales);
-    }
-
-    private static void MapProducts(RouteGroupBuilder sales)
-    {
-        sales.MapGet("/products", async ([FromServices] IMediator mediator) =>
-        {
-            var result = await mediator.Send(new ListProductsQuery());
-            return Results.Ok(result);
-        });
-
-        sales.MapPost("/products", async (ProductForSale product, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new CreateProductCommand(product, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
-
-        sales.MapPut("/products", async (ProductForSale product, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new UpdateProductCommand(product, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
-
-        sales.MapDelete("/products/{id}", async (string id, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new DeleteProductCommand(id, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
     }
 
     private static void MapToppings(RouteGroupBuilder sales)
@@ -170,4 +141,3 @@ public static class SalesEndpoints
         return httpContext.User?.Identity?.Name;
     }
 }
-

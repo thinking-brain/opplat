@@ -1,10 +1,17 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Opplat.Api.Admin.Hosting;
+namespace Opplat.Api.Common.Hosting;
 
-internal static class AspireDevelopmentExtensions
+public static class AspireDevelopmentExtensions
 {
     public static IServiceCollection AddOpplatAspireDevelopmentSupport(
         this IServiceCollection services,

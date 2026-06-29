@@ -1,6 +1,6 @@
 using Opplat.Api.Admin.Endpoints;
-using Opplat.Api.Admin.Hosting;
-using Opplat.Api.Admin.Middleware;
+using Opplat.Api.Common.Hosting;
+using Opplat.Api.Common.Middleware;
 
 namespace Opplat.Api.Admin.Extensions;
 

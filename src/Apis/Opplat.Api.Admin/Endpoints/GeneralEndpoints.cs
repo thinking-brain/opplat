@@ -1,4 +1,4 @@
-using Opplat.Api.Admin.Hosting;
+using Opplat.Api.Common.Hosting;
 
 namespace Opplat.Api.Admin.Endpoints;
 

@@ -8,13 +8,13 @@ using Opplat.Application.Features.Inventory.ProductMovements;
 using Opplat.Application.Features.Inventory.Storages;
 using Opplat.Domain.Entities.Inventory;
 
-namespace Opplat.Api.Main.Endpoints.Inventory;
+namespace Opplat.Api.Inventory.Endpoints;
 
 public static class InventoryEndpoints
 {
-    public static void MapInventoryEndpoints(this WebApplication app)
+    public static void MapInventoryEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var inventory = app.MapGroup("/inventory");
+        var inventory = endpoints.MapGroup("/inventory");
         MapStorages(inventory);
         MapMovementTypes(inventory);
         MapInventories(inventory);
@@ -110,19 +110,17 @@ public static class InventoryEndpoints
         });
     }
 
-    private static ResponseDto BuildResponse(InventoryCommandResult result)
+    private static IResult BuildResponse(InventoryCommandResult result)
     {
-        return new ResponseDto
+        var response = new ResponseDto
         {
             Status = result.Succeeded,
             Message = result.Message,
             Errors = [.. result.Errors]
         };
+        return result.Succeeded ? Results.Ok(response) : Results.BadRequest(response);
     }
 
-    private static string? GetCurrentUser(HttpContext httpContext)
-    {
-        return httpContext.User?.Identity?.Name;
-    }
+    private static string? GetCurrentUser(HttpContext httpContext) =>
+        httpContext.User?.Identity?.Name;
 }
-

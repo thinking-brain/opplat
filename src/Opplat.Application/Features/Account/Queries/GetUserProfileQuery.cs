@@ -7,22 +7,16 @@ using Opplat.Domain.Entities.Administration;
 using Opplat.Domain.Models;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 
-namespace Opplat.Api.Main.Features.Account.Queries;
+namespace Opplat.Application.Features.Account.Queries;
 
 public record GetUserProfileQuery(string Username) : IRequest<AccountDto?>;
 
-public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, AccountDto?>
+public class GetUserProfileQueryHandler(
+    AdminTenantCatalogDbContext db,
+    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor) : IRequestHandler<GetUserProfileQuery, AccountDto?>
 {
-    private readonly AdminTenantCatalogDbContext _db;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
-
-    public GetUserProfileQueryHandler(
-        AdminTenantCatalogDbContext db,
-        IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
-    {
-        _db             = db;
-        _tenantAccessor = tenantAccessor;
-    }
+    private readonly AdminTenantCatalogDbContext _db = db;
+    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor = tenantAccessor;
 
     public async Task<AccountDto?> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
     {

@@ -31,5 +31,9 @@
     <ProjectReference Include="..\..\Opplat.Infrastructure\Opplat.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Opplat.Application\Opplat.Application.csproj" />
     <ProjectReference Include="..\Opplat.Api.Catalog\Opplat.Api.Catalog.csproj" />
+    <ProjectReference Include="..\Opplat.Api.Common\Opplat.Api.Common.csproj" />
+    <ProjectReference Include="..\Opplat.Api.Inventory\Opplat.Api.Inventory.csproj" />
+    <ProjectReference Include="..\Opplat.Api.Sales\Opplat.Api.Sales.csproj" />
+    <ProjectReference Include="..\Opplat.Api.Account\Opplat.Api.Account.csproj" />
   </ItemGroup>
 </Project>
