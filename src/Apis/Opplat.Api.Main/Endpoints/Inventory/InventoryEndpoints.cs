@@ -4,12 +4,8 @@ using Opplat.Application.Dtos;
 using Opplat.Application.Features.Inventory.Common;
 using Opplat.Application.Features.Inventory.Inventories;
 using Opplat.Application.Features.Inventory.MovementTypes;
-using Opplat.Application.Features.Inventory.ProductClassifications;
-using Opplat.Application.Features.Inventory.ProductGroups;
 using Opplat.Application.Features.Inventory.ProductMovements;
-using Opplat.Application.Features.Inventory.Products;
 using Opplat.Application.Features.Inventory.Storages;
-using Opplat.Application.Features.Inventory.UnitsOfMeasurement;
 using Opplat.Domain.Entities.Inventory;
 
 namespace Opplat.Api.Main.Endpoints.Inventory;
@@ -19,114 +15,10 @@ public static class InventoryEndpoints
     public static void MapInventoryEndpoints(this WebApplication app)
     {
         var inventory = app.MapGroup("/inventory");
-
-        MapProducts(inventory);
-        MapProductClassifications(inventory);
-        MapProductGroups(inventory);
         MapStorages(inventory);
-        MapUnitsOfMeasurement(inventory);
         MapMovementTypes(inventory);
         MapInventories(inventory);
         MapProductMovements(inventory);
-    }
-
-    private static void MapProducts(RouteGroupBuilder inventory)
-    {
-        inventory.MapGet("/products/{id}", async (string id, [FromServices] IMediator mediator) =>
-        {
-            var result = await mediator.Send(new GetProductQuery(id));
-            return Results.Ok(result);
-        });
-
-        inventory.MapGet("/products", async ([FromServices] IMediator mediator) =>
-        {
-            var result = await mediator.Send(new ListProductsQuery());
-            return Results.Ok(result);
-        });
-
-        inventory.MapPost("/products", async (Product product, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new CreateProductCommand(product, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
-
-        inventory.MapPut("/products", async (Product product, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new UpdateProductCommand(product, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
-
-        inventory.MapDelete("/products/{id}", async (string id, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new DeleteProductCommand(id, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
-    }
-
-    private static void MapProductClassifications(RouteGroupBuilder inventory)
-    {
-        inventory.MapGet("/productclassifications/{id:int}", async (int id, [FromServices] IMediator mediator) =>
-        {
-            var result = await mediator.Send(new GetProductClassificationQuery(id));
-            return Results.Ok(result ?? new ProductClassification());
-        });
-
-        inventory.MapGet("/productclassifications", async ([FromServices] IMediator mediator) =>
-        {
-            var result = await mediator.Send(new ListProductClassificationsQuery());
-            return Results.Ok(result);
-        });
-
-        inventory.MapPost("/productclassifications", async (ProductClassification classification, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new CreateProductClassificationCommand(classification, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
-
-        inventory.MapPut("/productclassifications", async (ProductClassification classification, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new UpdateProductClassificationCommand(classification, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
-
-        inventory.MapDelete("/productclassifications/{id:int}", async (int id, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new DeleteProductClassificationCommand(id, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
-    }
-
-    private static void MapProductGroups(RouteGroupBuilder inventory)
-    {
-        inventory.MapGet("/productgroups/{id:int}", async (int id, [FromServices] IMediator mediator) =>
-        {
-            var result = await mediator.Send(new GetProductGroupQuery(id));
-            return Results.Ok(result ?? new ProductGroup());
-        });
-
-        inventory.MapGet("/productgroups", async ([FromServices] IMediator mediator) =>
-        {
-            var result = await mediator.Send(new ListProductGroupsQuery());
-            return Results.Ok(result);
-        });
-
-        inventory.MapPost("/productgroups", async (ProductGroup productGroup, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new CreateProductGroupCommand(productGroup, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
-
-        inventory.MapPut("/productgroups", async (ProductGroup productGroup, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new UpdateProductGroupCommand(productGroup, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
-
-        inventory.MapDelete("/productgroups/{id:int}", async (int id, [FromServices] IMediator mediator, HttpContext httpContext) =>
-        {
-            var result = await mediator.Send(new DeleteProductGroupCommand(id, GetCurrentUser(httpContext)));
-            return BuildResponse(result);
-        });
     }
 
     private static void MapStorages(RouteGroupBuilder inventory)
@@ -159,15 +51,6 @@ public static class InventoryEndpoints
         {
             var result = await mediator.Send(new DeleteStorageCommand(id, GetCurrentUser(httpContext)));
             return BuildResponse(result);
-        });
-    }
-
-    private static void MapUnitsOfMeasurement(RouteGroupBuilder inventory)
-    {
-        inventory.MapGet("/unitsofmeasurement", async ([FromServices] IMediator mediator) =>
-        {
-            var result = await mediator.Send(new ListUnitsOfMeasurementQuery());
-            return Results.Ok(result);
         });
     }
 
