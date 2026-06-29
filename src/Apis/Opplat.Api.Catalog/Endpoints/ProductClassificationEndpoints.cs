@@ -9,7 +9,7 @@ namespace Opplat.Api.Catalog.Endpoints;
 
 public static class ProductClassificationEndpoints
 {
-    public const string productClassificationRoute = "/productclassifications";
+    public const string productClassificationRoute = "/product-classifications";
 
     public static void MapProductClassifications(RouteGroupBuilder catalog)
     {

@@ -7,7 +7,7 @@ namespace Opplat.Api.Catalog.Endpoints;
 
 public static class UnitOfMeasurementEndpoints
 {
-    public const string unitOfMeasurementRoute = "/unitsofmeasurement";
+    public const string unitOfMeasurementRoute = "/units-of-measurement";
 
     public static void MapUnitsOfMeasurement(RouteGroupBuilder catalog)
     {

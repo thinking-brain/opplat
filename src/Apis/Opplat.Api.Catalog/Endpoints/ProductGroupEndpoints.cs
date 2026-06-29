@@ -9,7 +9,7 @@ namespace Opplat.Api.Catalog.Endpoints;
 
 public static class ProductGroupEndpoints
 {
-    public const string productGroupRoute = "/productgroups";
+    public const string productGroupRoute = "/product-groups";
 
     public static void MapProductGroups(RouteGroupBuilder catalog)
     {

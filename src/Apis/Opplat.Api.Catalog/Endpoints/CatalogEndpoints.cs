@@ -4,7 +4,7 @@ public static class CatalogEndpoints
 {
     public static void MapCatalogEndpoints(this WebApplication app)
     {
-        var catalog = app.MapGroup("/catalog");
+        var catalog = app.MapGroup("/catalog").WithTags("Catalog");
         ProductEndpoints.MapProducts(catalog);
         ProductClassificationEndpoints.MapProductClassifications(catalog);
         ProductGroupEndpoints.MapProductGroups(catalog);
