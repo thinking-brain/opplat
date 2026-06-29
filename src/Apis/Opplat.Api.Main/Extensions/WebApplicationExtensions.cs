@@ -1,5 +1,6 @@
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Opplat.Api.Main.Middleware;
+using Scalar.AspNetCore;
 
 namespace Opplat.Api.Main.Extensions;
 
@@ -17,11 +18,12 @@ public static class WebApplicationExtensions
 
         app.UseHttpsRedirectionIfConfigured();
         app.UseRouting();
-        app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
-        app.UseSwaggerUI(c =>
+        app.MapOpenApi();
+        app.MapGet("/docs/", () => Results.Redirect("/docs"));
+        app.MapScalarApiReference("/docs", options =>
         {
-            c.SwaggerEndpoint("/docs/v1/docs.json", "Opplat Service v1");
-            c.RoutePrefix = "docs";
+            options.Title = "Opplat Service";
+            options.OpenApiRoutePattern = "/openapi/v1.json";
         });
         app.UseAuthentication();
         app.UseMiddleware<TenantValidationMiddleware>();

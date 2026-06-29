@@ -5,7 +5,7 @@ using Finbuckle.MultiTenant.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Npgsql;
 using Opplat.Domain.Models;
 
@@ -63,49 +63,38 @@ public static class ServiceCollectionExtensions
             });
 
         services.AddAuthorization();
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(options =>
+        services.AddOpenApi(options =>
         {
             var version = configuration["Documentation:Version"] ?? "v1";
             var title = configuration["Documentation:Title"] ?? "Opplat Service";
             var description = configuration["Documentation:Description"] ?? "Opplat microservice API";
 
-            options.SwaggerDoc(version, new OpenApiInfo
+            options.AddDocumentTransformer((document, context, cancellationToken) =>
             {
-                Version = version,
-                Title = title,
-                Description = description,
-                TermsOfService = BuildUri(configuration["Documentation:TermUrl"]),
-                Contact = new OpenApiContact
+                document.Info ??= new OpenApiInfo();
+                document.Info.Version = version;
+                document.Info.Title = title;
+                document.Info.Description = description;
+                document.Info.TermsOfService = BuildUri(configuration["Documentation:TermUrl"]);
+                document.Info.Contact = new OpenApiContact
                 {
                     Name = configuration["Documentation:ContactName"],
                     Email = configuration["Documentation:ContactEmail"],
                     Url = BuildUri(configuration["Documentation:ContactUrl"])
-                }
-            });
+                };
 
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                Description = "Enter the Bearer Authorization string as: `Bearer Generated-JWT-Token`",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer"
-            });
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
+                document.Components ??= new OpenApiComponents();
+                document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
                 {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Id = "Bearer",
-                            Type = ReferenceType.SecurityScheme
-                        }
-                    },
-                    []
-                }
+                    Name = "Authorization",
+                    Description = "Enter the Bearer Authorization string as: `Bearer Generated-JWT-Token`",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer"
+                };
+
+                return Task.CompletedTask;
             });
         });
 

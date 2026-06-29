@@ -21,7 +21,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="Finbuckle.MultiTenant.AspNetCore" />
     <PackageReference Include="Finbuckle.MultiTenant.EntityFrameworkCore" />
   </ItemGroup>
@@ -29,5 +30,6 @@
     <ProjectReference Include="..\..\Opplat.Domain\Opplat.Domain.csproj" />
     <ProjectReference Include="..\..\Opplat.Infrastructure\Opplat.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Opplat.Application\Opplat.Application.csproj" />
+    <ProjectReference Include="..\Opplat.Api.Catalog\Opplat.Api.Catalog.csproj" />
   </ItemGroup>
 </Project>

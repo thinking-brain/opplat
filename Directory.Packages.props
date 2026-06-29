@@ -35,8 +35,8 @@
     <PackageVersion Include="Finbuckle.MultiTenant.Abstractions" Version="10.0.4" />
     <PackageVersion Include="Finbuckle.MultiTenant.AspNetCore" Version="10.0.4" />
     <PackageVersion Include="Finbuckle.MultiTenant.EntityFrameworkCore" Version="10.0.4" />
-    <!-- API & Swagger -->
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.3.1" />
+    <!-- API & OpenAPI documentation -->
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.6.0" />
     <!-- Microsoft Graph & Azure Identity -->
     <PackageVersion Include="Microsoft.Graph" Version="6.2.0" />
     <PackageVersion Include="Azure.Identity" Version="1.19.0" />

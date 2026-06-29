@@ -1,8 +1,7 @@
-using System.Reflection;
 using Finbuckle.MultiTenant.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Opplat.Api.Main.Hosting;
 using Opplat.Api.Main.Middleware;
 using Opplat.Application.DependencyInjection;
@@ -24,6 +23,8 @@ using Opplat.Application.Abstractions.Options;
 using Opplat.Application.Abstractions.Auth;
 using Npgsql;
 using Opplat.Infrastructure.DependencyInjection;
+using Opplat.Api.Catalog.Endpoints;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var authSection = builder.Configuration.GetSection(AuthOptions.SectionName);
@@ -106,8 +107,7 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser().RequireRole(authOptions.TenantAdminRole));
 });
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddOpenApi(options =>
 {
     var docVersion = builder.Configuration["Documentation:Version"] ?? "1.0.0";
     var docTitle = builder.Configuration["Documentation:Title"] ?? "Opplat API";
@@ -117,49 +117,33 @@ builder.Services.AddSwaggerGen(c =>
     var contactEmail = builder.Configuration["Documentation:ContactEmail"] ?? "support@example.com";
     var contactUrl = builder.Configuration["Documentation:ContactUrl"] ?? "https://example.com/contact";
 
-    c.SwaggerDoc(docVersion, new OpenApiInfo
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
     {
-        Version = docVersion,
-        Title = docTitle,
-        Description = docDescription,
-        TermsOfService = new Uri(termsUrl),
-        Contact = new OpenApiContact
+        document.Info ??= new OpenApiInfo();
+        document.Info.Version = docVersion;
+        document.Info.Title = docTitle;
+        document.Info.Description = docDescription;
+        document.Info.TermsOfService = new Uri(termsUrl);
+        document.Info.Contact = new OpenApiContact
         {
             Name = contactName,
             Email = contactEmail,
             Url = new Uri(contactUrl)
-        }
-    });
-    c.AddSecurityDefinition(name: "Bearer", securityScheme: new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Description = "Enter a bearer access token issued by the configured OIDC provider.",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "Bearer"
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Name = "Bearer",
-                    In = ParameterLocation.Header,
-                    Reference = new OpenApiReference
-                    {
-                        Id = "Bearer",
-                        Type = ReferenceType.SecurityScheme
-                    }
-                },
-                new List<string>()
-            }
-        });
+        };
 
-    // Set the comments path for the Swagger JSON and UI.
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    if (File.Exists(xmlPath))
-        c.IncludeXmlComments(xmlPath);
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Description = "Enter a bearer access token issued by the configured OIDC provider.",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer"
+        };
+
+        return Task.CompletedTask;
+    });
 });
 
 builder.Services.AddCors(options =>
@@ -199,11 +183,12 @@ else
 app.UseHttpsRedirectionIfConfigured();
 app.UseCors("CorsPolicy");
 app.UseRouting();
-app.UseSwagger(c => c.RouteTemplate = "docs/{documentName}/docs.json");
-app.UseSwaggerUI(c =>
+app.MapOpenApi();
+app.MapGet("/docs/", () => Results.Redirect("/docs"));
+app.MapScalarApiReference("/docs", options =>
 {
-    c.SwaggerEndpoint("/docs/v1/docs.json", "Opplat API v1");
-    c.RoutePrefix = "docs";
+    options.Title = "Opplat API";
+    options.OpenApiRoutePattern = "/openapi/v1.json";
 });
 
 app.UseAuthentication();
@@ -222,6 +207,7 @@ app.MapAccountEndpoints();
 app.MapInventoryEndpoints();
 app.MapMenusEndpoints();
 app.MapSalesEndpoints();
+app.MapCatalogEndpoints();
 
 // app.MapFallbackToFile("index.html");
 
