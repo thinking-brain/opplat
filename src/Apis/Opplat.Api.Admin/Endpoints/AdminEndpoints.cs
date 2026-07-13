@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Opplat.Application.Abstractions.Admin;
-using Opplat.Api.Admin.Auth;
 using Opplat.Application.Dtos;
 using Opplat.Application.Features.Admin.Commands;
 using Opplat.Application.Abstractions.Options;

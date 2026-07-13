@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
   const runningInAspire = env.OPPLAT_RUNNING_IN_ASPIRE === 'true';
   const proxyTarget = env.VITE_DEV_PROXY_TARGET
     || env.VITE_ADMIN_API_URL
-    || 'http://localhost:8084';
+    || 'http://localhost:8080';
   const proxyOptions = {
     target: proxyTarget,
     changeOrigin: false,

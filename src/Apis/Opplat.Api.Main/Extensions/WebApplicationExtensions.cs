@@ -1,4 +1,5 @@
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
+using Opplat.Api.Common.Hosting;
 using Opplat.Api.Main.Middleware;
 using Scalar.AspNetCore;
 

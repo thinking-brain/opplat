@@ -1,4 +1,5 @@
 using Opplat.Api.Admin.Auth;
+using Opplat.Api.Common.Extensions;
 using Opplat.Api.Common.Hosting;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Infrastructure.DependencyInjection;
@@ -74,7 +75,7 @@ public static class WebBuilderExtension
         builder.Services.AddAdminDatabase(builder.Configuration);
         builder.Services.AddAdminMediatR();
         builder.Services.AddAdminAuthentication(authOptions, authRuntime, adminBffOptions, requireHttpsMetadata);
-        builder.Services.AddAdminCors(allowedCorsOrigins);
+        builder.Services.AddCorsConfig(allowedCorsOrigins);
         builder.Services.AddAdminInfrastructure(builder.Configuration);
         builder.Services.AddOpplatAspireDevelopmentSupport(builder.Environment);
 

@@ -47,22 +47,22 @@ var mainApi = builder.AddProject(
     .WithEnvironment("Auth__Audience", "opplat-api")
     .WithEnvironment("Auth__ClientIdClient", "opplat-client");
 
-var adminApi = builder.AddProject(
-        "admin-api",
-        RepoPath("src", "Apis", "Opplat.Api.Admin", "Opplat.Api.Admin.csproj"),
-        ConfigureProjectDefaults)
-    .WithReference(postgres)
-    .WaitFor(postgres)
-    .WithHttpEndpoint(port: 8084, name: "admin-api-http")
-    .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
-    .WithEnvironment(context => ConfigureAdminApiEnvironmentAsync(context, postgres.Resource, AdminDatabaseName))
-    .WithEnvironment("Auth__Authority", KeycloakAuthority)
-    .WithEnvironment("Auth__MetadataAddress", KeycloakMetadataAddress)
-    .WithEnvironment("Auth__Audience", "opplat-api")
-    .WithEnvironment("Auth__AdminBff__ClientId", "opplat-admin");
+// var adminApi = builder.AddProject(
+//         "admin-api",
+//         RepoPath("src", "Apis", "Opplat.Api.Admin", "Opplat.Api.Admin.csproj"),
+//         ConfigureProjectDefaults)
+//     .WithReference(postgres)
+//     .WaitFor(postgres)
+//     .WithHttpEndpoint(port: 8084, name: "admin-api-http")
+//     .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+//     .WithEnvironment(context => ConfigureAdminApiEnvironmentAsync(context, postgres.Resource, AdminDatabaseName))
+//     .WithEnvironment("Auth__Authority", KeycloakAuthority)
+//     .WithEnvironment("Auth__MetadataAddress", KeycloakMetadataAddress)
+//     .WithEnvironment("Auth__Audience", "opplat-api")
+//     .WithEnvironment("Auth__AdminBff__ClientId", "opplat-admin");
 
 var mainApiHttp = mainApi.GetEndpoint("main-api-http");
-var adminApiHttp = adminApi.GetEndpoint("admin-api-http");
+// var adminApiHttp = adminApi.GetEndpoint("admin-api-http");
 
 var clientApp = builder.AddViteApp(
         "client-app",
@@ -76,14 +76,14 @@ var clientApp = builder.AddViteApp(
     })
     .WithEnvironment("PORT", "3200")
     .WaitFor(mainApi)
-    .WaitFor(adminApi)
+    // .WaitFor(adminApi)
     .WaitFor(keycloak)
     .WithEnvironment("BROWSER", "none")
     .WithEnvironment("OPPLAT_RUNNING_IN_ASPIRE", "true")
     .WithEnvironment("VITE_APP_NAME", "Opplat Client")
     .WithEnvironment("VITE_API_URL", mainApiHttp)
-    .WithEnvironment("VITE_DEV_PROXY_TARGET", adminApiHttp)
-    .WithEnvironment("VITE_ADMIN_API_URL", string.Empty)
+    // .WithEnvironment("VITE_DEV_PROXY_TARGET", adminApiHttp)
+    .WithEnvironment("VITE_ADMIN_API_URL", mainApiHttp)
     .WithEnvironment("VITE_AUTH_AUTHORITY", KeycloakAuthority)
     .WithEnvironment("VITE_AUTH_CLIENT_ID", "opplat-client")
     .WithEnvironment("VITE_AUTH_AUDIENCE", "opplat-api")
@@ -100,20 +100,20 @@ var adminApp = builder.AddViteApp(
         endpoint.IsProxied = false;
     })
     .WithEnvironment("PORT", "3201")
-    .WaitFor(adminApi)
+    // .WaitFor(adminApi)
     .WithEnvironment("BROWSER", "none")
     .WithEnvironment("OPPLAT_RUNNING_IN_ASPIRE", "true")
     .WithEnvironment("VITE_APP_NAME", "Opplat Admin")
-    .WithEnvironment("VITE_DEV_PROXY_TARGET", adminApiHttp)
-    .WithEnvironment("VITE_ADMIN_API_URL", string.Empty);
+    // .WithEnvironment("VITE_DEV_PROXY_TARGET", adminApiHttp)
+    .WithEnvironment("VITE_ADMIN_API_URL", mainApiHttp);
 
 var clientAppHttp = clientApp.GetEndpoint("http");
 var adminAppHttp = adminApp.GetEndpoint("http");
 
-adminApi
-    .WithEnvironment("Auth__AdminBff__DefaultOrigin", adminAppHttp)
-    .WithEnvironment("Auth__AdminBff__AllowedOrigins__0", clientAppHttp)
-    .WithEnvironment("Auth__AdminBff__AllowedOrigins__1", adminAppHttp);
+// adminApi
+//     .WithEnvironment("Auth__AdminBff__DefaultOrigin", adminAppHttp)
+//     .WithEnvironment("Auth__AdminBff__AllowedOrigins__0", clientAppHttp)
+//     .WithEnvironment("Auth__AdminBff__AllowedOrigins__1", adminAppHttp);
 
 await builder.Build().RunAsync();
 

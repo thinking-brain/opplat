@@ -15,15 +15,14 @@ using Opplat.Infrastructure.Persistance.Data;
 using Opplat.Api.Main;
 using Opplat.Infrastructure.Services;
 using Opplat.Application.Utils;
-using Opplat.Api.Account.Endpoints;
-using Opplat.Api.Catalog.Endpoints;
-using Opplat.Api.Inventory.Endpoints;
-using Opplat.Api.Sales.Endpoints;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Application.Abstractions.Auth;
 using Npgsql;
 using Opplat.Infrastructure.DependencyInjection;
 using Scalar.AspNetCore;
+using Opplat.Api.Main.Extensions;
+using Opplat.Api.Admin.Extensions;
+using Opplat.Api.Common.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 var authSection = builder.Configuration.GetSection(AuthOptions.SectionName);
@@ -76,6 +75,7 @@ builder.Services.AddScoped<TenantProvisioningService>();
 // MEDIATR
 // ============================================
 builder.Services.AddOpplatApplication();
+builder.Services.AddAdminMediatR();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -145,21 +145,16 @@ builder.Services.AddOpenApi(options =>
     });
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: "CorsPolicy",
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader();
-        });
-});
+builder.Services.AddCorsConfig([
+    "http://localhost:3201",
+    "http://127.0.0.1:3201"
+]);
 
 builder.Services.AddSignalR();
 builder.Services.AddOpplatAspireDevelopmentSupport(builder.Environment);
 builder.Services.AddAdminDatabase(builder.Configuration);
 builder.Services.AddAdminInfrastructure(builder.Configuration);
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -198,14 +193,7 @@ app.UseAuthorization();
 // MULTI-TENANT AWARE ROUTING
 // ============================================
 
-// ============================================
-// MINIMAL API ENDPOINTS (Admin / Account / Inventory / License / Menus / Sales)
-// ============================================
-app.MapOpplatHealthEndpoints("main-api");
-app.MapAccountEndpoints();
-app.MapInventoryEndpoints();
-app.MapSalesEndpoints();
-app.MapCatalogEndpoints();
+app.MapEndpoints();
 
 // app.MapFallbackToFile("index.html");
 

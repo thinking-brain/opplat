@@ -1,8 +1,10 @@
-namespace Opplat.Api.Admin.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
-public static class AdminCorsExtensions
+namespace Opplat.Api.Common.Extensions;
+
+public static class CorsExtensions
 {
-    public static IServiceCollection AddAdminCors(
+    public static IServiceCollection AddCorsConfig(
         this IServiceCollection services,
         string[] allowedCorsOrigins)
     {
