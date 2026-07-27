@@ -2,6 +2,7 @@ using Finbuckle.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SalesEntities = Opplat.Domain.Entities.Sales;
+using InvoicingEntities = Opplat.Domain.Entities.Invoicing;
 using InventoryEntities = Opplat.Domain.Entities.Inventory;
 using Opplat.Domain.Models;
 using Finbuckle.MultiTenant.EntityFrameworkCore.Extensions;
@@ -30,6 +31,7 @@ public class OpplatDbContext(
             t => t.Namespace != null && (
                 t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Common") ||
                 t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Sales") ||
+                t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Invoicing") ||
                 t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Inventory") ||
                 t.Namespace.StartsWith("Opplat.Infrastructure.Persistance.Configurations.Core")));
     }
@@ -58,6 +60,15 @@ public class OpplatDbContext(
     public DbSet<SalesEntities.ProductTag> ProductTags { get; set; }
     public DbSet<SalesEntities.Annotation> Annotations { get; set; }
     public DbSet<SalesEntities.Sale> Sales { get; set; }
+
+    // Invoicing Entities
+    public DbSet<InvoicingEntities.Customer> Customers { get; set; }
+    public DbSet<InvoicingEntities.Invoice> Invoices { get; set; }
+    public DbSet<InvoicingEntities.InvoiceLine> InvoiceLines { get; set; }
+    public DbSet<InvoicingEntities.InvoiceTaxBreakdown> InvoiceTaxBreakdowns { get; set; }
+    public DbSet<InvoicingEntities.InvoiceCounter> InvoiceCounters { get; set; }
+    public DbSet<InvoicingEntities.InvoiceFiscalRecord> InvoiceFiscalRecords { get; set; }
+    public DbSet<InvoicingEntities.TenantFiscalSettings> TenantFiscalSettings { get; set; }
 
     // Inventory Entities
     public DbSet<InventoryEntities.Product> Products { get; set; }
