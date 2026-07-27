@@ -16,6 +16,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSalesApplication();
         services.AddInventoryApplication();
+        services.AddInvoicingApplication();
 
         // Features.Admin.* handlers are exclusively for AdminApi and require admin-only services
         // (AdminTenantCatalogDbContext, ITenantProvisioningCoordinator, IKeycloakUserService)
