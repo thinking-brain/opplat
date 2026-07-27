@@ -1,4 +1,4 @@
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 using Opplat.Application.Utils;
 using Opplat.Domain.Models;
 

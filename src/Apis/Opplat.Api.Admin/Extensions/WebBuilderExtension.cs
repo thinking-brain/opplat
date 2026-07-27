@@ -73,7 +73,7 @@ public static class WebBuilderExtension
         });
 
         builder.Services.AddAdminDatabase(builder.Configuration);
-        builder.Services.AddAdminMediatR();
+        builder.Services.AddAdminMediator();
         builder.Services.AddAdminAuthentication(authOptions, authRuntime, adminBffOptions, requireHttpsMetadata);
         builder.Services.AddCorsConfig(allowedCorsOrigins);
         builder.Services.AddAdminInfrastructure(builder.Configuration);

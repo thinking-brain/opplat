@@ -1,18 +1,15 @@
 using System.Reflection;
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 
 namespace Opplat.Api.Admin.Extensions;
 
-public static class AdminMediatRExtensions
+public static class AdminMediatorExtensions
 {
-    public static IServiceCollection AddAdminMediatR(this IServiceCollection services)
+    public static IServiceCollection AddAdminMediator(this IServiceCollection services)
     {
-        services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-        });
+        services.AddMediator(Assembly.GetExecutingAssembly());
 
-        // Selectively register only admin- and account-relevant MediatR handlers from Opplat.Application
+        // Selectively register only admin- and account-relevant handlers from Opplat.Application
         // to avoid pulling in Sales/Inventory/License/Menus handlers that require unregistered repositories.
         // Handlers that depend on per-tenant services (OpplatDbContext, Finbuckle IMultiTenantContextAccessor /
         // IMultiTenantStore) are excluded — AdminApi does not run in a per-tenant context.
@@ -29,24 +26,10 @@ public static class AdminMediatRExtensions
         };
 
         var appAssembly = typeof(Opplat.Application.Features.Account.Commands.ChangePasswordCommand).Assembly;
-        var adminHandlerTypes = appAssembly.ExportedTypes
-            .Where(t => !t.IsAbstract && !t.IsInterface
-                && !adminApiExcludedHandlers.Contains(t.Name)
-                && (t.Namespace?.StartsWith("Opplat.Application.Features.Admin") == true
-                    || t.Namespace?.StartsWith("Opplat.Application.Features.Account") == true))
-            .ToList();
-
-        foreach (var handlerType in adminHandlerTypes)
-        {
-            foreach (var iface in handlerType.GetInterfaces()
-                .Where(i => i.IsGenericType
-                    && (i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>)
-                        || i.GetGenericTypeDefinition() == typeof(IRequestHandler<>)
-                        || i.GetGenericTypeDefinition() == typeof(INotificationHandler<>))))
-            {
-                services.AddTransient(iface, handlerType);
-            }
-        }
+        services.AddRequestHandlersFromAssembly(appAssembly, t =>
+            !adminApiExcludedHandlers.Contains(t.Name)
+            && (t.Namespace?.StartsWith("Opplat.Application.Features.Admin") == true
+                || t.Namespace?.StartsWith("Opplat.Application.Features.Account") == true));
 
         return services;
     }

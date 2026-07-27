@@ -7,8 +7,6 @@
   </PropertyGroup>
   <!-- NuGet Package Versions -->
   <ItemGroup>
-    <!-- MediatR -->
-    <PackageVersion Include="MediatR" Version="12.4.1" />
     <!-- Entity Framework Core & Database Providers -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

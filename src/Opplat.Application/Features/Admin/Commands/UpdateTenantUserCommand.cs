@@ -1,4 +1,4 @@
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Opplat.Application.Abstractions.Identity;

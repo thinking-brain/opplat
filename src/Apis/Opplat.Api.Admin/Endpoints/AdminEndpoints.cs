@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

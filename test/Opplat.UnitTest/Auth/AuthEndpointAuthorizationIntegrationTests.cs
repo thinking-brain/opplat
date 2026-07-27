@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Globalization;
 using System.Text.Encodings.Web;
 using Finbuckle.MultiTenant.Abstractions;
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

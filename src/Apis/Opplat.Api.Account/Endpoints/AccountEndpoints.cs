@@ -1,5 +1,5 @@
 using Finbuckle.MultiTenant.Abstractions;
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 using Microsoft.AspNetCore.Mvc;
 using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Dtos;

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Opplat.Application.Abstractions.Auth;
+using Opplat.Application.Abstractions.Messaging;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Application.Dtos;
 using Opplat.Infrastructure.Persistance.Data.Administration;
@@ -322,8 +323,7 @@ public class AdminApiMinimalEndpointContractTests
         // builder.Services.AddScoped<Opplat.Api.Admin.Services.TenantProvisioningCoordinator>();
         // builder.Services.AddSingleton<IEnumerable<Opplat.Api.Admin.Services.ITenantProvisioningReporter>>([]);
         // builder.Services.AddSingleton<IEnumerable<Opplat.Api.Admin.Services.ITenantSchemaMigrationReporter>>([]);
-        builder.Services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(typeof(Opplat.Api.Admin.Endpoints.AdminEndpoints).Assembly));
+        builder.Services.AddMediator(typeof(Opplat.Api.Admin.Endpoints.AdminEndpoints).Assembly);
 
         return builder.Build();
     }

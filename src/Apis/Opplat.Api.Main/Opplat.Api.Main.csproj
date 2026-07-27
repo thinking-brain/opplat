@@ -6,7 +6,6 @@
   <ItemGroup>
     <!-- <PackageReference Include="LicenceChecker" /> -->
     <PackageReference Include="mailkit" />
-    <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />

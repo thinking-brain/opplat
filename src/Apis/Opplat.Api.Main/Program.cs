@@ -72,10 +72,10 @@ builder.Services.AddScoped<MenuLoader>();
 builder.Services.AddScoped<TenantProvisioningService>();
 
 // ============================================
-// MEDIATR
+// MEDIATOR
 // ============================================
 builder.Services.AddOpplatApplication();
-builder.Services.AddAdminMediatR();
+builder.Services.AddAdminMediator();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

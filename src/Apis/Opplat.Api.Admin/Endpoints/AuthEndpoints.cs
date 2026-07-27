@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 using Microsoft.AspNetCore.Mvc;
 using Opplat.Application.Features.Admin.Commands;
 

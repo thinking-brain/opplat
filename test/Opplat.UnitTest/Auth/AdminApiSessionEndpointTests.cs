@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Opplat.Api.Admin.Endpoints;
 using Opplat.Application.Abstractions.Auth;
+using Opplat.Application.Abstractions.Messaging;
 using Opplat.Application.Abstractions.Options;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 using Opplat.Infrastructure.Services;
@@ -166,8 +167,7 @@ public class AdminApiSessionEndpointTests
         builder.Services.AddScoped<ITenantProvisioningCoordinator, TenantProvisioningCoordinator>();
         builder.Services.AddSingleton<IEnumerable<Opplat.Infrastructure.Services.ITenantProvisioningReporter>>([]);
         builder.Services.AddSingleton<IEnumerable<Opplat.Application.Abstractions.Services.ITenantSchemaMigrationReporter>>([]);
-        builder.Services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(typeof(Opplat.Api.Admin.Endpoints.AdminEndpoints).Assembly));
+        builder.Services.AddMediator(typeof(Opplat.Api.Admin.Endpoints.AdminEndpoints).Assembly);
 
         var app = builder.Build();
         // await AdminPortalDataSeeder.InitializeAsync(app.Services);

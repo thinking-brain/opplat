@@ -1,5 +1,3 @@
-using MediatR;
-
 namespace Opplat.Application.Abstractions.Messaging;
 
 public interface ICommand : IRequest<Unit>;

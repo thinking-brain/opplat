@@ -1,5 +1,5 @@
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Opplat.Application.Abstractions.Messaging;
 using Opplat.Application.Features.Account.Commands;
 
 namespace Opplat.Application.DependencyInjection;
@@ -11,8 +11,8 @@ public static class ServiceCollectionExtensions
     {
         var appAssembly = typeof(ChangePasswordCommand).Assembly;
 
-        // Scan the full application assembly to register MediatR infrastructure and all handlers.
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(appAssembly));
+        // Scan the full application assembly to register the mediator infrastructure and all handlers.
+        services.AddMediator(appAssembly);
 
         services.AddSalesApplication();
         services.AddInventoryApplication();

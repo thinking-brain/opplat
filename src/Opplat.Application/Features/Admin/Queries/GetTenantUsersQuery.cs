@@ -1,5 +1,5 @@
 using Finbuckle.MultiTenant.Abstractions;
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Opplat.Application.Dtos;
 using Opplat.Domain.Models;

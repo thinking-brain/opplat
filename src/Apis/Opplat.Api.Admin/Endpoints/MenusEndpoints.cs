@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 using Opplat.Application.Features.Menus.Queries;
 
 namespace Opplat.Api.Sales.Endpoints;

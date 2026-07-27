@@ -1,4 +1,4 @@
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 using Microsoft.AspNetCore.Mvc;
 using Opplat.Application.Dtos;
 using Opplat.Application.Features.Sales.Common;

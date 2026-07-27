@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 using Finbuckle.MultiTenant.Abstractions;
 using Opplat.Domain.Models;
 

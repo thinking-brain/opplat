@@ -1,4 +1,4 @@
-using MediatR;
+using Opplat.Application.Abstractions.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Opplat.Infrastructure.Persistance.Data;
 
