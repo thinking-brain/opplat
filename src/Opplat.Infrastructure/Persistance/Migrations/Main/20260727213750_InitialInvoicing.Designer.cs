@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Opplat.Infrastructure.Persistance.Data;
@@ -11,9 +12,11 @@ using Opplat.Infrastructure.Persistance.Data;
 namespace Opplat.Infrastructure.Persistance.Migrations.Main
 {
     [DbContext(typeof(OpplatDbContext))]
-    partial class OpplatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260727213750_InitialInvoicing")]
+    partial class InitialInvoicing
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

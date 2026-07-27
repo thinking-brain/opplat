@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Apis\Opplat.Api.Main\Opplat.Api.Main.csproj" />
     <ProjectReference Include="..\..\src\Apis\Opplat.Api.Admin\Opplat.Api.Admin.csproj" />
+    <ProjectReference Include="..\..\src\Apis\Opplat.Api.Invoicing\Opplat.Api.Invoicing.csproj" />
     <ProjectReference Include="..\..\src\Opplat.Infrastructure\Opplat.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Opplat.Application.Abstractions\Opplat.Application.Abstractions.csproj" />
   </ItemGroup>
