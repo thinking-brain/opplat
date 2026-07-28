@@ -41,6 +41,10 @@
     <PackageVersion Include="Azure.Identity" Version="1.19.0" />
     <!-- HTTP Resilience (Polly-based retry for HttpClient) -->
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.0.0" />
+    <!-- PDF generation -->
+    <PackageVersion Include="QuestPDF" Version="2026.7.1" />
+    <!-- QR code generation -->
+    <PackageVersion Include="QRCoder" Version="1.8.0" />
     <!-- Mail -->
     <PackageVersion Include="mailkit" Version="4.17.0" />
     <!-- Testing -->

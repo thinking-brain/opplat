@@ -127,3 +127,55 @@ public sealed class CancelInvoiceCommandHandler(OpplatDbContext dbContext)
         return InvoiceCommandResult.From(true, "Invoice cancelled.");
     }
 }
+
+public sealed record GetInvoicePdfQuery(string Id) : IQuery<byte[]?>;
+
+public sealed class GetInvoicePdfQueryHandler(
+    OpplatDbContext dbContext,
+    IInvoicePdfRenderer pdfRenderer)
+    : IQueryHandler<GetInvoicePdfQuery, byte[]?>
+{
+    public async Task<byte[]?> Handle(GetInvoicePdfQuery request, CancellationToken cancellationToken)
+    {
+        var invoice = await dbContext.Invoices
+            .Include(i => i.Lines)
+            .Include(i => i.TaxBreakdowns)
+            .Include(i => i.FiscalRecord)
+            .FirstOrDefaultAsync(i => i.Id == Guid.Parse(request.Id), cancellationToken);
+
+        return invoice is null ? null : pdfRenderer.Render(invoice);
+    }
+}
+
+public sealed record SendInvoiceEmailCommand(string Id, string RecipientEmail, string? User)
+    : ICommand<InvoiceCommandResult>;
+
+public sealed class SendInvoiceEmailCommandHandler(
+    OpplatDbContext dbContext,
+    IInvoicePdfRenderer pdfRenderer,
+    IInvoiceEmailService emailService)
+    : ICommandHandler<SendInvoiceEmailCommand, InvoiceCommandResult>
+{
+    public async Task<InvoiceCommandResult> Handle(SendInvoiceEmailCommand request, CancellationToken cancellationToken)
+    {
+        var invoice = await dbContext.Invoices
+            .Include(i => i.Lines)
+            .Include(i => i.TaxBreakdowns)
+            .Include(i => i.FiscalRecord)
+            .FirstOrDefaultAsync(i => i.Id == Guid.Parse(request.Id), cancellationToken);
+
+        if (invoice is null)
+            return InvoiceCommandResult.From(false, "Invoice not found.");
+
+        if (invoice.Status != InvoiceStatus.Issued)
+            return InvoiceCommandResult.From(false, "Only issued invoices can be emailed.");
+
+        var pdfBytes = pdfRenderer.Render(invoice);
+        await emailService.SendAsync(invoice, pdfBytes, request.RecipientEmail, cancellationToken);
+
+        invoice.Status = InvoiceStatus.Sent;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return InvoiceCommandResult.From(true, "Invoice sent by email.");
+    }
+}

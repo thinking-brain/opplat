@@ -43,6 +43,20 @@ public static class InvoicingEndpoints
             return BuildResponse(result);
         }).RequireAuthorization();
 
+        invoices.MapGet("/{id}/pdf", async (string id, [FromServices] IMediator mediator) =>
+        {
+            var pdfBytes = await mediator.Send(new GetInvoicePdfQuery(id));
+            return pdfBytes is null
+                ? Results.NotFound()
+                : Results.File(pdfBytes, "application/pdf", $"Invoice_{id}.pdf");
+        }).RequireAuthorization();
+
+        invoices.MapPost("/{id}/send", async (string id, [FromQuery] string email, [FromServices] IMediator mediator, HttpContext httpContext) =>
+        {
+            var result = await mediator.Send(new SendInvoiceEmailCommand(id, email, GetCurrentUser(httpContext)));
+            return BuildResponse(result);
+        }).RequireAuthorization();
+
         var settings = endpoints.MapGroup("/invoicing/settings").WithTags("Invoicing");
         settings.MapGet(string.Empty, async ([FromServices] IMediator mediator) =>
         {
