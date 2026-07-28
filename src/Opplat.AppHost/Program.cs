@@ -14,6 +14,7 @@ var postgresUser = builder.AddParameter("postgres-user", "postgres");
 var postgresPassword = builder.AddParameter("postgres-password", PostgresPasswordValue, secret: true);
 
 var postgres = builder.AddPostgres("postgres", postgresUser, postgresPassword, port: 5432)
+    .WithImageTag("18")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithContainerName("opplat-postgres")
     .WithDataVolume("opplat-postgres-data")
