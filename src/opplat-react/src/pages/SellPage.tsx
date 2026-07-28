@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Minus, Trash2, ShoppingCart } from 'lucide-react';
+import { Plus, Minus, Trash2, ShoppingCart, FileText } from 'lucide-react';
 import { productsApi } from '../api/products.api';
 import { salesApi } from '../api/sales.api';
+import { invoicesApi } from '../api/invoices.api';
 import { ProductForSale, SaleItem } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
@@ -10,6 +11,8 @@ export const SellPage: React.FC = () => {
   const [cart, setCart] = useState<SaleItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [generatingInvoice, setGeneratingInvoice] = useState(false);
+  const [lastSaleId, setLastSaleId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [saleDetails, setSaleDetails] = useState({
     dependiente: '',
@@ -102,11 +105,12 @@ export const SellPage: React.FC = () => {
 
     try {
       setSubmitting(true);
-      await salesApi.create({
+      const created = await salesApi.create({
         date: new Date().toISOString(),
         total: calculateTotal(),
         items: cart,
       });
+      setLastSaleId(created?.id ?? null);
       setSnackbar({ open: true, message: '¡Venta registrada exitosamente!', severity: 'success' });
       setCart([]);
       setSaleDetails({ dependiente: '', posicion: '', comanda: '', observaciones: '' });
@@ -114,6 +118,37 @@ export const SellPage: React.FC = () => {
       setSnackbar({ open: true, message: 'Error al procesar la venta', severity: 'error' });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleGenerateInvoice = async () => {
+    if (!lastSaleId) return;
+    setGeneratingInvoice(true);
+    try {
+      const result = await invoicesApi.create({
+        series: 'A',
+        number: 0,
+        fullNumber: '',
+        issueDate: new Date().toISOString(),
+        invoiceType: 'Simplified',
+        status: 'Draft',
+        saleId: lastSaleId,
+        currency: 'EUR',
+        subtotal: 0,
+        totalAmount: 0,
+        customerSnapshot: { name: '', isFinalConsumer: true },
+        lines: [],
+      });
+      if (result.status) {
+        setSnackbar({ open: true, message: 'Factura creada. Complétala en la sección Facturas.', severity: 'success' });
+        setLastSaleId(null);
+      } else {
+        setSnackbar({ open: true, message: result.message, severity: 'error' });
+      }
+    } catch {
+      setSnackbar({ open: true, message: 'Error al crear la factura', severity: 'error' });
+    } finally {
+      setGeneratingInvoice(false);
     }
   };
 
@@ -271,6 +306,16 @@ export const SellPage: React.FC = () => {
                   >
                     {submitting ? 'Procesando...' : 'Registrar Venta'}
                   </button>
+                  {lastSaleId && (
+                    <button
+                      className="mt-2 w-full py-2 text-sm border border-blue-500 text-blue-600 rounded hover:bg-blue-50 flex items-center justify-center gap-1.5"
+                      onClick={handleGenerateInvoice}
+                      disabled={generatingInvoice}
+                    >
+                      <FileText size={14} />
+                      {generatingInvoice ? 'Generando...' : 'Generar Factura'}
+                    </button>
+                  )}
                 </div>
               </>
             )}

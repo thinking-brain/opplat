@@ -140,3 +140,84 @@ export interface MovementType {
   id: number;
   name: string;
 }
+
+// ── Invoicing ────────────────────────────────────────────────────────────────
+
+export type InvoiceType = 'Simplified' | 'Full' | 'Rectifying' | 'Substitutive';
+export type InvoiceStatus = 'Draft' | 'Issued' | 'Sent' | 'Cancelled';
+export type FiscalSubmissionStatus = 'NotApplicable' | 'Pending' | 'Submitted' | 'Accepted' | 'Rejected';
+export type InvoicingMode = 'None' | 'Verifactu' | 'NonVerifactuSigned';
+
+export interface CustomerSnapshot {
+  name: string;
+  taxId?: string;
+  address?: string;
+  country?: string;
+  isFinalConsumer: boolean;
+}
+
+export interface InvoiceLine {
+  id?: string;
+  productId?: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  discountAmount: number;
+  taxRate: number;
+  lineTotal: number;
+}
+
+export interface InvoiceTaxBreakdown {
+  taxType: string;
+  rate: number;
+  taxableBase: number;
+  taxAmount: number;
+}
+
+export interface InvoiceFiscalRecord {
+  previousRecordHash?: string;
+  recordHash: string;
+  generatedAtUtc: string;
+  submissionMode: string;
+  submissionStatus: FiscalSubmissionStatus;
+  aeatCsv?: string;
+  aeatSubmittedAtUtc?: string;
+  qrCodePayload?: string;
+  retryCount: number;
+  nextRetryAtUtc?: string;
+  lastErrorMessage?: string;
+}
+
+export interface Invoice {
+  id?: string;
+  series: string;
+  number: number;
+  fullNumber: string;
+  issueDate: string;
+  invoiceType: InvoiceType;
+  status: InvoiceStatus;
+  saleId?: string;
+  customerId?: string;
+  customerSnapshot: CustomerSnapshot;
+  currency: string;
+  subtotal: number;
+  totalAmount: number;
+  paymentMethod?: string;
+  notes?: string;
+  lines: InvoiceLine[];
+  taxBreakdowns?: InvoiceTaxBreakdown[];
+  fiscalRecord?: InvoiceFiscalRecord;
+}
+
+export interface TenantFiscalSettings {
+  legalName: string;
+  taxId: string;
+  fiscalAddress: string;
+  country?: string;
+  businessSector?: string;
+  defaultSeries: string;
+  invoicingMode: InvoicingMode;
+  simplifiedInvoiceThreshold: number;
+  softwareLicenseId?: string;
+}
+

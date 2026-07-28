@@ -5,6 +5,8 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 import { TenantAccessGate } from './auth/TenantAccessGate';
 import { HomePage } from './pages/HomePage';
 import { InventoryPage } from './pages/InventoryPage';
+import { InvoicesPage } from './pages/InvoicesPage';
+import { InvoiceSettingsPage } from './pages/InvoiceSettingsPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ProductsPage } from './pages/ProductsPage';
@@ -51,6 +53,8 @@ function App() {
         <Route path="inventory/warehouses" element={<WarehousesPage />} />
         <Route path="inventory/classifications" element={<ProductClassificationsPage />} />
         <Route path="inventory/groups" element={<ProductGroupsPage />} />
+        <Route path="invoices" element={<InvoicesPage />} />
+        <Route path="invoicing/settings" element={<InvoiceSettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -13,5 +13,7 @@ public sealed class InvoiceFiscalRecordConfiguration : IEntityTypeConfiguration<
         builder.Property(record => record.SoftwareName).IsRequired();
         builder.Property(record => record.SoftwareVersion).IsRequired();
         builder.HasIndex(record => record.InvoiceId).IsUnique();
+        // Outbox dequeue index: only rows eligible for the next retry tick
+        builder.HasIndex(record => new { record.SubmissionStatus, record.NextRetryAtUtc });
     }
 }

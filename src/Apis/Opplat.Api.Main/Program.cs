@@ -154,7 +154,7 @@ builder.Services.AddSignalR();
 builder.Services.AddOpplatAspireDevelopmentSupport(builder.Environment);
 builder.Services.AddAdminDatabase(builder.Configuration);
 builder.Services.AddAdminInfrastructure(builder.Configuration);
-builder.Services.AddInvoicingInfrastructure();
+builder.Services.AddInvoicingInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

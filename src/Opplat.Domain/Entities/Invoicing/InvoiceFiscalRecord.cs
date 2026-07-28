@@ -49,4 +49,11 @@ public sealed class InvoiceFiscalRecord : BaseEntity
     public string? QrCodePayload { get; set; }
 
     public string? SignatureValue { get; set; }
+
+    // Transactional outbox retry state
+    public int RetryCount { get; set; }
+
+    public DateTime? NextRetryAtUtc { get; set; }
+
+    public string? LastErrorMessage { get; set; }
 }
