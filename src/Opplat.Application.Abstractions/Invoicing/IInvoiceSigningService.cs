@@ -6,12 +6,7 @@ namespace Opplat.Application.Abstractions.Invoicing;
 /// Signs a <see cref="InvoiceFiscalRecord"/> with an electronic signature (XAdES) for the
 /// non-Verifactu SIF compliance path defined in RD 1007/2023.
 /// </summary>
-/// <remarks>
-/// Certificate upload, storage, and XAdES signing are out of scope for the current MVP.
-/// The only registered implementation is <c>NotImplementedInvoiceSigningService</c>, which
-/// throws <see cref="NotImplementedException"/> and serves as a placeholder until a real
-/// signing pipeline is built.
-/// </remarks>
+/// <remarks>The certificate is supplied to the infrastructure implementation by configuration.</remarks>
 public interface IInvoiceSigningService
 {
     /// <summary>

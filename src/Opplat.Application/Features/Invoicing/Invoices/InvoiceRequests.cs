@@ -56,7 +56,8 @@ public sealed class IssueInvoiceCommandHandler(
     OpplatDbContext dbContext,
     IInvoiceCounterService invoiceCounterService,
     IInvoiceFiscalizationProvider fiscalizationProvider,
-    IInvoiceTypeResolver invoiceTypeResolver)
+    IInvoiceTypeResolver invoiceTypeResolver,
+    IInvoiceSigningService? invoiceSigningService = null)
     : ICommandHandler<IssueInvoiceCommand, InvoiceCommandResult>
 {
     public async Task<InvoiceCommandResult> Handle(IssueInvoiceCommand request, CancellationToken cancellationToken)
@@ -97,6 +98,13 @@ public sealed class IssueInvoiceCommandHandler(
             .FirstOrDefaultAsync(cancellationToken);
 
         var record = await fiscalizationProvider.GenerateRecordAsync(invoice, previousRecord, cancellationToken);
+        if (record.SubmissionMode == FiscalSubmissionMode.NonVerifactuSigned)
+        {
+            if (invoiceSigningService is null)
+                return InvoiceCommandResult.From(false, "An XAdES signing service is required for signed fiscal records.");
+
+            await invoiceSigningService.SignAsync(record, cancellationToken);
+        }
         invoice.FiscalRecord = record;
 
         invoice.Status = InvoiceStatus.Issued;

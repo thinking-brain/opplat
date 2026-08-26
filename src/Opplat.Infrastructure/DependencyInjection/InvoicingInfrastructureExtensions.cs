@@ -15,7 +15,7 @@ public static class InvoicingInfrastructureExtensions
         services.AddScoped<IInvoiceCounterService, InvoiceCounterService>();
         services.AddScoped<IInvoiceTypeResolver, DefaultInvoiceTypeResolver>();
         services.AddScoped<IInvoicePdfRenderer, InvoicePdfRenderer>();
-        services.AddScoped<IInvoiceSigningService, NotImplementedInvoiceSigningService>();
+        services.AddScoped<IInvoiceSigningService, XadesInvoiceSigningService>();
 
         // Register the fiscalization provider that matches the tenant's InvoicingMode.
         // The NullFiscalizationProvider is the safe default for non-Spain / non-Verifactu tenants.
@@ -27,6 +27,8 @@ public static class InvoicingInfrastructureExtensions
 
         if (configuration is not null)
         {
+            services.Configure<XadesSigningOptions>(
+                configuration.GetSection(XadesSigningOptions.SectionName));
             services.Configure<VerifactuWorkerOptions>(
                 configuration.GetSection(VerifactuWorkerOptions.SectionName));
             services.Configure<VerifactuSubmissionOptions>(
@@ -34,6 +36,7 @@ public static class InvoicingInfrastructureExtensions
         }
         else
         {
+            services.Configure<XadesSigningOptions>(_ => { });
             services.Configure<VerifactuWorkerOptions>(_ => { });
             services.Configure<VerifactuSubmissionOptions>(_ => { });
         }
