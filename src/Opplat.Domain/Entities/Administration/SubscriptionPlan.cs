@@ -14,6 +14,14 @@ public sealed class SubscriptionPlan : BaseEntity
 
     public decimal PricingMonthly { get; set; }
 
+    public decimal PricingAnnual { get; set; }
+
+    public string Currency { get; set; } = "EUR";
+
+    public string? StripePriceIdMonthly { get; set; }
+
+    public string? StripePriceIdAnnual { get; set; }
+
     public string? ResourceLimits { get; set; }
 
     public bool IsActive { get; set; } = true;

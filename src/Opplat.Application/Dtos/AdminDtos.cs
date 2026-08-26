@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Opplat.Domain.Entities.Administration;
 
 namespace Opplat.Application.Dtos;
 
@@ -50,6 +51,10 @@ public sealed class AdminSubscriptionPlanDto
     public decimal MaxApiCallsPerMonth { get; set; }
     public decimal MaxStorageGb { get; set; }
     public decimal PricingMonthly { get; set; }
+    public decimal PricingAnnual { get; set; }
+    public string Currency { get; set; } = "EUR";
+    public string? StripePriceIdMonthly { get; set; }
+    public string? StripePriceIdAnnual { get; set; }
     public string? ResourceLimits { get; set; }
     public bool IsActive { get; set; }
 }
@@ -120,7 +125,9 @@ public sealed record TenantRegistrationRequest(
     string Password,
     string BusinessName,
     string TenantIdentifier,
-    Guid? SubscriptionPlanId = null);
+    Guid? SubscriptionPlanId = null,
+    BillingInterval BillingInterval = BillingInterval.Monthly,
+    string? StripePaymentMethodId = null);
 
 public sealed record TenantRegistrationResult(
     bool Succeeded,

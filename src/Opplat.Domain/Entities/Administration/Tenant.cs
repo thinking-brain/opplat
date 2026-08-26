@@ -6,6 +6,20 @@ public enum TenantStatus
     Inactive
 }
 
+public enum TenantBillingStatus
+{
+    Trialing,
+    Active,
+    PastDue,
+    Cancelled
+}
+
+public enum BillingInterval
+{
+    Monthly,
+    Annual
+}
+
 public sealed class Tenant : BaseEntity
 {
     public string Identifier { get; set; } = string.Empty;
@@ -14,9 +28,21 @@ public sealed class Tenant : BaseEntity
 
     public TenantStatus Status { get; set; } = TenantStatus.Active;
 
+    public TenantBillingStatus BillingStatus { get; set; } = TenantBillingStatus.Active;
+
+    public BillingInterval BillingInterval { get; set; } = BillingInterval.Monthly;
+
     public Guid SubscriptionPlanId { get; set; }
 
     public DateTime? InactivatedAt { get; set; }
+
+    public DateTime? NextBillingDate { get; set; }
+
+    public string? StripeCustomerId { get; set; }
+
+    public string? StripeSubscriptionId { get; set; }
+
+    public bool CancelAtPeriodEnd { get; set; }
 
     public Guid DatabaseInstanceId { get; set; }
 

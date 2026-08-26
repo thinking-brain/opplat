@@ -41,6 +41,10 @@ internal static class AdminPortalMappings
         MaxApiCallsPerMonth = plan.MaxApiCallsPerMonth,
         MaxStorageGb = plan.MaxStorageGb,
         PricingMonthly = plan.PricingMonthly,
+        PricingAnnual = plan.PricingAnnual,
+        Currency = plan.Currency,
+        StripePriceIdMonthly = plan.StripePriceIdMonthly,
+        StripePriceIdAnnual = plan.StripePriceIdAnnual,
         ResourceLimits = plan.ResourceLimits,
         IsActive = plan.IsActive
     };

@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   FileText,
+  CreditCard,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { hasAnyRole } from '../auth/roles';
@@ -28,6 +29,7 @@ const navItems: NavItem[] = [
   { label: 'Products', path: '/products', icon: <Package size={20} /> },
   { label: 'Sell', path: '/sell', icon: <ShoppingCart size={20} /> },
   { label: 'Facturas', path: '/invoices', icon: <FileText size={20} /> },
+  { label: 'Facturación', path: '/billing', icon: <CreditCard size={20} /> },
   { label: 'Inventory', path: '/inventory', icon: <Warehouse size={20} /> },
   { label: 'Almacenes', path: '/inventory/warehouses', icon: <Warehouse size={20} /> },
   { label: 'Clasificaciones', path: '/inventory/classifications', icon: <Tag size={20} /> },

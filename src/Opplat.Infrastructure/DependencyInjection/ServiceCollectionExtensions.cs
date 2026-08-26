@@ -4,12 +4,31 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Opplat.Application.Abstractions.Identity;
+using Opplat.Application.Abstractions.Options;
+using Opplat.Application.Abstractions.Services;
 using Opplat.Infrastructure.Identity;
+using Opplat.Infrastructure.Services.Billing;
 
 namespace Opplat.Infrastructure.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddPaymentGatewayService(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var section = configuration.GetSection(StripeOptions.SectionName);
+        services.Configure<StripeOptions>(section);
+        var options = section.Get<StripeOptions>() ?? new StripeOptions();
+
+        services.AddScoped<IPaymentGatewayService, NoOpPaymentGatewayService>();
+
+        if (options.Enabled)
+            throw new InvalidOperationException("Stripe payment gateway is enabled but its implementation is not configured yet.");
+
+        return services;
+    }
+
     /// <summary>
     /// Registers Graph API user-lifecycle services.
     /// When <c>GraphApi:Enabled</c> is true, wires the real Graph SDK client with

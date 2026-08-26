@@ -21,6 +21,34 @@ public static class AdminEndpoints
 
     public static void MapAdminEndpoints(this IEndpointRouteBuilder app)
     {
+        var tenantBilling = app.MapGroup("/billing")
+            .WithTags("Billing")
+            .RequireAuthorization("TenantAdminOnly");
+
+        tenantBilling.MapPost("/cancel",
+            async (HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                await mediator.Send(new CancelSubscriptionCommand(GetTenantIdentifier(httpContext)), cancellationToken);
+                return Results.NoContent();
+            })
+            .WithSummary("Cancel the current subscription at the end of the billing period");
+
+        tenantBilling.MapPost("/portal-session",
+            async (BillingPortalRequest request, HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var result = await mediator.Send(
+                    new CreateBillingPortalSessionCommand(GetTenantIdentifier(httpContext), request.ReturnUrl),
+                    cancellationToken);
+                return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
+            })
+            .WithSummary("Create a hosted billing portal session");
+
+        tenantBilling.MapGet("/history",
+            async (HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+                Results.Ok(await mediator.Send(
+                    new GetSubscriptionPaymentHistoryQuery(GetTenantIdentifier(httpContext)), cancellationToken)))
+            .WithSummary("List subscription payment history");
+
         var adminData = app.MapGroup("/admin")
             .WithTags("Admin");
 
@@ -180,6 +208,13 @@ public static class AdminEndpoints
             .AllowAnonymous()
             .WithSummary("Admin BFF access denied");
     }
+
+    private static string GetTenantIdentifier(HttpContext httpContext) =>
+        httpContext.Request.Headers["X-Tenant-Identifier"].FirstOrDefault()
+        ?? httpContext.User.FindFirst(AuthClaimTypes.TenantIdentifier)?.Value
+        ?? throw new InvalidOperationException("Tenant identifier is required.");
+
+    private sealed record BillingPortalRequest(string ReturnUrl);
 
     private static async Task<AdminSessionDto> BuildSessionAsync(HttpContext httpContext, AuthOptions authOptions)
     {

@@ -16,11 +16,13 @@ public sealed class RegisterTenantCommandHandler(
     AdminTenantCatalogDbContext db,
     IUserManagementService userManagementService,
     ITenantProvisioningCoordinator provisioningCoordinator,
+    IPaymentGatewayService paymentGatewayService,
     ILogger<RegisterTenantCommandHandler> logger) : IRequestHandler<RegisterTenantCommand, TenantRegistrationResult>
 {
     private readonly AdminTenantCatalogDbContext _db = db;
     private readonly IUserManagementService _userManagementService = userManagementService;
     private readonly ITenantProvisioningCoordinator _provisioningCoordinator = provisioningCoordinator;
+    private readonly IPaymentGatewayService _paymentGatewayService = paymentGatewayService;
     private readonly ILogger<RegisterTenantCommandHandler> _logger = logger;
 
     public async Task<TenantRegistrationResult> Handle(RegisterTenantCommand command, CancellationToken cancellationToken)
@@ -54,6 +56,34 @@ public sealed class RegisterTenantCommandHandler(
             if (plan is null)
                 return new TenantRegistrationResult(false, null, "No active subscription plans are available.");
         }
+
+        var priceId = request.BillingInterval == BillingInterval.Annual
+            ? plan.StripePriceIdAnnual
+            : plan.StripePriceIdMonthly;
+        var customerResult = await _paymentGatewayService.CreateCustomerAsync(
+            normalizedEmail,
+            request.BusinessName.Trim(),
+            cancellationToken);
+        if (!customerResult.Succeeded || string.IsNullOrWhiteSpace(customerResult.ExternalId))
+            return new TenantRegistrationResult(false, null, customerResult.Error ?? "Failed to create billing customer.");
+
+        if (!string.IsNullOrWhiteSpace(request.StripePaymentMethodId))
+        {
+            var paymentMethodResult = await _paymentGatewayService.AttachPaymentMethodAsync(
+                customerResult.ExternalId,
+                request.StripePaymentMethodId,
+                cancellationToken);
+            if (!paymentMethodResult.Succeeded)
+                return new TenantRegistrationResult(false, null, paymentMethodResult.Error ?? "Failed to attach payment method.");
+        }
+
+        var subscriptionResult = await _paymentGatewayService.CreateSubscriptionAsync(
+            customerResult.ExternalId,
+            priceId ?? string.Empty,
+            request.BillingInterval,
+            cancellationToken);
+        if (!subscriptionResult.Succeeded)
+            return new TenantRegistrationResult(false, null, subscriptionResult.Error ?? "Failed to create subscription.");
 
         // 4. Create user in Keycloak
         var createUserResult = await _userManagementService.CreateUserAsync(new CreateUserRequest
@@ -106,6 +136,11 @@ public sealed class RegisterTenantCommandHandler(
             Status = TenantStatus.Active,
             SubscriptionPlanId = plan.Id,
             DatabaseInstanceId = dbInstance.Id,
+            BillingStatus = subscriptionResult.BillingStatus,
+            BillingInterval = request.BillingInterval,
+            NextBillingDate = subscriptionResult.CurrentPeriodEnd,
+            StripeCustomerId = customerResult.ExternalId,
+            StripeSubscriptionId = subscriptionResult.SubscriptionId,
             CreatedAt = DateTime.UtcNow,
             ModifiedAt = DateTime.UtcNow
         };

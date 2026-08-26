@@ -15,6 +15,7 @@ import { ProductGroupsPage } from './pages/ProductGroupsPage';
 import { SellPage } from './pages/SellPage';
 import { UsersPage } from './pages/UsersPage';
 import { WarehousesPage } from './pages/WarehousesPage';
+import { BillingPage } from './pages/BillingPage';
 import { appConfig } from './runtimeConfig';
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
         <Route path="inventory/groups" element={<ProductGroupsPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
         <Route path="invoicing/settings" element={<InvoiceSettingsPage />} />
+        <Route path="billing" element={<BillingPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

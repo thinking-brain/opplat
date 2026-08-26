@@ -96,6 +96,10 @@ export interface SubscriptionPlan {
   name: string;
   description?: string;
   pricingMonthly: number;
+  pricingAnnual: number;
+  currency: string;
+  stripePriceIdMonthly?: string;
+  stripePriceIdAnnual?: string;
   maxActiveUsers: number;
   isActive: boolean;
 }
@@ -109,6 +113,21 @@ export interface TenantRegistrationRequest {
   businessName: string;
   tenantIdentifier: string;
   subscriptionPlanId?: string;
+  billingInterval?: 'Monthly' | 'Annual';
+  stripePaymentMethodId?: string;
+}
+
+export type TenantBillingStatus = 'Trialing' | 'Active' | 'PastDue' | 'Cancelled';
+
+export interface SubscriptionPaymentHistoryItem {
+  invoiceId: string;
+  amount: number;
+  currency: string;
+  status: 'Paid' | 'Open' | 'Failed' | 'Void';
+  periodStart: string;
+  periodEnd: string;
+  paidAt?: string;
+  hostedInvoiceUrl?: string;
 }
 
 export interface TenantRegistrationResult {

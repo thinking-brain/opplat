@@ -10,6 +10,8 @@ public sealed class AdminTenantCatalogDbContext(DbContextOptions<AdminTenantCata
     public DbSet<TenantUser> TenantUsers => Set<TenantUser>();
     public DbSet<DatabaseInstance> DatabaseInstances => Set<DatabaseInstance>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<TenantPaymentMethod> TenantPaymentMethods => Set<TenantPaymentMethod>();
+    public DbSet<SubscriptionInvoice> SubscriptionInvoices => Set<SubscriptionInvoice>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

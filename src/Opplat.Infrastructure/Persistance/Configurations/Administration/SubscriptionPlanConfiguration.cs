@@ -16,6 +16,10 @@ public sealed class SubscriptionPlanConfiguration : IEntityTypeConfiguration<Sub
         builder.Property(p => p.MaxApiCallsPerMonth).IsRequired();
         builder.Property(p => p.MaxStorageGb).IsRequired();
         builder.Property(p => p.PricingMonthly).IsRequired();
+        builder.Property(p => p.PricingAnnual).IsRequired();
+        builder.Property(p => p.Currency).HasMaxLength(3).IsRequired();
+        builder.Property(p => p.StripePriceIdMonthly).HasMaxLength(128);
+        builder.Property(p => p.StripePriceIdAnnual).HasMaxLength(128);
         builder.Property(p => p.ResourceLimits).HasColumnType("jsonb");
         builder.HasMany(p => p.Tenants)
             .WithOne(t => t.SubscriptionPlan)
