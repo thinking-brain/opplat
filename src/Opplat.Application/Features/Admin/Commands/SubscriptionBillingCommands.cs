@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Opplat.Application.Abstractions.Invoicing;
 using Opplat.Application.Abstractions.Messaging;
 using Opplat.Application.Abstractions.Services;
 using Opplat.Domain.Entities.Administration;
@@ -9,6 +10,8 @@ namespace Opplat.Application.Features.Admin.Commands;
 public sealed record CancelSubscriptionCommand(string TenantIdentifier) : IRequest;
 public sealed record CreateBillingPortalSessionCommand(string TenantIdentifier, string ReturnUrl) : IRequest<PaymentGatewayPortalResult>;
 public sealed record GetSubscriptionPaymentHistoryQuery(string TenantIdentifier) : IRequest<IReadOnlyList<SubscriptionPaymentHistoryItem>>;
+public sealed record DownloadSubscriptionInvoiceCommand(string TenantIdentifier, string InvoiceId) : IRequest<byte[]?>;
+public sealed record SendSubscriptionInvoiceEmailCommand(string TenantIdentifier, string InvoiceId) : IRequest;
 
 public sealed class CancelSubscriptionCommandHandler(
     AdminTenantCatalogDbContext db,
@@ -95,3 +98,50 @@ public sealed record SubscriptionPaymentHistoryItem(
     DateTime PeriodEnd,
     DateTime? PaidAt,
     string? HostedInvoiceUrl);
+
+public sealed class DownloadSubscriptionInvoiceCommandHandler(
+    AdminTenantCatalogDbContext db,
+    IPaymentGatewayService paymentGatewayService) : IRequestHandler<DownloadSubscriptionInvoiceCommand, byte[]?>
+{
+    public async Task<byte[]?> Handle(DownloadSubscriptionInvoiceCommand request, CancellationToken cancellationToken)
+    {
+        var identifier = request.TenantIdentifier.Trim().ToLowerInvariant();
+        var invoiceId = await db.SubscriptionInvoices
+            .Where(invoice => invoice.StripeInvoiceId == request.InvoiceId && invoice.Tenant != null && invoice.Tenant.Identifier == identifier)
+            .Select(invoice => invoice.StripeInvoiceId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return invoiceId is null
+            ? null
+            : await paymentGatewayService.DownloadInvoicePdfAsync(invoiceId, cancellationToken);
+    }
+}
+
+public sealed class SendSubscriptionInvoiceEmailCommandHandler(
+    AdminTenantCatalogDbContext db,
+    IPaymentGatewayService paymentGatewayService,
+    ISubscriptionInvoiceEmailService emailService) : IRequestHandler<SendSubscriptionInvoiceEmailCommand>
+{
+    public async Task Handle(SendSubscriptionInvoiceEmailCommand request, CancellationToken cancellationToken)
+    {
+        var identifier = request.TenantIdentifier.Trim().ToLowerInvariant();
+        var invoice = await db.SubscriptionInvoices
+            .Include(item => item.Tenant)
+            .ThenInclude(tenant => tenant!.TenantUsers)
+            .FirstOrDefaultAsync(item => item.StripeInvoiceId == request.InvoiceId && item.Tenant != null && item.Tenant.Identifier == identifier, cancellationToken)
+            ?? throw new KeyNotFoundException("Subscription invoice was not found.");
+
+        var recipientEmail = invoice.Tenant!.TenantUsers
+            .Where(user => user.IsPrimaryAdmin && user.IsActive)
+            .Select(user => user.Email)
+            .FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(recipientEmail))
+            throw new InvalidOperationException("No active primary administrator email is configured for this tenant.");
+
+        var pdfBytes = await paymentGatewayService.DownloadInvoicePdfAsync(invoice.StripeInvoiceId, cancellationToken);
+        if (pdfBytes is null)
+            throw new InvalidOperationException("The payment provider did not return an invoice PDF.");
+
+        await emailService.SendAsync(invoice, pdfBytes, recipientEmail, cancellationToken);
+    }
+}

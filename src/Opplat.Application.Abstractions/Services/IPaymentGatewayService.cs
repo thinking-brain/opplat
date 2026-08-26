@@ -34,6 +34,10 @@ public interface IPaymentGatewayService
         string customerId,
         string returnUrl,
         CancellationToken cancellationToken = default);
+
+    Task<byte[]?> DownloadInvoicePdfAsync(
+        string invoiceId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record PaymentGatewayResult(

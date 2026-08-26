@@ -10,6 +10,7 @@ public static class InvoicingServiceCollectionExtensions
     {
         services.AddScoped<ITaxCalculationService, TaxCalculationService>();
         services.AddScoped<IInvoiceEmailService, InvoiceEmailService>();
+        services.AddScoped<ISubscriptionInvoiceEmailService, SubscriptionInvoiceEmailService>();
         return services;
     }
 }

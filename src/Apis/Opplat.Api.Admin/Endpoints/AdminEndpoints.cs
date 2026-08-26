@@ -49,6 +49,28 @@ public static class AdminEndpoints
                     new GetSubscriptionPaymentHistoryQuery(GetTenantIdentifier(httpContext)), cancellationToken)))
             .WithSummary("List subscription payment history");
 
+        tenantBilling.MapGet("/invoices/{invoiceId}/pdf",
+            async (string invoiceId, HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var pdfBytes = await mediator.Send(
+                    new DownloadSubscriptionInvoiceCommand(GetTenantIdentifier(httpContext), invoiceId),
+                    cancellationToken);
+                return pdfBytes is null
+                    ? Results.NotFound()
+                    : Results.File(pdfBytes, "application/pdf", $"SubscriptionInvoice_{invoiceId}.pdf");
+            })
+            .WithSummary("Download a subscription invoice PDF");
+
+        tenantBilling.MapPost("/invoices/{invoiceId}/email",
+            async (string invoiceId, HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                await mediator.Send(
+                    new SendSubscriptionInvoiceEmailCommand(GetTenantIdentifier(httpContext), invoiceId),
+                    cancellationToken);
+                return Results.NoContent();
+            })
+            .WithSummary("Email a subscription invoice PDF to the primary administrator");
+
         var adminData = app.MapGroup("/admin")
             .WithTags("Admin");
 

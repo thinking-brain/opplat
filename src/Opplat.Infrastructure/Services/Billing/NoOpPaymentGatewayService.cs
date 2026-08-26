@@ -32,4 +32,7 @@ public sealed class NoOpPaymentGatewayService(ILogger<NoOpPaymentGatewayService>
 
     public Task<PaymentGatewayPortalResult> CreateBillingPortalSessionAsync(string customerId, string returnUrl, CancellationToken cancellationToken = default) =>
         Task.FromResult(new PaymentGatewayPortalResult(true, returnUrl));
+
+    public Task<byte[]?> DownloadInvoicePdfAsync(string invoiceId, CancellationToken cancellationToken = default) =>
+        Task.FromResult<byte[]?>(null);
 }

@@ -7,6 +7,7 @@ export const BillingPage = () => {
   const [history, setHistory] = useState<SubscriptionPaymentHistoryItem[]>([]);
   const [message, setMessage] = useState<string>();
   const [loading, setLoading] = useState(true);
+  const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<string>();
 
   useEffect(() => {
     billingApi.history()
@@ -35,6 +36,23 @@ export const BillingPage = () => {
     }
   };
 
+  const downloadInvoice = async (invoiceId: string) => {
+    setDownloadingInvoiceId(invoiceId);
+    try {
+      const blob = await billingApi.downloadInvoice(invoiceId);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `SubscriptionInvoice_${invoiceId}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setMessage('No se pudo descargar la factura.');
+    } finally {
+      setDownloadingInvoiceId(undefined);
+    }
+  };
+
   return (
     <section className="max-w-5xl mx-auto space-y-6">
       <div>
@@ -60,7 +78,7 @@ export const BillingPage = () => {
         <div className="flex items-center gap-2 border-b px-5 py-4"><Receipt size={20} /><h2 className="font-semibold">Historial de pagos</h2></div>
         {loading ? <p className="p-5 text-gray-600">Cargando...</p> : history.length === 0 ? <p className="p-5 text-gray-600">Todavía no hay pagos registrados.</p> : (
           <div className="overflow-x-auto"><table className="min-w-full text-sm"><thead><tr className="border-b text-left text-gray-600"><th className="px-5 py-3">Periodo</th><th className="px-5 py-3">Importe</th><th className="px-5 py-3">Estado</th><th className="px-5 py-3" /></tr></thead><tbody>
-            {history.map((payment) => <tr key={payment.invoiceId} className="border-b last:border-0"><td className="px-5 py-3">{new Date(payment.periodStart).toLocaleDateString()} - {new Date(payment.periodEnd).toLocaleDateString()}</td><td className="px-5 py-3">{payment.amount.toFixed(2)} {payment.currency.toUpperCase()}</td><td className="px-5 py-3">{payment.status}</td><td className="px-5 py-3 text-right">{payment.hostedInvoiceUrl && <a href={payment.hostedInvoiceUrl} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Ver factura</a>}</td></tr>)}
+            {history.map((payment) => <tr key={payment.invoiceId} className="border-b last:border-0"><td className="px-5 py-3">{new Date(payment.periodStart).toLocaleDateString()} - {new Date(payment.periodEnd).toLocaleDateString()}</td><td className="px-5 py-3">{payment.amount.toFixed(2)} {payment.currency.toUpperCase()}</td><td className="px-5 py-3">{payment.status}</td><td className="px-5 py-3 text-right"><button onClick={() => void downloadInvoice(payment.invoiceId)} disabled={downloadingInvoiceId === payment.invoiceId} className="text-blue-600 hover:underline disabled:text-gray-400">{downloadingInvoiceId === payment.invoiceId ? 'Descargando...' : 'Descargar PDF'}</button></td></tr>)}
           </tbody></table></div>
         )}
       </div>

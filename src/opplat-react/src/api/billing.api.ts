@@ -15,4 +15,11 @@ export const billingApi = {
     const response = await authAxiosClient.get<SubscriptionPaymentHistoryItem[]>('/billing/history');
     return response.data;
   },
+
+  downloadInvoice: async (invoiceId: string): Promise<Blob> => {
+    const response = await authAxiosClient.get(`/billing/invoices/${encodeURIComponent(invoiceId)}/pdf`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
 };
