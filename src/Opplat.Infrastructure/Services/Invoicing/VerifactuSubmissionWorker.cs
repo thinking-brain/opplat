@@ -1,10 +1,15 @@
+using Finbuckle.MultiTenant.Abstractions;
+using Finbuckle.MultiTenant.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using Opplat.Domain.Entities.Invoicing;
+using Opplat.Domain.Models;
 using Opplat.Infrastructure.Persistance.Data;
+using Opplat.Infrastructure.Services;
 
 namespace Opplat.Infrastructure.Services.Invoicing;
 
@@ -54,29 +59,59 @@ public sealed class VerifactuSubmissionWorker(
     private async Task ProcessBatchAsync(CancellationToken cancellationToken)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<OpplatDbContext>();
+        var tenantStore = scope.ServiceProvider.GetService<IMultiTenantStore<AppTenantInfo>>();
+        var provisioningService = scope.ServiceProvider.GetService<TenantProvisioningService>();
 
-        // Dequeue up to BatchSize eligible rows using SKIP LOCKED so concurrent
-        // worker replicas never race on the same record.
-        var pendingIds = await dbContext.InvoiceFiscalRecords
-            .FromSqlRaw(
-                """
-                SELECT * FROM "InvoiceFiscalRecords"
-                WHERE "SubmissionStatus" = {0}
-                  AND ("NextRetryAtUtc" IS NULL OR "NextRetryAtUtc" <= NOW())
-                ORDER BY "CreatedAt"
-                LIMIT {1}
-                FOR UPDATE SKIP LOCKED
-                """,
-                (int)FiscalSubmissionStatus.Pending,
-                _opts.BatchSize)
-            .Select(r => r.Id)
-            .ToListAsync(cancellationToken);
+        if (tenantStore is null)
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<OpplatDbContext>();
+            await ProcessTenantBatchAsync(null, cancellationToken);
+            return;
+        }
+
+        var tenants = (await tenantStore.GetAllAsync())
+            .Where(tenant => tenant.IsActive)
+            .ToList();
+
+        foreach (var tenant in tenants)
+        {
+            try
+            {
+                if (provisioningService is not null)
+                {
+                    await provisioningService.ProvisionTenantAsync(tenant);
+                }
+
+                await ProcessTenantBatchAsync(tenant, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to process Verifactu outbox for tenant {Tenant}", tenant.Identifier);
+            }
+        }
+    }
+
+    private async Task ProcessTenantBatchAsync(
+        AppTenantInfo? tenantInfo,
+        CancellationToken cancellationToken)
+    {
+        await using var tenantScope = scopeFactory.CreateAsyncScope();
+        var tenantAccessor = tenantScope.ServiceProvider.GetRequiredService<IMultiTenantContextAccessor<AppTenantInfo>>();
+        if (tenantInfo is not null && tenantAccessor is IMultiTenantContextSetter setter)
+        {
+            setter.MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenantInfo);
+        }
+
+        var dbContext = tenantScope.ServiceProvider.GetRequiredService<OpplatDbContext>();
+        var pendingIds = await GetPendingRecordIdsAsync(dbContext, cancellationToken);
 
         if (pendingIds.Count == 0)
             return;
 
-        logger.LogDebug("Processing {Count} fiscal record(s)", pendingIds.Count);
+        logger.LogDebug(
+            "Processing {Count} fiscal record(s){TenantSuffix}",
+            pendingIds.Count,
+            tenantInfo is null ? string.Empty : $" for tenant {tenantInfo.Identifier}");
 
         foreach (var id in pendingIds)
         {
@@ -86,6 +121,68 @@ public sealed class VerifactuSubmissionWorker(
 
             await SubmitRecordAsync(record, dbContext, cancellationToken);
         }
+    }
+
+    private async Task<List<Guid>> GetPendingRecordIdsAsync(
+        OpplatDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        if (dbContext.Database.ProviderName?.Contains("Npgsql", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            try
+            {
+                var connection = dbContext.Database.GetDbConnection();
+                if (connection.State != System.Data.ConnectionState.Open)
+                {
+                    await connection.OpenAsync(cancellationToken);
+                }
+
+                await using var command = connection.CreateCommand();
+                command.CommandText = """
+                    SELECT "Id"
+                    FROM "InvoiceFiscalRecords"
+                    WHERE "SubmissionStatus" = @status
+                      AND ("NextRetryAtUtc" IS NULL OR "NextRetryAtUtc" <= NOW())
+                    ORDER BY "CreatedAt"
+                    LIMIT @limit
+                    FOR UPDATE SKIP LOCKED
+                    """;
+
+                var statusParameter = command.CreateParameter();
+                statusParameter.ParameterName = "@status";
+                statusParameter.Value = (int)FiscalSubmissionStatus.Pending;
+                command.Parameters.Add(statusParameter);
+
+                var limitParameter = command.CreateParameter();
+                limitParameter.ParameterName = "@limit";
+                limitParameter.Value = _opts.BatchSize;
+                command.Parameters.Add(limitParameter);
+
+                await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+                var ids = new List<Guid>();
+                while (await reader.ReadAsync(cancellationToken))
+                {
+                    ids.Add(reader.GetGuid(0));
+                }
+
+                return ids;
+            }
+            catch (PostgresException ex) when (ex.SqlState == "42P01")
+            {
+                logger.LogInformation(
+                    ex,
+                    "InvoiceFiscalRecords table is not available yet; skipping Verifactu worker tick until the tenant schema is initialized.");
+                return [];
+            }
+        }
+
+        return await dbContext.InvoiceFiscalRecords
+            .Where(r => r.SubmissionStatus == FiscalSubmissionStatus.Pending
+                && (r.NextRetryAtUtc == null || r.NextRetryAtUtc <= DateTime.UtcNow))
+            .OrderBy(r => r.CreatedAt)
+            .Take(_opts.BatchSize)
+            .Select(r => r.Id)
+            .ToListAsync(cancellationToken);
     }
 
     internal async Task SubmitRecordAsync(

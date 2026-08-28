@@ -1,8 +1,11 @@
+using System.Reflection;
+using Finbuckle.MultiTenant.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Opplat.Domain.Entities.Invoicing;
+using Opplat.Domain.Models;
 using Opplat.Infrastructure.Persistance.Data;
 using Opplat.Infrastructure.Services.Invoicing;
 
@@ -16,6 +19,34 @@ namespace Opplat.UnitTest.Invoicing;
 /// </summary>
 public class VerifactuWorkerOutboxTests
 {
+    private sealed class TestTenantContextAccessor : IMultiTenantContextAccessor<AppTenantInfo>, IMultiTenantContextAccessor, IMultiTenantContextSetter
+    {
+        public IMultiTenantContext<AppTenantInfo> MultiTenantContext { get; set; } = null!;
+
+        IMultiTenantContext? IMultiTenantContextAccessor.MultiTenantContext => MultiTenantContext;
+
+        IMultiTenantContext? IMultiTenantContextSetter.MultiTenantContext
+        {
+            set => MultiTenantContext = value as IMultiTenantContext<AppTenantInfo>;
+        }
+    }
+
+    private sealed class TestTenantStore(AppTenantInfo tenant) : IMultiTenantStore<AppTenantInfo>
+    {
+        public Task<bool> AddAsync(AppTenantInfo tenantInfo) => Task.FromResult(true);
+
+        public Task<bool> UpdateAsync(AppTenantInfo tenantInfo) => Task.FromResult(true);
+
+        public Task<bool> RemoveAsync(string id) => Task.FromResult(true);
+
+        public Task<IEnumerable<AppTenantInfo>> GetAllAsync() => Task.FromResult<IEnumerable<AppTenantInfo>>([tenant]);
+
+        public Task<IEnumerable<AppTenantInfo>> GetAllAsync(int take, int skip) => Task.FromResult<IEnumerable<AppTenantInfo>>([tenant]);
+
+        public Task<AppTenantInfo?> GetAsync(string id) => Task.FromResult<AppTenantInfo?>(tenant);
+
+        public Task<AppTenantInfo?> GetByIdentifierAsync(string identifier) => Task.FromResult<AppTenantInfo?>(tenant);
+    }
     private static OpplatDbContext CreateInMemoryContext()
     {
         var opts = new DbContextOptionsBuilder<OpplatDbContext>()
@@ -50,6 +81,84 @@ public class VerifactuWorkerOutboxTests
             SubmissionMode = FiscalSubmissionMode.Verifactu,
             SubmissionStatus = FiscalSubmissionStatus.Pending
         };
+
+    [Fact]
+    public async Task ProcessBatchAsync_SetsTenantContext_BeforeProcessingRecords()
+    {
+        await using var db = CreateInMemoryContext();
+        var tenant = new AppTenantInfo
+        {
+            Id = Guid.NewGuid().ToString(),
+            Identifier = "demo",
+            Name = "Demo",
+            IsActive = true
+        };
+
+        var record = CreatePendingRecord();
+        db.InvoiceFiscalRecords.Add(record);
+        await db.SaveChangesAsync();
+
+        var tenantAccessor = new TestTenantContextAccessor();
+        var services = new ServiceCollection();
+        services.AddSingleton<IMultiTenantContextAccessor<AppTenantInfo>>(tenantAccessor);
+        services.AddScoped<OpplatDbContext>(_ => db);
+        services.AddSingleton<IMultiTenantStore<AppTenantInfo>>(new TestTenantStore(tenant));
+
+        var provider = services.BuildServiceProvider();
+        var scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        var worker = new VerifactuSubmissionWorker(
+            scopeFactory,
+            Options.Create(new VerifactuWorkerOptions { BatchSize = 10 }),
+            NullLogger<VerifactuSubmissionWorker>.Instance);
+
+        var method = typeof(VerifactuSubmissionWorker).GetMethod(
+            "ProcessBatchAsync",
+            BindingFlags.NonPublic | BindingFlags.Instance)!;
+
+        await (Task)method.Invoke(worker, [CancellationToken.None])!;
+
+        Assert.NotNull(tenantAccessor.MultiTenantContext);
+        Assert.Same(tenant, tenantAccessor.MultiTenantContext!.TenantInfo);
+    }
+
+    [Fact]
+    public async Task ProcessBatchAsync_ProcessesPendingFiscalRecords_WithoutThrowing()
+    {
+        await using var db = CreateInMemoryContext();
+        var record = CreatePendingRecord();
+        db.InvoiceFiscalRecords.Add(record);
+        await db.SaveChangesAsync();
+
+        var services = new ServiceCollection();
+        services.AddSingleton<IMultiTenantContextAccessor<AppTenantInfo>>(new TestTenantContextAccessor());
+        services.AddScoped<OpplatDbContext>(_ => db);
+        services.AddSingleton<IMultiTenantStore<AppTenantInfo>>(new TestTenantStore(new AppTenantInfo
+        {
+            Id = Guid.NewGuid().ToString(),
+            Identifier = "demo",
+            Name = "Demo",
+            IsActive = true
+        }));
+        var provider = services.BuildServiceProvider();
+        var scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        var worker = new VerifactuSubmissionWorker(
+            scopeFactory,
+            Options.Create(new VerifactuWorkerOptions { BatchSize = 10 }),
+            NullLogger<VerifactuSubmissionWorker>.Instance);
+
+        var method = typeof(VerifactuSubmissionWorker).GetMethod(
+            "ProcessBatchAsync",
+            BindingFlags.NonPublic | BindingFlags.Instance)!;
+
+        var task = (Task)method.Invoke(worker, [CancellationToken.None])!;
+        await task;
+
+        var updatedRecord = await db.InvoiceFiscalRecords.FindAsync(record.Id);
+        Assert.NotNull(updatedRecord);
+        Assert.Equal(1, updatedRecord!.RetryCount);
+    }
 
     // ─── Idempotency ────────────────────────────────────────────────────────────
 

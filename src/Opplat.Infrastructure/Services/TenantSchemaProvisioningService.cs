@@ -207,18 +207,6 @@ public sealed class TenantSchemaProvisioningService
             "Running EF Core migrations for tenant schema '{Schema}'.",
             schemaName);
 
-        var inventoryOptions = new DbContextOptionsBuilder<InventoryDbContext>()
-            .UseNpgsql(connectionString)
-            .Options;
-        await using var inventoryDb = new InventoryDbContext(inventoryOptions, null);
-        await inventoryDb.Database.MigrateAsync(cancellationToken);
-
-        var salesOptions = new DbContextOptionsBuilder<SalesDbContext>()
-            .UseNpgsql(connectionString)
-            .Options;
-        await using var salesDb = new SalesDbContext(salesOptions, null);
-        await salesDb.Database.MigrateAsync(cancellationToken);
-
         var opplatOptions = new DbContextOptionsBuilder<OpplatDbContext>()
             .UseNpgsql(connectionString)
             .Options;

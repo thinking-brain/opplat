@@ -12,6 +12,7 @@ using Opplat.Domain.Models;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Opplat.Application.Services;
 using Opplat.Infrastructure.Persistance.Data;
+using Opplat.Infrastructure.Persistance.Data.Administration;
 using Opplat.Api.Main;
 using Opplat.Infrastructure.Services;
 using Opplat.Application.Utils;
@@ -146,6 +147,8 @@ builder.Services.AddOpenApi(options =>
 });
 
 builder.Services.AddCorsConfig([
+    "http://localhost:3200",
+    "http://127.0.0.1:3200",
     "http://localhost:3201",
     "http://127.0.0.1:3201"
 ]);
@@ -157,6 +160,8 @@ builder.Services.AddAdminInfrastructure(builder.Configuration);
 builder.Services.AddInvoicingInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+await InitializeAdminCatalogAsync(app);
 
 if (app.Environment.IsDevelopment())
     await ProvisionDevelopmentTenantsAsync(app);
@@ -199,6 +204,31 @@ app.MapEndpoints();
 // app.MapFallbackToFile("index.html");
 
 app.Run();
+
+static async Task InitializeAdminCatalogAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+    var adminDb = scope.ServiceProvider.GetRequiredService<AdminTenantCatalogDbContext>();
+
+    try
+    {
+        await adminDb.Database.MigrateAsync();
+        logger.LogInformation("Admin catalog database migrations applied successfully");
+
+        if (app.Environment.IsDevelopment())
+        {
+            logger.LogInformation("Seeding default catalog data");
+            await DataSeeder.SeedAsync(adminDb);
+            logger.LogInformation("Default catalog data seeded successfully");
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Failed to initialize the admin catalog database");
+        throw;
+    }
+}
 
 static async Task ProvisionDevelopmentTenantsAsync(WebApplication app)
 {

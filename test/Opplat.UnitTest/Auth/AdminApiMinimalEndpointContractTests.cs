@@ -5,18 +5,54 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Opplat.Api.Admin.Extensions;
 using Opplat.Application.Abstractions.Auth;
 using Opplat.Application.Abstractions.Messaging;
 using Opplat.Application.Abstractions.Options;
+using Opplat.Application.DependencyInjection;
 using Opplat.Application.Dtos;
+using Opplat.Infrastructure.DependencyInjection;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 
 namespace Opplat.UnitTest.Auth;
 
 public class AdminApiMinimalEndpointContractTests
 {
+    [Fact]
+    public void AdminApiServiceRegistration_BuildsWithoutMissingDependencies()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:AdminDatabase"] = "Host=localhost;Port=5432;Database=opplat_admin_catalog;Username=postgres;Password=postgres",
+                ["Authentication:Provider"] = "Keycloak",
+                ["Authentication:Authority"] = "http://localhost",
+                ["Authentication:Audience"] = "opplat-admin",
+                ["Authentication:ClientIdAdmin"] = "admin",
+                ["Authentication:ClientSecretAdmin"] = "secret"
+            })
+            .Build();
+
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddOptions();
+        services.AddAdminDatabase(configuration);
+        services.AddInvoicingApplication();
+        services.AddAdminMediator();
+        services.AddAdminInfrastructure(configuration);
+
+        using var provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true
+        });
+
+        Assert.NotNull(provider);
+    }
+
     [Fact]
     public void AdminApiRouteSurface_ExposesTenantCatalogEndpointsWithoutAdminUserCrud()
     {

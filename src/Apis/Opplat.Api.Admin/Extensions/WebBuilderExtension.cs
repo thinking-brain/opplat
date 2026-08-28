@@ -2,6 +2,7 @@ using Opplat.Api.Admin.Auth;
 using Opplat.Api.Common.Extensions;
 using Opplat.Api.Common.Hosting;
 using Opplat.Application.Abstractions.Options;
+using Opplat.Application.DependencyInjection;
 using Opplat.Infrastructure.DependencyInjection;
 
 namespace Opplat.Api.Admin.Extensions;
@@ -73,6 +74,7 @@ public static class WebBuilderExtension
         });
 
         builder.Services.AddAdminDatabase(builder.Configuration);
+        builder.Services.AddInvoicingApplication();
         builder.Services.AddAdminMediator();
         builder.Services.AddAdminAuthentication(authOptions, authRuntime, adminBffOptions, requireHttpsMetadata);
         builder.Services.AddCorsConfig(allowedCorsOrigins);

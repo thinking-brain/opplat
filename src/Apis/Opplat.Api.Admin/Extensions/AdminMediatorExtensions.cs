@@ -23,6 +23,8 @@ public static class AdminMediatorExtensions
             "ToggleUserActiveCommandHandler",   // uses OpplatDbContext (per-tenant account feature)
             "GetUsersQueryHandler",             // uses OpplatDbContext (per-tenant account feature)
             "RegisterUserCommandHandler",       // uses OpplatDbContext (per-tenant account feature)
+            "GetUserProfileQueryHandler",       // depends on IMultiTenantContextAccessor (not available in AdminApi)
+            "ChangeRolesCommandHandler",        // depends on IMultiTenantContextAccessor (not available in AdminApi)
         };
 
         var appAssembly = typeof(Opplat.Application.Features.Account.Commands.ChangePasswordCommand).Assembly;

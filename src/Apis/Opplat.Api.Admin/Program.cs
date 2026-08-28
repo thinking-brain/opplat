@@ -20,7 +20,9 @@ using (var scope = app.Services.CreateScope())
     logger.LogInformation("Database migrations applied successfully");
     if (app.Environment.IsDevelopment())
     {
-        DataSeeder.SeedAsync(db, default).Wait();
+        logger.LogInformation("Seeding default catalog data...");
+        await DataSeeder.SeedAsync(db);
+        logger.LogInformation("Default catalog data seeded successfully");
     }
 }
 
