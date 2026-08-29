@@ -131,6 +131,38 @@ export const InvoiceSettingsPage: React.FC = () => {
               onChange={e => handleChange('businessSector', e.target.value)}
             />
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email de contacto</label>
+              <input
+                type="email"
+                className="input-field"
+                placeholder="info@empresa.com"
+                value={form.email ?? ''}
+                onChange={e => handleChange('email', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+              <input
+                className="input-field"
+                placeholder="+34 900 000 000"
+                value={form.phone ?? ''}
+                onChange={e => handleChange('phone', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Web</label>
+            <input
+              className="input-field"
+              placeholder="https://empresa.com"
+              value={form.website ?? ''}
+              onChange={e => handleChange('website', e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="card p-4 space-y-4">

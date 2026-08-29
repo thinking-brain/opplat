@@ -16,6 +16,8 @@ import { SellPage } from './pages/SellPage';
 import { UsersPage } from './pages/UsersPage';
 import { WarehousesPage } from './pages/WarehousesPage';
 import { BillingPage } from './pages/BillingPage';
+import { PaymentMethodsPage } from './pages/PaymentMethodsPage';
+import { SubscriptionChangePage } from './pages/SubscriptionChangePage';
 import { appConfig } from './runtimeConfig';
 
 function App() {
@@ -56,7 +58,42 @@ function App() {
         <Route path="inventory/groups" element={<ProductGroupsPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
         <Route path="invoicing/settings" element={<InvoiceSettingsPage />} />
-        <Route path="billing" element={<BillingPage />} />
+        <Route
+          path="billing"
+          element={(
+            <ProtectedRoute
+              requiredRoles={appConfig.accessControl.tenantUserManagementRoles}
+              unauthorizedTitle="Sección reservada para TenantAdmin"
+              unauthorizedMessage="Solo un TenantAdmin puede gestionar la facturación de este tenant desde esta app."
+            >
+              <BillingPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="billing/payment-methods"
+          element={(
+            <ProtectedRoute
+              requiredRoles={appConfig.accessControl.tenantUserManagementRoles}
+              unauthorizedTitle="Sección reservada para TenantAdmin"
+              unauthorizedMessage="Solo un TenantAdmin puede gestionar la facturación de este tenant desde esta app."
+            >
+              <PaymentMethodsPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="billing/subscription"
+          element={(
+            <ProtectedRoute
+              requiredRoles={appConfig.accessControl.tenantUserManagementRoles}
+              unauthorizedTitle="Sección reservada para TenantAdmin"
+              unauthorizedMessage="Solo un TenantAdmin puede gestionar la facturación de este tenant desde esta app."
+            >
+              <SubscriptionChangePage />
+            </ProtectedRoute>
+          )}
+        />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getSubscriptionPlans, registerTenant } from '../api/auth.api';
 import type { SubscriptionPlan } from '../types';
 
-const STEPS = ['Choose a Plan', 'Business Info', 'Your Account'];
+const STEPS = ['Choose a Plan', 'Business Info', 'Your Account', 'Payment Method (optional)'];
 
 const slugify = (value: string): string =>
   value
@@ -37,6 +37,11 @@ export const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpMonth, setCardExpMonth] = useState(1);
+  const [cardExpYear, setCardExpYear] = useState(new Date().getFullYear());
+  const [cardCvc, setCardCvc] = useState('');
+
   // Submit state
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -64,8 +69,10 @@ export const RegisterPage = () => {
     email.trim().length > 0 &&
     password.length >= 8 &&
     password === confirmPassword;
+  const hasCardInput = cardNumber.length > 0 || cardCvc.length > 0;
+  const isStep3Valid = !hasCardInput || (cardNumber.length > 0 && cardCvc.length >= 3 && cardCvc.length <= 4 && cardExpMonth >= 1 && cardExpMonth <= 12 && cardExpYear >= new Date().getFullYear());
 
-  const canProceed = [isStep0Valid, isStep1Valid, isStep2Valid][activeStep];
+  const canProceed = [isStep0Valid, isStep1Valid, isStep2Valid, isStep3Valid][activeStep];
 
   const handleNext = () => {
     if (activeStep < STEPS.length - 1) {
@@ -89,6 +96,7 @@ export const RegisterPage = () => {
         businessName,
         tenantIdentifier,
         subscriptionPlanId: selectedPlanId,
+        ...(hasCardInput ? { cardNumber, cardExpMonth, cardExpYear, cardCvc } : {}),
       });
       if (result.succeeded) {
         setSubmitSuccess(true);
@@ -236,6 +244,17 @@ export const RegisterPage = () => {
               {submitError}
             </div>
           )}
+        </div>
+      )}
+
+      {activeStep === 3 && (
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-gray-600">Puedes añadir una tarjeta ahora o hacerlo más tarde desde Facturación. Este entorno usa un simulador de pagos.</p>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Número de tarjeta</label><input className="input-field" inputMode="numeric" autoComplete="cc-number" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} /></div>
+          <div className="grid grid-cols-2 gap-4"><div><label className="block text-sm font-medium text-gray-700 mb-1">Mes de caducidad</label><input className="input-field" type="number" min="1" max="12" value={cardExpMonth} onChange={(e) => setCardExpMonth(Number(e.target.value))} /></div><div><label className="block text-sm font-medium text-gray-700 mb-1">Año de caducidad</label><input className="input-field" type="number" min={new Date().getFullYear()} value={cardExpYear} onChange={(e) => setCardExpYear(Number(e.target.value))} /></div></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">CVC</label><input className="input-field" inputMode="numeric" autoComplete="cc-csc" maxLength={4} value={cardCvc} onChange={(e) => setCardCvc(e.target.value)} /></div>
+          {hasCardInput && !isStep3Valid && <p className="text-sm text-red-600">Completa los datos de la tarjeta o deja todos los campos vacíos para continuar sin tarjeta.</p>}
+          {submitError && <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm">{submitError}</div>}
         </div>
       )}
 

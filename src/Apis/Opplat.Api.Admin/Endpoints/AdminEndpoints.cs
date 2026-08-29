@@ -43,11 +43,54 @@ public static class AdminEndpoints
             })
             .WithSummary("Create a hosted billing portal session");
 
+        tenantBilling.MapGet("/subscription",
+            async (HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+                Results.Ok(await mediator.Send(
+                    new GetSubscriptionDetailsQuery(GetTenantIdentifier(httpContext)), cancellationToken)))
+            .WithSummary("Get the current subscription summary");
+
+        tenantBilling.MapPost("/subscription",
+            async ([FromBody] ChangeSubscriptionRequest request, HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+                Results.Ok(await mediator.Send(
+                    new ChangeSubscriptionPlanCommand(GetTenantIdentifier(httpContext), request.SubscriptionPlanId, request.BillingInterval), cancellationToken)))
+            .WithSummary("Change the active subscription plan and billing interval");
+
         tenantBilling.MapGet("/history",
             async (HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
                 Results.Ok(await mediator.Send(
                     new GetSubscriptionPaymentHistoryQuery(GetTenantIdentifier(httpContext)), cancellationToken)))
             .WithSummary("List subscription payment history");
+
+        tenantBilling.MapGet("/payment-methods",
+            async (HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+                Results.Ok(await mediator.Send(
+                    new ListPaymentMethodsQuery(GetTenantIdentifier(httpContext)), cancellationToken)))
+            .WithSummary("List tenant payment methods");
+
+        tenantBilling.MapPost("/payment-methods",
+            async (PaymentMethodRequest request, HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var result = await mediator.Send(new AddPaymentMethodCommand(
+                    GetTenantIdentifier(httpContext), request.CardNumber, request.ExpMonth, request.ExpYear, request.Cvc, request.SetAsDefault), cancellationToken);
+                return Results.Ok(result);
+            })
+            .WithSummary("Add a tenant payment method");
+
+        tenantBilling.MapPut("/payment-methods/{paymentMethodId:guid}/default",
+            async (Guid paymentMethodId, HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                await mediator.Send(new SetDefaultPaymentMethodCommand(GetTenantIdentifier(httpContext), paymentMethodId), cancellationToken);
+                return Results.NoContent();
+            })
+            .WithSummary("Set the default tenant payment method");
+
+        tenantBilling.MapDelete("/payment-methods/{paymentMethodId:guid}",
+            async (Guid paymentMethodId, HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                await mediator.Send(new DeletePaymentMethodCommand(GetTenantIdentifier(httpContext), paymentMethodId), cancellationToken);
+                return Results.NoContent();
+            })
+            .WithSummary("Delete a tenant payment method");
 
         tenantBilling.MapGet("/invoices/{invoiceId}/pdf",
             async (string invoiceId, HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
@@ -237,6 +280,7 @@ public static class AdminEndpoints
         ?? throw new InvalidOperationException("Tenant identifier is required.");
 
     private sealed record BillingPortalRequest(string ReturnUrl);
+    private sealed record PaymentMethodRequest(string CardNumber, int ExpMonth, int ExpYear, string Cvc, bool SetAsDefault = false);
 
     private static async Task<AdminSessionDto> BuildSessionAsync(HttpContext httpContext, AuthOptions authOptions)
     {

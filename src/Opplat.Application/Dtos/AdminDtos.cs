@@ -59,6 +59,26 @@ public sealed class AdminSubscriptionPlanDto
     public bool IsActive { get; set; }
 }
 
+public sealed class TenantSubscriptionDetailsDto
+{
+    public string TenantIdentifier { get; set; } = string.Empty;
+    public Guid SubscriptionPlanId { get; set; }
+    public string SubscriptionPlanName { get; set; } = string.Empty;
+    public string BillingInterval { get; set; } = "Monthly";
+    public decimal PricingMonthly { get; set; }
+    public decimal PricingAnnual { get; set; }
+    public string Currency { get; set; } = "EUR";
+    public string BillingStatus { get; set; } = string.Empty;
+    public DateTime? NextBillingDate { get; set; }
+    public bool CancelAtPeriodEnd { get; set; }
+}
+
+public sealed class ChangeSubscriptionRequest
+{
+    public Guid SubscriptionPlanId { get; set; }
+    public string BillingInterval { get; set; } = "Monthly";
+}
+
 public sealed class AdminDatabaseInstanceDto
 {
     public Guid Id { get; set; }
@@ -127,7 +147,10 @@ public sealed record TenantRegistrationRequest(
     string TenantIdentifier,
     Guid? SubscriptionPlanId = null,
     BillingInterval BillingInterval = BillingInterval.Monthly,
-    string? StripePaymentMethodId = null);
+    string? CardNumber = null,
+    int? CardExpMonth = null,
+    int? CardExpYear = null,
+    string? CardCvc = null);
 
 public sealed record TenantRegistrationResult(
     bool Succeeded,

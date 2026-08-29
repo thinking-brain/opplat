@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Opplat.Application.Abstractions.Invoicing;
 using Opplat.Application.Abstractions.Messaging;
 using Opplat.Application.Abstractions.Services;
+using Opplat.Application.Dtos;
 using Opplat.Domain.Entities.Administration;
 using Opplat.Infrastructure.Persistance.Data.Administration;
 
@@ -9,6 +10,8 @@ namespace Opplat.Application.Features.Admin.Commands;
 
 public sealed record CancelSubscriptionCommand(string TenantIdentifier) : IRequest;
 public sealed record CreateBillingPortalSessionCommand(string TenantIdentifier, string ReturnUrl) : IRequest<PaymentGatewayPortalResult>;
+public sealed record GetSubscriptionDetailsQuery(string TenantIdentifier) : IRequest<TenantSubscriptionDetailsDto>;
+public sealed record ChangeSubscriptionPlanCommand(string TenantIdentifier, Guid SubscriptionPlanId, string BillingInterval) : IRequest<TenantSubscriptionDetailsDto>;
 public sealed record GetSubscriptionPaymentHistoryQuery(string TenantIdentifier) : IRequest<IReadOnlyList<SubscriptionPaymentHistoryItem>>;
 public sealed record DownloadSubscriptionInvoiceCommand(string TenantIdentifier, string InvoiceId) : IRequest<byte[]?>;
 public sealed record SendSubscriptionInvoiceEmailCommand(string TenantIdentifier, string InvoiceId) : IRequest;
@@ -62,6 +65,90 @@ public sealed class CreateBillingPortalSessionCommandHandler(
             request.ReturnUrl,
             cancellationToken);
     }
+}
+
+public sealed class GetSubscriptionDetailsQueryHandler(AdminTenantCatalogDbContext db)
+    : IRequestHandler<GetSubscriptionDetailsQuery, TenantSubscriptionDetailsDto>
+{
+    public async Task<TenantSubscriptionDetailsDto> Handle(GetSubscriptionDetailsQuery request, CancellationToken cancellationToken)
+    {
+        var identifier = request.TenantIdentifier.Trim().ToLowerInvariant();
+        var tenant = await db.Tenants
+            .AsNoTracking()
+            .Include(item => item.SubscriptionPlan)
+            .FirstOrDefaultAsync(item => item.Identifier == identifier, cancellationToken)
+            ?? throw new KeyNotFoundException($"Tenant '{identifier}' was not found.");
+
+        return new TenantSubscriptionDetailsDto
+        {
+            TenantIdentifier = tenant.Identifier,
+            SubscriptionPlanId = tenant.SubscriptionPlanId,
+            SubscriptionPlanName = tenant.SubscriptionPlan?.Name ?? "Sin plan",
+            BillingInterval = tenant.BillingInterval.ToString(),
+            PricingMonthly = tenant.SubscriptionPlan?.PricingMonthly ?? 0,
+            PricingAnnual = tenant.SubscriptionPlan?.PricingAnnual ?? 0,
+            Currency = tenant.SubscriptionPlan?.Currency ?? "EUR",
+            BillingStatus = tenant.BillingStatus.ToString(),
+            NextBillingDate = tenant.NextBillingDate,
+            CancelAtPeriodEnd = tenant.CancelAtPeriodEnd
+        };
+    }
+}
+
+public sealed class ChangeSubscriptionPlanCommandHandler(
+    AdminTenantCatalogDbContext db,
+    IPaymentGatewayService paymentGatewayService)
+    : IRequestHandler<ChangeSubscriptionPlanCommand, TenantSubscriptionDetailsDto>
+{
+    public async Task<TenantSubscriptionDetailsDto> Handle(ChangeSubscriptionPlanCommand request, CancellationToken cancellationToken)
+    {
+        var identifier = request.TenantIdentifier.Trim().ToLowerInvariant();
+        var tenant = await db.Tenants
+            .Include(item => item.SubscriptionPlan)
+            .FirstOrDefaultAsync(item => item.Identifier == identifier, cancellationToken)
+            ?? throw new KeyNotFoundException($"Tenant '{identifier}' was not found.");
+
+        var interval = ParseBillingInterval(request.BillingInterval);
+        var plan = await db.SubscriptionPlans
+            .FirstOrDefaultAsync(item => item.Id == request.SubscriptionPlanId && item.IsActive, cancellationToken)
+            ?? throw new KeyNotFoundException("Subscription plan was not found.");
+
+        var priceId = interval == BillingInterval.Annual
+            ? plan.StripePriceIdAnnual
+            : plan.StripePriceIdMonthly;
+
+        if (!string.IsNullOrWhiteSpace(tenant.StripeSubscriptionId) && !string.IsNullOrWhiteSpace(priceId))
+        {
+            var result = await paymentGatewayService.ChangeSubscriptionPriceAsync(tenant.StripeSubscriptionId, priceId, cancellationToken);
+            if (!result.Succeeded)
+                throw new InvalidOperationException(result.Error ?? "Failed to update the subscription plan.");
+        }
+
+        tenant.SubscriptionPlanId = plan.Id;
+        tenant.BillingInterval = interval;
+        tenant.NextBillingDate ??= DateTime.UtcNow.Add(interval == BillingInterval.Annual ? TimeSpan.FromDays(365) : TimeSpan.FromDays(30));
+        tenant.ModifiedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync(cancellationToken);
+
+        return new TenantSubscriptionDetailsDto
+        {
+            TenantIdentifier = tenant.Identifier,
+            SubscriptionPlanId = tenant.SubscriptionPlanId,
+            SubscriptionPlanName = tenant.SubscriptionPlan?.Name ?? plan.Name,
+            BillingInterval = tenant.BillingInterval.ToString(),
+            PricingMonthly = plan.PricingMonthly,
+            PricingAnnual = plan.PricingAnnual,
+            Currency = plan.Currency,
+            BillingStatus = tenant.BillingStatus.ToString(),
+            NextBillingDate = tenant.NextBillingDate,
+            CancelAtPeriodEnd = tenant.CancelAtPeriodEnd
+        };
+    }
+
+    private static BillingInterval ParseBillingInterval(string value)
+        => Enum.TryParse<BillingInterval>(value, true, out var interval)
+            ? interval
+            : BillingInterval.Monthly;
 }
 
 public sealed class GetSubscriptionPaymentHistoryQueryHandler(AdminTenantCatalogDbContext db)

@@ -1,30 +1,34 @@
 import { useEffect, useState } from 'react';
-import { CreditCard, ExternalLink, Receipt, XCircle } from 'lucide-react';
+import { CreditCard, Receipt, XCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { billingApi } from '../api/billing.api';
-import type { SubscriptionPaymentHistoryItem } from '../types';
+import type { SubscriptionPaymentHistoryItem, TenantSubscriptionDetails } from '../types';
 
 export const BillingPage = () => {
+  const [subscription, setSubscription] = useState<TenantSubscriptionDetails | null>(null);
   const [history, setHistory] = useState<SubscriptionPaymentHistoryItem[]>([]);
   const [message, setMessage] = useState<string>();
   const [loading, setLoading] = useState(true);
   const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<string>();
 
-  useEffect(() => {
-    billingApi.history()
-      .then(setHistory)
-      .catch(() => setMessage('No se pudo cargar el historial de pagos.'))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const openPortal = async () => {
+  const loadData = async () => {
     try {
-      const result = await billingApi.createPortalSession();
-      if (result.url) window.location.assign(result.url);
-      else setMessage('El portal de facturación no está configurado.');
+      const [subscriptionResponse, historyResponse] = await Promise.all([
+        billingApi.getSubscription(),
+        billingApi.history(),
+      ]);
+      setSubscription(subscriptionResponse);
+      setHistory(historyResponse);
     } catch {
-      setMessage('No se pudo abrir el portal de facturación.');
+      setMessage('No se pudo cargar la información de facturación.');
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    void loadData();
+  }, []);
 
   const cancelSubscription = async () => {
     if (!window.confirm('¿Cancelar la suscripción al final del periodo actual?')) return;
@@ -63,15 +67,40 @@ export const BillingPage = () => {
       {message && <div className="rounded border border-blue-200 bg-blue-50 px-4 py-3 text-blue-800">{message}</div>}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <button onClick={() => void openPortal()} className="flex items-center gap-3 rounded border bg-white p-5 text-left shadow-sm hover:border-blue-500">
+        <Link to="/billing/payment-methods" className="flex items-center gap-3 rounded border bg-white p-5 text-left shadow-sm hover:border-blue-500">
           <CreditCard className="text-blue-600" />
-          <span><strong className="block">Gestionar pagos</strong><span className="text-sm text-gray-600">Cambiar tarjeta y consultar facturas en el portal seguro.</span></span>
-          <ExternalLink className="ml-auto" size={18} />
-        </button>
+          <span><strong className="block">Métodos de pago</strong><span className="text-sm text-gray-600">Añade, cambia o elimina tus tarjetas guardadas.</span></span>
+        </Link>
         <button onClick={() => void cancelSubscription()} className="flex items-center gap-3 rounded border bg-white p-5 text-left shadow-sm hover:border-red-500">
           <XCircle className="text-red-600" />
           <span><strong className="block">Cancelar suscripción</strong><span className="text-sm text-gray-600">El acceso continúa hasta el final del periodo pagado.</span></span>
         </button>
+      </div>
+
+      <div className="rounded border bg-white shadow-sm p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="font-semibold">Suscripción activa</h2>
+            <p className="text-sm text-gray-600">{subscription ? `${subscription.subscriptionPlanName} · ${subscription.billingInterval}` : 'Cargando...'}</p>
+          </div>
+          <Link to="/billing/subscription" className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+            Cambiar plan
+          </Link>
+        </div>
+        {subscription && (
+          <div className="mt-4 rounded border bg-gray-50 p-4 text-sm text-gray-700">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p><span className="font-medium">Estado:</span> {subscription.billingStatus}</p>
+                <p><span className="font-medium">Próximo cobro:</span> {subscription.nextBillingDate ? new Date(subscription.nextBillingDate).toLocaleDateString() : 'Sin fecha'}</p>
+              </div>
+              <div>
+                <p><span className="font-medium">Precio mensual:</span> {subscription.pricingMonthly.toFixed(2)} {subscription.currency}</p>
+                <p><span className="font-medium">Precio anual:</span> {subscription.pricingAnnual.toFixed(2)} {subscription.currency}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="rounded border bg-white shadow-sm">

@@ -104,6 +104,24 @@ export interface SubscriptionPlan {
   isActive: boolean;
 }
 
+export interface TenantSubscriptionDetails {
+  tenantIdentifier: string;
+  subscriptionPlanId: string;
+  subscriptionPlanName: string;
+  billingInterval: string;
+  pricingMonthly: number;
+  pricingAnnual: number;
+  currency: string;
+  billingStatus: string;
+  nextBillingDate?: string;
+  cancelAtPeriodEnd: boolean;
+}
+
+export interface ChangeSubscriptionRequest {
+  subscriptionPlanId: string;
+  billingInterval: string;
+}
+
 export interface TenantRegistrationRequest {
   firstName: string;
   lastName: string;
@@ -114,7 +132,27 @@ export interface TenantRegistrationRequest {
   tenantIdentifier: string;
   subscriptionPlanId?: string;
   billingInterval?: 'Monthly' | 'Annual';
-  stripePaymentMethodId?: string;
+  cardNumber?: string;
+  cardExpMonth?: number;
+  cardExpYear?: number;
+  cardCvc?: string;
+}
+
+export interface TenantPaymentMethodDto {
+  id: string;
+  brand?: string;
+  last4?: string;
+  expMonth?: number;
+  expYear?: number;
+  isDefault: boolean;
+}
+
+export interface AddPaymentMethodRequest {
+  cardNumber: string;
+  expMonth: number;
+  expYear: number;
+  cvc: string;
+  setAsDefault?: boolean;
 }
 
 export type TenantBillingStatus = 'Trialing' | 'Active' | 'PastDue' | 'Cancelled';
@@ -238,5 +276,8 @@ export interface TenantFiscalSettings {
   invoicingMode: InvoicingMode;
   simplifiedInvoiceThreshold: number;
   softwareLicenseId?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
 }
 

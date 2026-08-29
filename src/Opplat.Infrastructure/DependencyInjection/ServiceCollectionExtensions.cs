@@ -19,9 +19,10 @@ public static class ServiceCollectionExtensions
     {
         var section = configuration.GetSection(StripeOptions.SectionName);
         services.Configure<StripeOptions>(section);
+        services.Configure<OpplatLegalDataOptions>(configuration.GetSection(OpplatLegalDataOptions.SectionName));
         var options = section.Get<StripeOptions>() ?? new StripeOptions();
 
-        services.AddScoped<IPaymentGatewayService, NoOpPaymentGatewayService>();
+        services.AddScoped<IPaymentGatewayService, MockPaymentGatewayService>();
 
         if (options.Enabled)
             throw new InvalidOperationException("Stripe payment gateway is enabled but its implementation is not configured yet.");

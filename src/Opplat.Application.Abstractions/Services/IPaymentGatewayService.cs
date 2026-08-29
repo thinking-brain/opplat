@@ -4,6 +4,13 @@ namespace Opplat.Application.Abstractions.Services;
 
 public interface IPaymentGatewayService
 {
+    Task<PaymentGatewayCardResult> CreatePaymentMethodAsync(
+        string cardNumber,
+        int expMonth,
+        int expYear,
+        string cvc,
+        CancellationToken cancellationToken = default);
+
     Task<PaymentGatewayResult> CreateCustomerAsync(
         string email,
         string businessName,
@@ -38,6 +45,11 @@ public interface IPaymentGatewayService
     Task<byte[]?> DownloadInvoicePdfAsync(
         string invoiceId,
         CancellationToken cancellationToken = default);
+
+    Task<PaymentGatewaySubscriptionResult> RenewSubscriptionAsync(
+        string subscriptionId,
+        BillingInterval interval,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record PaymentGatewayResult(
@@ -45,11 +57,19 @@ public sealed record PaymentGatewayResult(
     string? ExternalId = null,
     string? Error = null);
 
+public sealed record PaymentGatewayCardResult(
+    bool Succeeded,
+    string? ExternalId = null,
+    string? Brand = null,
+    string? Last4 = null,
+    string? Error = null);
+
 public sealed record PaymentGatewaySubscriptionResult(
     bool Succeeded,
     string? SubscriptionId = null,
     TenantBillingStatus BillingStatus = TenantBillingStatus.Active,
     DateTime? CurrentPeriodEnd = null,
+    string? InvoiceId = null,
     string? Error = null);
 
 public sealed record PaymentGatewayPortalResult(

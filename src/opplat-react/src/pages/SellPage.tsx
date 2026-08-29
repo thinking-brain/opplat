@@ -127,8 +127,6 @@ export const SellPage: React.FC = () => {
     try {
       const result = await invoicesApi.create({
         series: 'A',
-        number: 0,
-        fullNumber: '',
         issueDate: new Date().toISOString(),
         invoiceType: 'Simplified',
         status: 'Draft',

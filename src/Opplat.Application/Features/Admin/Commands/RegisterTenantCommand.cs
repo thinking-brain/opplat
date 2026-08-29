@@ -60,6 +60,11 @@ public sealed class RegisterTenantCommandHandler(
         var priceId = request.BillingInterval == BillingInterval.Annual
             ? plan.StripePriceIdAnnual
             : plan.StripePriceIdMonthly;
+        var hasPaymentMethod = !string.IsNullOrWhiteSpace(request.CardNumber)
+            || request.CardExpMonth.HasValue
+            || request.CardExpYear.HasValue
+            || !string.IsNullOrWhiteSpace(request.CardCvc);
+        PaymentGatewayCardResult? cardResult = null;
         var customerResult = await _paymentGatewayService.CreateCustomerAsync(
             normalizedEmail,
             request.BusinessName.Trim(),
@@ -67,11 +72,26 @@ public sealed class RegisterTenantCommandHandler(
         if (!customerResult.Succeeded || string.IsNullOrWhiteSpace(customerResult.ExternalId))
             return new TenantRegistrationResult(false, null, customerResult.Error ?? "Failed to create billing customer.");
 
-        if (!string.IsNullOrWhiteSpace(request.StripePaymentMethodId))
+        if (hasPaymentMethod)
         {
+            if (string.IsNullOrWhiteSpace(request.CardNumber)
+                || !request.CardExpMonth.HasValue
+                || !request.CardExpYear.HasValue
+                || string.IsNullOrWhiteSpace(request.CardCvc))
+                return new TenantRegistrationResult(false, null, "Complete all payment method fields or skip payment setup.");
+
+            cardResult = await _paymentGatewayService.CreatePaymentMethodAsync(
+                request.CardNumber,
+                request.CardExpMonth.Value,
+                request.CardExpYear.Value,
+                request.CardCvc,
+                cancellationToken);
+            if (!cardResult.Succeeded || string.IsNullOrWhiteSpace(cardResult.ExternalId))
+                return new TenantRegistrationResult(false, null, cardResult.Error ?? "Failed to create payment method.");
+
             var paymentMethodResult = await _paymentGatewayService.AttachPaymentMethodAsync(
                 customerResult.ExternalId,
-                request.StripePaymentMethodId,
+                cardResult.ExternalId,
                 cancellationToken);
             if (!paymentMethodResult.Succeeded)
                 return new TenantRegistrationResult(false, null, paymentMethodResult.Error ?? "Failed to attach payment method.");
@@ -162,6 +182,42 @@ public sealed class RegisterTenantCommandHandler(
         // 8. Persist both
         _db.Tenants.Add(tenant);
         _db.TenantUsers.Add(tenantUser);
+        if (cardResult is not null)
+        {
+            _db.TenantPaymentMethods.Add(new TenantPaymentMethod
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenant.Id,
+                StripePaymentMethodId = cardResult.ExternalId!,
+                Brand = cardResult.Brand,
+                Last4 = cardResult.Last4,
+                ExpMonth = request.CardExpMonth,
+                ExpYear = request.CardExpYear,
+                IsDefault = true,
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow
+            });
+        }
+
+        if (!string.IsNullOrWhiteSpace(subscriptionResult.InvoiceId))
+        {
+            var periodEnd = subscriptionResult.CurrentPeriodEnd ?? DateTime.UtcNow;
+            _db.SubscriptionInvoices.Add(new SubscriptionInvoice
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenant.Id,
+                StripeInvoiceId = subscriptionResult.InvoiceId,
+                AmountDue = request.BillingInterval == BillingInterval.Annual ? plan.PricingAnnual : plan.PricingMonthly,
+                Currency = plan.Currency,
+                Status = cardResult is null ? SubscriptionInvoiceStatus.Open : SubscriptionInvoiceStatus.Paid,
+                PeriodStart = periodEnd.Add(request.BillingInterval == BillingInterval.Annual ? TimeSpan.FromDays(-365) : TimeSpan.FromDays(-30)),
+                PeriodEnd = periodEnd,
+                PaidAt = cardResult is null ? null : DateTime.UtcNow,
+                HostedInvoiceUrl = $"/billing/invoices/{subscriptionResult.InvoiceId}/pdf",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow
+            });
+        }
         await _db.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation(
