@@ -97,7 +97,7 @@ public sealed class IssueInvoiceCommandHandler(
             .OrderByDescending(item => item.GeneratedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
 
-        var record = await fiscalizationProvider.GenerateRecordAsync(invoice, previousRecord, cancellationToken);
+        var record = await fiscalizationProvider.GenerateRecordAsync(invoice, settings, previousRecord, cancellationToken);
         if (record.SubmissionMode == FiscalSubmissionMode.NonVerifactuSigned)
         {
             if (invoiceSigningService is null)
@@ -151,7 +151,8 @@ public sealed class GetInvoicePdfQueryHandler(
             .Include(i => i.FiscalRecord)
             .FirstOrDefaultAsync(i => i.Id == Guid.Parse(request.Id), cancellationToken);
 
-        return invoice is null ? null : pdfRenderer.Render(invoice);
+        var settings = await dbContext.TenantFiscalSettings.FirstOrDefaultAsync(cancellationToken);
+        return invoice is null ? null : pdfRenderer.Render(invoice, settings);
     }
 }
 
@@ -178,7 +179,8 @@ public sealed class SendInvoiceEmailCommandHandler(
         if (invoice.Status != InvoiceStatus.Issued)
             return InvoiceCommandResult.From(false, "Only issued invoices can be emailed.");
 
-        var pdfBytes = pdfRenderer.Render(invoice);
+        var settings = await dbContext.TenantFiscalSettings.FirstOrDefaultAsync(cancellationToken);
+        var pdfBytes = pdfRenderer.Render(invoice, settings);
         await emailService.SendAsync(invoice, pdfBytes, request.RecipientEmail, cancellationToken);
 
         invoice.Status = InvoiceStatus.Sent;

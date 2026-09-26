@@ -10,5 +10,5 @@ public interface IInvoicePdfRenderer
     /// Simplified invoices use a compact ticket-style layout; full invoices include
     /// issuer / recipient blocks, line items, and a tax breakdown table.
     /// </summary>
-    byte[] Render(Invoice invoice);
+    byte[] Render(Invoice invoice, TenantFiscalSettings? settings = null);
 }

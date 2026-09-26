@@ -14,16 +14,13 @@ public sealed class VerifactuFiscalizationProvider : IInvoiceFiscalizationProvid
 {
     public Task<InvoiceFiscalRecord> GenerateRecordAsync(
         Invoice invoice,
+        TenantFiscalSettings settings,
         InvoiceFiscalRecord? previousRecord = null,
         CancellationToken cancellationToken = default)
     {
         var generatedAtUtc = DateTime.UtcNow;
 
-        // Derive issuer NIF from the invoice customer snapshot (full invoices carry it)
-        // or fall back to an empty string; the IssueInvoiceCommand handler resolves the
-        // tenant NIF from TenantFiscalSettings and should embed it in the invoice before
-        // calling this provider.
-        var issuerNif = invoice.CustomerSnapshot?.TaxId ?? string.Empty;
+        var issuerNif = settings.TaxId;
 
         var totalTax = invoice.TaxBreakdowns.Sum(b => b.TaxAmount);
 

@@ -67,6 +67,26 @@ public sealed class GraphUserService(
         return await PatchAccountEnabled(objectId, true, ct);
     }
 
+    public async Task<UserOperationResult> UpdateProfileAsync(string userId, string firstName, string lastName, CancellationToken ct = default)
+    {
+        try
+        {
+            await ExecuteWithRetryAsync(
+                "UpdateProfile",
+                userId,
+                retryCt => _client.Users[userId].PatchAsync(
+                    new User { GivenName = firstName, Surname = lastName },
+                    cancellationToken: retryCt),
+                ct);
+
+            return UserOperationResult.Success(userId);
+        }
+        catch (ODataError ex)
+        {
+            return HandleODataError(ex, "UpdateProfile", userId);
+        }
+    }
+
     public async Task<UserOperationResult> DisableUserAsync(string objectId, CancellationToken ct = default)
     {
         return await PatchAccountEnabled(objectId, false, ct);

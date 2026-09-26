@@ -5,17 +5,16 @@ import {
   Package,
   ShoppingCart,
   Warehouse,
-  Users,
   Tag,
   Layers,
   Menu,
   X,
   FileText,
-  CreditCard,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { hasAnyRole } from '../auth/roles';
 import { appConfig } from '../runtimeConfig';
+import { UserMenu } from './UserMenu';
 
 interface NavItem {
   label: string;
@@ -29,27 +28,15 @@ const navItems: NavItem[] = [
   { label: 'Products', path: '/products', icon: <Package size={20} /> },
   { label: 'Sell', path: '/sell', icon: <ShoppingCart size={20} /> },
   { label: 'Facturas', path: '/invoices', icon: <FileText size={20} /> },
-  {
-    label: 'Facturación',
-    path: '/billing',
-    icon: <CreditCard size={20} />,
-    requiredRoles: appConfig.accessControl.tenantUserManagementRoles,
-  },
   { label: 'Inventory', path: '/inventory', icon: <Warehouse size={20} /> },
   { label: 'Almacenes', path: '/inventory/warehouses', icon: <Warehouse size={20} /> },
   { label: 'Clasificaciones', path: '/inventory/classifications', icon: <Tag size={20} /> },
   { label: 'Grupos', path: '/inventory/groups', icon: <Layers size={20} /> },
-  {
-    label: 'Users',
-    path: '/users',
-    icon: <Users size={20} />,
-    requiredRoles: appConfig.accessControl.tenantUserManagementRoles,
-  },
 ];
 
 export const Layout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, logout, tenantIdentifier, roles } = useAuth();
+  const { tenantIdentifier, roles } = useAuth();
   const navigate = useNavigate();
 
   const handleNavigation = (path: string) => {
@@ -117,13 +104,7 @@ export const Layout: React.FC = () => {
                 Tenant: {tenantIdentifier}
               </span>
             )}
-            <span className="text-sm hidden sm:block">{user?.username}</span>
-            <button
-              className="text-sm border border-white/50 px-3 py-1 rounded hover:bg-blue-700 transition-colors"
-              onClick={() => { void logout(); }}
-            >
-              Logout
-            </button>
+            <UserMenu />
           </div>
         </header>
 

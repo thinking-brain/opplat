@@ -9,6 +9,7 @@ public sealed class NullInvoiceFiscalizationProvider : IInvoiceFiscalizationProv
 {
     public Task<InvoiceFiscalRecord> GenerateRecordAsync(
         Invoice invoice,
+        TenantFiscalSettings settings,
         InvoiceFiscalRecord? previousRecord = null,
         CancellationToken cancellationToken = default)
     {

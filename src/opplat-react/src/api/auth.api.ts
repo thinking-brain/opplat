@@ -25,6 +25,10 @@ export const authApi = {
     const response = await authAxiosClient.get<TenantAccessContext>('/auth/account/tenant-context');
     return response.data;
   },
+
+  updateProfile: async (name: string, lastName: string): Promise<void> => {
+    await authAxiosClient.post('/auth/account/profile', { name, lastName });
+  },
 };
 
 export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {

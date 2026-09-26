@@ -18,6 +18,8 @@ import { WarehousesPage } from './pages/WarehousesPage';
 import { BillingPage } from './pages/BillingPage';
 import { PaymentMethodsPage } from './pages/PaymentMethodsPage';
 import { SubscriptionChangePage } from './pages/SubscriptionChangePage';
+import { SecurityPage } from './pages/SecurityPage';
+import { UserDataPage } from './pages/UserDataPage';
 import { appConfig } from './runtimeConfig';
 
 function App() {
@@ -57,7 +59,20 @@ function App() {
         <Route path="inventory/classifications" element={<ProductClassificationsPage />} />
         <Route path="inventory/groups" element={<ProductGroupsPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
-        <Route path="invoicing/settings" element={<InvoiceSettingsPage />} />
+        <Route
+          path="invoicing/settings"
+          element={(
+            <ProtectedRoute
+              requiredRoles={appConfig.accessControl.tenantUserManagementRoles}
+              unauthorizedTitle="Sección reservada para TenantAdmin"
+              unauthorizedMessage="Solo un TenantAdmin puede gestionar los datos legales de la empresa."
+            >
+              <InvoiceSettingsPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route path="account/security" element={<SecurityPage />} />
+        <Route path="account/profile" element={<UserDataPage />} />
         <Route
           path="billing"
           element={(

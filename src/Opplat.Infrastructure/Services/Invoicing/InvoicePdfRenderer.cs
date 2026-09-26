@@ -19,15 +19,15 @@ public sealed class InvoicePdfRenderer : IInvoicePdfRenderer
         QuestPDF.Settings.License = LicenseType.Community;
     }
 
-    public byte[] Render(Invoice invoice)
+    public byte[] Render(Invoice invoice, TenantFiscalSettings? settings = null)
     {
         return invoice.InvoiceType == InvoiceType.Simplified
-            ? RenderSimplified(invoice)
-            : RenderFull(invoice);
+            ? RenderSimplified(invoice, settings)
+            : RenderFull(invoice, settings);
     }
 
     // ── Simplified / ticket layout ───────────────────────────────────────────
-    private static byte[] RenderSimplified(Invoice invoice)
+    private static byte[] RenderSimplified(Invoice invoice, TenantFiscalSettings? settings)
     {
         return Document.Create(container =>
         {
@@ -41,6 +41,7 @@ public sealed class InvoicePdfRenderer : IInvoicePdfRenderer
                     col.Item().AlignCenter().Text(invoice.FullNumber).FontSize(11);
                     col.Item().PaddingVertical(4).LineHorizontal(0.5f);
 
+                    AddIssuerBlock(col, settings, 9);
                     col.Item().Text($"Fecha: {invoice.IssueDate:dd/MM/yyyy}").FontSize(9);
                     if (!string.IsNullOrWhiteSpace(invoice.PaymentMethod))
                         col.Item().Text($"Pago: {invoice.PaymentMethod}").FontSize(9);
@@ -79,7 +80,7 @@ public sealed class InvoicePdfRenderer : IInvoicePdfRenderer
     }
 
     // ── Full invoice layout ───────────────────────────────────────────────────
-    private static byte[] RenderFull(Invoice invoice)
+    private static byte[] RenderFull(Invoice invoice, TenantFiscalSettings? settings)
     {
         return Document.Create(container =>
         {
@@ -106,6 +107,8 @@ public sealed class InvoicePdfRenderer : IInvoicePdfRenderer
                     });
 
                     col.Item().PaddingVertical(8).LineHorizontal(0.5f);
+
+                    AddIssuerBlock(col, settings, 10);
 
                     // Recipient block
                     if (!string.IsNullOrWhiteSpace(invoice.CustomerSnapshot?.Name))
@@ -184,6 +187,25 @@ public sealed class InvoicePdfRenderer : IInvoicePdfRenderer
                 });
             });
         }).GeneratePdf();
+    }
+
+    private static void AddIssuerBlock(ColumnDescriptor col, TenantFiscalSettings? settings, float fontSize)
+    {
+        if (settings is null || string.IsNullOrWhiteSpace(settings.LegalName))
+            return;
+
+        col.Item().Column(c =>
+        {
+            c.Item().Text("EMISOR").Bold().FontSize(fontSize - 1);
+            c.Item().Text(settings.LegalName).FontSize(fontSize);
+            if (!string.IsNullOrWhiteSpace(settings.TaxId))
+                c.Item().Text($"NIF/CIF: {settings.TaxId}").FontSize(fontSize - 1);
+            if (!string.IsNullOrWhiteSpace(settings.FiscalAddress))
+                c.Item().Text(settings.FiscalAddress).FontSize(fontSize - 1);
+            if (!string.IsNullOrWhiteSpace(settings.Country))
+                c.Item().Text(settings.Country).FontSize(fontSize - 1);
+        });
+        col.Item().PaddingVertical(6).LineHorizontal(0.5f);
     }
 
     // ── Shared: Verifactu legend + QR ────────────────────────────────────────

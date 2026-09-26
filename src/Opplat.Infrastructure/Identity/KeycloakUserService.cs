@@ -107,6 +107,38 @@ public sealed class KeycloakUserService(
         }
     }
 
+    public async Task<UserOperationResult> UpdateProfileAsync(string userId, string firstName, string lastName, CancellationToken ct = default)
+    {
+        try
+        {
+            var token = await GetAdminTokenAsync(ct);
+            if (token is null)
+                return UserOperationResult.Failure("Failed to obtain Keycloak admin token.");
+
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                $"{_options.BaseUrl}/admin/realms/{_options.Realm}/users/{userId}");
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            httpRequest.Content = new StringContent(
+                JsonSerializer.Serialize(new { firstName, lastName }),
+                Encoding.UTF8,
+                "application/json");
+
+            using var response = await _httpClient.SendAsync(httpRequest, ct);
+            if (response.IsSuccessStatusCode)
+                return UserOperationResult.Success(userId);
+
+            var body = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogWarning("Keycloak UpdateProfile failed {Status}: {Body}", response.StatusCode, body);
+            return UserOperationResult.Failure($"Keycloak returned {(int)response.StatusCode}.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unhandled error updating Keycloak user {UserId}", userId);
+            return UserOperationResult.Failure("An unexpected error occurred.");
+        }
+    }
+
     public async Task<UserOperationResult> AssignRolesAsync(string userId, IEnumerable<string> roleNames, CancellationToken ct = default)
     {
         try

@@ -784,6 +784,9 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
                     b.Property<string>("FiscalAddress")
                         .IsRequired()
                         .HasColumnType("text");
@@ -795,6 +798,9 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
                     b.Property<decimal>("SimplifiedInvoiceThreshold")
                         .HasColumnType("numeric");
 
@@ -803,6 +809,9 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
 
                     b.Property<string>("TaxId")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Website")
                         .HasColumnType("text");
 
                     b.ToTable("TenantFiscalSettings");

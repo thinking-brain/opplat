@@ -78,7 +78,7 @@ public class IssueInvoiceCommandOutboxTests
         };
         var fiscalProvider = new Mock<IInvoiceFiscalizationProvider>();
         fiscalProvider
-            .Setup(p => p.GenerateRecordAsync(It.IsAny<Invoice>(), It.IsAny<InvoiceFiscalRecord?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.GenerateRecordAsync(It.IsAny<Invoice>(), It.IsAny<TenantFiscalSettings>(), It.IsAny<InvoiceFiscalRecord?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(pendingRecord);
 
         var handler = new IssueInvoiceCommandHandler(db, counterSvc.Object, fiscalProvider.Object, typeResolver.Object);

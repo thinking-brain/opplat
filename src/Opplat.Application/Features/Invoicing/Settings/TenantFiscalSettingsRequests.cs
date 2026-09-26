@@ -34,6 +34,9 @@ public sealed class UpsertTenantFiscalSettingsCommandHandler(OpplatDbContext dbC
             existing.FiscalAddress = request.TenantFiscalSettings.FiscalAddress;
             existing.Country = request.TenantFiscalSettings.Country;
             existing.BusinessSector = request.TenantFiscalSettings.BusinessSector;
+            existing.Email = request.TenantFiscalSettings.Email;
+            existing.Phone = request.TenantFiscalSettings.Phone;
+            existing.Website = request.TenantFiscalSettings.Website;
             existing.DefaultSeries = request.TenantFiscalSettings.DefaultSeries;
             existing.InvoicingMode = request.TenantFiscalSettings.InvoicingMode;
             existing.SimplifiedInvoiceThreshold = request.TenantFiscalSettings.SimplifiedInvoiceThreshold;

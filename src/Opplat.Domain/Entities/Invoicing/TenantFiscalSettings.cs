@@ -19,6 +19,12 @@ public sealed class TenantFiscalSettings : BaseEntity
 
     public string? BusinessSector { get; set; }
 
+    public string? Email { get; set; }
+
+    public string? Phone { get; set; }
+
+    public string? Website { get; set; }
+
     public required string DefaultSeries { get; set; }
 
     public InvoicingMode InvoicingMode { get; set; } = InvoicingMode.None;

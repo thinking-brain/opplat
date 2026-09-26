@@ -46,4 +46,10 @@ public sealed class NoOpGraphUserService(ILogger<NoOpGraphUserService> logger) :
         _logger.LogWarning("Graph API disabled — skipping AssignRoles for {UserId}", userId);
         return Task.FromResult(UserOperationResult.Success(userId));
     }
+
+    public Task<UserOperationResult> UpdateProfileAsync(string userId, string firstName, string lastName, CancellationToken ct = default)
+    {
+        _logger.LogWarning("Graph API disabled — skipping UpdateProfile for {UserId}", userId);
+        return Task.FromResult(UserOperationResult.Success(userId));
+    }
 }

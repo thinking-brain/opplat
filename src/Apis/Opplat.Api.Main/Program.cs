@@ -24,11 +24,15 @@ using Scalar.AspNetCore;
 using Opplat.Api.Main.Extensions;
 using Opplat.Api.Admin.Extensions;
 using Opplat.Api.Common.Extensions;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var authSection = builder.Configuration.GetSection(AuthOptions.SectionName);
 var authOptions = authSection.Get<AuthOptions>() ?? new AuthOptions();
 var requireHttpsMetadata = !builder.Environment.IsDevelopment();
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 // ============================================
 // MULTI-TENANT CONFIGURATION

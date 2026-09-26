@@ -6,6 +6,7 @@ public interface IInvoiceFiscalizationProvider
 {
     Task<InvoiceFiscalRecord> GenerateRecordAsync(
         Invoice invoice,
+        TenantFiscalSettings settings,
         InvoiceFiscalRecord? previousRecord = null,
         CancellationToken cancellationToken = default);
 

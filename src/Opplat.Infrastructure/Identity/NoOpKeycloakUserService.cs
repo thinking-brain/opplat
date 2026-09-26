@@ -30,6 +30,12 @@ public sealed class NoOpKeycloakUserService(ILogger<NoOpKeycloakUserService> log
         return Task.FromResult(UserOperationResult.Success(userId));
     }
 
+    public Task<UserOperationResult> UpdateProfileAsync(string userId, string firstName, string lastName, CancellationToken ct = default)
+    {
+        _logger.LogWarning("Keycloak disabled — skipping UpdateProfile for {UserId}", userId);
+        return Task.FromResult(UserOperationResult.Success(userId));
+    }
+
     public Task<UserOperationResult> DisableUserAsync(string objectId, CancellationToken ct = default)
     {
         _logger.LogWarning("Keycloak disabled — skipping DisableUser for {ObjectId}", objectId);

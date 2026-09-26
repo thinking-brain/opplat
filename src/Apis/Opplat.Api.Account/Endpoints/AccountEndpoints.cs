@@ -117,6 +117,21 @@ public static class AccountEndpoints
             .RequireAuthorization("TenantAdminOnly")
             .WithSummary("Edit user name/last name");
 
+        group.MapPost("/profile",
+            async (EditUserNameDto dto, HttpContext httpContext, IMediator mediator) =>
+            {
+                var subject = httpContext.User.FindFirst(AuthClaimTypes.Subject)?.Value;
+                if (string.IsNullOrWhiteSpace(subject))
+                    return Results.BadRequest(new { Result = false, Message = "Authenticated subject is required." });
+
+                var ok = await mediator.Send(new UpdateOwnProfileCommand(subject, dto.Name, dto.LastName));
+                return ok
+                    ? Results.Ok()
+                    : Results.BadRequest(new { Result = false, Message = "Error modifying profile." });
+            })
+            .RequireAuthorization()
+            .WithSummary("Edit current user profile");
+
         group.MapPost("/reset-password",
             () => Results.BadRequest(new
             {

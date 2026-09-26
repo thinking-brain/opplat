@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Plus, CheckCircle, XCircle, Clock, Send } from 'lucide-react';
 import { invoicesApi } from '../api/invoices.api';
-import { Invoice, InvoiceStatus } from '../types';
+import { Invoice, InvoiceStatus, TenantFiscalSettings } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
 const statusBadge = (status: InvoiceStatus) => {
@@ -34,8 +34,9 @@ export const InvoicesPage: React.FC = () => {
   const [actionId, setActionId] = useState<string | null>(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
   const [selected, setSelected] = useState<Invoice | null>(null);
+  const [fiscalSettings, setFiscalSettings] = useState<TenantFiscalSettings | null>(null);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); loadFiscalSettings(); }, []);
   useEffect(() => {
     if (!snackbar.open) return;
     const t = setTimeout(() => setSnackbar(s => ({ ...s, open: false })), 5000);
@@ -50,6 +51,15 @@ export const InvoicesPage: React.FC = () => {
       setSnackbar({ open: true, message: 'Error al cargar facturas', severity: 'error' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadFiscalSettings = async () => {
+    try {
+      const settings = await invoicesApi.getSettings();
+      setFiscalSettings(settings.legalName ? settings : null);
+    } catch {
+      setFiscalSettings(null);
     }
   };
 
@@ -174,6 +184,15 @@ export const InvoicesPage: React.FC = () => {
                 <h2 className="font-semibold">{selected.fullNumber || 'Borrador'}</h2>
                 {statusBadge(selected.status)}
               </div>
+              {fiscalSettings && (
+                <div className="text-xs bg-gray-50 rounded p-2 space-y-0.5">
+                  <p className="font-medium text-gray-600 mb-1">Emisor</p>
+                  <p>{fiscalSettings.legalName}</p>
+                  <p><span className="text-gray-400">NIF/CIF:</span> {fiscalSettings.taxId}</p>
+                  <p>{fiscalSettings.fiscalAddress}{fiscalSettings.country ? `, ${fiscalSettings.country}` : ''}</p>
+                </div>
+              )}
+
               <div className="text-sm space-y-1 text-gray-700">
                 <p><span className="text-gray-400">Fecha:</span> {new Date(selected.issueDate).toLocaleDateString('es-ES')}</p>
                 <p><span className="text-gray-400">Tipo:</span> {selected.invoiceType}</p>

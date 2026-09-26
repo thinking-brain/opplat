@@ -30,6 +30,8 @@ public interface IUserManagementService
     /// Each role name must match a role that already exists.
     /// </summary>
     Task<UserOperationResult> AssignRolesAsync(string userId, IEnumerable<string> roleNames, CancellationToken ct = default);
+
+    Task<UserOperationResult> UpdateProfileAsync(string userId, string firstName, string lastName, CancellationToken ct = default);
 }
 
 /// <summary>

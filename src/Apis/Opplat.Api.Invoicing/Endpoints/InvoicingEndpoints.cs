@@ -68,13 +68,13 @@ public static class InvoicingEndpoints
                 FiscalAddress = string.Empty,
                 DefaultSeries = string.Empty
             });
-        }).RequireAuthorization();
+        }).RequireAuthorization("TenantAdminOnly");
 
         settings.MapPut(string.Empty, async (TenantFiscalSettings settingsValue, [FromServices] IMediator mediator, HttpContext httpContext) =>
         {
             var result = await mediator.Send(new UpsertTenantFiscalSettingsCommand(settingsValue));
             return BuildResponse(result);
-        }).RequireAuthorization();
+        }).RequireAuthorization("TenantAdminOnly");
     }
 
     private static IResult BuildResponse(InvoiceCommandResult result)
