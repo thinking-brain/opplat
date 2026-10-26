@@ -8,6 +8,7 @@ using Opplat.Application.Abstractions.Options;
 using Opplat.Application.Abstractions.Services;
 using Opplat.Infrastructure.Identity;
 using Opplat.Infrastructure.Services.Billing;
+using Opplat.Infrastructure.Services.Billing.Redsys;
 
 namespace Opplat.Infrastructure.DependencyInjection;
 
@@ -17,18 +18,35 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var section = configuration.GetSection(StripeOptions.SectionName);
-        services.Configure<StripeOptions>(section);
+        var stripeSection = configuration.GetSection(StripeOptions.SectionName);
+        services.Configure<StripeOptions>(stripeSection);
         services.Configure<OpplatLegalDataOptions>(configuration.GetSection(OpplatLegalDataOptions.SectionName));
-        var options = section.Get<StripeOptions>() ?? new StripeOptions();
+        var stripeOptions = stripeSection.Get<StripeOptions>() ?? new StripeOptions();
 
-        services.AddScoped<IPaymentGatewayService, MockPaymentGatewayService>();
+        var redsysSection = configuration.GetSection(RedsysOptions.SectionName);
+        services.Configure<RedsysOptions>(redsysSection);
+        var redsysOptions = redsysSection.Get<RedsysOptions>() ?? new RedsysOptions();
 
-        if (options.Enabled)
+        // The card-setup redirect flow is registered unconditionally: no raw card PAN is ever
+        // collected server-side, even against the Test/sandbox Redsys environment used locally.
+        services.AddScoped<RedsysOrderIdGenerator>();
+        services.AddScoped<RedsysMerchantParametersBuilder>();
+        services.AddScoped<RedsysSignatureService>();
+        services.AddHttpClient<RedsysApiClient>();
+        services.AddScoped<IRedsysCardSetupService, RedsysCardSetupService>();
+
+        // Only the recurring-charge gateway implementation is toggled by Redsys:Enabled, since
+        // real MIT charges should not run against production card networks by accident locally.
+        services.AddScoped<IPaymentGatewayService>(provider => redsysOptions.Enabled
+            ? ActivatorUtilities.CreateInstance<RedsysPaymentGatewayService>(provider)
+            : ActivatorUtilities.CreateInstance<MockPaymentGatewayService>(provider));
+
+        if (stripeOptions.Enabled)
             throw new InvalidOperationException("Stripe payment gateway is enabled but its implementation is not configured yet.");
 
         return services;
     }
+
 
     /// <summary>
     /// Registers Graph API user-lifecycle services.

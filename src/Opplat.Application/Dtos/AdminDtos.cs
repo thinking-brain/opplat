@@ -146,14 +146,11 @@ public sealed record TenantRegistrationRequest(
     string BusinessName,
     string TenantIdentifier,
     Guid? SubscriptionPlanId = null,
-    BillingInterval BillingInterval = BillingInterval.Monthly,
-    string? CardNumber = null,
-    int? CardExpMonth = null,
-    int? CardExpYear = null,
-    string? CardCvc = null);
+    BillingInterval BillingInterval = BillingInterval.Monthly);
 
 public sealed record TenantRegistrationResult(
     bool Succeeded,
     string? TenantIdentifier = null,
-    string? Message = null);
+    string? Message = null,
+    Guid? TenantId = null);
 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Opplat.Application.Abstractions.Admin;
+using Opplat.Application.Abstractions.Services;
 using Opplat.Application.Dtos;
 using Opplat.Application.Features.Admin.Commands;
 using Opplat.Application.Abstractions.Options;
@@ -68,13 +69,12 @@ public static class AdminEndpoints
             .WithSummary("List tenant payment methods");
 
         tenantBilling.MapPost("/payment-methods",
-            async (PaymentMethodRequest request, HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+            async (HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var result = await mediator.Send(new AddPaymentMethodCommand(
-                    GetTenantIdentifier(httpContext), request.CardNumber, request.ExpMonth, request.ExpYear, request.Cvc, request.SetAsDefault), cancellationToken);
+                var result = await mediator.Send(new InitiateCardSetupCommand(GetTenantIdentifier(httpContext)), cancellationToken);
                 return Results.Ok(result);
             })
-            .WithSummary("Add a tenant payment method");
+            .WithSummary("Start the Redsys card-setup redirect flow for a new/replacement payment method");
 
         tenantBilling.MapPut("/payment-methods/{paymentMethodId:guid}/default",
             async (Guid paymentMethodId, HttpContext httpContext, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
@@ -232,6 +232,27 @@ public static class AdminEndpoints
             .AllowAnonymous()
             .WithSummary("Self-register a new tenant and primary admin user");
 
+        publicApi.MapGet("/tenants/{tenantId:guid}/card-setup",
+            async (Guid tenantId, [FromServices] IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var result = await mediator.Send(new InitiateTenantCardSetupCommand(tenantId), cancellationToken);
+                return Results.Ok(result);
+            })
+            .AllowAnonymous()
+            .WithSummary("Start the Redsys card-setup redirect flow for a just-registered tenant");
+
+        publicApi.MapPost("/webhooks/redsys",
+            async (HttpRequest request, [FromServices] IRedsysCardSetupService cardSetupService, CancellationToken cancellationToken) =>
+            {
+                var form = await request.ReadFormAsync(cancellationToken);
+                var fields = form.ToDictionary(pair => pair.Key, pair => pair.Value.ToString());
+                await cardSetupService.HandleNotificationAsync(fields, cancellationToken);
+                // Redsys retries on any non-2xx response; internal failures are logged, not surfaced.
+                return Results.Ok();
+            })
+            .AllowAnonymous()
+            .WithSummary("Redsys asynchronous notification (webhook) for the card-setup flow");
+
         bff.MapGet("/login",
             (string? returnUrl, HttpContext httpContext, IOptions<AuthOptions> authOptions) =>
             {
@@ -280,7 +301,6 @@ public static class AdminEndpoints
         ?? throw new InvalidOperationException("Tenant identifier is required.");
 
     private sealed record BillingPortalRequest(string ReturnUrl);
-    private sealed record PaymentMethodRequest(string CardNumber, int ExpMonth, int ExpYear, string Cvc, bool SetAsDefault = false);
 
     private static async Task<AdminSessionDto> BuildSessionAsync(HttpContext httpContext, AuthOptions authOptions)
     {

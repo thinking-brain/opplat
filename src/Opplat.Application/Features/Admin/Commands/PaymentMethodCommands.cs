@@ -6,13 +6,20 @@ using Opplat.Infrastructure.Persistance.Data.Administration;
 
 namespace Opplat.Application.Features.Admin.Commands;
 
-public sealed record AddPaymentMethodCommand(
-    string TenantIdentifier,
-    string CardNumber,
-    int ExpMonth,
-    int ExpYear,
-    string Cvc,
-    bool SetAsDefault = false) : IRequest<TenantPaymentMethodDto>;
+/// <summary>
+/// Starts the Redsys card-setup redirect flow for an authenticated tenant (used by the
+/// "Payment Methods" settings page). No raw card details are ever submitted to this API —
+/// the caller must POST the returned form fields to <see cref="RedsysCardSetupRedirectDto.ActionUrl"/>.
+/// </summary>
+public sealed record InitiateCardSetupCommand(string TenantIdentifier) : IRequest<RedsysCardSetupRedirectDto>;
+
+/// <summary>
+/// Public/anonymous variant used right after self-registration, before any auth session
+/// exists — the tenant is identified by the id returned from registration, not by identity claims.
+/// </summary>
+public sealed record InitiateTenantCardSetupCommand(Guid TenantId) : IRequest<RedsysCardSetupRedirectDto>;
+
+public sealed record RedsysCardSetupRedirectDto(string ActionUrl, IReadOnlyDictionary<string, string> FormFields);
 
 public sealed record ListPaymentMethodsQuery(string TenantIdentifier) : IRequest<IReadOnlyList<TenantPaymentMethodDto>>;
 public sealed record DeletePaymentMethodCommand(string TenantIdentifier, Guid PaymentMethodId) : IRequest;
@@ -26,59 +33,31 @@ public sealed record TenantPaymentMethodDto(
     long? ExpYear,
     bool IsDefault);
 
-public sealed class AddPaymentMethodCommandHandler(
+public sealed class InitiateCardSetupCommandHandler(
     AdminTenantCatalogDbContext db,
-    IPaymentGatewayService paymentGatewayService) : IRequestHandler<AddPaymentMethodCommand, TenantPaymentMethodDto>
+    IRedsysCardSetupService cardSetupService) : IRequestHandler<InitiateCardSetupCommand, RedsysCardSetupRedirectDto>
 {
-    public async Task<TenantPaymentMethodDto> Handle(AddPaymentMethodCommand request, CancellationToken cancellationToken)
+    public async Task<RedsysCardSetupRedirectDto> Handle(InitiateCardSetupCommand request, CancellationToken cancellationToken)
     {
         var tenant = await db.Tenants
             .FirstOrDefaultAsync(item => item.Identifier == Normalize(request.TenantIdentifier), cancellationToken)
             ?? throw new KeyNotFoundException("Tenant was not found.");
-        var existingMethods = await db.TenantPaymentMethods
-            .Where(item => item.TenantId == tenant.Id)
-            .ToListAsync(cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(tenant.StripeCustomerId))
-            throw new InvalidOperationException("This tenant has no payment customer configured.");
-
-        var card = await paymentGatewayService.CreatePaymentMethodAsync(
-            request.CardNumber, request.ExpMonth, request.ExpYear, request.Cvc, cancellationToken);
-        if (!card.Succeeded || string.IsNullOrWhiteSpace(card.ExternalId))
-            throw new InvalidOperationException(card.Error ?? "Failed to create payment method.");
-
-        var attached = await paymentGatewayService.AttachPaymentMethodAsync(
-            tenant.StripeCustomerId, card.ExternalId, cancellationToken);
-        if (!attached.Succeeded)
-            throw new InvalidOperationException(attached.Error ?? "Failed to attach payment method.");
-
-        var isDefault = request.SetAsDefault || existingMethods.All(item => !item.IsDefault);
-        if (isDefault)
-            foreach (var existing in existingMethods)
-                existing.IsDefault = false;
-
-        var paymentMethod = new TenantPaymentMethod
-        {
-            Id = Guid.NewGuid(),
-            TenantId = tenant.Id,
-            StripePaymentMethodId = card.ExternalId,
-            Brand = card.Brand,
-            Last4 = card.Last4,
-            ExpMonth = request.ExpMonth,
-            ExpYear = request.ExpYear,
-            IsDefault = isDefault,
-            CreatedAt = DateTime.UtcNow,
-            ModifiedAt = DateTime.UtcNow
-        };
-
-        db.TenantPaymentMethods.Add(paymentMethod);
-        await db.SaveChangesAsync(cancellationToken);
-        return ToDto(paymentMethod);
+        var redirect = await cardSetupService.InitiateCardSetupAsync(tenant.Id, cancellationToken);
+        return new RedsysCardSetupRedirectDto(redirect.ActionUrl, redirect.FormFields);
     }
 
     private static string Normalize(string identifier) => identifier.Trim().ToLowerInvariant();
-    private static TenantPaymentMethodDto ToDto(TenantPaymentMethod item) =>
-        new(item.Id, item.Brand, item.Last4, item.ExpMonth, item.ExpYear, item.IsDefault);
+}
+
+public sealed class InitiateTenantCardSetupCommandHandler(IRedsysCardSetupService cardSetupService)
+    : IRequestHandler<InitiateTenantCardSetupCommand, RedsysCardSetupRedirectDto>
+{
+    public async Task<RedsysCardSetupRedirectDto> Handle(InitiateTenantCardSetupCommand request, CancellationToken cancellationToken)
+    {
+        var redirect = await cardSetupService.InitiateCardSetupAsync(request.TenantId, cancellationToken);
+        return new RedsysCardSetupRedirectDto(redirect.ActionUrl, redirect.FormFields);
+    }
 }
 
 public sealed class ListPaymentMethodsQueryHandler(AdminTenantCatalogDbContext db)

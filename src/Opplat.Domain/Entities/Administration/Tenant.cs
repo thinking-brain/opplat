@@ -44,6 +44,8 @@ public sealed class Tenant : BaseEntity
 
     public bool CancelAtPeriodEnd { get; set; }
 
+    public int RenewalRetryCount { get; set; }
+
     public Guid DatabaseInstanceId { get; set; }
 
     public required string DatabaseSchema { get; set; }

@@ -132,10 +132,6 @@ export interface TenantRegistrationRequest {
   tenantIdentifier: string;
   subscriptionPlanId?: string;
   billingInterval?: 'Monthly' | 'Annual';
-  cardNumber?: string;
-  cardExpMonth?: number;
-  cardExpYear?: number;
-  cardCvc?: string;
 }
 
 export interface TenantPaymentMethodDto {
@@ -147,12 +143,11 @@ export interface TenantPaymentMethodDto {
   isDefault: boolean;
 }
 
-export interface AddPaymentMethodRequest {
-  cardNumber: string;
-  expMonth: number;
-  expYear: number;
-  cvc: string;
-  setAsDefault?: boolean;
+/// Redirect payload for the Redsys card-setup (CIT) flow: POST formFields to actionUrl to
+/// hand the browser off to Redsys's hosted 3DS challenge.
+export interface RedsysCardSetupRedirect {
+  actionUrl: string;
+  formFields: Record<string, string>;
 }
 
 export type TenantBillingStatus = 'Trialing' | 'Active' | 'PastDue' | 'Cancelled';
@@ -172,6 +167,7 @@ export interface TenantRegistrationResult {
   succeeded: boolean;
   tenantIdentifier?: string;
   message?: string;
+  tenantId?: string;
 }
 
 export interface Warehouse {

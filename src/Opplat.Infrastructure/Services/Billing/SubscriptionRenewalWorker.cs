@@ -104,10 +104,27 @@ public sealed class SubscriptionRenewalWorker(
 
         if (!result.Succeeded || string.IsNullOrWhiteSpace(result.InvoiceId))
         {
+            tenant.RenewalRetryCount++;
+            if (tenant.RenewalRetryCount > MaxRenewalRetries)
+            {
+                tenant.BillingStatus = TenantBillingStatus.Cancelled;
+                tenant.Status = TenantStatus.Inactive;
+                tenant.InactivatedAt = DateTime.UtcNow;
+                tenant.ModifiedAt = DateTime.UtcNow;
+                await db.SaveChangesAsync(cancellationToken);
+                logger.LogWarning(
+                    "Subscription renewal failed for tenant {Identifier} after {Retries} retries; cancelling: {Error}",
+                    tenant.Identifier, tenant.RenewalRetryCount - 1, result.Error);
+                return;
+            }
+
             tenant.BillingStatus = TenantBillingStatus.PastDue;
+            tenant.NextBillingDate = DateTime.UtcNow.Add(RetryBackoff(tenant.RenewalRetryCount));
             tenant.ModifiedAt = DateTime.UtcNow;
             await db.SaveChangesAsync(cancellationToken);
-            logger.LogWarning("Subscription renewal failed for tenant {Identifier}: {Error}", tenant.Identifier, result.Error);
+            logger.LogWarning(
+                "Subscription renewal failed for tenant {Identifier} (retry {Retry}/{MaxRetries}): {Error}",
+                tenant.Identifier, tenant.RenewalRetryCount, MaxRenewalRetries, result.Error);
             return;
         }
 
@@ -138,9 +155,20 @@ public sealed class SubscriptionRenewalWorker(
 
         tenant.NextBillingDate = periodEnd;
         tenant.BillingStatus = TenantBillingStatus.Active;
+        tenant.RenewalRetryCount = 0;
         tenant.ModifiedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Renewed subscription for tenant {Identifier}, new invoice {InvoiceId}", tenant.Identifier, result.InvoiceId);
     }
+
+    private const int MaxRenewalRetries = 3;
+
+    /// <summary>Dunning schedule: retry at +1 day, +3 days, then +7 days before cancelling.</summary>
+    private static TimeSpan RetryBackoff(int retryCount) => retryCount switch
+    {
+        1 => TimeSpan.FromDays(1),
+        2 => TimeSpan.FromDays(3),
+        _ => TimeSpan.FromDays(7)
+    };
 }

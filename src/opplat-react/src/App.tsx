@@ -9,6 +9,7 @@ import { InvoicesPage } from './pages/InvoicesPage';
 import { InvoiceSettingsPage } from './pages/InvoiceSettingsPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { CardSetupCallbackPage } from './pages/CardSetupCallbackPage';
 import { ProductsPage } from './pages/ProductsPage';
 import { ProductClassificationsPage } from './pages/ProductClassificationsPage';
 import { ProductGroupsPage } from './pages/ProductGroupsPage';
@@ -27,6 +28,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/billing/card-setup/callback" element={<CardSetupCallbackPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage title="Completando inicio de sesión" />} />
       <Route path="/auth/silent-renew" element={<AuthCallbackPage title="Renovando sesión" />} />
       <Route

@@ -1,5 +1,5 @@
 import { authAxiosClient } from './axiosClient';
-import type { AddPaymentMethodRequest, TenantPaymentMethodDto } from '../types';
+import type { RedsysCardSetupRedirect, TenantPaymentMethodDto } from '../types';
 
 export const paymentMethodsApi = {
   list: async (): Promise<TenantPaymentMethodDto[]> => {
@@ -7,8 +7,8 @@ export const paymentMethodsApi = {
     return response.data;
   },
 
-  add: async (request: AddPaymentMethodRequest): Promise<TenantPaymentMethodDto> => {
-    const response = await authAxiosClient.post<TenantPaymentMethodDto>('/billing/payment-methods', request);
+  initiateCardSetup: async (): Promise<RedsysCardSetupRedirect> => {
+    const response = await authAxiosClient.post<RedsysCardSetupRedirect>('/billing/payment-methods');
     return response.data;
   },
 
@@ -20,3 +20,4 @@ export const paymentMethodsApi = {
     await authAxiosClient.put(`/billing/payment-methods/${encodeURIComponent(id)}/default`);
   },
 };
+

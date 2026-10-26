@@ -75,6 +75,9 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     b.Property<DateTime?>("NextBillingDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("RenewalRetryCount")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -254,6 +257,57 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                         .HasColumnType("text");
 
                     b.ToTable("database_instances", (string)null);
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Administration.RedsysTransaction", b =>
+                {
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
+
+                    b.Property<long>("AmountCents")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CofTxnId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<string>("IdentifierToken")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Order")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
+
+                    b.Property<string>("RawResponsePayload")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResponseCode")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("Order")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "Kind", "Status");
+
+                    b.ToTable("redsys_transactions", (string)null);
                 });
 
             modelBuilder.Entity("Opplat.Domain.Entities.Administration.SubscriptionInvoice", b =>
@@ -444,6 +498,17 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Administration
                     b.Navigation("TargetTenant");
 
                     b.Navigation("TargetUser");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Administration.RedsysTransaction", b =>
+                {
+                    b.HasOne("Opplat.Domain.Entities.Administration.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Opplat.Domain.Entities.Administration.SubscriptionInvoice", b =>

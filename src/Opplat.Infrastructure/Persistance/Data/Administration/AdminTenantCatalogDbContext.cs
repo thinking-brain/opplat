@@ -12,6 +12,7 @@ public sealed class AdminTenantCatalogDbContext(DbContextOptions<AdminTenantCata
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<TenantPaymentMethod> TenantPaymentMethods => Set<TenantPaymentMethod>();
     public DbSet<SubscriptionInvoice> SubscriptionInvoices => Set<SubscriptionInvoice>();
+    public DbSet<RedsysTransaction> RedsysTransactions => Set<RedsysTransaction>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

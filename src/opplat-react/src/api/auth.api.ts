@@ -1,5 +1,5 @@
 import { adminPublicAxiosClient, authAxiosClient } from './axiosClient';
-import type { RegisterUser, SubscriptionPlan, TenantAccessContext, TenantRegistrationRequest, TenantRegistrationResult, User } from '../types';
+import type { RedsysCardSetupRedirect, RegisterUser, SubscriptionPlan, TenantAccessContext, TenantRegistrationRequest, TenantRegistrationResult, User } from '../types';
 
 export const registerUser = async (data: RegisterUser): Promise<{ userId: string; message: string }> => {
   const response = await adminPublicAxiosClient.post<{ userId: string; message: string }>(
@@ -38,5 +38,10 @@ export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
 
 export const registerTenant = async (data: TenantRegistrationRequest): Promise<TenantRegistrationResult> => {
   const response = await adminPublicAxiosClient.post<TenantRegistrationResult>('/public/register', data);
+  return response.data;
+};
+
+export const initiateTenantCardSetup = async (tenantId: string): Promise<RedsysCardSetupRedirect> => {
+  const response = await adminPublicAxiosClient.get<RedsysCardSetupRedirect>(`/public/tenants/${encodeURIComponent(tenantId)}/card-setup`);
   return response.data;
 };

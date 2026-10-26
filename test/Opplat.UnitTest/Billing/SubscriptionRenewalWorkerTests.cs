@@ -67,7 +67,47 @@ public sealed class SubscriptionRenewalWorkerTests
         var db = scope.ServiceProvider.GetRequiredService<AdminTenantCatalogDbContext>();
         var persistedTenant = await db.Tenants.SingleAsync();
         Assert.Equal(TenantBillingStatus.PastDue, persistedTenant.BillingStatus);
+        Assert.Equal(1, persistedTenant.RenewalRetryCount);
+        Assert.True(persistedTenant.NextBillingDate > DateTime.UtcNow.AddHours(23));
         Assert.Empty(await db.SubscriptionInvoices.ToListAsync());
+    }
+
+    [Fact]
+    public async Task RenewalFailure_ExceedingMaxRetries_CancelsAndInactivatesTenant()
+    {
+        var tenant = CreateTenant(DateTime.UtcNow.AddMinutes(-1));
+        tenant.RenewalRetryCount = 3;
+        var gateway = new TestPaymentGateway(new PaymentGatewaySubscriptionResult(
+            false, "sub_1", TenantBillingStatus.PastDue, Error: "card declined"));
+        await using var provider = await CreateProviderAsync(gateway, tenant, CreatePlan());
+
+        await RunBatchAsync(provider);
+
+        await using var scope = provider.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AdminTenantCatalogDbContext>();
+        var persistedTenant = await db.Tenants.SingleAsync();
+        Assert.Equal(TenantBillingStatus.Cancelled, persistedTenant.BillingStatus);
+        Assert.Equal(TenantStatus.Inactive, persistedTenant.Status);
+        Assert.NotNull(persistedTenant.InactivatedAt);
+    }
+
+    [Fact]
+    public async Task RenewalSuccess_ResetsRetryCount()
+    {
+        var oldPeriodEnd = DateTime.UtcNow.AddMinutes(-1);
+        var newPeriodEnd = oldPeriodEnd.AddDays(30);
+        var tenant = CreateTenant(oldPeriodEnd);
+        tenant.RenewalRetryCount = 2;
+        var gateway = new TestPaymentGateway(new PaymentGatewaySubscriptionResult(
+            true, "sub_1", TenantBillingStatus.Active, newPeriodEnd, "inv_2"));
+        await using var provider = await CreateProviderAsync(gateway, tenant, CreatePlan());
+
+        await RunBatchAsync(provider);
+
+        await using var scope = provider.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AdminTenantCatalogDbContext>();
+        var persistedTenant = await db.Tenants.SingleAsync();
+        Assert.Equal(0, persistedTenant.RenewalRetryCount);
     }
 
     [Fact]
