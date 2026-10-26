@@ -22,6 +22,12 @@ public sealed class InvoiceFiscalRecord : BaseEntity
 
     public Invoice? Invoice { get; set; }
 
+    /// <summary>Position in the issuer's hash chain; assigned under a lock so it is gapless.</summary>
+    public long ChainSequence { get; set; }
+
+    /// <summary>NIF of the issuer, kept on the record because it is part of the hash and the AEAT submission.</summary>
+    public string IssuerTaxId { get; set; } = string.Empty;
+
     public string? PreviousRecordHash { get; set; }
 
     public required string RecordHash { get; set; }

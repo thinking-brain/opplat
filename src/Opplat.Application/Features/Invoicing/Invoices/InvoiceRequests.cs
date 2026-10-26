@@ -54,10 +54,7 @@ public sealed record IssueInvoiceCommand(string Id, string? User) : ICommand<Inv
 
 public sealed class IssueInvoiceCommandHandler(
     OpplatDbContext dbContext,
-    IInvoiceCounterService invoiceCounterService,
-    IInvoiceFiscalizationProvider fiscalizationProvider,
-    IInvoiceTypeResolver invoiceTypeResolver,
-    IInvoiceSigningService? invoiceSigningService = null)
+    IInvoiceIssuingService invoiceIssuingService)
     : ICommandHandler<IssueInvoiceCommand, InvoiceCommandResult>
 {
     public async Task<InvoiceCommandResult> Handle(IssueInvoiceCommand request, CancellationToken cancellationToken)
@@ -84,35 +81,8 @@ public sealed class IssueInvoiceCommandHandler(
             return InvoiceCommandResult.From(false, "Tenant fiscal settings are required before issuing invoices.");
         }
 
-        var issueDate = invoice.IssueDate == default ? DateTime.UtcNow : invoice.IssueDate;
-        invoice.IssueDate = issueDate;
-
-        var counter = await invoiceCounterService.GetNextAsync(invoice.Series, issueDate.Year, cancellationToken);
-        invoice.Number = counter.LastNumber;
-        invoice.FullNumber = $"{invoice.Series}-{counter.LastNumber:D6}";
-        invoice.InvoiceType = invoiceTypeResolver.Resolve(settings, invoice);
-
-        var previousRecord = await dbContext.InvoiceFiscalRecords
-            .Where(item => item.Invoice != null && item.Invoice.Series == invoice.Series && item.Invoice.IssueDate.Year == issueDate.Year)
-            .OrderByDescending(item => item.GeneratedAtUtc)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        var record = await fiscalizationProvider.GenerateRecordAsync(invoice, settings, previousRecord, cancellationToken);
-        if (record.SubmissionMode == FiscalSubmissionMode.NonVerifactuSigned)
-        {
-            if (invoiceSigningService is null)
-                return InvoiceCommandResult.From(false, "An XAdES signing service is required for signed fiscal records.");
-
-            await invoiceSigningService.SignAsync(record, cancellationToken);
-        }
-        invoice.FiscalRecord = record;
-
-        invoice.Status = InvoiceStatus.Issued;
-
-        dbContext.InvoiceFiscalRecords.Add(record);
-
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return InvoiceCommandResult.From(true, "Invoice issued.");
+        var result = await invoiceIssuingService.IssueAsync(invoice, settings, cancellationToken);
+        return InvoiceCommandResult.From(result.Succeeded, result.Message);
     }
 }
 
@@ -124,10 +94,18 @@ public sealed class CancelInvoiceCommandHandler(OpplatDbContext dbContext)
     public async Task<InvoiceCommandResult> Handle(CancelInvoiceCommand request, CancellationToken cancellationToken)
     {
         var invoiceId = Guid.Parse(request.Id);
-        var invoice = await dbContext.Invoices.FirstOrDefaultAsync(item => item.Id == invoiceId, cancellationToken);
+        var invoice = await dbContext.Invoices
+            .Include(item => item.FiscalRecord)
+            .FirstOrDefaultAsync(item => item.Id == invoiceId, cancellationToken);
         if (invoice is null)
         {
             return InvoiceCommandResult.From(false, "Entity not found.");
+        }
+
+        // A fiscal record already exists (and may be at AEAT); flipping a flag would desync the chain.
+        if (invoice.FiscalRecord is not null)
+        {
+            return InvoiceCommandResult.From(false, "Issued invoices cannot be cancelled; issue a rectifying invoice instead.");
         }
 
         invoice.Status = InvoiceStatus.Cancelled;

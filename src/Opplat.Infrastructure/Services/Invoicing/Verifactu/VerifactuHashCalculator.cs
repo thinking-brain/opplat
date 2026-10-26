@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using Opplat.Domain.Entities.Invoicing;
@@ -5,64 +6,76 @@ using Opplat.Domain.Entities.Invoicing;
 namespace Opplat.Infrastructure.Services.Invoicing.Verifactu;
 
 /// <summary>
-/// Computes the SHA-256 "huella" (hash/fingerprint) required by the Verifactu
-/// specification (RD 1007/2023, Annex II).
+/// Computes the SHA-256 "huella" of a billing record as defined by AEAT
+/// ("Algoritmo de cálculo de codificación de la huella o hash", RD 1007/2023 / Orden HAC/1177/2024):
+/// <c>campo=valor&amp;campo=valor…</c> in a fixed field order, UTF-8, hex digest in upper case.
 /// </summary>
 /// <remarks>
-/// <b>TODO (compliance verification required):</b> The exact field order, separator
-/// character, date formats, and encoding rules MUST be verified against the official
-/// AEAT PDF
-/// "Algoritmo de cálculo y codificación de la huella o hash del registro de facturación"
-/// from <c>sede.agenciatributaria.gob.es</c> before enabling live AEAT submission.
-/// The implementation below reflects the general Verifactu public documentation but
-/// byte-level details may differ from the final AEAT spec.
+/// The XML record must serialise numbers and dates with exactly the same text used here
+/// (see <see cref="FormatAmount"/> and <see cref="FormatDate"/>). Verify against the worked
+/// examples in the AEAT PDF; <c>VerifactuHashCalculatorTests</c> holds the vectors.
 /// </remarks>
 public static class VerifactuHashCalculator
 {
-    private const char Separator = '|';
+    public static string FormatAmount(decimal value) => value.ToString("0.00", CultureInfo.InvariantCulture);
 
-    /// <summary>
-    /// Builds the canonical concatenation string and returns its SHA-256 hex digest
-    /// (lowercase, no dashes).
-    /// </summary>
-    /// <param name="issuerNif">NIF/tax-ID of the issuing tenant.</param>
-    /// <param name="invoice">The invoice being hashed.</param>
-    /// <param name="totalTax">Sum of all tax amounts across all tax breakdowns.</param>
-    /// <param name="generatedAtUtc">Timestamp when the fiscal record is generated.</param>
-    /// <param name="previousHash">Hash of the immediately preceding record in the same series/year chain; empty string for the first record.</param>
-    /// <returns>A tuple of (canonicalInput, sha256HexHash).</returns>
-    public static (string Input, string Hash) Compute(
-        string issuerNif,
-        Invoice invoice,
-        decimal totalTax,
-        DateTime generatedAtUtc,
-        string previousHash)
+    public static string FormatDate(DateOnly date) => date.ToString("dd-MM-yyyy", CultureInfo.InvariantCulture);
+
+    public static string FormatTimestamp(DateTimeOffset value)
+        => new DateTimeOffset(value.Year, value.Month, value.Day, value.Hour, value.Minute, value.Second, value.Offset)
+            .ToString("yyyy-MM-dd'T'HH:mm:sszzz", CultureInfo.InvariantCulture);
+
+    public static string InvoiceTypeCode(InvoiceType type) => type switch
     {
-        // TODO: verify exact field order, date format ("dd-MM-yyyy" vs "yyyy-MM-ddTHH:mm:ss"),
-        // invoice type code mapping, and whether total amounts use "." or "," decimals
-        // against the official AEAT "huella" spec PDF.
-        var invoiceTypeCode = invoice.InvoiceType switch
-        {
-            InvoiceType.Simplified => "F2",
-            InvoiceType.Full => "F1",
-            InvoiceType.Rectifying => "R1",
-            InvoiceType.Substitutive => "F3",
-            _ => "F1"
-        };
+        InvoiceType.Simplified => "F2",
+        InvoiceType.Full => "F1",
+        InvoiceType.Substitutive => "F3",
+        InvoiceType.Rectifying => "R1",
+        _ => "F1"
+    };
 
-        var input = string.Join(Separator,
-            issuerNif,
-            invoice.FullNumber,
-            invoice.IssueDate.ToString("dd-MM-yyyy"),
-            invoiceTypeCode,
-            totalTax.ToString("0.00"),
-            invoice.TotalAmount.ToString("0.00"),
-            previousHash,
-            generatedAtUtc.ToString("yyyy-MM-ddTHH:mm:ss"));
+    /// <summary>Hash input and digest for a RegistroAlta.</summary>
+    public static (string Input, string Hash) ComputeAlta(
+        string issuerNif,
+        string invoiceNumber,
+        DateOnly issueDate,
+        string invoiceTypeCode,
+        decimal totalTax,
+        decimal totalAmount,
+        string? previousHash,
+        DateTimeOffset generatedAt)
+    {
+        var input =
+            $"IDEmisorFactura={issuerNif.Trim()}" +
+            $"&NumSerieFactura={invoiceNumber.Trim()}" +
+            $"&FechaExpedicionFactura={FormatDate(issueDate)}" +
+            $"&TipoFactura={invoiceTypeCode}" +
+            $"&CuotaTotal={FormatAmount(totalTax)}" +
+            $"&ImporteTotal={FormatAmount(totalAmount)}" +
+            $"&Huella={previousHash?.Trim() ?? string.Empty}" +
+            $"&FechaHoraHusoGenRegistro={FormatTimestamp(generatedAt)}";
 
-        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(input)))
-            .ToLowerInvariant();
-
-        return (input, hash);
+        return (input, Sha256Upper(input));
     }
+
+    /// <summary>Hash input and digest for a RegistroAnulacion.</summary>
+    public static (string Input, string Hash) ComputeAnulacion(
+        string issuerNif,
+        string invoiceNumber,
+        DateOnly issueDate,
+        string? previousHash,
+        DateTimeOffset generatedAt)
+    {
+        var input =
+            $"IDEmisorFacturaAnulada={issuerNif.Trim()}" +
+            $"&NumSerieFacturaAnulada={invoiceNumber.Trim()}" +
+            $"&FechaExpedicionFacturaAnulada={FormatDate(issueDate)}" +
+            $"&Huella={previousHash?.Trim() ?? string.Empty}" +
+            $"&FechaHoraHusoGenRegistro={FormatTimestamp(generatedAt)}";
+
+        return (input, Sha256Upper(input));
+    }
+
+    private static string Sha256Upper(string input)
+        => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(input)));
 }

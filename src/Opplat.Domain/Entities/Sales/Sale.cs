@@ -23,6 +23,20 @@ public class Sale : BaseEntity
 
     public ICollection<Discount> Discounts { get; set; }
 
+    public SaleStatus Status { get; set; }
+
+    public Guid? RegisterId { get; set; }
+
+    public Guid? ShiftId { get; set; }
+
+    public string? CashierUserName { get; set; }
+
+    public string Currency { get; set; } = "EUR";
+
+    public DateTime? CompletedAtUtc { get; set; }
+
+    public ICollection<SalePayment> Payments { get; set; } = [];
+
     public Sale()
     {
         Products = new HashSet<SaleDetail>();

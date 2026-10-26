@@ -14,6 +14,8 @@ import { ProductsPage } from './pages/ProductsPage';
 import { ProductClassificationsPage } from './pages/ProductClassificationsPage';
 import { ProductGroupsPage } from './pages/ProductGroupsPage';
 import { SellPage } from './pages/SellPage';
+import { PosPage } from './pages/PosPage';
+import { PosSettingsPage } from './pages/PosSettingsPage';
 import { UsersPage } from './pages/UsersPage';
 import { WarehousesPage } from './pages/WarehousesPage';
 import { BillingPage } from './pages/BillingPage';
@@ -44,6 +46,19 @@ function App() {
         <Route index element={<HomePage />} />
         <Route path="products" element={<ProductsPage />} />
         <Route path="sell" element={<SellPage />} />
+        <Route path="pos" element={<PosPage />} />
+        <Route
+          path="pos/settings"
+          element={(
+            <ProtectedRoute
+              requiredRoles={appConfig.accessControl.tenantUserManagementRoles}
+              unauthorizedTitle="Sección reservada para TenantAdmin"
+              unauthorizedMessage="Solo un TenantAdmin puede configurar cajas y datáfonos."
+            >
+              <PosSettingsPage />
+            </ProtectedRoute>
+          )}
+        />
         <Route
           path="users"
           element={(

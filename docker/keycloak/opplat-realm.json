@@ -33,6 +33,14 @@
       {
         "name": "TenantUser",
         "description": "Standard tenant user allowed to operate the client app"
+      },
+      {
+        "name": "PosCashier",
+        "description": "Can sell and take payments in the POS; assign to POS integration service accounts"
+      },
+      {
+        "name": "PosManager",
+        "description": "POS cashier who can also manage registers and payment terminals"
       }
     ]
   },

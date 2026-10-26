@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Opplat.Application.Abstractions.Invoicing;
 using Opplat.Application.Features.Invoicing.Invoices;
+using Opplat.Application.Services;
 using Opplat.Domain.Entities.Invoicing;
 using Opplat.Infrastructure.Persistance.Data;
 
@@ -81,7 +82,9 @@ public class IssueInvoiceCommandOutboxTests
             .Setup(p => p.GenerateRecordAsync(It.IsAny<Invoice>(), It.IsAny<TenantFiscalSettings>(), It.IsAny<InvoiceFiscalRecord?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(pendingRecord);
 
-        var handler = new IssueInvoiceCommandHandler(db, counterSvc.Object, fiscalProvider.Object, typeResolver.Object);
+        var handler = new IssueInvoiceCommandHandler(
+            db,
+            new InvoiceIssuingService(db, counterSvc.Object, fiscalProvider.Object, typeResolver.Object));
 
         // Act
         var result = await handler.Handle(new IssueInvoiceCommand(invoice.Id.ToString(), null), CancellationToken.None);
@@ -134,9 +137,11 @@ public class IssueInvoiceCommandOutboxTests
 
         var handler = new IssueInvoiceCommandHandler(
             db,
-            Mock.Of<IInvoiceCounterService>(),
-            Mock.Of<IInvoiceFiscalizationProvider>(),
-            Mock.Of<IInvoiceTypeResolver>());
+            new InvoiceIssuingService(
+                db,
+                Mock.Of<IInvoiceCounterService>(),
+                Mock.Of<IInvoiceFiscalizationProvider>(),
+                Mock.Of<IInvoiceTypeResolver>()));
 
         var result = await handler.Handle(new IssueInvoiceCommand(invoice.Id.ToString(), null), CancellationToken.None);
 

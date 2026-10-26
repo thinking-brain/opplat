@@ -14,7 +14,11 @@ export interface User {
 export interface ProductForSale {
   id?: string;
   name: string;
+  code?: string;
+  barcode?: string;
   price: number;
+  /** VAT percentage included in the price. */
+  taxRate?: number;
   stock?: number;
   description?: string;
   active?: boolean;

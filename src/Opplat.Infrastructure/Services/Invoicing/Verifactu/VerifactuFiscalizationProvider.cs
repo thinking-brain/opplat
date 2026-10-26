@@ -6,7 +6,7 @@ namespace Opplat.Infrastructure.Services.Invoicing.Verifactu;
 /// <summary>
 /// <see cref="IInvoiceFiscalizationProvider"/> for tenants in
 /// <see cref="InvoicingMode.Verifactu"/> mode.
-/// Computes the Verifactu hash chain, builds the AEAT QR payload, and marks each
+/// Computes the AEAT hash chain, builds the AEAT QR payload, and marks each
 /// record as <see cref="FiscalSubmissionStatus.Pending"/> so the
 /// <see cref="VerifactuSubmissionWorker"/> outbox picks it up asynchronously.
 /// </summary>
@@ -19,28 +19,31 @@ public sealed class VerifactuFiscalizationProvider : IInvoiceFiscalizationProvid
         CancellationToken cancellationToken = default)
     {
         var generatedAtUtc = DateTime.UtcNow;
-
-        var issuerNif = settings.TaxId;
-
+        var issuerNif = settings.TaxId.Trim();
         var totalTax = invoice.TaxBreakdowns.Sum(b => b.TaxAmount);
 
-        var (hashInput, hash) = VerifactuHashCalculator.Compute(
+        var (hashInput, hash) = VerifactuHashCalculator.ComputeAlta(
             issuerNif,
-            invoice,
+            invoice.FullNumber,
+            FiscalTime.ToFiscalDate(invoice.IssueDate),
+            VerifactuHashCalculator.InvoiceTypeCode(invoice.InvoiceType),
             totalTax,
-            generatedAtUtc,
-            previousRecord?.RecordHash ?? string.Empty);
+            invoice.TotalAmount,
+            previousRecord?.RecordHash,
+            FiscalTime.ToFiscalTime(generatedAtUtc));
 
         var record = new InvoiceFiscalRecord
         {
             InvoiceId = invoice.Id,
+            ChainSequence = (previousRecord?.ChainSequence ?? 0) + 1,
+            IssuerTaxId = issuerNif,
             PreviousRecordHash = previousRecord?.RecordHash,
             RecordHash = hash,
             HashInput = hashInput,
             GeneratedAtUtc = generatedAtUtc,
             SoftwareName = "Opplat",
             SoftwareVersion = "1.0",
-            SoftwareLicenseId = null,
+            SoftwareLicenseId = settings.SoftwareLicenseId,
             SubmissionMode = FiscalSubmissionMode.Verifactu,
             SubmissionStatus = FiscalSubmissionStatus.Pending,
         };
@@ -50,8 +53,5 @@ public sealed class VerifactuFiscalizationProvider : IInvoiceFiscalizationProvid
     }
 
     public string BuildQrPayload(Invoice invoice, InvoiceFiscalRecord record)
-    {
-        var issuerNif = invoice.CustomerSnapshot?.TaxId ?? string.Empty;
-        return VerifactuQrCodeBuilder.BuildPayload(issuerNif, invoice, record);
-    }
+        => VerifactuQrCodeBuilder.BuildPayload(record.IssuerTaxId, invoice);
 }

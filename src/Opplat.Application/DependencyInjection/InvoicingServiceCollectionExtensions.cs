@@ -9,6 +9,7 @@ public static class InvoicingServiceCollectionExtensions
     public static IServiceCollection AddInvoicingApplication(this IServiceCollection services)
     {
         services.AddScoped<ITaxCalculationService, TaxCalculationService>();
+        services.AddScoped<IInvoiceIssuingService, InvoiceIssuingService>();
         services.AddScoped<IInvoiceEmailService, InvoiceEmailService>();
         services.AddScoped<ISubscriptionInvoiceEmailService, SubscriptionInvoiceEmailService>();
         return services;

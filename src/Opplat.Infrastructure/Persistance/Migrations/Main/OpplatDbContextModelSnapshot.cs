@@ -577,6 +577,9 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("FiscalYear")
+                        .HasColumnType("integer");
+
                     b.Property<string>("FullNumber")
                         .IsRequired()
                         .HasColumnType("text");
@@ -616,7 +619,7 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
 
                     b.HasIndex("SaleId");
 
-                    b.HasIndex("Series", "Number")
+                    b.HasIndex("Series", "FiscalYear", "Number")
                         .IsUnique();
 
                     b.ToTable("Invoices");
@@ -655,6 +658,9 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                     b.Property<DateTime?>("AeatSubmittedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<long>("ChainSequence")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("GeneratedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -664,6 +670,10 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
 
                     b.Property<Guid>("InvoiceId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("IssuerTaxId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("LastErrorMessage")
                         .HasColumnType("text");
@@ -704,6 +714,10 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                     b.Property<int>("SubmissionStatus")
                         .HasColumnType("integer");
 
+                    b.HasIndex("ChainSequence")
+                        .IsUnique()
+                        .HasFilter("\"ChainSequence\" > 0");
+
                     b.HasIndex("InvoiceId")
                         .IsUnique();
 
@@ -721,6 +735,9 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                         .HasColumnType("text");
 
                     b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("GrossTotal")
                         .HasColumnType("numeric");
 
                     b.Property<Guid>("InvoiceId")
@@ -854,12 +871,217 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                     b.ToTable("Discount");
                 });
 
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.PaymentAttempt", b =>
+                {
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("AuthorizationCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CardBrand")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CardLast4")
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)");
+
+                    b.Property<DateTime?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomerReceiptText")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FailureReason")
+                        .HasColumnType("text");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("MerchantReceiptText")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ProviderReference")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("RequestedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SalePaymentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TerminalId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("SalePaymentId");
+
+                    b.HasIndex("TerminalId");
+
+                    b.HasIndex("Provider", "ProviderReference");
+
+                    b.ToTable("PaymentAttempts");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.PaymentTerminal", b =>
+                {
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ProviderTerminalId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid?>("RegisterId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("RegisterId");
+
+                    b.HasIndex("Provider", "ProviderTerminalId")
+                        .IsUnique();
+
+                    b.ToTable("PaymentTerminals");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.PosCashMovement", b =>
+                {
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ShiftId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("User")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasIndex("ShiftId");
+
+                    b.ToTable("PosCashMovements");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.PosRegister", b =>
+                {
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("InvoiceSeries")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid?>("StorageId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("InvoiceSeries")
+                        .IsUnique();
+
+                    b.ToTable("PosRegisters");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.PosShift", b =>
+                {
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
+
+                    b.Property<DateTime?>("ClosedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ClosedBy")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("CountedCash")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("ExpectedCash")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("OpenedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OpenedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("OpeningFloat")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("RegisterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasIndex("RegisterId")
+                        .IsUnique()
+                        .HasFilter("\"Status\" = 0");
+
+                    b.ToTable("PosShifts");
+                });
+
             modelBuilder.Entity("Opplat.Domain.Entities.Sales.ProductForSale", b =>
                 {
                     b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
 
                     b.Property<bool>("Active")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Barcode")
+                        .HasColumnType("text");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -869,12 +1091,22 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("InventoryProductId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
+
+                    b.Property<decimal>("TaxRate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric")
+                        .HasDefaultValue(21m);
+
+                    b.HasIndex("Barcode");
 
                     b.ToTable("ProductsForSale");
                 });
@@ -894,8 +1126,27 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                 {
                     b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
 
+                    b.Property<string>("CashierUserName")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("RegisterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ShiftId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("numeric");
@@ -910,8 +1161,14 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("numeric");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ProductName")
+                        .HasColumnType("text");
 
                     b.Property<int>("Quatity")
                         .HasColumnType("integer");
@@ -919,11 +1176,44 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                     b.Property<Guid>("SaleId")
                         .HasColumnType("uuid");
 
+                    b.Property<decimal>("TaxRate")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("numeric");
+
                     b.HasIndex("ProductId");
 
                     b.HasIndex("SaleId");
 
                     b.ToTable("SaleDetail");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.SalePayment", b =>
+                {
+                    b.HasBaseType("Opplat.Domain.Entities.BaseEntity");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("ChangeGiven")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Method")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SaleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("TenderedAmount")
+                        .HasColumnType("numeric");
+
+                    b.HasIndex("SaleId");
+
+                    b.ToTable("SalePayments");
                 });
 
             modelBuilder.Entity("Opplat.Domain.Entities.Sales.Topping", b =>
@@ -1272,6 +1562,57 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                     b.Navigation("Sale");
                 });
 
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.PaymentAttempt", b =>
+                {
+                    b.HasOne("Opplat.Domain.Entities.Sales.SalePayment", "SalePayment")
+                        .WithMany("Attempts")
+                        .HasForeignKey("SalePaymentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Opplat.Domain.Entities.Sales.PaymentTerminal", "Terminal")
+                        .WithMany()
+                        .HasForeignKey("TerminalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SalePayment");
+
+                    b.Navigation("Terminal");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.PaymentTerminal", b =>
+                {
+                    b.HasOne("Opplat.Domain.Entities.Sales.PosRegister", "Register")
+                        .WithMany()
+                        .HasForeignKey("RegisterId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Register");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.PosCashMovement", b =>
+                {
+                    b.HasOne("Opplat.Domain.Entities.Sales.PosShift", "Shift")
+                        .WithMany("CashMovements")
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shift");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.PosShift", b =>
+                {
+                    b.HasOne("Opplat.Domain.Entities.Sales.PosRegister", "Register")
+                        .WithMany()
+                        .HasForeignKey("RegisterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Register");
+                });
+
             modelBuilder.Entity("Opplat.Domain.Entities.Sales.SaleDetail", b =>
                 {
                     b.HasOne("Opplat.Domain.Entities.Sales.ProductForSale", "Product")
@@ -1287,6 +1628,17 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                         .IsRequired();
 
                     b.Navigation("Product");
+
+                    b.Navigation("Sale");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.SalePayment", b =>
+                {
+                    b.HasOne("Opplat.Domain.Entities.Sales.Sale", "Sale")
+                        .WithMany("Payments")
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Sale");
                 });
@@ -1320,9 +1672,16 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                     b.Navigation("TaxBreakdowns");
                 });
 
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.PosShift", b =>
+                {
+                    b.Navigation("CashMovements");
+                });
+
             modelBuilder.Entity("Opplat.Domain.Entities.Sales.Sale", b =>
                 {
                     b.Navigation("Discounts");
+
+                    b.Navigation("Payments");
 
                     b.Navigation("Products");
                 });
@@ -1332,6 +1691,11 @@ namespace Opplat.Infrastructure.Persistance.Migrations.Main
                     b.Navigation("OrderDetail");
 
                     b.Navigation("Toppings");
+                });
+
+            modelBuilder.Entity("Opplat.Domain.Entities.Sales.SalePayment", b =>
+                {
+                    b.Navigation("Attempts");
                 });
 #pragma warning restore 612, 618
         }

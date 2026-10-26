@@ -11,7 +11,7 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.Property(invoice => invoice.Series).IsRequired();
         builder.Property(invoice => invoice.FullNumber).IsRequired();
         builder.Property(invoice => invoice.Currency).IsRequired();
-        builder.HasIndex(invoice => new { invoice.Series, invoice.Number }).IsUnique();
+        builder.HasIndex(invoice => new { invoice.Series, invoice.FiscalYear, invoice.Number }).IsUnique();
 
         builder.HasOne(invoice => invoice.Customer)
             .WithMany()

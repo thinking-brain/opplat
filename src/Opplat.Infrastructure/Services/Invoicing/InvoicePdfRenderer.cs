@@ -42,7 +42,7 @@ public sealed class InvoicePdfRenderer : IInvoicePdfRenderer
                     col.Item().PaddingVertical(4).LineHorizontal(0.5f);
 
                     AddIssuerBlock(col, settings, 9);
-                    col.Item().Text($"Fecha: {invoice.IssueDate:dd/MM/yyyy}").FontSize(9);
+                    col.Item().Text($"Fecha: {FiscalTime.ToFiscalDate(invoice.IssueDate):dd/MM/yyyy}").FontSize(9);
                     if (!string.IsNullOrWhiteSpace(invoice.PaymentMethod))
                         col.Item().Text($"Pago: {invoice.PaymentMethod}").FontSize(9);
 
@@ -66,12 +66,15 @@ public sealed class InvoicePdfRenderer : IInvoicePdfRenderer
                         {
                             table.Cell().Text(line.Description).FontSize(8);
                             table.Cell().AlignCenter().Text(line.Quantity.ToString("G")).FontSize(8);
-                            table.Cell().AlignRight().Text(line.LineTotal.ToString("0.00 €")).FontSize(8);
+                            table.Cell().AlignRight().Text(GrossAmount(line).ToString("0.00 €")).FontSize(8);
                         }
                     });
 
                     col.Item().PaddingTop(4).LineHorizontal(0.5f);
                     col.Item().AlignRight().Text($"TOTAL: {invoice.TotalAmount:0.00} €").Bold().FontSize(11);
+                    col.Item().AlignRight().Text("IVA incluido").FontSize(8);
+                    foreach (var tb in invoice.TaxBreakdowns)
+                        col.Item().AlignRight().Text($"{tb.TaxType} {tb.Rate:0.##}%: base {tb.TaxableBase:0.00} € · cuota {tb.TaxAmount:0.00} €").FontSize(7);
 
                     AddVerifactuBlock(col, invoice);
                 });
@@ -97,7 +100,7 @@ public sealed class InvoicePdfRenderer : IInvoicePdfRenderer
                         {
                             c.Item().Text("FACTURA").Bold().FontSize(20);
                             c.Item().Text(invoice.FullNumber).FontSize(13);
-                            c.Item().Text($"Fecha: {invoice.IssueDate:dd/MM/yyyy}").FontSize(10);
+                            c.Item().Text($"Fecha: {FiscalTime.ToFiscalDate(invoice.IssueDate):dd/MM/yyyy}").FontSize(10);
                         });
                         row.ConstantItem(120).Column(c =>
                         {
@@ -189,6 +192,9 @@ public sealed class InvoicePdfRenderer : IInvoicePdfRenderer
         }).GeneratePdf();
     }
 
+    private static decimal GrossAmount(InvoiceLine line)
+        => line.GrossTotal != 0m ? line.GrossTotal : Math.Round(line.LineTotal * (1 + line.TaxRate / 100m), 2);
+
     private static void AddIssuerBlock(ColumnDescriptor col, TenantFiscalSettings? settings, float fontSize)
     {
         if (settings is null || string.IsNullOrWhiteSpace(settings.LegalName))
@@ -231,7 +237,8 @@ public sealed class InvoicePdfRenderer : IInvoicePdfRenderer
             try
             {
                 var qrPng = VerifactuQrCodeBuilder.RenderPng(record.QrCodePayload);
-                col.Item().AlignCenter().Width(60).Image(qrPng);
+                // AEAT requires the QR to be 30-40 mm per side (1 mm = 2.835 pt).
+                col.Item().AlignCenter().Width(99).Image(qrPng);
             }
             catch
             {

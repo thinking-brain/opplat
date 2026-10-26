@@ -273,6 +273,14 @@ export const ProductsPage: React.FC = () => {
                 <input className="input-field" type="number" value={formData.price} onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })} required />
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">IVA incluido en el precio (%)</label>
+                <input className="input-field" type="number" min={0} max={100} step="0.01" value={formData.taxRate ?? 21} onChange={(e) => setFormData({ ...formData, taxRate: parseFloat(e.target.value) })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Código de barras</label>
+                <input className="input-field" value={formData.barcode || ''} onChange={(e) => setFormData({ ...formData, barcode: e.target.value })} />
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
                 <input className="input-field" type="number" value={formData.stock || 0} onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })} />
               </div>

@@ -37,6 +37,9 @@ public sealed class Invoice : BaseEntity
 
     public int Number { get; set; }
 
+    /// <summary>Year of the Madrid-local issue date; numbering restarts each fiscal year.</summary>
+    public int FiscalYear { get; set; }
+
     public required string FullNumber { get; set; }
 
     public DateTime IssueDate { get; set; }

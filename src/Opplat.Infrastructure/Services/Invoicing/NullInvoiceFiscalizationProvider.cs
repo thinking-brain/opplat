@@ -28,6 +28,8 @@ public sealed class NullInvoiceFiscalizationProvider : IInvoiceFiscalizationProv
         var record = new InvoiceFiscalRecord
         {
             InvoiceId = invoice.Id,
+            ChainSequence = (previousRecord?.ChainSequence ?? 0) + 1,
+            IssuerTaxId = settings.TaxId.Trim(),
             PreviousRecordHash = previousRecord?.RecordHash,
             RecordHash = hash,
             HashInput = input,

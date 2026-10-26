@@ -11,5 +11,8 @@ public sealed class ProductForSaleConfiguration : IEntityTypeConfiguration<Produ
         builder.Property(p => p.Name).IsRequired();
         builder.Property(p => p.Code).IsRequired();
         builder.Property(p => p.Description).IsRequired();
+        // Rows created before tax rates existed were all priced with standard VAT.
+        builder.Property(p => p.TaxRate).HasDefaultValue(21m);
+        builder.HasIndex(p => p.Barcode);
     }
 }

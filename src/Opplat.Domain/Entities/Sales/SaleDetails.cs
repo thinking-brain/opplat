@@ -49,7 +49,17 @@ public class SaleDetail : BaseEntity
 
     public int Quatity { get; set; }
 
+    /// <summary>Line total including tax and after line discount.</summary>
     public decimal Amount { get; set; }
+
+    /// <summary>Snapshots taken at sale time so later catalog edits never change a ticket.</summary>
+    public string? ProductName { get; set; }
+
+    public decimal UnitPrice { get; set; }
+
+    public decimal TaxRate { get; set; }
+
+    public decimal DiscountAmount { get; set; }
 
     public OrderDetail? OrderDetail { get; set; }
 }

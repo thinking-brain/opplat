@@ -109,6 +109,12 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser().RequireRole(authOptions.AdminRole));
     options.AddPolicy("TenantAdminOnly", policy =>
         policy.RequireAuthenticatedUser().RequireRole(authOptions.TenantAdminRole));
+    // Integration clients (service accounts) get PosCashier so devices can sell without a human login.
+    options.AddPolicy(AuthRoles.PosOperatorPolicy, policy =>
+        policy.RequireAuthenticatedUser().RequireRole(
+            authOptions.AdminRole, authOptions.TenantAdminRole, authOptions.TenantUserRole, AuthRoles.PosCashier, AuthRoles.PosManager));
+    options.AddPolicy(AuthRoles.PosManagerPolicy, policy =>
+        policy.RequireAuthenticatedUser().RequireRole(authOptions.AdminRole, authOptions.TenantAdminRole, AuthRoles.PosManager));
 });
 
 builder.Services.AddOpenApi(options =>
@@ -162,6 +168,7 @@ builder.Services.AddOpplatAspireDevelopmentSupport(builder.Environment);
 builder.Services.AddAdminDatabase(builder.Configuration);
 builder.Services.AddAdminInfrastructure(builder.Configuration);
 builder.Services.AddInvoicingInfrastructure(builder.Configuration);
+builder.Services.AddPosInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

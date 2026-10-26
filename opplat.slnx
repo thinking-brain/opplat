@@ -14,6 +14,7 @@
     <Project Path="src/Apis/Opplat.Api.Common/Opplat.Api.Common.csproj" />
     <Project Path="src/Apis/Opplat.Api.Inventory/Opplat.Api.Inventory.csproj" />
     <Project Path="src/Apis/Opplat.Api.Invoicing/Opplat.Api.Invoicing.csproj" />
+    <Project Path="src/Apis/Opplat.Api.Pos/Opplat.Api.Pos.csproj" />
     <Project Path="src/Apis/Opplat.Api.Sales/Opplat.Api.Sales.csproj" />
   </Folder>  
   <Folder Name="/test/">

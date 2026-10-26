@@ -17,7 +17,7 @@ public class KeycloakRealmContractTests
             .Cast<string>()
             .ToHashSet(StringComparer.Ordinal);
 
-        Assert.True(roles.SetEquals(["SuperAdmin", "TenantAdmin", "TenantUser"]));
+        Assert.True(roles.SetEquals(["SuperAdmin", "TenantAdmin", "TenantUser", "PosCashier", "PosManager"]));
     }
 
     [Fact]

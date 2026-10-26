@@ -60,6 +60,12 @@ public class OpplatDbContext(
     public DbSet<SalesEntities.ProductTag> ProductTags { get; set; }
     public DbSet<SalesEntities.Annotation> Annotations { get; set; }
     public DbSet<SalesEntities.Sale> Sales { get; set; }
+    public DbSet<SalesEntities.PosRegister> PosRegisters { get; set; }
+    public DbSet<SalesEntities.PosShift> PosShifts { get; set; }
+    public DbSet<SalesEntities.PosCashMovement> PosCashMovements { get; set; }
+    public DbSet<SalesEntities.PaymentTerminal> PaymentTerminals { get; set; }
+    public DbSet<SalesEntities.SalePayment> SalePayments { get; set; }
+    public DbSet<SalesEntities.PaymentAttempt> PaymentAttempts { get; set; }
 
     // Invoicing Entities
     public DbSet<InvoicingEntities.Customer> Customers { get; set; }

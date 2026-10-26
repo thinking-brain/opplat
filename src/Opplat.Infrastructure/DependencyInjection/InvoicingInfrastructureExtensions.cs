@@ -17,12 +17,10 @@ public static class InvoicingInfrastructureExtensions
         services.AddScoped<IInvoicePdfRenderer, InvoicePdfRenderer>();
         services.AddScoped<IInvoiceSigningService, XadesInvoiceSigningService>();
 
-        // Register the fiscalization provider that matches the tenant's InvoicingMode.
-        // The NullFiscalizationProvider is the safe default for non-Spain / non-Verifactu tenants.
-        // Swap to VerifactuFiscalizationProvider by changing this registration (or use a factory
-        // that reads TenantFiscalSettings.InvoicingMode at runtime).
-        services.AddScoped<IInvoiceFiscalizationProvider, NullInvoiceFiscalizationProvider>();
+        // The fiscalization provider is picked per call from TenantFiscalSettings.InvoicingMode.
+        services.AddScoped<NullInvoiceFiscalizationProvider>();
         services.AddScoped<VerifactuFiscalizationProvider>();
+        services.AddScoped<IInvoiceFiscalizationProvider, ModeAwareInvoiceFiscalizationProvider>();
         services.AddScoped<VerifactuSubmissionClient>();
 
         if (configuration is not null)

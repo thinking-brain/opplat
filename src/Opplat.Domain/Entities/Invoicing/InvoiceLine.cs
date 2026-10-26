@@ -19,4 +19,7 @@ public sealed class InvoiceLine : BaseEntity
     public decimal TaxRate { get; set; }
 
     public decimal LineTotal { get; set; }
+
+    /// <summary>Line total including tax; 0 on rows created before POS tickets needed it.</summary>
+    public decimal GrossTotal { get; set; }
 }
